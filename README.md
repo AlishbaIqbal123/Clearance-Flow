@@ -115,13 +115,16 @@ cd backend
 npm run seed
 ```
 
-### Default Login Credentials (After Seeding)
+### Default Login Credentials (Demo/Seeding)
 
-| Role | Username | Password |
-|------|----------|----------|
-| Admin | admin@university.edu.pk | Admin@123 |
-| Staff | ahmed.khan@university.edu.pk | Staff@123 |
-| Student | FA20-BCS-001 | FA20-BCS-001 |
+| Role | Username (Email/ID) | Initial Password | Login Pattern |
+|------|----------|----------|---------------|
+| **Admin** | `admin@university.edu.pk` | `Admin@123` | Email + Secret Password |
+| **Staff** | `ahmed.khan@university.edu.pk` | `Staff@123` | Email + Assigned Password |
+| **Student** | `student1@university.edu.pk` | `FA20-BCS-001` | **Email** + **Registration Number** |
+
+> [!NOTE]
+> For students, the default login pattern uses the **assigned university email** as the username and their **Registration Number** (e.g., FA20-BCS-001) as the initial password. Students are prompted to change their password upon first login.
 
 ---
 
@@ -243,6 +246,33 @@ SMTP_PASS=your-app-password
 VITE_API_URL=http://localhost:5000/api
 VITE_SOCKET_URL=http://localhost:5000
 ```
+
+---
+
+## System Handover & Production Setup
+
+To hand over the system to university authorities, follow these transition steps:
+
+### 1. Administrative Account Transfer
+- **Update Admin Email**: Change the default `admin@university.edu.pk` to the official university registrar or IT head's email.
+- **Reset Password**: Generate a new, high-entropy password for the primary admin account.
+- **Role Assignment**: Use the Admin Dashboard to create accounts for specific HODs and Department Officers using their official credentials.
+
+### 2. Student Data Integration
+- **Bulk Import**: Use the `.csv` bulk import feature in the Admin Dashboard to populate the system with actual student records.
+- **Login Pattern**: Ensure all imported students are aware of the login standard:
+    - **Username**: Official University Email
+    - **Default Password**: Student Registration Number
+- **First Login Policy**: The system is configured with `isFirstLogin: true` by default, forcing students to set a private password immediately.
+
+### 3. Production Infrastructure
+- **Supabase Hardening**: Run the `supabase_hardening.sql` script to enable Row Level Security (RLS) and optimize database performance.
+- **Environment Variables**: Update `.env` files with production-grade secrets, official SMTP (email) credentials, and the live domain URL.
+- **SSL/HTTPS**: Ensure the Vercel deployment or custom server has SSL certificates active for secure data transmission.
+
+### 4. Department Configuration
+- Assign official department heads (HODs) to their respective modules (Finance, Library, etc.).
+- Update contact numbers and WhatsApp links for real-time student support.
 
 ---
 

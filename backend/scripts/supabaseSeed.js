@@ -76,9 +76,9 @@ async function checkAndSeed() {
     }
   ], { onConflict: 'email' });
 
-  // 5. Seed Student (Match Test Credentials)
+  // 5. Seed Student (Match Test Credentials: Email + Roll Number)
   console.log('Seeding Student...');
-  const testStudentPwd = await bcrypt.hash('Student@123', salt);
+  const testStudentPwd = await bcrypt.hash('FA20-BCS-001', salt);
   await supabase.from('student_profiles').upsert([
     {
       registration_number: 'FA20-BCS-001',
@@ -91,7 +91,7 @@ async function checkAndSeed() {
       discipline: 'Computer Science',
       department_id: csDept?.id,
       is_active: true,
-      is_first_login: false
+      is_first_login: true
     }
   ], { onConflict: 'registration_number' });
 
