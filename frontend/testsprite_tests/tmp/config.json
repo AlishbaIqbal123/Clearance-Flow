@@ -1,0 +1,18 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:5173",
+  "executionArgs": {
+    "projectName": "frontend",
+    "projectPath": "c:\\Users\\Hp\\Downloads\\clearance\\university-clearance-system\\frontend",
+    "testIds": [],
+    "additionalInstruction": "Test all dashboard access for Admin, Student, and Department staff. Verify that the login role selection works correctly.",
+    "serverMode": "development",
+    "envs": {
+      "API_KEY": "sk-user-w5pvUCCfcDYezbgNGLV_rQ_vv3TkpPf-GXnsEm1sbIMrCPqP7KBrfA7tsax7I8eBXE5cbEda_WxwwyQWlfIl-loe3zcVO3pX6Q6V7s7Jld5oB3HLiI8ilmVxuc7j3dKe_vE"
+    }
+  },
+  "serverPort": 57741,
+  "proxy": "http://f74db407-4c34-4572-9465-e2cf7656e829:qwZz3xp3ivnzxwia4NkKVHXrlB1ZzVFO@tun.testsprite.com:8080"
+}

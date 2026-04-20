@@ -1,0 +1,37 @@
+[
+  {
+    "id": "TC001",
+    "title": "postapiauthloginwithvalidstaffcredentials",
+    "description": "Verify that POST /api/auth/login with valid staff credentials returns 200 status and a valid JWT token."
+  },
+  {
+    "id": "TC002",
+    "title": "postapiauthstudentloginwithvalidstudentcredentials",
+    "description": "Verify that POST /api/auth/student/login with valid student credentials returns 200 status and a valid JWT token."
+  },
+  {
+    "id": "TC003",
+    "title": "postapiauthchangepasswordwithvalidcurrentandnewpassword",
+    "description": "Verify that POST /api/auth/change-password with valid currentPassword and newPassword and valid authorization token returns 200 confirmation of password change."
+  },
+  {
+    "id": "TC004",
+    "title": "postapiauthforgotpasswordwithregisteredemail",
+    "description": "Verify that POST /api/auth/forgot-password with a registered email returns 200 confirmation that reset token/email was sent."
+  },
+  {
+    "id": "TC005",
+    "title": "getapiauthmewithauthorizationtoken",
+    "description": "Verify that GET /api/auth/me with a valid Authorization Bearer token returns 200 with the current authenticated user's profile."
+  },
+  {
+    "id": "TC006",
+    "title": "getapistudentswithadmintokenreturnsstudentlist",
+    "description": "Verify that GET /api/students with Authorization Bearer admin token returns 200 with a paginated list of students."
+  },
+  {
+    "id": "TC007",
+    "title": "getapiclearancerequestswithauthorizedtokenreturnsrequests",
+    "description": "Verify that GET /api/clearance/requests with valid admin or department staff token returns 200 with a list of clearance requests filtered by role or department."
+  }
+]

@@ -1,0 +1,31 @@
+version: "2"
+type: frontend
+tech_stack:
+  - React
+  - Vite
+  - TypeScript
+  - Tailwind CSS
+  - Lucide React (Icons)
+  - Radix UI (Headless components)
+features:
+  - name: Login Screen
+    description: Multi-role login screen supporting students and staff.
+    files:
+      - frontend/src/components/Login.tsx
+  - name: Student Dashboard
+    description: View clearance status, request clearance, and manage profile.
+    files:
+      - frontend/src/components/StudentDashboard.tsx
+  - name: Admin Dashboard
+    description: Manage users, departments, and system-wide clearance processes.
+    files:
+      - frontend/src/components/AdminDashboard.tsx
+  - name: Department Dashboard
+    description: Approve or reject clearance requests for a specific department.
+    files:
+      - frontend/src/components/DepartmentDashboard.tsx
+  - name: Password Management
+    description: Interface for changing user passwords.
+    files:
+      - frontend/src/components/ChangePassword.tsx
+known_limitations: []

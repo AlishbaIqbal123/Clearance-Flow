@@ -1,0 +1,525 @@
+[
+  {
+    "id": "TC001",
+    "title": "Student logs in and lands on student dashboard",
+    "description": "Verifies a student can sign in using the Student role and is routed to the student dashboard successfully.",
+    "category": "Login Screen",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the Student role"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the registration number or university email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user lands on the student dashboard"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Staff/Admin user logs in and lands on the correct dashboard",
+    "description": "Verifies a staff/admin user can sign in using the Staff/Admin role and is routed to the correct dashboard for their role.",
+    "category": "Login Screen",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the Staff/Admin role"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the staff email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user lands on an admin dashboard or a department staff dashboard"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Student submits a new clearance request with required documents",
+    "description": "Verifies a student can create and submit a new clearance request with required details/documents and sees a submission confirmation with updated status/progress.",
+    "category": "Student Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the Student role"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the registration number or university email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Start a new clearance request from the dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Fill in valid request details in the request form"
+      },
+      {
+        "type": "action",
+        "description": "Attach the required documents using the attachment controls"
+      },
+      {
+        "type": "action",
+        "description": "Submit the clearance request"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a submission confirmation is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard shows the newly submitted request status/progress updated"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Student views clearance progress summary and per-department statuses",
+    "description": "Verifies the student dashboard displays overall clearance progress and a list of departments with individual status indicators.",
+    "category": "Student Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the Student role"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the registration number or university email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an overall clearance progress percentage is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a list of departments with per-department status indicators is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Admin searches users and updates a user's role/department assignment",
+    "description": "Verifies an admin can find a user via search/filter, edit role and/or department assignment, save, and see the updated user record reflected in the list.",
+    "category": "Admin Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the Staff/Admin role"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the staff email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open user management from the admin dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Search for a user using a valid query"
+      },
+      {
+        "type": "action",
+        "description": "Open the user record from the results"
+      },
+      {
+        "type": "action",
+        "description": "Select a different role for the user"
+      },
+      {
+        "type": "action",
+        "description": "Select a department assignment for the user"
+      },
+      {
+        "type": "action",
+        "description": "Save the user changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user list reflects the updated role and/or department assignment"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Admin creates a new department and sees it listed",
+    "description": "Verifies an admin can create a department by providing name, code, type, and clearance configuration and then see it appear in the department list.",
+    "category": "Admin Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the Staff/Admin role"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the staff email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open department management from the admin dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new department"
+      },
+      {
+        "type": "action",
+        "description": "Fill Dept Automation Test into the department name field"
+      },
+      {
+        "type": "action",
+        "description": "Fill AUTO-DEP-01 into the department code field"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid department type"
+      },
+      {
+        "type": "action",
+        "description": "Fill valid clearance configuration values"
+      },
+      {
+        "type": "action",
+        "description": "Save the new department"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new department appears in the department list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Admin sees system metrics and recent activity on dashboard",
+    "description": "Verifies an admin can access the admin dashboard and view system metrics and recent clearance activity.",
+    "category": "Admin Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the Staff/Admin role"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the staff email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify system metrics and key performance indicators are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a recent clearance activity feed or list is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Student updates profile information and sees changes persist in the dashboard",
+    "description": "Verifies a student can update profile contact/personal information, save successfully, and see the updated details reflected afterward.",
+    "category": "Student Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the Student role"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the registration number or university email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open profile settings from the dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Fill Updated Test Contact into a contact information field"
+      },
+      {
+        "type": "action",
+        "description": "Save profile changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a save confirmation is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated profile details are displayed in profile settings or the dashboard"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC009",
+    "title": "Student cannot submit clearance request with missing required information",
+    "description": "Verifies the student is prevented from submitting a clearance request when a required field or document is missing and a validation error is shown.",
+    "category": "Student Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the Student role"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the registration number or university email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Start a new clearance request from the dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Fill in only some request details while leaving at least one required field or document missing"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to submit the clearance request"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a required-field or required-document validation error is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC010",
+    "title": "Admin cannot create a department with a duplicate code",
+    "description": "Verifies the department code must be unique by creating a department and then attempting to create another with the same code, resulting in a validation error and no duplicate created.",
+    "category": "Admin Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the Staff/Admin role"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the staff email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open department management from the admin dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new department"
+      },
+      {
+        "type": "action",
+        "description": "Fill Dept Duplicate Code Seed into the department name field"
+      },
+      {
+        "type": "action",
+        "description": "Fill AUTO-DUP-01 into the department code field"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid department type"
+      },
+      {
+        "type": "action",
+        "description": "Fill valid clearance configuration values"
+      },
+      {
+        "type": "action",
+        "description": "Save the new department"
+      },
+      {
+        "type": "action",
+        "description": "Start creating another new department"
+      },
+      {
+        "type": "action",
+        "description": "Fill Dept Duplicate Code Attempt into the department name field"
+      },
+      {
+        "type": "action",
+        "description": "Fill AUTO-DUP-01 into the department code field"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid department type"
+      },
+      {
+        "type": "action",
+        "description": "Fill valid clearance configuration values"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to save the new department"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a duplicate-code validation error is displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC011",
+    "title": "Invalid password shows login validation error",
+    "description": "Verifies submitting valid-looking credentials with an incorrect password shows an invalid-credentials error and does not log the user in.",
+    "category": "Login Screen",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Select the Student role"
+      },
+      {
+        "type": "action",
+        "description": "Fill student@example.edu into the registration number or university email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill wrong-password into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an invalid-credentials validation error is displayed"
+      }
+    ],
+    "priority": "Low"
+  }
+]

@@ -1,0 +1,54 @@
+version: "2"
+type: backend
+tech_stack:
+  - Node.js
+  - Express.js
+  - Supabase (PostgreSQL)
+  - JWT (Authentication)
+  - Nodemailer / Google Apps Script (Communications)
+features:
+  - name: Authentication API
+    description: User and student authentication, password management, and logout.
+    files:
+      - backend/routes/auth.routes.js
+      - backend/middleware/auth.middleware.js
+    endpoints:
+      - method: POST
+        path: /api/auth/login
+        description: Login staff/admin users
+        auth_required: false
+      - method: POST
+        path: /api/auth/student/login
+        description: Login student users
+        auth_required: false
+      - method: POST
+        path: /api/auth/change-password
+        description: Change password for active user
+        auth_required: true
+      - method: POST
+        path: /api/auth/forgot-password
+        description: Request password reset link
+        auth_required: false
+      - method: GET
+        path: /api/auth/me
+        description: Get current user profile
+        auth_required: true
+  - name: Student Management API
+    description: CRUD operations for student profiles and management.
+    files:
+      - backend/routes/student.routes.js
+    endpoints:
+      - method: GET
+        path: /api/students
+        description: List all students
+        auth_required: true
+  - name: Clearance Process API
+    description: Managing clearance requests and departmental approvals.
+    files:
+      - backend/routes/clearance.routes.js
+    endpoints:
+      - method: GET
+        path: /api/clearance/requests
+        description: List clearance requests
+        auth_required: true
+known_limitations: []

@@ -1,0 +1,21 @@
+{
+  "status": "commited",
+  "type": "backend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:5173",
+  "backendAuthType": "basic token",
+  "backendUsername": "admin@university.edu.pk ",
+  "backendPassword": "Admin@123",
+  "executionArgs": {
+    "projectName": "backend",
+    "projectPath": "c:\\Users\\Hp\\Downloads\\clearance\\university-clearance-system\\backend",
+    "testIds": [],
+    "additionalInstruction": "The backend API is running on http://localhost:5000/api. Use port 5000, NOT 5173. Ensure all requests use http://localhost:5000.",
+    "serverMode": "development",
+    "envs": {
+      "API_KEY": "sk-user-w5pvUCCfcDYezbgNGLV_rQ_vv3TkpPf-GXnsEm1sbIMrCPqP7KBrfA7tsax7I8eBXE5cbEda_WxwwyQWlfIl-loe3zcVO3pX6Q6V7s7Jld5oB3HLiI8ilmVxuc7j3dKe_vE"
+    }
+  },
+  "serverPort": 54712,
+  "proxy": "http://0a597f3e-55e1-4b8e-9823-68da82adc54a:F2Og8qbA8zkBY1sXI9sqVRJ9DZww89L4@tun.testsprite.com:8080"
+}
