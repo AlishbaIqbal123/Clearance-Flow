@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { GraduationCap, Lock, Mail, ArrowRight, UserCheck } from 'lucide-react';
+import { GraduationCap, Lock, Mail, ArrowRight, UserCheck, Copy, Check, MessageSquare, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { authService } from '@/lib/auth.service';
 
@@ -17,6 +18,18 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
   const [staffPassword, setStaffPassword] = useState('');
   const [studentReg, setStudentReg] = useState('');
   const [studentPassword, setStudentPassword] = useState('');
+  const [showForgotDialog, setShowForgotDialog] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const adminEmail = "admin@university.edu.pk";
+  const adminPhone = "+923000000000";
+
+  const handleCopyEmail = () => {
+    navigator.clipboard.writeText(adminEmail);
+    setCopied(true);
+    toast.success('Email copied to clipboard');
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleStaffLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,7 +129,13 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <label className="text-sm font-medium text-slate-700">Password</label>
-                      <button type="button" className="text-xs text-blue-600 hover:text-blue-700 font-medium">Forgot password?</button>
+                      <button 
+                        type="button" 
+                        onClick={() => setShowForgotDialog(true)}
+                        className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+                      >
+                        Forgot password?
+                      </button>
                     </div>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -166,7 +185,13 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <label className="text-sm font-medium text-slate-700">Password</label>
-                      <button type="button" className="text-xs text-blue-600 hover:text-blue-700 font-medium">Forgot password?</button>
+                      <button 
+                        type="button" 
+                        onClick={() => setShowForgotDialog(true)}
+                        className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+                      >
+                        Forgot password?
+                      </button>
                     </div>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -193,8 +218,68 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
         </Tabs>
 
         <p className="text-center text-sm text-slate-500">
-          Trouble signing in? <a href="#" className="font-medium text-blue-600 hover:text-blue-700 underline underline-offset-4">Contact IT Support</a>
+          Trouble signing in? <a href="#" onClick={(e) => { e.preventDefault(); setShowForgotDialog(true); }} className="font-medium text-blue-600 hover:text-blue-700 underline underline-offset-4">Contact IT Support</a>
         </p>
+
+        <Dialog open={showForgotDialog} onOpenChange={setShowForgotDialog}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Reset Password</DialogTitle>
+              <DialogDescription>
+                For security reasons, please contact the system administrator to reset your password.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <div className="flex items-center space-x-3">
+                  <div className="bg-blue-100 p-2 rounded-md">
+                    <Mail className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500 font-medium">Admin Email</p>
+                    <p className="text-sm font-semibold text-slate-900">{adminEmail}</p>
+                  </div>
+                </div>
+                <Button size="icon" variant="ghost" onClick={handleCopyEmail}>
+                  {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Button 
+                  variant="outline" 
+                  className="flex items-center justify-center space-x-2 h-12"
+                  onClick={() => window.location.href = `mailto:${adminEmail}`}
+                >
+                  <Mail className="w-4 h-4" />
+                  <span>Send Email</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex items-center justify-center space-x-2 h-12 border-green-200 hover:bg-green-50 hover:text-green-700"
+                  onClick={() => window.open(`https://wa.me/${adminPhone.replace('+', '')}`, '_blank')}
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span>WhatsApp</span>
+                </Button>
+              </div>
+
+              <div className="p-3 bg-amber-50 rounded-lg border border-amber-200 flex items-start space-x-3">
+                <div className="bg-amber-100 p-1.5 rounded mt-0.5">
+                  <Phone className="w-3 h-3 text-amber-700" />
+                </div>
+                <p className="text-xs text-amber-800 leading-relaxed">
+                  The administrator will verify your identity and update your password. You can then sign in with your new credentials.
+                </p>
+              </div>
+            </div>
+            <DialogFooter className="sm:justify-start">
+              <Button type="button" variant="secondary" onClick={() => setShowForgotDialog(false)} className="w-full">
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
