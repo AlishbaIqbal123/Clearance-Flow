@@ -62,11 +62,13 @@ router.post('/login',
       throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
     }
 
-    // Update last login
+    // Update last login (Disabled: column does not exist in current schema)
+    /*
     await supabase
       .from('profiles')
       .update({ last_login: new Date() })
       .eq('id', user.id);
+    */
 
     // Create user response object
     const userResponse = {
@@ -146,11 +148,13 @@ router.post('/student/login',
       throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
     }
 
-    // Update last login
+    // Update last login (Disabled: column does not exist in current schema)
+    /*
     await supabase
       .from('student_profiles')
       .update({ last_login: new Date() })
       .eq('id', student.id);
+    */
 
     // Create user response object
     const userResponse = {
