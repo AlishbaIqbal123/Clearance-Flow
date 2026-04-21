@@ -4,7 +4,7 @@ import { defineConfig } from "vite"
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: './',
+  base: '/',
   plugins: [react()],
   resolve: {
     alias: {
@@ -12,6 +12,12 @@ export default defineConfig({
     },
   },
   server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
+    },
     hmr: {
       host: 'localhost',
       port: 5173,
