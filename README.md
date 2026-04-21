@@ -276,6 +276,35 @@ To hand over the system to university authorities, follow these transition steps
 
 ---
 
+## Administrative Setup & Student Onboarding Flow
+
+This system is designed for a seamless transition from administrative setup to student activation.
+
+### 1. Administrative Initialization
+- **Credential Generation**: The Admin prepares a master list of students in the Supabase/PostgreSQL database.
+- **Partitioned Export**: From the Admin Dashboard, the administrator exports student credentials as an **Excel/CSV** file.
+    - *Best Practice*: Partition the export by **Batch** or **Section** (e.g., "Fall 2023 - Section A").
+    - *File Content*: Student Name, University Email, Registration Number, and Initial Password.
+
+### 2. Departmental Handover
+- **Physical/Digital Handoff**: The Admin provides these partitioned lists to the respective **Heads of Departments (HODs)**.
+- **Manual Distribution**: HODs or departmental staff distribute the credentials to students manually (via orientation, official notice boards, or departmental emails).
+
+### 3. Student First-Action Workflow
+Once a student receives their credentials, they follow this strictly enforced security flow:
+1.  **Secure Login**: Sign in using their **University Email** and **Initial Password** (Registration Number).
+2.  **Mandatory Password Change**: The system detects `isFirstLogin: true` and immediately prompts the student to set a private, secure password.
+3.  **Profile Personalization**:
+    - **Identify**: Upload a professional profile picture for visual verification.
+    - **Connect**: Update their **WhatsApp Number** and official contact details.
+    - **Synchronize**: Verify academic details (Section, Batch, Selection).
+
+### 4. Visibility & Safety
+- **Faculty Access**: Departmental staff and HODs can now see the student's updated contact info and profile picture.
+- **Emergency Contact**: In case of clearance issues or emergencies, the university can instantly contact students via the provided WhatsApp/Phone info.
+
+---
+
 ## Deployment
 
 Detailed deployment instructions are available in [documentation/DEPLOYMENT_GUIDE.md](documentation/DEPLOYMENT_GUIDE.md).

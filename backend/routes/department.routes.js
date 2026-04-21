@@ -54,7 +54,7 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
   // Get recent requests
   let recentQuery = supabase
     .from('clearance_requests')
-    .select('*, student:student_id(first_name, last_name, registration_number, email), clearance_status(*)');
+    .select('*, student:student_id(first_name, last_name, registration_number, email, program, department_id, department:department_id(id, name, code)), clearance_status!inner(*)');
   
   if (departmentId) {
     recentQuery = recentQuery.eq('clearance_status.department_id', departmentId);
@@ -67,16 +67,30 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
   // Get department info
   let department = null;
   if (departmentId) {
-    const { data: deptData } = await supabase
+    const { data: deptData, error: deptError } = await supabase
       .from('departments')
       .select(`
         *,
-        head:head_id(first_name, last_name, email),
         staff:profiles(first_name, last_name, email, role)
       `)
       .eq('id', departmentId)
       .single();
-    department = deptData;
+    
+    if (deptError || !deptData) {
+      console.error('Error fetching department data:', deptError);
+      department = null;
+    } else {
+      department = deptData;
+      // Fetch head info manually if assigned
+      if (department.head_id) {
+         const { data: headData } = await supabase
+           .from('profiles')
+           .select('first_name, last_name, email')
+           .eq('id', department.head_id)
+           .single();
+         department.head = headData;
+      }
+    }
   }
   
   res.status(200).json({
@@ -96,6 +110,108 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
 }));
 
 /**
+ * @route   GET /api/departments/profile
+ * @desc    Get department profile
+ * @access  Department Staff
+ */
+router.get('/profile', asyncHandler(async (req, res) => {
+  const departmentId = req.user.department_id;
+  console.log('GET /profile - User:', req.user.email, 'DeptID:', departmentId);
+  
+  if (!departmentId) {
+    console.error('No department ID found for user:', req.user.email);
+    throw new AppError('No department assigned', 403, 'NO_DEPARTMENT');
+  }
+  
+  try {
+    const { data: department, error } = await supabase
+      .from('departments')
+      .select(`
+        *,
+        staff:profiles(first_name, last_name, email, phone, role)
+      `)
+      .eq('id', departmentId)
+      .single();
+    
+    if (error) {
+      console.error('Supabase error fetching profile:', error);
+      throw error;
+    }
+    
+    if (!department) {
+      console.error('Department not found for ID:', departmentId);
+      throw new AppError('Department not found', 404, 'DEPARTMENT_NOT_FOUND');
+    }
+
+    // Fetch head info manually if assigned
+    if (department.head_id) {
+      const { data: headData } = await supabase
+        .from('profiles')
+        .select('first_name, last_name, email, phone')
+        .eq('id', department.head_id)
+        .single();
+      department.head = headData;
+    }
+    
+    res.status(200).json({
+      success: true,
+      data: { department }
+    });
+  } catch (err) {
+    console.error('Unhandled error in /profile:', err);
+    throw err;
+  }
+}));
+
+/**
+ * @route   PUT /api/departments/profile
+ * @desc    Update department profile
+ * @access  Department Staff (HOD or Admin)
+ */
+router.put('/profile',
+  authorize('admin', 'hod', 'finance_officer', 'library_officer', 'transport_officer'),
+  asyncHandler(async (req, res) => {
+    const departmentId = req.user.department_id || req.body.departmentId;
+    
+    if (!departmentId && req.user.role !== 'admin') {
+      throw new AppError('No department assigned', 403, 'NO_DEPARTMENT');
+    }
+    
+    const updates = {};
+    const allowedFields = ['description', 'location', 'office_hours'];
+    
+    allowedFields.forEach(f => {
+      if (req.body[f] !== undefined) updates[f] = req.body[f];
+      // Also allow camelCase from frontend
+      if (f === 'office_hours' && req.body.officeHours !== undefined) updates.office_hours = req.body.officeHours;
+    });
+
+    if (req.body.contactInfo) updates.contact_info = req.body.contactInfo;
+    if (req.body.clearanceConfig) updates.clearance_config = req.body.clearanceConfig;
+    
+    updates.updated_at = new Date().toISOString();
+    updates.updated_by = req.user.id;
+    
+    const { data: department, error } = await supabase
+      .from('departments')
+      .update(updates)
+      .eq('id', departmentId)
+      .select()
+      .single();
+    
+    if (!department || error) {
+      throw new AppError('Department not found', 404, 'DEPARTMENT_NOT_FOUND');
+    }
+    
+    res.status(200).json({
+      success: true,
+      message: 'Department profile updated successfully',
+      data: { department }
+    });
+  })
+);
+
+/**
  * @route   GET /api/departments/requests
  * @desc    Get all clearance requests for department
  * @access  Department Staff
@@ -104,47 +220,54 @@ router.get('/requests', asyncHandler(async (req, res) => {
   const departmentId = req.user.department_id;
   const { status, search, page = 1, limit = 20 } = req.query;
   
+  console.log('GET /requests - User:', req.user.email, 'Role:', req.user.role, 'DeptID:', departmentId);
+  
   if (!departmentId && req.user.role !== 'admin') {
     throw new AppError('No department assigned', 403, 'NO_DEPARTMENT');
   }
   
-  let queryBuilder = supabase
-    .from('clearance_requests')
-    .select('*, student:student_id(*, department:department_id(name, code)), clearance_status(*)', { count: 'exact' });
-  
-  if (departmentId) {
-    queryBuilder = queryBuilder.eq('clearance_status.department_id', departmentId);
-  }
-  
-  if (status) {
-    queryBuilder = queryBuilder.eq('clearance_status.status', status);
-  }
-  
-  if (search) {
-    // Search is handled by filtering the results or a more complex query
-    // Simplified for now
-  }
-  
-  const { data: requests, count, error } = await queryBuilder
-    .order('created_at', { ascending: false })
-    .range((page - 1) * limit, page * limit - 1);
-  
-  if (error) throw error;
-  
-  res.status(200).json({
-    success: true,
-    data: {
-      requests: requests.map(req => ({
-        ...req,
-        currentDepartmentStatus: req.clearance_status.find(ds => !departmentId || ds.department_id === departmentId)
-      })),
-      pagination: {
-        total: count,
-        page: parseInt(page),
-        pages: Math.ceil(count / limit)
-      }
+  try {
+    let queryBuilder = supabase
+      .from('clearance_requests')
+      .select('*, student:student_id(*, department:department_id(name, code)), clearance_status!inner(*)', { count: 'exact' });
+    
+    if (departmentId) {
+      queryBuilder = queryBuilder.eq('clearance_status.department_id', departmentId);
     }
-  });
+    
+    if (status) {
+      queryBuilder = queryBuilder.eq('clearance_status.status', status);
+    }
+    
+    const { data: records, count, error } = await queryBuilder
+      .order('created_at', { ascending: false })
+      .range((page - 1) * limit, page * limit - 1);
+    
+    if (error) {
+      console.error('Database error in /requests:', error);
+      throw error;
+    }
+    
+    res.status(200).json({
+      success: true,
+      data: {
+        requests: (records || []).map(req => ({
+          ...req,
+          currentDepartmentStatus: Array.isArray(req.clearance_status) 
+            ? req.clearance_status.find(ds => !departmentId || ds.department_id === departmentId)
+            : req.clearance_status
+        })),
+        pagination: {
+          total: count || 0,
+          page: parseInt(page),
+          pages: Math.ceil((count || 0) / limit)
+        }
+      }
+    });
+  } catch (err) {
+    console.error('Caught error in /requests:', err);
+    throw err;
+  }
 }));
 
 /**
@@ -435,83 +558,7 @@ router.get('/students',
   })
 );
 
-/**
- * @route   GET /api/departments/profile
- * @desc    Get department profile
- * @access  Department Staff
- */
-router.get('/profile', asyncHandler(async (req, res) => {
-  const departmentId = req.user.department_id;
-  
-  if (!departmentId) {
-    throw new AppError('No department assigned', 403, 'NO_DEPARTMENT');
-  }
-  
-  const { data: department, error } = await supabase
-    .from('departments')
-    .select(`
-      *,
-      head:head_id(first_name, last_name, email, phone),
-      staff:profiles(first_name, last_name, email, phone, role)
-    `)
-    .eq('id', departmentId)
-    .single();
-  
-  if (!department || error) {
-    throw new AppError('Department not found', 404, 'DEPARTMENT_NOT_FOUND');
-  }
-  
-  res.status(200).json({
-    success: true,
-    data: { department }
-  });
-}));
 
-/**
- * @route   PUT /api/departments/profile
- * @desc    Update department profile
- * @access  Department Staff (HOD or Admin)
- */
-router.put('/profile',
-  authorize('admin', 'hod'),
-  asyncHandler(async (req, res) => {
-    const departmentId = req.user.department_id || req.body.departmentId;
-    
-    if (!departmentId && req.user.role !== 'admin') {
-      throw new AppError('No department assigned', 403, 'NO_DEPARTMENT');
-    }
-    
-    const updates = {};
-    const allowedFields = ['description', 'location', 'officeHours'];
-    
-    allowedFields.forEach(f => {
-      if (req.body[f] !== undefined) updates[f] = req.body[f];
-    });
-
-    if (req.body.contactInfo) updates.contact_info = req.body.contactInfo;
-    if (req.body.clearanceConfig) updates.clearance_config = req.body.clearanceConfig;
-    
-    updates.updated_at = new Date().toISOString();
-    updates.updated_by = req.user.id;
-    
-    const { data: department, error } = await supabase
-      .from('departments')
-      .update(updates)
-      .eq('id', departmentId)
-      .select()
-      .single();
-    
-    if (!department || error) {
-      throw new AppError('Department not found', 404, 'DEPARTMENT_NOT_FOUND');
-    }
-    
-    res.status(200).json({
-      success: true,
-      message: 'Department profile updated successfully',
-      data: { department }
-    });
-  })
-);
 
 /**
  * @route   GET /api/departments/pending-requests

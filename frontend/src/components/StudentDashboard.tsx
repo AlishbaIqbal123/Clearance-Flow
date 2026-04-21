@@ -19,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { StatusBadge } from '@/components/StatusBadge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Dialog, 
@@ -39,7 +40,6 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { studentService } from '@/lib/student.service';
-import { StatusBadge } from './StatusBadge';
 
 const StatCard = ({ title, value, icon: Icon, color, onClick }: { title: string; value: any; icon: any; color: string; onClick?: () => void }) => (
   <Card 
@@ -311,82 +311,100 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
               </CardHeader>
               <CardContent className="p-0">
                 <ScrollArea className="h-[500px]">
-                  <div className="p-8 space-y-6">
-                    {(Array.isArray(activeRequest.clearance_status) ? activeRequest.clearance_status : []).map((ds: any) => (
-                      <div key={ds.id} className="group relative p-6 bg-slate-50 hover:bg-white rounded-[1.5rem] border border-transparent hover:border-slate-100 hover:shadow-xl hover:shadow-slate-100 transition-all duration-300">
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                          <div className="flex items-center gap-4">
-                            <div className={`p-3 rounded-2xl bg-white shadow-sm border border-slate-100 group-hover:scale-110 transition-transform`}>
-                              {ds.status === 'cleared' ? (
-                                <CheckCircle2 className="w-6 h-6 text-emerald-500" />
-                              ) : ds.status === 'rejected' ? (
-                                <AlertCircle className="w-6 h-6 text-red-500" />
-                              ) : (
-                                <Clock className="w-6 h-6 text-blue-500" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
+                    {(Array.isArray(activeRequest.clearance_status) 
+                      ? [...activeRequest.clearance_status].sort((a, b) => {
+                          const priority: any = { 'cleared': 1, 'rejected': 2, 'in_review': 3, 'pending': 4 };
+                          return priority[a.status] - priority[b.status];
+                        })
+                      : []
+                    ).map((ds: any) => {
+                      const getStatusStyle = () => {
+                        switch (ds.status) {
+                          case 'cleared': return 'bg-white border-emerald-100 shadow-emerald-50';
+                          case 'rejected': return 'bg-white border-rose-100 shadow-rose-50';
+                          case 'in_review': return 'bg-white border-blue-100 shadow-blue-50';
+                          default: return 'bg-white border-slate-100 shadow-slate-50';
+                        }
+                      };
+
+                      const Icon = ds.status === 'cleared' ? CheckCircle2 : ds.status === 'rejected' ? AlertCircle : ds.status === 'in_review' ? Loader2 : Clock;
+                      const iconColor = ds.status === 'cleared' ? 'text-emerald-500' : ds.status === 'rejected' ? 'text-rose-500' : ds.status === 'in_review' ? 'text-blue-500' : 'text-amber-500';
+
+                      return (
+                        <div key={ds.id} className={`group relative p-5 rounded-3xl border shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${getStatusStyle()}`}>
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                              <div className={`p-2.5 rounded-2xl bg-slate-50 border border-slate-100 group-hover:bg-white transition-colors`}>
+                                <Icon className={`w-5 h-5 ${iconColor} ${ds.status === 'in_review' ? 'animate-[spin_3s_linear_infinite]' : ''}`} />
+                              </div>
+                              <div className="min-w-0 pr-10">
+                                <h4 className="text-sm font-black text-slate-900 truncate group-hover:text-blue-600 transition-colors uppercase tracking-tight">{ds.department?.name || 'Department Name'}</h4>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] leading-none mt-1">{ds.department?.code || 'CODE'}</p>
+                              </div>
+                            </div>
+                            <StatusBadge status={ds.status} size="sm" />
+                          </div>
+
+                          {/* Center Section: Remarks/Dues */}
+                          {(ds.remarks || ds.due_amount > 0) && (
+                            <div className={`mb-4 p-3 rounded-2xl border ${ds.status === 'rejected' ? 'bg-rose-50 border-rose-100' : 'bg-slate-50 border-slate-100'}`}>
+                              {ds.due_amount > 0 && (
+                                 <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest mb-1">Dues: Rs. {ds.due_amount.toLocaleString()}</p>
+                              )}
+                              {ds.remarks && (
+                                <p className="text-xs text-slate-600 font-medium line-clamp-2 italic">"{ds.remarks}"</p>
                               )}
                             </div>
-                            <div>
-                              <h4 className="text-lg font-bold text-slate-900 tracking-tight">{ds.department?.name}</h4>
-                              <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">{ds.department?.type} Dept</p>
-                            </div>
-                          </div>
-                          
-                          <div className="flex flex-col items-end gap-2">
-                            <StatusBadge status={ds.status} />
-                            <div className="flex gap-1">
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                className="h-8 rounded-lg text-emerald-600 hover:bg-emerald-50 text-[10px] font-bold"
-                                onClick={() => {
-                                  const phone = ds.department?.contact_info?.phone;
-                                  if (phone) window.open(`https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=Assalam-o-Alaikum, I am inquiring about my clearance request (${activeRequest.request_id}).`, '_blank');
-                                  else toast.error('WhatsApp not available');
-                                }}
-                              >
-                                WhatsApp
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                className="h-8 rounded-lg text-blue-600 hover:bg-blue-50 text-[10px] font-bold"
-                                onClick={() => {
-                                  const email = ds.department?.contact_info?.email;
-                                  if (email) window.location.href = `mailto:${email}?subject=Clearance Inquiry: ${activeRequest.request_id}`;
-                                  else toast.error('Email not available');
-                                }}
-                              >
-                                Email
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
+                          )}
 
-                        {/* Contact info details */}
-                        <div className="mt-4 pt-4 border-t border-slate-200/50 flex flex-wrap gap-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                           <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-slate-300" /> {ds.department?.contact_info?.email || 'N/A'}</span>
-                           <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-slate-300" /> {ds.department?.contact_info?.phone || 'N/A'}</span>
-                           {ds.department?.location && (
-                             <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5 text-slate-300" /> {ds.department.location}</span>
-                           )}
-                        </div>
-                        
-                        {(ds.remarks || ds.due_amount > 0) && (
-                          <div className="mt-3 p-3 bg-white rounded-xl border border-slate-100 flex flex-wrap gap-3">
-                            {ds.due_amount > 0 && (
-                               <Badge className="bg-red-50 text-red-600 border-red-100 shadow-none font-bold">
-                                 Dues: Rs. {ds.due_amount.toLocaleString()}
-                               </Badge>
-                            )}
-                            {ds.remarks && (
-                              <p className="text-xs text-slate-500 font-medium italic">
-                                "{ds.remarks}"
-                              </p>
-                            )}
+                          {/* Bottom Section: Actions */}
+                          <div className="flex items-center justify-between pt-3 border-t border-slate-50 mt-auto">
+                             <div className="flex gap-2">
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="w-8 h-8 rounded-xl text-emerald-600 hover:bg-emerald-50"
+                                  onClick={() => {
+                                     const contact = ds.department?.contact_info || {};
+                                     const whatsapp = contact.whatsapp_number;
+                                     if (whatsapp && whatsapp !== '') {
+                                       const clean = whatsapp.replace(/\D/g, '');
+                                       window.open(`https://wa.me/${clean}`, '_blank');
+                                     } else {
+                                       toast.error('WhatsApp not configured for this office');
+                                     }
+                                  }}
+                                >
+                                  <Phone className="w-3.5 h-3.5" />
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="w-8 h-8 rounded-xl text-blue-600 hover:bg-blue-50"
+                                  onClick={() => {
+                                    const contact = ds.department?.contact_info || {};
+                                    const isSecondary = contact.contact_preference === 'secondary';
+                                    const headEmail = ds.department?.head?.email;
+                                    const email = (isSecondary ? contact.secondary_email : contact.email) || contact.email || headEmail || ds.department?.email;
+                                    
+                                    if (email && email !== 'N/A') {
+                                      window.location.href = `mailto:${email}`;
+                                    } else {
+                                      toast.error('No contact email registered for this department');
+                                    }
+                                  }}
+                                >
+                                  <Mail className="w-3.5 h-3.5" />
+                                </Button>
+                             </div>
+                             <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">
+                                {ds.department?.type}
+                             </span>
                           </div>
-                        )}
-                      </div>
-                    ))}
+                        </div>
+                      );
+                    })}
                   </div>
                 </ScrollArea>
               </CardContent>
@@ -423,19 +441,25 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                    <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest">Required Departments ({data?.departments?.length || 0})</h4>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                   {(data?.departments || []).map((dept: any) => (
-                     <Card key={dept.id} className="border-none shadow-sm rounded-2xl bg-white/60 backdrop-blur-sm p-4 flex items-center gap-4 group hover:bg-white transition-colors">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-[10px] font-black transition-colors ${dept.type === 'academic' ? 'bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100' : 'bg-slate-50 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600'}`}>
-                           {dept.code}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                           <h5 className="text-sm font-bold text-slate-800 leading-none mb-1 truncate">{dept.name}</h5>
-                           <p className={`text-[10px] font-bold uppercase tracking-widest leading-none ${dept.type === 'academic' ? 'text-indigo-400' : 'text-slate-400'}`}>
-                             {dept.type === 'academic' ? 'Your Academic Department' : 'Mandatory Approval'}
-                           </p>
-                        </div>
-                     </Card>
-                   ))}
+                   {(data?.departments || []).map((dept: any) => {
+                     const contact = dept.contact_info || {};
+                     const isSecondary = contact.contact_preference === 'secondary';
+                     const displayEmail = (isSecondary ? contact.secondary_email : contact.email) || contact.email || 'N/A';
+
+                     return (
+                       <Card key={dept.id} className="border-none shadow-sm rounded-2xl bg-white/60 backdrop-blur-sm p-4 flex items-center gap-4 group hover:bg-white transition-colors">
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-[10px] font-black transition-colors ${dept.type === 'academic' ? 'bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100' : 'bg-slate-50 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600'}`}>
+                             {dept.code}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                             <h5 className="text-sm font-bold text-slate-800 leading-none mb-1 truncate">{dept.name}</h5>
+                             <p className={`text-[10px] font-bold uppercase tracking-widest leading-none ${dept.type === 'academic' ? 'text-indigo-400' : 'text-slate-400'}`}>
+                               {displayEmail}
+                             </p>
+                          </div>
+                       </Card>
+                     );
+                   })}
                 </div>
               </div>
             </div>
@@ -492,10 +516,28 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                     </div>
                   </div>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="ghost" size="icon" className="w-7 h-7 rounded-lg text-blue-600 hover:bg-blue-50">
-                      <MessageSquare className="w-3.5 h-3.5" />
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="w-7 h-7 rounded-lg text-emerald-600 hover:bg-emerald-50"
+                      onClick={() => {
+                        const whatsapp = dept.contact_info?.whatsapp_number;
+                        if (whatsapp) window.open(`https://wa.me/${whatsapp.replace(/\D/g, '')}`, '_blank');
+                        else toast.error('WhatsApp not configured');
+                      }}
+                    >
+                      <Phone className="w-3.5 h-3.5" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="w-7 h-7 rounded-lg text-indigo-600 hover:bg-indigo-50">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="w-7 h-7 rounded-lg text-blue-600 hover:bg-blue-50"
+                      onClick={() => {
+                        const email = dept.contact_info?.email;
+                        if (email) window.location.href = `mailto:${email}`;
+                        else toast.error('Email not configured');
+                      }}
+                    >
                        <Mail className="w-3.5 h-3.5" />
                     </Button>
                   </div>

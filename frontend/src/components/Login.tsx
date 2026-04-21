@@ -105,7 +105,7 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <Input 
-                        placeholder="e.g. FA20-BCS-001" 
+                        placeholder="Registration ID or Email (e.g. FA20-BCS-001)" 
                         className="pl-10 h-11 bg-slate-50 border-slate-200 focus:bg-white transition-colors"
                         value={studentReg}
                         onChange={(e) => setStudentReg(e.target.value)}

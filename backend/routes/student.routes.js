@@ -175,10 +175,15 @@ router.get('/dashboard',
         .select('id, name, code, type, location, contact_info')
         .in('id', deptIds);
 
-      activeRequest.clearance_status = (statuses || []).map(s => ({
-        ...s,
-        department: depts?.find(d => d.id === s.department_id) || null
-      }));
+      activeRequest.clearance_status = (statuses || []).map(s => {
+        const dept = depts?.find(d => d.id === s.department_id) || null;
+        if (!dept) console.warn(`Mapping failed for dept_id: ${s.department_id} in request: ${activeRequest.id}`);
+        return {
+          ...s,
+          department: dept
+        };
+      });
+      console.log('Processed statuses:', activeRequest.clearance_status.length, 'Mapped depts:', activeRequest.clearance_status.filter(s => s.department).length);
     }
 
     // Get clearance history (flat, no joins)
@@ -232,7 +237,7 @@ router.get('/clearance-status',
         *,
         clearance_status(
           *,
-          department:department_id(name, code, type, contact_info, clearance_config),
+          department:department_id(name, code, type, contact_info),
           clearedBy:cleared_by(first_name, last_name)
         )
       `)

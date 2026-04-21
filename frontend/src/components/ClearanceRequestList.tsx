@@ -12,23 +12,34 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { toast } from 'sonner';
 import api from '@/lib/api';
 
-export const ClearanceRequestList = () => {
+export const ClearanceRequestList = ({ user }: { user: any }) => {
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
 
   useEffect(() => {
-    fetchRequests();
-  }, []);
+    if (user) {
+      fetchRequests();
+    }
+  }, [user]);
 
   const fetchRequests = async () => {
+    if (!user) return;
+    
     try {
-      const res = await api.get('/admin/clearance-requests');
-      if (res.data.success) {
-        setRequests(res.data.data.requests || []);
+      setLoading(true);
+      const isAdmin = user.role === 'admin';
+      const endpoint = isAdmin ? '/admin/clearance-requests' : '/departments/requests';
+      
+      const { data: res } = await api.get(endpoint);
+      
+      if (res.success) {
+        const requestData = res.data.requests || res.data;
+        setRequests(Array.isArray(requestData) ? requestData : []);
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Fetch requests error:', error.response?.data || error.message);
       toast.error('Failed to load clearance requests');
     } finally {
       setLoading(false);

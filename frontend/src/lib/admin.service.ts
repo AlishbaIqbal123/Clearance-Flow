@@ -85,6 +85,11 @@ export const adminService = {
     return response.data;
   },
   
+  resetOfficialPassword: async (id: string) => {
+    const response = await api.post(`/admin/reset-official-password/${id}`);
+    return response.data;
+  },
+  
   exportStudents: async () => {
     const response = await api.get('/admin/students/export', {
       responseType: 'blob'

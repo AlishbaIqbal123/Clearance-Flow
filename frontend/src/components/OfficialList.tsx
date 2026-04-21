@@ -86,6 +86,18 @@ export const OfficialList = () => {
     }
   };
 
+  const handleResetPassword = async (id: string) => {
+    if (!window.confirm('Reset this official\'s password to default (official123)?')) return;
+    try {
+      const res = await adminService.resetOfficialPassword(id);
+      if (res.success) {
+        toast.success(res.message || 'Password reset successfully');
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to reset password');
+    }
+  };
+
   const filteredOfficials = officials.filter(off => 
     off.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     off.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -98,7 +110,7 @@ export const OfficialList = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-3xl font-black text-slate-900 tracking-tight">University Officials</h2>
-          <p className="text-slate-500 font-medium">Manage faculty, staff, and administrative roles</p>
+          <p className="text-slate-500 font-medium italic">Manage credentials and permissions for faculty & administration.</p>
         </div>
         <Button 
           className="bg-blue-600 hover:bg-blue-700 h-11 px-6 rounded-xl shadow-lg shadow-blue-100 font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
@@ -119,15 +131,15 @@ export const OfficialList = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <Input 
                 placeholder="Search by name, email or department..." 
-                className="pl-10 h-11 bg-slate-50 border-slate-100 rounded-xl focus:bg-white transition-all"
+                className="pl-10 h-11 bg-slate-50 border-slate-100 rounded-xl focus:bg-white transition-all shadow-sm"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" className="rounded-xl h-11 border-slate-200">
+              <Button variant="outline" className="rounded-xl h-11 border-slate-200 bg-white">
                 <Filter className="w-4 h-4 mr-2 text-slate-400" />
-                Filter
+                Advanced Filters
               </Button>
             </div>
           </div>
@@ -136,28 +148,28 @@ export const OfficialList = () => {
           <Table>
             <TableHeader className="bg-slate-50/50">
               <TableRow className="border-none hover:bg-transparent">
-                <TableHead className="px-8 py-4 font-bold text-slate-600">Official</TableHead>
-                <TableHead className="font-bold text-slate-600">Department</TableHead>
-                <TableHead className="font-bold text-slate-600">Role</TableHead>
-                <TableHead className="font-bold text-slate-600">Status</TableHead>
-                <TableHead className="px-8 font-bold text-slate-600 text-right">Actions</TableHead>
+                <TableHead className="px-8 py-4 font-bold text-slate-600 uppercase text-[10px] tracking-widest text-slate-400">Official / Username</TableHead>
+                <TableHead className="font-bold text-slate-600 uppercase text-[10px] tracking-widest text-slate-400">Department</TableHead>
+                <TableHead className="font-bold text-slate-600 uppercase text-[10px] tracking-widest text-slate-400">System Role</TableHead>
+                <TableHead className="font-bold text-slate-600 uppercase text-[10px] tracking-widest text-slate-400">Status</TableHead>
+                <TableHead className="px-8 font-bold text-slate-600 uppercase text-[10px] tracking-widest text-slate-400 text-right">Security & Operations</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 Array(5).fill(0).map((_, i) => (
                   <TableRow key={i} className="animate-pulse">
-                    <TableCell colSpan={5} className="h-16 bg-slate-50/20"></TableCell>
+                    <TableCell colSpan={5} className="h-20 bg-slate-50/20"></TableCell>
                   </TableRow>
                 ))
               ) : filteredOfficials.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="h-64 text-center">
                     <div className="flex flex-col items-center justify-center gap-3">
-                      <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center">
-                        <Users className="w-8 h-8 text-slate-300" />
+                      <div className="w-16 h-16 bg-slate-50 rounded-[1.5rem] flex items-center justify-center">
+                        <Users className="w-8 h-8 text-slate-200" />
                       </div>
-                      <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No officials found</p>
+                      <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No active officials found</p>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -166,12 +178,12 @@ export const OfficialList = () => {
                   <TableRow key={off.id} className="group hover:bg-blue-50/30 transition-colors border-slate-50">
                     <TableCell className="px-8 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-md shadow-blue-100">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-black text-sm shadow-md shadow-blue-100 transition-transform group-hover:scale-110">
                           {off.first_name?.[0]}{off.last_name?.[0]}
                         </div>
                         <div>
-                          <p className="font-bold text-slate-900 transition-colors group-hover:text-blue-600">{off.first_name} {off.last_name}</p>
-                          <p className="text-xs font-medium text-slate-400 flex items-center gap-1">
+                          <p className="font-black text-slate-900 transition-colors group-hover:text-blue-600 leading-tight">{off.first_name} {off.last_name}</p>
+                          <p className="text-[11px] font-bold text-slate-400 flex items-center gap-1 uppercase tracking-tighter">
                             <Mail className="w-3 h-3 text-slate-300" />
                             {off.email}
                           </p>
@@ -180,17 +192,17 @@ export const OfficialList = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-slate-100 rounded-lg">
+                        <div className="p-1.5 bg-slate-100 rounded-lg group-hover:bg-white transition-colors">
                           <Building className="w-3.5 h-3.5 text-slate-500" />
                         </div>
-                        <span className="font-semibold text-slate-700 text-sm">{off.department?.name || 'Administrative'}</span>
+                        <span className="font-bold text-slate-700 text-sm tracking-tight">{off.department?.name || 'Administrative'}</span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge className={`rounded-lg px-2.5 py-0.5 border-none font-bold uppercase text-[10px] tracking-wider ${
-                        off.role === 'admin' ? 'bg-indigo-100 text-indigo-700' :
-                        off.role === 'hod' ? 'bg-amber-100 text-amber-700' :
-                        'bg-slate-100 text-slate-600'
+                      <Badge className={`rounded-lg px-2.5 py-0.5 border-none font-black uppercase text-[9px] tracking-wider shadow-sm ${
+                        off.role === 'admin' ? 'bg-indigo-600 text-white' :
+                        off.role === 'hod' ? 'bg-amber-500 text-white' :
+                        'bg-slate-200 text-slate-700'
                       }`}>
                         <Shield className="w-3 h-3 mr-1" />
                         {off.role}
@@ -201,22 +213,32 @@ export const OfficialList = () => {
                         {off.is_active !== false ? (
                           <>
                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-                            <span className="text-xs font-bold text-emerald-600 uppercase tracking-tighter">Active</span>
+                            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-tighter">Active</span>
                           </>
                         ) : (
                           <>
                             <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
-                            <span className="text-xs font-bold text-slate-400 uppercase tracking-tighter">Inactive</span>
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Disabled</span>
                           </>
                         )}
                       </div>
                     </TableCell>
                     <TableCell className="px-8 text-right">
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="flex items-center justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          className="h-8 w-8 rounded-lg hover:bg-white hover:shadow-sm"
+                          title="Reset Password"
+                          className="h-9 w-9 rounded-xl bg-white shadow-sm hover:text-amber-600 border border-slate-100"
+                          onClick={() => handleResetPassword(off.id)}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-key"><path d="m21 2-2 2.6L12.5 11l-3 3.5v3.5l-2.5 2.5-3-3v-4.5L7.5 10.5 9 9l3.5-3.5L15.1 2.9l2.5-2.5L21 2Z"/><path d="M16.5 6.5 18 8"/><path d="m11 13 1.5 1.5"/></svg>
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          title="Edit Profile"
+                          className="h-9 w-9 rounded-xl bg-white shadow-sm hover:text-blue-600 border border-slate-100"
                           onClick={() => {
                             setSelectedOfficial(off);
                             setFormData({
@@ -229,12 +251,13 @@ export const OfficialList = () => {
                             setIsEditOpen(true);
                           }}
                         >
-                          <Edit2 className="w-4 h-4 text-slate-400" />
+                          <Edit2 className="w-4 h-4" />
                         </Button>
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          className="h-8 w-8 rounded-lg hover:bg-white hover:shadow-sm hover:text-red-600"
+                          title="Delete Official"
+                          className="h-9 w-9 rounded-xl bg-white shadow-sm hover:text-red-600 border border-slate-100"
                           onClick={() => handleDelete(off.id)}
                         >
                           <Trash2 className="w-4 h-4" />

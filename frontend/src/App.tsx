@@ -9,6 +9,7 @@ import { DepartmentDashboard } from '@/components/DepartmentDashboard';
 import { StudentList } from '@/components/StudentList';
 import { DepartmentList } from '@/components/DepartmentList';
 import { OfficialList } from '@/components/OfficialList';
+import { DepartmentProfile } from '@/components/DepartmentProfile';
 import { ClearanceRequestList } from '@/components/ClearanceRequestList';
 import { Analytics } from '@/components/Analytics';
 import { MyClearance } from '@/components/MyClearance';
@@ -91,7 +92,7 @@ function App() {
     if (activeTab === 'dashboard') {
       if (user.role === 'admin') return <AdminDashboard onNavigate={setActiveTab} />;
       if (user.role === 'student') return <StudentDashboard onNavigate={setActiveTab} />;
-      return <DepartmentDashboard onNavigate={setActiveTab} />;
+      return <DepartmentDashboard onNavigate={setActiveTab} user={user} />;
     }
 
     // Role-specific views
@@ -104,11 +105,13 @@ function App() {
         if (user.role === 'admin') return <DepartmentList />;
         return <div className="p-8 text-center text-slate-400 font-bold">ACCESS DENIED</div>;
       case 'requests':
-        return <ClearanceRequestList />;
+        return <ClearanceRequestList user={user} />;
       case 'users':
         return <OfficialList />;
       case 'analytics':
         return <Analytics />;
+      case 'settings':
+        return <DepartmentProfile user={user} />;
       case 'my-clearance':
         return <MyClearance />;
       default:

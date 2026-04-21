@@ -40,6 +40,7 @@ router.post('/login',
     const { email, password } = req.body;
 
     // Find user in profiles table
+    console.log('Login attempt for:', email);
     const { data: user, error } = await supabase
       .from('profiles')
       .select('*, department:department_id(*)')
@@ -47,6 +48,7 @@ router.post('/login',
       .single();
 
     if (error || !user) {
+      console.error('Login failed: user not found or DB error', error);
       throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
     }
 

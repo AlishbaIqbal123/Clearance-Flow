@@ -72,7 +72,7 @@ const StatCardShort = ({ title, value, icon: Icon, color, onClick }: { title: st
   </Card>
 );
 
-export const DepartmentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => void }) => {
+export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: string) => void; user: any }) => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -134,7 +134,8 @@ export const DepartmentDashboard = ({ onNavigate }: { onNavigate: (tab: string) 
 
   const stats = data?.stats || { pending: 0, inReview: 0, cleared: 0, total: 0 };
   const recentRequests = data?.recentRequests || [];
-  const department = data?.department || {};
+  const department = data?.department || user?.department || {};
+  const currentDeptId = department.id || user?.department_id;
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -142,10 +143,10 @@ export const DepartmentDashboard = ({ onNavigate }: { onNavigate: (tab: string) 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-5">
            <div className="w-16 h-16 bg-white shadow-xl shadow-slate-200 rounded-[1.5rem] flex items-center justify-center border border-slate-50">
-              <span className="text-2xl font-black text-blue-600">{department.code}</span>
+              <span className="text-2xl font-black text-blue-600">{department.code || user?.department?.code || '??'}</span>
            </div>
            <div>
-              <h2 className="text-3xl font-black text-slate-900 tracking-tight">{department.name}</h2>
+              <h2 className="text-3xl font-black text-slate-900 tracking-tight">{department.name || user?.department?.name || 'Department Name'}</h2>
               <p className="text-slate-500 font-medium flex items-center gap-2">
                 Official Clearance Portal <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
               </p>
@@ -224,7 +225,11 @@ export const DepartmentDashboard = ({ onNavigate }: { onNavigate: (tab: string) 
             </TableHeader>
             <TableBody>
                {(Array.isArray(recentRequests) ? recentRequests : []).map((request: any) => {
-                 const currentDeptStatus = (request.clearance_status || []).find((ds: any) => ds.department_id === department.id);
+                 // Use currentDeptId (from state or user context) to find the correct status row
+                 const currentDeptStatus = (request.clearance_status || []).find((ds: any) => 
+                  ds.department_id === currentDeptId || ds.department?.id === currentDeptId
+                 );
+                 
                  return (
                   <TableRow key={request.id} className="group hover:bg-slate-50/30 transition-colors border-slate-50">
                     <TableCell className="px-10 py-6">
@@ -240,8 +245,8 @@ export const DepartmentDashboard = ({ onNavigate }: { onNavigate: (tab: string) 
                     </TableCell>
                     <TableCell>
                        <div className="space-y-0.5">
-                          <p className="text-xs font-bold text-slate-700">{request.student?.program}</p>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{request.student?.department?.code}</p>
+                          <p className="text-xs font-bold text-slate-700">{request.student?.program || 'N/A'}</p>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{request.student?.department?.code || 'DEPT'}</p>
                        </div>
                     </TableCell>
                     <TableCell>

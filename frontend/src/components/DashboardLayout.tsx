@@ -89,7 +89,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
 
   useEffect(() => {
     // Session timeout monitoring (30 minutes)
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: ReturnType<typeof setTimeout>;
     const resetTimeout = () => {
       if (timeoutId) clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
@@ -172,6 +172,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
     { id: 'students', label: 'Students', icon: GraduationCap, roles: ['admin', 'hod'] },
     { id: 'departments', label: 'Departments', icon: Building2, roles: ['admin'] },
     { id: 'requests', label: 'Clearance Requests', icon: FileText, roles: ['admin', 'hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'] },
+    { id: 'settings', label: 'Dept Settings', icon: Settings, roles: ['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'] },
     { id: 'my-clearance', label: 'My Clearance', icon: FileText, roles: ['student'] },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, roles: ['admin', 'hod'] },
     { id: 'users', label: 'Staff Management', icon: Users, roles: ['admin'] },

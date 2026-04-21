@@ -1,37 +1,48 @@
 /**
  * Seed data for Supabase
  * Populates departments, staff profiles, and student profiles
+ * Uses fixed UUIDs for core departments to ensure consistency
  */
 const supabase = require('../config/supabase');
 const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
+
+const DEPT_IDS = {
+  CS: '9b2c930c-5204-4921-bf6d-d9bc1355a560',
+  SE: '8c1b820b-4103-3810-ae5c-c8ab0244a450',
+  FIN: '7b0a710a-3092-2709-9d4b-b79a91339340',
+  LIB: '6a9f609f-2081-1608-8c3a-a68f80228230',
+  TRN: '5e8e508e-1070-0507-7b29-957e70117120'
+};
+
+const USER_IDS = {
+  ADMIN: 'a1b2c3d4-e5f6-4a5b-bc6d-e7f8a9b0c1d2',
+  HOD_CS: 'b2c3d4e5-f6a7-5b6c-cd7e-f8a9b0c1d2e3',
+  FINANCE: 'c3d4e5f6-a7b8-6c7d-de8f-a9b0c1d2e3f4',
+  LIBRARY: 'd4e5f6a7-b8c9-7d8e-ef9a-b0c1d2e3f4a5'
+};
 
 async function seed() {
   console.log('=========================================');
-  console.log('🚀 Starting Supabase Database Seeding');
+  console.log('🚀 Starting Stable Supabase Seeding');
   console.log('=========================================');
 
   try {
     // 1. Seed Departments
     console.log('\n--- Seeding Departments ---');
     const departments = [
-      { name: 'Computer Science', code: 'CS', type: 'academic', is_active: true },
-      { name: 'Software Engineering', code: 'SE', type: 'academic', is_active: true },
-      { name: 'Finance Office', code: 'FIN', type: 'finance', is_active: true },
-      { name: 'Library', code: 'LIB', type: 'library', is_active: true },
-      { name: 'Transport Office', code: 'TRN', type: 'transport', is_active: true }
+      { id: DEPT_IDS.CS, name: 'Computer Science', code: 'CS', type: 'academic', is_active: true, clearance_config: { isRequired: true, order: 1 } },
+      { id: DEPT_IDS.SE, name: 'Software Engineering', code: 'SE', type: 'academic', is_active: true, clearance_config: { isRequired: true, order: 2 } },
+      { id: DEPT_IDS.FIN, name: 'Finance Office', code: 'FIN', type: 'finance', is_active: true, clearance_config: { isRequired: true, order: 3 } },
+      { id: DEPT_IDS.LIB, name: 'Library', code: 'LIB', type: 'library', is_active: true, clearance_config: { isRequired: true, order: 4 } },
+      { id: DEPT_IDS.TRN, name: 'Transport Office', code: 'TRN', type: 'transport', is_active: true, clearance_config: { isRequired: true, order: 5 } }
     ];
 
-    const { data: insertedDepts, error: deptError } = await supabase
+    const { error: deptError } = await supabase
       .from('departments')
-      .upsert(departments, { onConflict: 'code' })
-      .select();
+      .upsert(departments, { onConflict: 'id' });
 
     if (deptError) throw deptError;
-    console.log(`✅ ${insertedDepts.length} Departments seeded/updated.`);
-
-    const deptMap = {};
-    insertedDepts.forEach(d => deptMap[d.code] = d.id);
+    console.log(`✅ ${departments.length} Departments seeded with fixed IDs.`);
 
     // 2. Seed Admin & Staff Profiles
     console.log('\n--- Seeding Staff Profiles ---');
@@ -40,6 +51,7 @@ async function seed() {
 
     const profiles = [
       {
+        id: USER_IDS.ADMIN,
         phone: '+923001234567',
         first_name: 'System',
         last_name: 'Administrator',
@@ -50,50 +62,52 @@ async function seed() {
         is_active: true
       },
       {
+        id: USER_IDS.HOD_CS,
         phone: '+923001234567',
         first_name: 'Dr. Ahmed',
         last_name: 'Khan',
         email: 'hod.cs@university.edu.pk',
         password: staffPassword,
         role: 'hod',
-        department_id: deptMap['CS'],
+        department_id: DEPT_IDS.CS,
         is_first_login: false,
         is_active: true
       },
       {
+        id: USER_IDS.FINANCE,
         phone: '+923001234567',
         first_name: 'Sarah',
         last_name: 'Ahmed',
         email: 'finance.officer@university.edu.pk',
         password: staffPassword,
         role: 'finance_officer',
-        department_id: deptMap['FIN'],
+        department_id: DEPT_IDS.FIN,
         is_first_login: false,
         is_active: true
       },
       {
+        id: USER_IDS.LIBRARY,
         phone: '+923001234567',
         first_name: 'Muhammad',
         last_name: 'Ali',
         email: 'library.officer@university.edu.pk',
         password: staffPassword,
         role: 'library_officer',
-        department_id: deptMap['LIB'],
+        department_id: DEPT_IDS.LIB,
         is_first_login: false,
         is_active: true
       }
     ];
 
-    const { data: insertedProfiles, error: profileError } = await supabase
+    const { error: profileError } = await supabase
       .from('profiles')
-      .upsert(profiles, { onConflict: 'email' })
-      .select();
+      .upsert(profiles, { onConflict: 'id' });
 
     if (profileError) throw profileError;
-    console.log(`✅ ${insertedProfiles.length} Staff profiles seeded/updated.`);
+    console.log(`✅ ${profiles.length} Staff profiles seeded with fixed IDs.`);
 
-    // 3. Seed Student Profiles
-    console.log('\n--- Seeding Student Profiles ---');
+    // 3. Seed Students
+    console.log('\n--- Seeding Students ---');
     const students = [
       {
         phone: '+923001234567',
@@ -102,7 +116,7 @@ async function seed() {
         registration_number: 'FA20-BCS-001',
         email: 'ali.ahmad@student.university.edu.pk',
         password: await bcrypt.hash('FA20-BCS-001', 12),
-        department_id: deptMap['CS'],
+        department_id: DEPT_IDS.CS,
         program: 'BS',
         discipline: 'Computer Science',
         batch: '2020',
@@ -110,90 +124,25 @@ async function seed() {
         is_first_login: true,
         is_active: true,
         clearance_status: 'not_started'
-      },
-      {
-        phone: '+923001234567',
-        first_name: 'Sara',
-        last_name: 'Khalid',
-        registration_number: 'FA20-BCS-002',
-        email: 'sara.khalid@student.university.edu.pk',
-        password: await bcrypt.hash('FA20-BCS-002', 12),
-        department_id: deptMap['CS'],
-        program: 'BS',
-        discipline: 'Computer Science',
-        batch: '2020',
-        cgpa: 3.8,
-        is_first_login: true,
-        is_active: true,
-        clearance_status: 'not_started'
-      },
-      {
-        phone: '+923001234567',
-        first_name: 'Usman',
-        last_name: 'Farooq',
-        registration_number: 'FA20-BSE-001',
-        email: 'usman.farooq@student.university.edu.pk',
-        password: await bcrypt.hash('FA20-BSE-001', 12),
-        department_id: deptMap['SE'],
-        program: 'BS',
-        discipline: 'Software Engineering',
-        batch: '2020',
-        cgpa: 3.2,
-        is_first_login: true,
-        is_active: true,
-        clearance_status: 'not_started'
-      },
-      {
-        phone: '+923001234567',
-        first_name: 'Hira',
-        last_name: 'Mahmood',
-        registration_number: 'FA21-BCS-015',
-        email: 'hira.mahmood@student.university.edu.pk',
-        password: await bcrypt.hash('FA21-BCS-015', 12),
-        department_id: deptMap['CS'],
-        program: 'BS',
-        discipline: 'Computer Science',
-        batch: '2021',
-        cgpa: 3.6,
-        is_first_login: true,
-        is_active: true,
-        clearance_status: 'not_started'
-      },
-      {
-        phone: '+923001234567',
-        first_name: 'Bilal',
-        last_name: 'Aslam',
-        registration_number: 'SP19-BCS-010',
-        email: 'bilal.aslam@student.university.edu.pk',
-        password: await bcrypt.hash('SP19-BCS-010', 12),
-        department_id: deptMap['CS'],
-        program: 'BS',
-        discipline: 'Computer Science',
-        batch: '2019',
-        cgpa: 2.9,
-        is_first_login: true,
-        is_active: true,
-        clearance_status: 'not_started'
       }
     ];
 
-    const { data: insertedStudents, error: studentError } = await supabase
+    const { error: studentError } = await supabase
       .from('student_profiles')
-      .upsert(students, { onConflict: 'registration_number' })
-      .select();
+      .upsert(students, { onConflict: 'registration_number' });
 
     if (studentError) throw studentError;
-    console.log(`✅ ${insertedStudents.length} Student profiles seeded/updated.`);
+    console.log(`✅ Student profiles seeded.`);
 
-    console.log('\n--- Seeding Summary ---');
-    console.log('Admin: admin@university.edu.pk / Admin@123');
-    console.log('HOD (CS): hod.cs@university.edu.pk / Staff@123');
-    console.log('Student: FA20-BCS-001 / FA20-BCS-001');
-    console.log('\n✅ Database seeding completed successfully!');
+    console.log('\n--- CREDENTIALS ---');
+    console.log('ADMIN: admin@university.edu.pk / Admin@123');
+    console.log('FINANCE: finance.officer@university.edu.pk / Staff@123');
+    console.log('LIBRARY: library.officer@university.edu.pk / Staff@123');
+    console.log('HOD CS: hod.cs@university.edu.pk / Staff@123');
+    console.log('\n✅ Stable seeding completed!');
 
   } catch (error) {
-    console.error('\n❌ Seeding failed:');
-    console.error(error.message || error);
+    console.error('\n❌ Seeding failed:', error.message);
   } finally {
     process.exit();
   }

@@ -98,9 +98,12 @@ const authenticate = async (req, res, next) => {
       lastName: user.last_name || user.lastName,
       fullName: user.full_name || `${user.first_name} ${user.last_name}`
     };
+
+    console.log(`Auth request: ${req.method} ${req.originalUrl} | User: ${req.user.email} | Role: ${req.user.role} | Dept: ${req.user.department_id}`);
     
     next();
   } catch (error) {
+    console.error('CRITICAL Auth Middleware Error:', error);
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({
         success: false,

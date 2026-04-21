@@ -180,7 +180,7 @@ router.post('/users',
     validate
   ],
   asyncHandler(async (req, res) => {
-    const { firstName, lastName, email, password, role, department, phone } = req.body;
+    const { firstName, lastName, email, password, role, department, departmentId, phone } = req.body;
     
     // Check if email exists
     const { data: existingUser } = await supabase
@@ -204,7 +204,7 @@ router.post('/users',
         email: email.toLowerCase(),
         password: hashedPassword,
         role,
-        department_id: department,
+        department_id: departmentId || department,
         phone,
         is_first_login: true
       })
@@ -257,9 +257,14 @@ router.put('/users/:id',
       updates.department_id = updates.department;
       delete updates.department;
     }
+    if (updates.departmentId) {
+      updates.department_id = updates.departmentId;
+      delete updates.departmentId;
+    }
 
     // Don't allow password update through this route
     delete updates.password;
+    delete updates.id;
     
     const { data: user, error } = await supabase
       .from('profiles')
@@ -268,7 +273,14 @@ router.put('/users/:id',
       .select('*, department:department_id(name, code)')
       .single();
     
-    if (!user || error) {
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.message || 'Failed to update user'
+      });
+    }
+
+    if (!user) {
       throw new AppError('User not found', 404, 'USER_NOT_FOUND');
     }
     
@@ -938,6 +950,42 @@ router.post('/reset-student-password/:id', asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: 'Password reset successfully. Student must login with registration number as password.'
+  });
+}));
+
+/**
+ * @route   POST /api/admin/reset-official-password/:id
+ * @desc    Reset official password to default
+ * @access  Admin
+ */
+router.post('/reset-official-password/:id', adminPlus, asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  
+  const { data: user } = await supabase
+    .from('profiles')
+    .select('email')
+    .eq('id', id)
+    .single();
+
+  if (!user) {
+    throw new AppError('Official not found', 404, 'USER_NOT_FOUND');
+  }
+  
+  const defaultPassword = 'official123';
+  const hashedPassword = await bcrypt.hash(defaultPassword, 12);
+
+  const { error } = await supabase.from('profiles')
+    .update({
+      password: hashedPassword,
+      is_first_login: true
+    })
+    .eq('id', id);
+  
+  if (error) throw error;
+
+  res.status(200).json({
+    success: true,
+    message: `Password reset successfully for ${user.email}. Default password is 'official123'.`
   });
 }));
 
