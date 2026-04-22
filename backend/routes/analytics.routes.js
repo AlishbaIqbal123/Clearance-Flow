@@ -6,8 +6,11 @@
 const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabase');
-const { authorize } = require('../middleware/auth.middleware');
+const { authenticate, authorize } = require('../middleware/auth.middleware');
 const { asyncHandler } = require('../middleware/error.middleware');
+
+// Apply authentication to all routes in this router
+router.use(authenticate);
 
 // All analytics routes require admin or HOD access
 router.use(authorize('admin', 'hod'));

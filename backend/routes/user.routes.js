@@ -23,6 +23,9 @@ const validate = (req, res, next) => {
   next();
 };
 
+// Apply authentication to all routes in this router
+router.use(authenticate);
+
 /**
  * @route   GET /api/users/profile
  * @desc    Get current user profile

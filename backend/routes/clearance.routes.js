@@ -24,6 +24,9 @@ const validate = (req, res, next) => {
   next();
 };
 
+// Apply authentication to all routes in this router
+router.use(authenticate);
+
 /**
  * @route   GET /api/clearance
  * @desc    Get all clearance requests (with filters)

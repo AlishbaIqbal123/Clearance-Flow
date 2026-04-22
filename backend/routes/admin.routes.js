@@ -9,7 +9,7 @@ const { body, param, query } = require('express-validator');
 const supabase = require('../config/supabase');
 const bcrypt = require('bcryptjs');
 const appsScript = require('../services/appsScript.service');
-const { adminOnly, authorize } = require('../middleware/auth.middleware');
+const { authenticate, adminOnly, authorize } = require('../middleware/auth.middleware');
 const { asyncHandler, AppError } = require('../middleware/error.middleware');
 const csv = require('fast-csv');
 
@@ -25,6 +25,9 @@ const validate = (req, res, next) => {
   }
   next();
 };
+
+// Apply authentication to all routes in this router
+router.use(authenticate);
 
 // Apply authorization middleware selectively
 const hodOrAdmin = authorize('admin', 'hod');

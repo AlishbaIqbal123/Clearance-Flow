@@ -24,6 +24,9 @@ const validate = (req, res, next) => {
   next();
 };
 
+// Apply authentication to all routes in this router
+router.use(authenticate);
+
 /**
  * @route   GET /api/communication/departments/:id/contact
  * @desc    Get department contact information

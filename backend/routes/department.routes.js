@@ -8,10 +8,11 @@ const router = express.Router();
 const { body, param, query } = require('express-validator');
 const supabase = require('../config/supabase');
 const appsScript = require('../services/appsScript.service');
-const { staffOnly, authorize } = require('../middleware/auth.middleware');
+const { authenticate, staffOnly, authorize } = require('../middleware/auth.middleware');
 const { asyncHandler, AppError } = require('../middleware/error.middleware');
 
-// Apply staff middleware to all routes
+// Apply authentication and staff middleware to all routes
+router.use(authenticate);
 router.use(staffOnly);
 
 // Validation helper

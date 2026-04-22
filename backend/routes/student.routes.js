@@ -7,7 +7,7 @@ const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
 const supabase = require('../config/supabase');
-const { studentOnly, authenticate, requireOwnership } = require('../middleware/auth.middleware');
+const { studentOnly, staffOnly, authenticate, requireOwnership } = require('../middleware/auth.middleware');
 const { asyncHandler, AppError } = require('../middleware/error.middleware');
 const { upload } = require('../config/cloudinary');
 
@@ -24,12 +24,16 @@ const validate = (req, res, next) => {
   next();
 };
 
+// Apply authentication to all routes in this router
+router.use(authenticate);
+
 /**
  * @route   GET /api/students
  * @desc    Get all students (Admin/Staff only)
  * @access  Private
  */
 router.get('/',
+  staffOnly,
   asyncHandler(async (req, res) => {
     const { department, batch, search, page = 1, limit = 20 } = req.query;
     
