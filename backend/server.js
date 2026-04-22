@@ -116,15 +116,23 @@ app.get('/api', (req, res) => {
   });
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api/users', authenticate, userRoutes);
-app.use('/api/students', authenticate, studentRoutes);
-app.use('/api/departments', authenticate, departmentRoutes);
-app.use('/api/clearance', authenticate, clearanceRoutes);
-app.use('/api/clearance-requests', authenticate, clearanceRoutes);
-app.use('/api/admin', authenticate, adminRoutes);
-app.use('/api/analytics', authenticate, analyticsRoutes);
-app.use('/api/communication', authenticate, communicationRoutes);
+// Helper to mount routes with and without /api prefix for flexibility
+const mountRoutes = (path, router) => {
+  app.use(path, router); // e.g. /api/auth
+  if (path.startsWith('/api')) {
+    app.use(path.replace('/api', ''), router); // e.g. /auth
+  }
+};
+
+// Routes
+mountRoutes('/api/auth', authRoutes);
+mountRoutes('/api/admin', adminRoutes);
+mountRoutes('/api/students', studentRoutes);
+mountRoutes('/api/departments', departmentRoutes);
+mountRoutes('/api/clearance', clearanceRoutes);
+mountRoutes('/api/analytics', analyticsRoutes);
+mountRoutes('/api/communication', communicationRoutes);
+mountRoutes('/api/users', userRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
