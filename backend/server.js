@@ -158,6 +158,9 @@ mountRoutes('/api/analytics', analyticsRoutes);
 mountRoutes('/api/communication', communicationRoutes);
 mountRoutes('/api/users', userRoutes);
 
+const debugRoutes = require('./routes/debug.routes');
+mountRoutes('/api/debug', debugRoutes);
+
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({
@@ -240,8 +243,7 @@ if (require.main === module) {
   });
 }
 
-const debugRoutes = require('./routes/debug.routes');
-mountRoutes('/api/debug', debugRoutes);
+
 
 // Export the bare Express app for Vercel serverless
 module.exports = app;
