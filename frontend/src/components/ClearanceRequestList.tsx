@@ -10,6 +10,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from 'sonner';
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import api from '@/lib/api';
 
 export const ClearanceRequestList = ({ user }: { user: any }) => {
@@ -17,6 +25,8 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const [selectedRequest, setSelectedRequest] = useState<any>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -222,7 +232,15 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
                         </div>
                       </TableCell>
                       <TableCell className="px-8 text-right">
-                        <Button variant="ghost" size="icon" className="group-hover:bg-white rounded-xl shadow-sm opacity-0 group-hover:opacity-100 transition-all active:scale-90">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="group-hover:bg-white rounded-xl shadow-sm opacity-0 group-hover:opacity-100 transition-all active:scale-90"
+                          onClick={() => {
+                            setSelectedRequest(req);
+                            setIsDetailsOpen(true);
+                          }}
+                        >
                            <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
                         </Button>
                       </TableCell>
@@ -281,6 +299,54 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
             </Card>
           ))}
         </div>
+      )}
+      {isDetailsOpen && (
+        <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+          <DialogContent className="sm:max-w-[600px] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
+            <div className="bg-slate-900 p-8 text-white relative">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl" />
+              <DialogTitle className="text-2xl font-black tracking-tight">Clearance Audit Details</DialogTitle>
+              <DialogDescription className="text-slate-400 font-medium mt-1">Detailed status breakdown for request {selectedRequest?.request_id}</DialogDescription>
+            </div>
+            <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Student Information</p>
+                  <p className="font-bold text-slate-900">{selectedRequest?.student?.first_name} {selectedRequest?.student?.last_name}</p>
+                  <p className="text-xs text-slate-500">{selectedRequest?.student?.registration_number}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Submission Date</p>
+                  <p className="font-bold text-slate-900">{selectedRequest && new Date(selectedRequest.created_at).toLocaleDateString()}</p>
+                  <p className="text-xs text-slate-500">{selectedRequest && new Date(selectedRequest.created_at).toLocaleTimeString()}</p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Departmental Clearance Status</p>
+                <div className="space-y-2">
+                  {(selectedRequest?.clearance_status || []).map((cs: any) => (
+                    <div key={cs.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-2xl">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shadow-sm border border-slate-100">
+                          <Building className="w-4 h-4 text-slate-400" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-slate-900">{cs.department?.name}</p>
+                          <p className="text-[10px] font-medium text-slate-400">{cs.department?.code}</p>
+                        </div>
+                      </div>
+                      {getStatusBadge(cs.status)}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="p-8 bg-slate-50 border-t border-slate-100">
+               <Button className="w-full h-12 rounded-xl font-bold bg-slate-900" onClick={() => setIsDetailsOpen(false)}>Close Audit View</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

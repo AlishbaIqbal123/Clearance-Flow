@@ -241,6 +241,12 @@ router.post('/users',
 router.put('/users/:id',
   [
     param('id').isUUID().withMessage('Valid user ID required'),
+    body('firstName').optional().trim().notEmpty().withMessage('First name cannot be empty'),
+    body('lastName').optional().trim().notEmpty().withMessage('Last name cannot be empty'),
+    body('email').optional().isEmail().normalizeEmail().withMessage('Valid email is required'),
+    body('role').optional().isIn(['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer', 'admin'])
+      .withMessage('Invalid role'),
+    body('departmentId').optional().isUUID().withMessage('Valid department ID required'),
     validate
   ],
   asyncHandler(async (req, res) => {
@@ -256,13 +262,13 @@ router.put('/users/:id',
       updates.last_name = updates.lastName;
       delete updates.lastName;
     }
-    if (updates.department) {
-      updates.department_id = updates.department;
-      delete updates.department;
-    }
     if (updates.departmentId) {
       updates.department_id = updates.departmentId;
       delete updates.departmentId;
+    }
+    if (updates.department) {
+      updates.department_id = updates.department;
+      delete updates.department;
     }
 
     // Don't allow password update through this route
