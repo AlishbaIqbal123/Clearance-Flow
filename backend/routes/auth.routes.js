@@ -48,7 +48,8 @@ router.post('/login',
       .single();
 
     if (error || !user) {
-      console.error('Login failed: user not found or DB error', error);
+      if (error) console.error('Staff login DB error:', error);
+      else console.log('Staff login failed: User not found for email:', email);
       throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
     }
 
@@ -135,6 +136,8 @@ router.post('/student/login',
     const { data: student, error } = await query.single();
 
     if (error || !student) {
+      if (error) console.error('Student login DB error:', error);
+      else console.log('Student login failed: Student not found for registrationNumber:', registrationNumber);
       throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
     }
 
