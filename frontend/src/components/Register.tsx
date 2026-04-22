@@ -1,4 +1,4 @@
-,import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Loader2, User, Mail, Lock, BookOpen, Hash, GraduationCap, Phone, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { authService } from '@/lib/auth.service';
 import { toast } from 'sonner';
