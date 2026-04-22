@@ -240,5 +240,8 @@ if (require.main === module) {
   });
 }
 
+const debugRoutes = require('./routes/debug.routes');
+mountRoutes('/api/debug', debugRoutes);
+
 // Export the bare Express app for Vercel serverless
 module.exports = app;
