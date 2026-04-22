@@ -63,14 +63,6 @@ router.post('/login',
       throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
     }
 
-    // Update last login (Disabled: column does not exist in current schema)
-    /*
-    await supabase
-      .from('profiles')
-      .update({ last_login: new Date() })
-      .eq('id', user.id);
-    */
-
     // Create user response object
     const userResponse = {
       id: user.id,
@@ -151,14 +143,6 @@ router.post('/student/login',
       throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
     }
 
-    // Update last login (Disabled: column does not exist in current schema)
-    /*
-    await supabase
-      .from('student_profiles')
-      .update({ last_login: new Date() })
-      .eq('id', student.id);
-    */
-
     // Create user response object
     const userResponse = {
       id: student.id,
@@ -195,6 +179,109 @@ router.post('/student/login',
         user: userResponse,
         token,
         expiresIn: process.env.JWT_EXPIRES_IN || '7d'
+      }
+    });
+  })
+);
+
+/**
+ * @route   POST /api/auth/student/signup
+ * @desc    Register a new student
+ * @access  Public
+ */
+router.post('/student/signup',
+  [
+    body('registrationNumber').notEmpty().withMessage('Registration number is required').trim().toUpperCase(),
+    body('firstName').notEmpty().withMessage('First name is required').trim(),
+    body('lastName').notEmpty().withMessage('Last name is required').trim(),
+    body('email').isEmail().withMessage('Please provide a valid university email').trim().toLowerCase(),
+    body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
+    body('departmentId').notEmpty().withMessage('Department is required'),
+    body('program').notEmpty().withMessage('Program is required'),
+    body('discipline').notEmpty().withMessage('Discipline is required'),
+    body('batch').notEmpty().withMessage('Batch is required'),
+    validate
+  ],
+  asyncHandler(async (req, res) => {
+    const { 
+      registrationNumber, firstName, lastName, email, 
+      password, departmentId, program, discipline, batch, phone 
+    } = req.body;
+
+    // Check if student already exists
+    const { data: existingStudent } = await supabase
+      .from('student_profiles')
+      .select('id')
+      .or(`registration_number.eq.${registrationNumber.toUpperCase()},email.eq.${email.toLowerCase()}`)
+      .single();
+
+    if (existingStudent) {
+      throw new AppError('Student with this registration number or email already exists', 400);
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    // Create student profile
+    const { data: newStudent, error: createError } = await supabase
+      .from('student_profiles')
+      .insert([{
+        registration_number: registrationNumber.toUpperCase(),
+        first_name: firstName,
+        last_name: lastName,
+        email: email.toLowerCase(),
+        password: hashedPassword,
+        department_id: departmentId,
+        program,
+        discipline,
+        batch,
+        phone: phone || null,
+        is_active: true,
+        is_first_login: false,
+        clearance_status: 'not_started'
+      }])
+      .select()
+      .single();
+
+    if (createError) {
+      console.error('Student signup error:', createError);
+      throw new AppError('Failed to create student profile', 500);
+    }
+
+    // Auto-initialize clearance status for all departments
+    const { data: departments } = await supabase.from('departments').select('id');
+    
+    if (departments && departments.length > 0) {
+      const clearanceEntries = departments.map(dept => ({
+        student_id: newStudent.id,
+        department_id: dept.id,
+        status: 'pending',
+        remarks: 'Automatically initialized on signup'
+      }));
+
+      await supabase.from('clearance_status').insert(clearanceEntries);
+    }
+
+    // Generate token
+    const token = generateToken({ 
+      id: newStudent.id, 
+      userType: 'student',
+      role: 'student' 
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Student registered successfully',
+      token,
+      user: {
+        id: newStudent.id,
+        registrationNumber: newStudent.registration_number,
+        firstName: newStudent.first_name,
+        lastName: newStudent.last_name,
+        fullName: `${newStudent.first_name} ${newStudent.last_name}`,
+        email: newStudent.email,
+        role: 'student',
+        userType: 'student'
       }
     });
   })

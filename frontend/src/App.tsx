@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Toaster, toast } from 'sonner';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Login } from '@/components/Login';
+import { Register } from '@/components/Register';
 import { ChangePassword } from '@/components/ChangePassword';
 import { StudentDashboard } from '@/components/StudentDashboard';
 import { AdminDashboard } from '@/components/AdminDashboard';
@@ -21,6 +22,7 @@ function App() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [showRegister, setShowRegister] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -69,7 +71,17 @@ function App() {
   if (!user) {
     return (
       <>
-        <Login onLoginSuccess={handleLoginSuccess} />
+        {showRegister ? (
+          <Register 
+            onBackToLogin={() => setShowRegister(false)} 
+            onRegisterSuccess={handleLoginSuccess}
+          />
+        ) : (
+          <Login 
+            onLoginSuccess={handleLoginSuccess} 
+            onRegisterClick={() => setShowRegister(true)}
+          />
+        )}
         <Toaster position="top-right" expand={true} richColors />
       </>
     );

@@ -10,9 +10,10 @@ import { authService } from '@/lib/auth.service';
 
 interface LoginProps {
   onLoginSuccess: (user: any) => void;
+  onRegisterClick: () => void;
 }
 
-export const Login = ({ onLoginSuccess }: LoginProps) => {
+export const Login = ({ onLoginSuccess, onRegisterClick }: LoginProps) => {
   const [loading, setLoading] = useState(false);
   const [staffEmail, setStaffEmail] = useState('');
   const [staffPassword, setStaffPassword] = useState('');
@@ -150,13 +151,19 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
                     </div>
                   </div>
                 </CardContent>
-                <CardFooter>
-                  <Button className="w-full h-11 bg-blue-600 hover:bg-blue-700 transition-all font-semibold" disabled={loading}>
-                    {loading ? 'Signing in...' : 'Sign In'}
-                    {!loading && <ArrowRight className="ml-2 w-4 h-4" />}
-                  </Button>
                 </CardFooter>
               </form>
+              <div className="px-6 pb-6 pt-0 text-center">
+                <p className="text-sm text-slate-500">
+                  Don't have an account?{' '}
+                  <button 
+                    onClick={onRegisterClick}
+                    className="font-bold text-blue-600 hover:text-blue-700 hover:underline transition-all"
+                  >
+                    Sign Up
+                  </button>
+                </p>
+              </div>
             </Card>
           </TabsContent>
 

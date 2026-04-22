@@ -19,6 +19,15 @@ export const authService = {
     return response.data;
   },
 
+  studentSignup: async (signupData: any) => {
+    const response = await api.post('/auth/student/signup', signupData);
+    if (response.data.success) {
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+    }
+    return response.data;
+  },
+
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
