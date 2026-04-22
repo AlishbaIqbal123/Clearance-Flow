@@ -151,6 +151,11 @@ export const Login = ({ onLoginSuccess, onRegisterClick }: LoginProps) => {
                     </div>
                   </div>
                 </CardContent>
+                <CardFooter>
+                  <Button className="w-full h-11 bg-blue-600 hover:bg-blue-700 transition-all font-semibold" disabled={loading}>
+                    {loading ? 'Signing in...' : 'Sign In'}
+                    {!loading && <ArrowRight className="ml-2 w-4 h-4" />}
+                  </Button>
                 </CardFooter>
               </form>
               <div className="px-6 pb-6 pt-0 text-center">
