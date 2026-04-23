@@ -20,7 +20,8 @@ import {
   Phone,
   Camera,
   Shield,
-  Key
+  Key,
+  Trophy
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -131,11 +132,11 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
     setSavingProfile(true);
     try {
       if (user.role === 'student') {
-        await studentService.updateProfile({ phone: profileData.phone });
+        await studentService.updateProfile(profileData);
       } else {
         await api.put('/users/profile', { phone: profileData.phone });
       }
-      toast.success('Phone number saved! Departments will use this to contact you.');
+      toast.success('Profile saved successfully! Changes will reflect upon next login or refresh.');
       setIsProfileOpen(false);
     } catch (e: any) {
       const errorMsg = e.response?.data?.message || 'Failed to save. Please try again.';
@@ -170,15 +171,17 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'student', 'hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'] },
     { id: 'students', label: 'Students', icon: GraduationCap, roles: ['admin', 'hod'] },
-    { id: 'departments', label: 'Departments', icon: Building2, roles: ['admin'] },
+    { id: 'academic-depts', label: 'Faculties', icon: Building2, roles: ['admin'] },
+    { id: 'admin-depts', label: 'Admin Units', icon: Shield, roles: ['admin'] },
     { id: 'requests', label: 'Clearance Requests', icon: FileText, roles: ['admin', 'hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'] },
     { id: 'settings', label: 'Dept Settings', icon: Settings, roles: ['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'] },
-    { id: 'my-clearance', label: 'My Clearance', icon: FileText, roles: ['student'] },
+    { id: 'admin-clearance', label: 'Phase 1: Admin', icon: Shield, roles: ['student'] },
+    { id: 'academic-clearance', label: 'Phase 2: Academic', icon: Trophy, roles: ['student'] },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, roles: ['admin', 'hod'] },
-    { id: 'users', label: 'Staff Management', icon: Users, roles: ['admin'] },
+    { id: 'users', label: 'Staff Management', icon: Users, roles: ['admin'] }
   ];
 
-  const filteredItems = menuItems.filter(item => item.roles.includes(user.role));
+  const filteredItems = menuItems.filter(item => user?.role && item.roles.includes(user.role));
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
@@ -409,17 +412,29 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">First Name</Label>
-                <Input value={profileData.firstName} readOnly className="rounded-xl bg-slate-50 border-none font-bold text-slate-700" />
+                <Input 
+                  value={profileData.firstName} 
+                  onChange={(e) => setProfileData({...profileData, firstName: e.target.value})}
+                  className="rounded-xl border-slate-200 font-bold text-slate-700 focus:bg-white" 
+                />
               </div>
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Last Name</Label>
-                <Input value={profileData.lastName} readOnly className="rounded-xl bg-slate-50 border-none font-bold text-slate-700" />
+                <Input 
+                  value={profileData.lastName} 
+                  onChange={(e) => setProfileData({...profileData, lastName: e.target.value})}
+                  className="rounded-xl border-slate-200 font-bold text-slate-700 focus:bg-white" 
+                />
               </div>
               <div className="col-span-2 space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Email Address</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
-                  <Input value={profileData.email} readOnly className="pl-10 rounded-xl bg-slate-50 border-none font-bold text-slate-700" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input 
+                    value={profileData.email} 
+                    onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+                    className="pl-10 rounded-xl border-slate-200 font-bold text-slate-700 focus:bg-white" 
+                  />
                 </div>
               </div>
               <div className="col-span-2 space-y-2">

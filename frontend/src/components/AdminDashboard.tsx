@@ -13,7 +13,8 @@ import {
   ArrowRight,
   TrendingDown,
   UserPlus,
-  Plus
+  Plus,
+  GraduationCap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -117,6 +118,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
   const clearanceStats = data?.clearanceStats || {};
   const recentRequests = data?.recentRequests || [];
   const departmentPendingStats = data?.departmentPendingStats || [];
+  const departmentStudentStats = data?.departmentStudentStats || [];
 
   const chartData = [
     { name: 'Cleared', value: clearanceStats?.cleared || 0, color: '#10b981' },
@@ -303,6 +305,53 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                </Button>
             </div>
           )}
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Students by Department */}
+        <Card className="border-none shadow-xl shadow-slate-200/40 rounded-[2.5rem] bg-white overflow-hidden">
+          <CardHeader className="p-8 border-b border-slate-50 bg-slate-50/30">
+            <CardTitle className="text-xl font-bold text-slate-900 tracking-tight">Academic Distribution</CardTitle>
+            <CardDescription className="text-slate-500 font-medium">Students enrolled per department</CardDescription>
+          </CardHeader>
+          <CardContent className="p-8">
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={departmentStudentStats} layout="vertical" margin={{ left: 40, right: 40 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                  <XAxis type="number" hide />
+                  <YAxis 
+                    dataKey="name" 
+                    type="category" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fill: '#64748b', fontSize: 10, fontWeight: 700 }} 
+                    width={100}
+                  />
+                  <Tooltip 
+                    cursor={{ fill: '#f8fafc' }}
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                  />
+                  <Bar dataKey="count" fill="#3b82f6" radius={[0, 8, 8, 0]} barSize={24} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Actions / Summary */}
+        <Card className="border-none shadow-xl shadow-slate-200/40 rounded-[2.5rem] bg-white overflow-hidden flex flex-col justify-center p-10 text-center space-y-6">
+           <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
+              <GraduationCap className="w-10 h-10 text-blue-600" />
+           </div>
+           <div className="space-y-2">
+              <h3 className="text-2xl font-black text-slate-900">Academic Registry Ready</h3>
+              <p className="text-slate-500 font-medium max-w-xs mx-auto">All departments (including Biotech and Math) are now fully integrated into the clearance workflow.</p>
+           </div>
+           <Button className="rounded-2xl h-14 bg-slate-900 hover:bg-slate-800 text-white font-black px-8 shadow-xl" onClick={() => onNavigate('students')}>
+              MANAGE STUDENT REGISTRY
+           </Button>
         </Card>
       </div>
 

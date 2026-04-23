@@ -9,7 +9,8 @@ import {
   Save, 
   ShieldCheck,
   MessageCircle,
-  HelpCircle
+  HelpCircle,
+  Link2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -204,6 +205,51 @@ export const DepartmentProfile = ({ user }: { user: any }) => {
                     placeholder="e.g. Ground Floor, Block A"
                   />
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Card: Pre-Clearance Forms */}
+          <Card className="border-none shadow-2xl shadow-slate-200/50 rounded-[2.5rem] bg-white overflow-hidden">
+            <CardHeader className="p-8 border-b border-slate-50">
+              <CardTitle className="text-xl font-bold flex items-center gap-3">
+                <div className="p-2.5 bg-purple-50 text-purple-600 rounded-xl">
+                  <Link2 className="w-5 h-5" />
+                </div>
+                Pre-Clearance Requirements
+              </CardTitle>
+              <CardDescription className="text-slate-500">Provide an external form link (like Google Forms) that students must fill out during Phase 2.</CardDescription>
+            </CardHeader>
+            <CardContent className="p-8 space-y-8">
+              <div className="space-y-3">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-600">Form Link</Label>
+                <div className="relative group">
+                  <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-purple-600 transition-colors" />
+                  <Input 
+                    value={deptData?.contact_info?.form_link || ''} 
+                    onChange={(e) => setDeptData({
+                      ...deptData, 
+                      contact_info: { ...deptData?.contact_info, form_link: e.target.value }
+                    })}
+                    className="pl-12 h-14 rounded-2xl border-slate-200 focus:border-purple-500 bg-white font-medium text-slate-900 transition-all" 
+                    placeholder="https://forms.gle/..."
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <div className="space-y-0.5">
+                  <Label className="font-bold text-slate-900">Form Visibility</Label>
+                  <p className="text-xs text-slate-500 font-medium">If enabled, students will see this link in Phase 2 with a "Please fill this first" badge.</p>
+                </div>
+                <Switch 
+                  checked={deptData?.contact_info?.form_visible || false} 
+                  onCheckedChange={(checked) => setDeptData({
+                    ...deptData,
+                    contact_info: { ...deptData?.contact_info, form_visible: checked }
+                  })}
+                  className="data-[state=checked]:bg-purple-600"
+                />
               </div>
             </CardContent>
           </Card>

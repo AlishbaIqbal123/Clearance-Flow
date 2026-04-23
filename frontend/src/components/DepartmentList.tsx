@@ -33,8 +33,8 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { adminService } from '@/lib/admin.service';
 
-export const DepartmentList = () => {
-  const [departments, setDepartments] = useState<any[]>([]);
+export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'administrative' }) => {
+  const [allDepartments, setAllDepartments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -42,7 +42,7 @@ export const DepartmentList = () => {
   const [formData, setFormData] = useState({
      name: '',
      code: '',
-     type: 'academic',
+     type: filterType === 'administrative' ? 'administrative' : 'academic',
      email: '',
      phone: ''
   });
@@ -52,7 +52,7 @@ export const DepartmentList = () => {
       setLoading(true);
       const res = await adminService.getDepartments();
       if (res.success) {
-        setDepartments(res.data.departments || []);
+        setAllDepartments(res.data.departments || []);
       }
     } catch (error) {
       toast.error('Failed to fetch departments');
@@ -61,13 +61,19 @@ export const DepartmentList = () => {
     }
   };
 
+  const departments = allDepartments.filter(dept => {
+    if (!filterType) return true;
+    if (filterType === 'academic') return dept.type === 'academic';
+    return dept.type !== 'academic'; // administrative/others
+  });
+
   const handleDelete = async (id: string) => {
     if (!window.confirm('Delete this department? All associated staff will lose their department association.')) return;
     try {
       const res = await adminService.deleteDepartment(id);
       if (res.success) {
         toast.success('Department deleted successfully');
-        setDepartments(prev => prev.filter(d => d.id !== id));
+        setAllDepartments(prev => prev.filter(d => d.id !== id));
       }
     } catch (e) {
       toast.error('Failed to delete department');
@@ -101,36 +107,47 @@ export const DepartmentList = () => {
     fetchDepartments();
   }, []);
 
+  const pageTitle = filterType === 'academic' ? 'Academic Faculties' : filterType === 'administrative' ? 'Administrative Units' : 'Departmental Hub';
+  const pageDescription = filterType === 'academic' 
+    ? 'Manage university faculties and academic department heads.' 
+    : filterType === 'administrative' 
+    ? 'Configure service departments like Finance, Library, and Transport.'
+    : 'Configure university departments and clearance requirements.';
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-           <h2 className="text-3xl font-black text-slate-900 tracking-tighter">Departmental Hub</h2>
-           <p className="text-slate-500 font-medium italic">Configure university departments and clearance requirements.</p>
+           <h2 className="text-3xl font-black text-slate-900 tracking-tighter">{pageTitle}</h2>
+           <p className="text-slate-500 font-medium italic">{pageDescription}</p>
         </div>
         <Button 
-          className="rounded-xl bg-purple-600 text-white h-11 px-6 font-bold shadow-lg shadow-purple-100"
+          className={`rounded-xl h-11 px-6 font-bold shadow-lg ${filterType === 'administrative' ? 'bg-blue-600 shadow-blue-100' : 'bg-purple-600 shadow-purple-100'}`}
           onClick={() => {
-            setFormData({ name: '', code: '', type: 'academic', email: '', phone: '' });
+            setFormData({ name: '', code: '', type: filterType === 'administrative' ? 'administrative' : 'academic', email: '', phone: '' });
             setIsAddOpen(true);
           }}
         >
            <Plus className="w-4 h-4 mr-2" />
-           New Department
+           New {filterType === 'academic' ? 'Faculty' : 'Admin Unit'}
         </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading ? (
            <div className="col-span-full h-48 flex items-center justify-center bg-white rounded-[2rem]">
-              <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+              <Loader2 className={`w-8 h-8 ${filterType === 'administrative' ? 'text-blue-600' : 'text-purple-600'} animate-spin`} />
            </div>
+        ) : departments.length === 0 ? (
+          <div className="col-span-full py-20 text-center bg-white rounded-[2rem] border-2 border-dashed border-slate-100">
+            <p className="text-slate-400 font-bold uppercase tracking-widest">No departments found in this category</p>
+          </div>
         ) : (
           departments.map((dept) => (
             <Card key={dept.id} className="border-none shadow-xl shadow-slate-200/40 rounded-[2rem] bg-white overflow-hidden group hover:shadow-2xl transition-all duration-500">
               <CardHeader className="p-8 pb-4">
                  <div className="flex items-start justify-between">
-                    <div className="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center font-black text-purple-600 text-xl group-hover:bg-purple-600 group-hover:text-white transition-all duration-500 shadow-sm">
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl group-hover:text-white transition-all duration-500 shadow-sm ${filterType === 'administrative' ? 'bg-blue-50 text-blue-600 group-hover:bg-blue-600' : 'bg-purple-50 text-purple-600 group-hover:bg-purple-600'}`}>
                        {dept.code}
                     </div>
                     <DropdownMenu>
@@ -175,11 +192,11 @@ export const DepartmentList = () => {
               <CardContent className="p-8 pt-4 space-y-4">
                  <div className="space-y-2 text-sm">
                     <div className="flex items-center gap-2 text-slate-500 font-medium group/mail">
-                       <Mail className="w-4 h-4 text-slate-300 group-hover/mail:text-purple-500 transition-colors" />
+                       <Mail className={`w-4 h-4 text-slate-300 transition-colors ${filterType === 'administrative' ? 'group-hover/mail:text-blue-500' : 'group-hover/mail:text-purple-500'}`} />
                        <span className="truncate">{dept.contact_info?.email || 'no-email@univ.edu'}</span>
                     </div>
                     <div className="flex items-center gap-2 text-slate-500 font-medium group/phone">
-                       <Phone className="w-4 h-4 text-slate-300 group-hover/phone:text-purple-500 transition-colors" />
+                       <Phone className={`w-4 h-4 text-slate-300 transition-colors ${filterType === 'administrative' ? 'group-hover/phone:text-blue-500' : 'group-hover/phone:text-purple-500'}`} />
                        <span>{dept.contact_info?.phone || 'N/A'}</span>
                     </div>
                  </div>
@@ -205,13 +222,13 @@ export const DepartmentList = () => {
       </div>
       <Dialog open={isAddOpen || isEditOpen} onOpenChange={(open) => { if(!open) { setIsAddOpen(false); setIsEditOpen(false); } }}>
         <DialogContent className="sm:max-w-[500px] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
-          <div className={`${isEditOpen ? 'bg-amber-500' : 'bg-purple-600'} p-8 text-white relative`}>
+          <div className={`${isEditOpen ? 'bg-amber-500' : (filterType === 'administrative' ? 'bg-blue-600' : 'bg-purple-600')} p-8 text-white relative`}>
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
             <DialogTitle className="text-2xl font-black tracking-tight text-white">
-              {isEditOpen ? 'Edit Department' : 'New Department'}
+              {isEditOpen ? 'Edit ' : 'New '}{filterType === 'academic' ? 'Faculty' : 'Admin Unit'}
             </DialogTitle>
             <DialogDescription className="text-white/80 font-medium mt-1">
-              {isEditOpen ? 'Update administrative unit details and clearance settings.' : 'Create a new administrative unit for clearance processing.'}
+              {isEditOpen ? 'Update configuration and settings.' : 'Create a new unit for clearance processing.'}
             </DialogDescription>
           </div>
           <form className="p-8 space-y-4" onSubmit={isEditOpen ? handleUpdate : async (e) => {
@@ -227,7 +244,7 @@ export const DepartmentList = () => {
                 },
                 clearanceConfig: {
                   isRequired: true,
-                  order: departments.length + 1
+                  order: allDepartments.length + 1
                 }
               };
               const res = await adminService.createDepartment(data);
@@ -242,11 +259,11 @@ export const DepartmentList = () => {
           }}>
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2 space-y-2">
-                <Label className="text-[10px] font-black uppercase text-slate-400">Department Name</Label>
+                <Label className="text-[10px] font-black uppercase text-slate-400">Name</Label>
                 <Input 
                   value={formData.name} 
                   onChange={(e) => setFormData({...formData, name: e.target.value})} 
-                  placeholder="Library Services" 
+                  placeholder={filterType === 'academic' ? 'Faculty of Engineering' : 'Library Services'}
                   className="rounded-xl" 
                   required 
                 />
@@ -256,13 +273,13 @@ export const DepartmentList = () => {
                 <Input 
                   value={formData.code} 
                   onChange={(e) => setFormData({...formData, code: e.target.value.toUpperCase()})} 
-                  placeholder="LIB" 
+                  placeholder={filterType === 'academic' ? 'ENG' : 'LIB'}
                   className="rounded-xl" 
                   required 
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase text-slate-400">Type</Label>
+                <Label className="text-[10px] font-black uppercase text-slate-400">Category</Label>
                 <Select 
                   value={formData.type} 
                   onValueChange={(val) => setFormData({...formData, type: val})}
@@ -271,16 +288,20 @@ export const DepartmentList = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl">
-                    <div className="px-2 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 rounded-md mb-1">Academic Programs</div>
-                    <SelectItem value="academic">Academic Department</SelectItem>
-                    
-                    <div className="px-2 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 rounded-md my-1">Administrative & Services</div>
-                    <SelectItem value="financial">Finance Office</SelectItem>
-                    <SelectItem value="library">Library</SelectItem>
-                    <SelectItem value="transport">Transport Office</SelectItem>
-                    <SelectItem value="hostel">Hostel / Housing</SelectItem>
-                    <SelectItem value="administrative">General Administration</SelectItem>
-                    <SelectItem value="security">Security / Proctor</SelectItem>
+                    {filterType === 'academic' ? (
+                      <>
+                        <SelectItem value="academic">Academic Faculty</SelectItem>
+                      </>
+                    ) : (
+                      <>
+                        <SelectItem value="financial">Finance Office</SelectItem>
+                        <SelectItem value="library">Library</SelectItem>
+                        <SelectItem value="transport">Transport</SelectItem>
+                        <SelectItem value="hostel">Hostel</SelectItem>
+                        <SelectItem value="administrative">General Admin</SelectItem>
+                        <SelectItem value="security">Security</SelectItem>
+                      </>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -307,7 +328,7 @@ export const DepartmentList = () => {
             <DialogFooter className="pt-4">
               <Button type="button" variant="ghost" className="rounded-xl h-12" onClick={() => { setIsAddOpen(false); setIsEditOpen(false); }}>Cancel</Button>
               <Button type="submit" className={`w-full h-12 rounded-xl font-bold ${isEditOpen ? 'bg-amber-600' : 'bg-slate-900'}`}>
-                {isEditOpen ? 'Save Changes' : 'Create Department'}
+                {isEditOpen ? 'Save Changes' : 'Confirm Registration'}
               </Button>
             </DialogFooter>
           </form>

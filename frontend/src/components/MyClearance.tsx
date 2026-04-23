@@ -3,7 +3,7 @@ import {
   CheckCircle2, Clock, AlertCircle, ChevronRight,
   Mail, MessageCircle, MapPin, Phone, Loader2,
   FileText, ArrowRight, Building2, RefreshCcw,
-  Trophy
+  Trophy, Info, ExternalLink, Link2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -46,20 +46,28 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; 
     dot: 'bg-red-500'
   }
 };
-
 const DepartmentCard = ({
   dept,
   index,
   isActive,
   isCompleted,
-  isFuture
+  isFuture,
+  student,
+  allStatuses
 }: {
   dept: any;
   index: number;
   isActive: boolean;
   isCompleted: boolean;
   isFuture: boolean;
+  student: any;
+  allStatuses: any[];
 }) => {
+  const isAcademic = dept.department?.type === 'academic';
+  const phase1Cleared = (allStatuses || []).every((s: any) => 
+    s.department?.type === 'academic' || s.status === 'cleared'
+  );
+
   const rawStatus = dept.status || 'pending';
   const effectiveStatus = isActive ? 'in_progress' : rawStatus;
   const cfg = STATUS_CONFIG[effectiveStatus] || STATUS_CONFIG.pending;
@@ -79,7 +87,9 @@ const DepartmentCard = ({
   };
 
   const handleEmail = () => {
-    const email = dept.department?.contact_info?.email || dept.department?.email;
+    const rawEmail = dept.department?.contact_info?.email || dept.department?.email;
+    const emailMatch = rawEmail?.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/);
+    const email = emailMatch ? emailMatch[0] : null;
     if (email) {
       window.location.href = `mailto:${email}?subject=Clearance%20Inquiry%20-%20${encodeURIComponent(dept.department?.name || 'Department')}`;
     } else {
@@ -134,7 +144,7 @@ const DepartmentCard = ({
               </div>
               <div>
                 <h3 className={`font-black text-base leading-tight ${isFuture ? 'text-slate-400' : 'text-slate-900'}`}>
-                  {dept.department?.name || `Department ${index + 1}`}
+                  {dept.department_id === student.department_id ? student.discipline : (dept.department?.name || `Department ${index + 1}`)}
                 </h3>
                 <p className={`text-[11px] font-bold uppercase tracking-widest ${isFuture ? 'text-slate-300' : 'text-slate-400'}`}>
                   {dept.department?.type || 'Administrative'} Office
@@ -142,14 +152,46 @@ const DepartmentCard = ({
               </div>
             </div>
 
-            <div className={`
-              flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black flex-shrink-0
-              ${cfg.bg} ${cfg.color} border ${cfg.border}
-            `}>
-              <div className={`w-1.5 h-1.5 rounded-full ${cfg.dot} ${isActive ? 'animate-pulse' : ''}`} />
-              {cfg.label}
+            <div className="flex flex-col items-end gap-1">
+               {isAcademic && !phase1Cleared && dept.status === 'pending' ? (
+                  <Badge variant="outline" className="bg-slate-100 text-slate-500 border-slate-200 text-[9px] font-black uppercase py-1">Phase 2: Locked</Badge>
+               ) : (
+                  <div className={`
+                    flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black flex-shrink-0
+                    ${cfg.bg} ${cfg.color} border ${cfg.border}
+                  `}>
+                    <div className={`w-1.5 h-1.5 rounded-full ${cfg.dot} ${isActive ? 'animate-pulse' : ''}`} />
+                    {(dept.status || 'pending').replace('_', ' ').toUpperCase()}
+                  </div>
+               )}
             </div>
           </div>
+          
+          {isAcademic && !phase1Cleared && dept.status === 'pending' && (
+             <div className="mb-4 p-4 rounded-2xl border bg-slate-50 border-slate-100 flex gap-3">
+                <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                <p className="text-xs text-slate-500 font-medium leading-relaxed italic">
+                  This departmental clearance is in Phase 2. It will be enabled once you have obtained clearance from all Phase 1 administrative offices (Library, Finance, etc.).
+                </p>
+             </div>
+          )}
+
+          {(!isAcademic || phase1Cleared || dept.status !== 'pending') && dept.department?.contact_info?.form_visible && dept.department?.contact_info?.form_link && (
+             <div className="mb-4 p-4 rounded-2xl border bg-purple-50 border-purple-100 flex flex-col gap-3">
+                <div className="flex items-center gap-2 text-purple-700">
+                  <Link2 className="w-4 h-4 shrink-0" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Please fill this first</span>
+                </div>
+                <Button 
+                  variant="outline" 
+                  className="w-full bg-white border-purple-200 text-purple-700 hover:bg-purple-100 font-bold"
+                  onClick={() => window.open(dept.department.contact_info.form_link, '_blank')}
+                >
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Open Required Form
+                </Button>
+             </div>
+          )}
 
           {/* Remarks */}
           {dept.remarks && (
@@ -228,7 +270,7 @@ const DepartmentCard = ({
   );
 };
 
-export const MyClearance = () => {
+export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'academic' }) => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -255,16 +297,36 @@ export const MyClearance = () => {
   }
 
   const activeRequest = data?.activeRequest;
-  const departments: any[] = activeRequest?.clearance_status || [];
+  const allDepartments: any[] = activeRequest?.clearance_status || [];
+  
+  // Filter departments based on type
+  const departments = allDepartments.filter(dept => {
+    if (!filterType) return true;
+    const isAcademic = dept.department?.type === 'academic';
+    return filterType === 'academic' ? isAcademic : !isAcademic;
+  });
+
   const progress = activeRequest?.progress || {};
 
-  // Determine which department is currently being processed
-  // "In Progress" = first non-cleared department when previous ones are cleared
+  const getDeptDisplayName = (deptId: string, deptName: string) => {
+    if (deptId === data.student.department_id && data.student.discipline) {
+      return data.student.discipline;
+    }
+    return deptName;
+  };
+
+  // Determine which department is currently being processed for this specific view
   let activeIndex = -1;
   if (activeRequest && departments.length > 0) {
-    // Find the first department that is NOT cleared → that's the one in progress
     activeIndex = departments.findIndex(d => d.status !== 'cleared');
   }
+
+  const pageTitle = filterType === 'academic' ? 'Academic Clearance' : filterType === 'administrative' ? 'Administrative Clearance' : 'My Clearance';
+  const pageDescription = filterType === 'academic' 
+    ? 'Phase 2: Final sign-off from your academic department head.' 
+    : filterType === 'administrative' 
+    ? 'Phase 1: Clear all service departments including Library, Finance, and Sports.'
+    : 'Track your clearance journey across all university departments';
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -272,8 +334,8 @@ export const MyClearance = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">My Clearance</h2>
-          <p className="text-slate-500 font-medium mt-1">Track your clearance journey across all university departments</p>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight">{pageTitle}</h2>
+          <p className="text-slate-500 font-medium mt-1">{pageDescription}</p>
         </div>
         <Button
           variant="outline"
@@ -287,67 +349,53 @@ export const MyClearance = () => {
 
       {activeRequest ? (
         <>
-          {/* Overall Progress Header Card */}
-          <Card className="border-none shadow-xl shadow-blue-100/50 rounded-[2rem] overflow-hidden bg-white">
-            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-8 text-white relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32" />
-              <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-400/20 rounded-full translate-y-24 -translate-x-24" />
+          {/* Progress Summary (Only show on main or admin page) */}
+          {(!filterType || filterType === 'administrative') && (
+            <Card className="border-none shadow-xl shadow-blue-100/50 rounded-[2rem] overflow-hidden bg-white">
+              <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-8 text-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32" />
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-400/20 rounded-full translate-y-24 -translate-x-24" />
 
-              <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                    <span className="text-blue-100 text-xs font-black uppercase tracking-widest">Live Tracking</span>
+                <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+                      <span className="text-blue-100 text-xs font-black uppercase tracking-widest">Live Tracking</span>
+                    </div>
+                    <h3 className="text-3xl font-black tracking-tight">
+                      {progress.clearedDepartments || 0} / {progress.totalDepartments || allDepartments.length}
+                      <span className="text-blue-200 text-lg font-bold ml-2">Departments Cleared</span>
+                    </h3>
+                    <p className="text-blue-100 mt-1 font-medium">
+                      Request ID: <span className="font-black text-white">{activeRequest.request_id}</span>
+                    </p>
                   </div>
-                  <h3 className="text-3xl font-black tracking-tight">
-                    {progress.clearedDepartments || 0} / {progress.totalDepartments || departments.length}
-                    <span className="text-blue-200 text-lg font-bold ml-2">Departments Cleared</span>
-                  </h3>
-                  <p className="text-blue-100 mt-1 font-medium">
-                    Request ID: <span className="font-black text-white">{activeRequest.request_id}</span>
-                  </p>
+                  <div className="text-right">
+                    <div className="text-5xl font-black tracking-tighter">{progress.percentage || 0}%</div>
+                    <div className="text-blue-200 text-xs font-black uppercase tracking-widest mt-1">Overall Progress</div>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-5xl font-black tracking-tighter">{progress.percentage || 0}%</div>
-                  <div className="text-blue-200 text-xs font-black uppercase tracking-widest mt-1">Overall Progress</div>
-                </div>
-              </div>
 
-              <div className="relative mt-6">
-                <div className="w-full h-3 bg-white/20 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-white rounded-full transition-all duration-1000"
-                    style={{ width: `${progress.percentage || 0}%` }}
-                  />
+                <div className="relative mt-6">
+                  <div className="w-full h-3 bg-white/20 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-white rounded-full transition-all duration-1000"
+                      style={{ width: `${progress.percentage || 0}%` }}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-
-            {/* Stats row */}
-            <div className="grid grid-cols-3 divide-x divide-slate-100">
-              <div className="p-5 text-center">
-                <p className="text-2xl font-black text-emerald-600">{progress.clearedDepartments || 0}</p>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Cleared</p>
-              </div>
-              <div className="p-5 text-center">
-                <p className="text-2xl font-black text-blue-600">{progress.pendingDepartments || 0}</p>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Remaining</p>
-              </div>
-              <div className="p-5 text-center">
-                <p className="text-2xl font-black text-red-500">{progress.rejectedDepartments || 0}</p>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Rejected</p>
-              </div>
-            </div>
-          </Card>
+            </Card>
+          )}
 
           {/* Active Department Highlight */}
           {activeIndex >= 0 && (
             <div className="flex items-center gap-3 px-5 py-3 bg-blue-50 border border-blue-200 rounded-2xl">
               <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse flex-shrink-0" />
               <p className="text-sm font-bold text-blue-800">
-                Currently awaiting approval from:{' '}
+                Awaiting approval:{' '}
                 <span className="font-black">
-                  {departments[activeIndex]?.department?.name || 'Unknown Department'}
+                  {getDeptDisplayName(departments[activeIndex]?.department_id, departments[activeIndex]?.department?.name || 'Unknown Department')}
                 </span>
               </p>
             </div>
@@ -368,43 +416,47 @@ export const MyClearance = () => {
                     isActive={isActive}
                     isCompleted={isCompleted}
                     isFuture={isFuture}
+                    student={data.student}
+                    allStatuses={allDepartments}
                   />
                 );
               })}
             </div>
 
-            {/* Final completion node */}
-            <div className="flex gap-4">
-              <div className="flex flex-col items-center">
+            {/* Final completion node (Only on Academic page) */}
+            {filterType === 'academic' && (
+              <div className="flex gap-4">
+                <div className="flex flex-col items-center">
+                  <div className={`
+                    w-10 h-10 rounded-full flex items-center justify-center border-2 flex-shrink-0
+                    ${progress.percentage === 100
+                      ? 'bg-emerald-500 border-emerald-500 shadow-lg shadow-emerald-100'
+                      : 'bg-white border-dashed border-slate-200'
+                    }
+                  `}>
+                    <Trophy className={`w-5 h-5 ${progress.percentage === 100 ? 'text-white' : 'text-slate-200'}`} />
+                  </div>
+                </div>
                 <div className={`
-                  w-10 h-10 rounded-full flex items-center justify-center border-2 flex-shrink-0
+                  flex-1 mb-2 rounded-2xl border-2 p-5 flex items-center gap-4
                   ${progress.percentage === 100
-                    ? 'bg-emerald-500 border-emerald-500 shadow-lg shadow-emerald-100'
-                    : 'bg-white border-dashed border-slate-200'
+                    ? 'border-emerald-200 bg-emerald-50'
+                    : 'border-dashed border-slate-100 bg-slate-50/50'
                   }
                 `}>
-                  <Trophy className={`w-5 h-5 ${progress.percentage === 100 ? 'text-white' : 'text-slate-200'}`} />
+                  <div>
+                    <p className={`font-black text-lg ${progress.percentage === 100 ? 'text-emerald-700' : 'text-slate-300'}`}>
+                      {progress.percentage === 100 ? '🎉 Final Degree Clearance Complete!' : 'Final Degree Certificate'}
+                    </p>
+                    <p className={`text-xs font-medium mt-0.5 ${progress.percentage === 100 ? 'text-emerald-600' : 'text-slate-300'}`}>
+                      {progress.percentage === 100
+                        ? 'Your final clearance has been verified by the Academic HOD.'
+                        : 'Unlocked after Phase 1 and Academic sign-off.'}
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div className={`
-                flex-1 mb-2 rounded-2xl border-2 p-5 flex items-center gap-4
-                ${progress.percentage === 100
-                  ? 'border-emerald-200 bg-emerald-50'
-                  : 'border-dashed border-slate-100 bg-slate-50/50'
-                }
-              `}>
-                <div>
-                  <p className={`font-black text-lg ${progress.percentage === 100 ? 'text-emerald-700' : 'text-slate-300'}`}>
-                    {progress.percentage === 100 ? '🎉 Clearance Complete!' : 'Clearance Certificate'}
-                  </p>
-                  <p className={`text-xs font-medium mt-0.5 ${progress.percentage === 100 ? 'text-emerald-600' : 'text-slate-300'}`}>
-                    {progress.percentage === 100
-                      ? 'Your certificate is ready for download'
-                      : 'Available after all departments clear you'}
-                  </p>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </>
       ) : (
@@ -426,3 +478,6 @@ export const MyClearance = () => {
     </div>
   );
 };
+
+export const AdminClearance = () => <MyClearance filterType="administrative" />;
+export const AcademicClearance = () => <MyClearance filterType="academic" />;

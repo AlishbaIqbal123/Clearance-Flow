@@ -12,6 +12,67 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onRegisterSuc
   const [loading, setLoading] = useState(false);
   const [departments, setDepartments] = useState<any[]>([]);
   const [fetchingDepts, setFetchingDepts] = useState(true);
+
+  const PROGRAM_DISCIPLINE_MAP = {
+    'Undergraduate Programs (BS)': [
+      'BS Computer Science',
+      'BS Software Engineering',
+      'BS Business Administration (BBA)',
+      'BS Accounting and Finance',
+      'BS Environmental Sciences',
+      'BS Biotechnology',
+      'BS Economics',
+      'BS English',
+      'BS Media and Communication Studies',
+      'BS Mathematics'
+    ],
+    'Graduate Programs (MS/MBA)': [
+      'MS Computer Science',
+      'MS Management Sciences',
+      'MBA (2 Years)',
+      'MS Environmental Sciences',
+      'MS Economics',
+      'MS English (Linguistics)',
+      'MS Mathematics'
+    ],
+    'Doctoral Programs (PhD)': [
+      'PhD Management Sciences',
+      'PhD Environmental Sciences',
+      'PhD Economics',
+      'PhD English (Linguistics)',
+      'PhD Mathematics'
+    ]
+  };
+
+  const DISCIPLINE_DEPT_MAP: Record<string, string> = {
+    'BS Computer Science': 'Computer Science',
+    'BS Software Engineering': 'Software Engineering',
+    'MS Computer Science': 'Computer Science',
+    'BS Business Administration (BBA)': 'Management Sciences',
+    'BS Accounting and Finance': 'Management Sciences',
+    'MS Management Sciences': 'Management Sciences',
+    'MBA (2 Years)': 'Management Sciences',
+    'PhD Management Sciences': 'Management Sciences',
+    'BS Environmental Sciences': 'Environmental Sciences',
+    'BS Biotechnology': 'Biotechnology',
+    'MS Environmental Sciences': 'Environmental Sciences',
+    'PhD Environmental Sciences': 'Environmental Sciences',
+    'BS Economics': 'Economics',
+    'MS Economics': 'Economics',
+    'PhD Economics': 'Economics',
+    'BS English': 'Humanities',
+    'BS Media and Communication Studies': 'Humanities',
+    'MS English (Linguistics)': 'Humanities',
+    'PhD English (Linguistics)': 'Humanities',
+    'BS Mathematics': 'Mathematics',
+    'MS Mathematics': 'Mathematics',
+    'PhD Mathematics': 'Mathematics'
+  };
+
+  const getAvailableDisciplines = () => {
+    if (!formData.program) return [];
+    return PROGRAM_DISCIPLINE_MAP[formData.program as keyof typeof PROGRAM_DISCIPLINE_MAP] || [];
+  };
   
   const [formData, setFormData] = useState({
     registrationNumber: '',
@@ -33,7 +94,8 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onRegisterSuc
         const res = await fetch('/api/departments');
         const data = await res.json();
         if (data.success) {
-          setDepartments(data.data);
+          // Only academic departments should be mapped for students
+          setDepartments(data.data.filter((d: any) => d.type === 'academic'));
         }
       } catch (error) {
         console.error('Failed to fetch departments:', error);
@@ -43,6 +105,11 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onRegisterSuc
     };
     fetchDepartments();
   }, []);
+
+  // Reset discipline when program changes
+  useEffect(() => {
+    setFormData(prev => ({ ...prev, discipline: '' }));
+  }, [formData.program]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -56,9 +123,22 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onRegisterSuc
       return toast.error('Passwords do not match');
     }
 
+    // Auto-map departmentId based on discipline
+    const deptName = DISCIPLINE_DEPT_MAP[formData.discipline];
+    const dept = departments.find(d => d.name === deptName);
+    
+    if (!dept) {
+      return toast.error('Could not map department for selected discipline');
+    }
+
+    const submissionData = {
+      ...formData,
+      departmentId: dept.id
+    };
+
     setLoading(true);
     try {
-      const res = await authService.studentSignup(formData);
+      const res = await authService.studentSignup(submissionData);
       if (res.success) {
         toast.success('Registration successful! Welcome to the portal.');
         onRegisterSuccess(res.user);
@@ -135,7 +215,7 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onRegisterSuc
 
               {/* Email */}
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">University Email</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Active Email</label>
                 <div className="relative group">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
                   <input
@@ -144,7 +224,7 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onRegisterSuc
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="name@university.edu"
+                    placeholder="your-active-email@gmail.com"
                     className="w-full bg-slate-50 border-none rounded-2xl py-3.5 pl-11 pr-4 text-sm font-bold text-slate-700 placeholder:text-slate-300 focus:ring-2 focus:ring-blue-500/20 transition-all"
                   />
                 </div>
@@ -179,48 +259,54 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onRegisterSuc
               </div>
             </div>
 
-            {/* Department Selection */}
+            {/* Phone Number */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Academic Department</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Active Phone Number</label>
               <div className="relative group">
-                <BookOpen className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
-                <select
+                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
+                <input
                   required
-                  name="departmentId"
-                  value={formData.departmentId}
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
                   onChange={handleChange}
-                  className="w-full bg-slate-50 border-none rounded-2xl py-3.5 pl-11 pr-4 text-sm font-bold text-slate-700 appearance-none focus:ring-2 focus:ring-blue-500/20 transition-all"
-                >
-                  <option value="">Select Department</option>
-                  {departments.map(dept => (
-                    <option key={dept.id} value={dept.id}>{dept.name}</option>
-                  ))}
-                </select>
+                  placeholder="+92 300 1234567"
+                  className="w-full bg-slate-50 border-none rounded-2xl py-3.5 pl-11 pr-4 text-sm font-bold text-slate-700 placeholder:text-slate-300 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Program</label>
-                <input
+                <select
                   required
                   name="program"
                   value={formData.program}
                   onChange={handleChange}
-                  placeholder="e.g. BS"
-                  className="w-full bg-slate-50 border-none rounded-2xl py-3 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500/20 transition-all"
-                />
+                  className="w-full bg-slate-50 border-none rounded-2xl py-3 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500/20 transition-all appearance-none"
+                >
+                  <option value="">Select Program</option>
+                  {Object.keys(PROGRAM_DISCIPLINE_MAP).map(prog => (
+                    <option key={prog} value={prog}>{prog}</option>
+                  ))}
+                </select>
               </div>
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Discipline</label>
-                <input
+                <select
                   required
                   name="discipline"
                   value={formData.discipline}
                   onChange={handleChange}
-                  placeholder="e.g. CS"
-                  className="w-full bg-slate-50 border-none rounded-2xl py-3 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500/20 transition-all"
-                />
+                  disabled={!formData.program}
+                  className="w-full bg-slate-50 border-none rounded-2xl py-3 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500/20 transition-all appearance-none disabled:opacity-50"
+                >
+                  <option value="">Select Discipline</option>
+                  {getAvailableDisciplines().map(disc => (
+                    <option key={disc} value={disc}>{disc}</option>
+                  ))}
+                </select>
               </div>
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Batch</label>

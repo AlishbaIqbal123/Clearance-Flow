@@ -38,28 +38,42 @@ router.post('/login',
   ],
   asyncHandler(async (req, res) => {
     const { email, password } = req.body;
+    const normalizedEmail = email.trim().toLowerCase();
 
     // Find user in profiles table
-    console.log('Login attempt for:', email);
+    console.log('Login attempt for:', normalizedEmail);
     const { data: user, error } = await supabase
       .from('profiles')
       .select('*, department:department_id(*)')
-      .eq('email', email.toLowerCase())
+      .eq('email', normalizedEmail)
       .single();
 
     if (error || !user) {
-      if (error) console.error('Staff login DB error:', error);
-      else console.log('Staff login failed: User not found for email:', email);
+      if (error) {
+        console.error('Staff login DB error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+      } else {
+        console.log('Staff login failed: User not found for email:', normalizedEmail);
+      }
       throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
     }
 
     if (!user.is_active) {
+      console.log('Login blocked: User account is inactive for', normalizedEmail);
       throw new AppError('Account is deactivated', 403, 'ACCOUNT_DEACTIVATED');
     }
 
     // Check password
+    console.log('Attempting bcrypt comparison for', normalizedEmail);
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log('Bcrypt comparison result:', isMatch);
+    
     if (!isMatch) {
+      console.log('Staff login failed: Password mismatch for', normalizedEmail);
       throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
     }
 
@@ -112,15 +126,17 @@ router.post('/student/login',
   ],
   asyncHandler(async (req, res) => {
     const { registrationNumber, email, password } = req.body;
+    const cleanReg = registrationNumber ? registrationNumber.trim().toUpperCase() : null;
+    const cleanEmail = email ? email.trim().toLowerCase() : null;
 
     let query = supabase
       .from('student_profiles')
       .select('*, department:department_id(*)');
 
-    if (registrationNumber) {
-      query = query.eq('registration_number', registrationNumber.toUpperCase());
-    } else if (email) {
-      query = query.eq('email', email.toLowerCase());
+    if (cleanReg) {
+      query = query.eq('registration_number', cleanReg);
+    } else if (cleanEmail) {
+      query = query.eq('email', cleanEmail);
     } else {
       throw new AppError('Registration number or email required', 400);
     }
@@ -200,6 +216,7 @@ router.post('/student/signup',
     body('program').notEmpty().withMessage('Program is required'),
     body('discipline').notEmpty().withMessage('Discipline is required'),
     body('batch').notEmpty().withMessage('Batch is required'),
+    body('phone').notEmpty().withMessage('Active phone number is required'),
     validate
   ],
   asyncHandler(async (req, res) => {
@@ -226,16 +243,16 @@ router.post('/student/signup',
     const { data: newStudent, error: createError } = await supabase
       .from('student_profiles')
       .insert([{
-        registration_number: registrationNumber.toUpperCase(),
-        first_name: firstName,
-        last_name: lastName,
-        email: email.toLowerCase(),
+        registration_number: registrationNumber.trim().toUpperCase(),
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        email: email.trim().toLowerCase(),
         password: hashedPassword,
         department_id: departmentId,
         program,
         discipline,
         batch,
-        phone: phone || null,
+        phone: phone ? phone.trim() : null,
         is_active: true,
         is_first_login: false,
         clearance_status: 'not_started'

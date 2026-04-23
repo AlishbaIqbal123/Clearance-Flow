@@ -113,6 +113,12 @@ function App() {
         if (user.role === 'admin' || user.role === 'hod') return <StudentList />;
         return <div className="p-8 text-center text-slate-400 font-bold uppercase tracking-widest">Access Denied</div>;
 
+      case 'academic-depts':
+        if (user.role === 'admin') return <DepartmentList filterType="academic" />;
+        return <div className="p-8 text-center text-slate-400 font-bold">ACCESS DENIED</div>;
+      case 'admin-depts':
+        if (user.role === 'admin') return <DepartmentList filterType="administrative" />;
+        return <div className="p-8 text-center text-slate-400 font-bold">ACCESS DENIED</div>;
       case 'departments':
         if (user.role === 'admin') return <DepartmentList />;
         return <div className="p-8 text-center text-slate-400 font-bold">ACCESS DENIED</div>;
@@ -124,6 +130,10 @@ function App() {
         return <Analytics />;
       case 'settings':
         return <DepartmentProfile user={user} />;
+      case 'admin-clearance':
+        return <MyClearance filterType="administrative" />;
+      case 'academic-clearance':
+        return <MyClearance filterType="academic" />;
       case 'my-clearance':
         return <MyClearance />;
       default:

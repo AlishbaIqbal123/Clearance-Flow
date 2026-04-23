@@ -17,9 +17,10 @@ const csv = require('fast-csv');
 const validate = (req, res, next) => {
   const errors = require('express-validator').validationResult(req);
   if (!errors.isEmpty()) {
+    const errorMessages = errors.array().map(err => err.msg).join(', ');
     return res.status(400).json({
       success: false,
-      message: 'Validation failed',
+      message: `Validation failed: ${errorMessages}`,
       errors: errors.array()
     });
   }
@@ -95,6 +96,27 @@ router.get('/dashboard', adminPlus, asyncHandler(async (req, res) => {
     departmentName: name,
     count
   }));
+
+  // Student distribution by department
+  const { data: deptStudentStatsRaw } = await supabase
+    .from('student_profiles')
+    .select('department_id')
+    .eq('is_active', true);
+
+  const academicDepts = (pendingDepts || []).length > 0 ? pendingDepts : (await supabase.from('departments').select('id, name').eq('type', 'academic')).data;
+  
+  const deptStudentStatsMap = (deptStudentStatsRaw || []).reduce((acc, curr) => {
+    const dept = (academicDepts || []).find(d => d.id === curr.department_id);
+    if (dept) {
+      acc[dept.name] = (acc[dept.name] || 0) + 1;
+    }
+    return acc;
+  }, {});
+
+  const departmentStudentStats = Object.entries(deptStudentStatsMap).map(([name, count]) => ({
+    name,
+    count
+  }));
   
   // Monthly clearance trend (Mocking calculation for now or using simple select if small)
   const monthlyTrend = []; // To implement properly later
@@ -111,6 +133,7 @@ router.get('/dashboard', adminPlus, asyncHandler(async (req, res) => {
       clearanceStats: clearanceMap,
       recentRequests,
       departmentPendingStats: deptPendingStats,
+      departmentStudentStats,
       monthlyTrend
     }
   });
@@ -179,7 +202,7 @@ router.post('/users',
     body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
     body('role').isIn(['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'])
       .withMessage('Invalid role'),
-    body('department').optional().isUUID().withMessage('Valid department ID required'),
+    body('department').optional().notEmpty().withMessage('Valid department ID required'),
     validate
   ],
   asyncHandler(async (req, res) => {
@@ -240,13 +263,13 @@ router.post('/users',
  */
 router.put('/users/:id',
   [
-    param('id').isUUID().withMessage('Valid user ID required'),
+    param('id').notEmpty().withMessage('Valid user ID required'),
     body('firstName').optional().trim().notEmpty().withMessage('First name cannot be empty'),
     body('lastName').optional().trim().notEmpty().withMessage('Last name cannot be empty'),
     body('email').optional().isEmail().normalizeEmail().withMessage('Valid email is required'),
     body('role').optional().isIn(['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer', 'admin'])
       .withMessage('Invalid role'),
-    body('departmentId').optional().isUUID().withMessage('Valid department ID required'),
+    body('departmentId').optional().notEmpty().withMessage('Valid department ID required'),
     validate
   ],
   asyncHandler(async (req, res) => {
@@ -275,6 +298,8 @@ router.put('/users/:id',
     delete updates.password;
     delete updates.id;
     
+    console.log('Updating user', id, 'with:', updates);
+    
     const { data: user, error } = await supabase
       .from('profiles')
       .update(updates)
@@ -283,6 +308,7 @@ router.put('/users/:id',
       .single();
     
     if (error) {
+      console.error('User update DB error:', error);
       return res.status(400).json({
         success: false,
         message: error.message || 'Failed to update user'
@@ -459,8 +485,7 @@ router.post('/students',
         program,
         discipline: finalDiscipline,
         batch,
-        is_first_login: true,
-        created_by: req.user.id
+        is_first_login: true
       })
       .select()
       .single();
@@ -560,8 +585,7 @@ router.post('/students/bulk-import', asyncHandler(async (req, res) => {
           program: row.program,
           discipline: row.discipline,
           batch: row.batch,
-          is_first_login: true,
-          created_by: req.user.id
+          is_first_login: true
         })
         .select()
         .single();
@@ -637,6 +661,9 @@ router.put('/students/:id', asyncHandler(async (req, res) => {
     delete updates.departmentId;
   }
 
+  // Remove updated_by if it doesn't exist in schema, or at least let's see the error
+  delete updates.updated_by;
+
   const { data: student, error } = await supabase
     .from('student_profiles')
     .update(updates)
@@ -644,7 +671,12 @@ router.put('/students/:id', asyncHandler(async (req, res) => {
     .select('*, department:department_id(name, code)')
     .single();
   
-  if (!student || error) {
+  if (error) {
+    console.error("Error updating student:", error);
+    throw new AppError(`Failed to update: ${error.message}`, 400, 'UPDATE_FAILED');
+  }
+  
+  if (!student) {
     throw new AppError('Student not found', 404, 'STUDENT_NOT_FOUND');
   }
   
@@ -652,6 +684,53 @@ router.put('/students/:id', asyncHandler(async (req, res) => {
     success: true,
     message: 'Student updated successfully',
     data: { student }
+  });
+}));
+
+/**
+ * @route   POST /api/admin/students/:id/reset
+ * @desc    Reset student clearance status
+ * @access  Admin
+ */
+router.post('/students/:id/reset', adminPlus, asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  // 1. Delete all clearance status entries for this student
+  // First, find all clearance requests for this student
+  const { data: requests } = await supabase
+    .from('clearance_requests')
+    .select('id')
+    .eq('student_id', id);
+
+  if (requests && requests.length > 0) {
+    const requestIds = requests.map(r => r.id);
+    
+    // Delete status entries
+    await supabase
+      .from('clearance_status')
+      .delete()
+      .in('request_id', requestIds);
+      
+    // Delete the requests themselves
+    await supabase
+      .from('clearance_requests')
+      .delete()
+      .in('id', requestIds);
+  }
+
+  // 2. Update student profile clearance_status back to not_started
+  const { error } = await supabase
+    .from('student_profiles')
+    .update({ clearance_status: 'not_started' })
+    .eq('id', id);
+
+  if (error) {
+    throw new AppError('Failed to reset student status', 500, 'RESET_FAILED');
+  }
+
+  res.status(200).json({
+    success: true,
+    message: 'Student clearance account has been reset successfully'
   });
 }));
 
@@ -767,8 +846,7 @@ router.post('/departments',
         type,
         description,
         contact_info: contactInfo,
-        clearance_config: clearanceConfig,
-        created_by: req.user.id
+        clearance_config: clearanceConfig
       })
       .select()
       .single();
@@ -791,7 +869,6 @@ router.post('/departments',
 router.put('/departments/:id', asyncHandler(async (req, res) => {
   const { id } = req.params;
   const updates = { ...req.body };
-  updates.updated_by = req.user.id;
   
   if (updates.contactInfo) {
     updates.contact_info = updates.contactInfo;

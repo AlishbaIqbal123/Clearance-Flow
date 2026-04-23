@@ -11,7 +11,29 @@ const appsScript = require('../services/appsScript.service');
 const { authenticate, staffOnly, authorize } = require('../middleware/auth.middleware');
 const { asyncHandler, AppError } = require('../middleware/error.middleware');
 
-// Apply authentication and staff middleware to all routes
+/**
+ * @route   GET /api/departments
+ * @desc    List all departments (Public)
+ * @access  Public
+ */
+router.get('/', asyncHandler(async (req, res) => {
+  const { data: departments, error } = await supabase
+    .from('departments')
+    .select('*')
+    .order('name', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching departments:', error);
+    throw new AppError('Failed to fetch departments', 500);
+  }
+
+  res.status(200).json({
+    success: true,
+    data: departments
+  });
+}));
+
+// Apply authentication and staff middleware to all subsequent routes
 router.use(authenticate);
 router.use(staffOnly);
 
@@ -29,6 +51,48 @@ const validate = (req, res, next) => {
 };
 
 /**
+ * Helper to apply sequential flow filtering for Academic departments
+ * @param {Array} records - The request records to filter
+ * @param {Object} currentDept - The current department info
+ * @param {Object} user - The current user object
+ * @returns {Promise<Array>} - The filtered records
+ */
+const applySequentialFlow = async (records, currentDept, user) => {
+  if (!records || records.length === 0) return [];
+  if (currentDept?.type !== 'academic' || user.role === 'admin') return records;
+
+  const requestIds = records.map(r => r.id);
+  
+  // Fetch ALL statuses for these requests to check other departments
+  const { data: allStatuses, error: statusError } = await supabase
+    .from('clearance_status')
+    .select('request_id, status, department:department_id(type, name)')
+    .in('request_id', requestIds);
+
+  if (statusError) {
+    console.error('CRITICAL: Error fetching statuses for sequential flow:', statusError);
+    return []; // Hide for safety on error
+  }
+
+  const filtered = records.filter(r => {
+    const statuses = (allStatuses || []).filter(s => s.request_id === r.id);
+    
+    // A request is ready for Academic (Phase 2) ONLY if ALL non-academic departments are 'cleared'
+    const phase1Statuses = statuses.filter(s => s.department?.type !== 'academic');
+    const isPhase1Complete = phase1Statuses.length > 0 && phase1Statuses.every(s => s.status === 'cleared');
+    
+    if (!isPhase1Complete) {
+      const pendingPhase1 = phase1Statuses.filter(s => s.status !== 'cleared').map(s => s.department?.name);
+      console.log(`[Sequential Flow] Hiding request ${r.id} for academic. Pending: ${pendingPhase1.join(', ')}`);
+    }
+    
+    return isPhase1Complete;
+  });
+
+  return filtered;
+};
+
+/**
  * @route   GET /api/departments/dashboard
  * @desc    Get department dashboard
  * @access  Department Staff
@@ -40,19 +104,21 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
   if (!departmentId && !isAdmin) {
     throw new AppError('No department assigned', 403, 'NO_DEPARTMENT');
   }
+
+  // 1. Get current department info
+  const { data: currentDept } = await supabase
+    .from('departments')
+    .select('type')
+    .eq('id', departmentId)
+    .single();
   
-  // Get statistics
-  let statsQuery = supabase.from('clearance_status').select('status');
+  // 2. Get statistics
+  let statsQuery = supabase.from('clearance_status').select('request_id, status');
   if (departmentId) statsQuery = statsQuery.eq('department_id', departmentId);
   
   const { data: statsRaw } = await statsQuery;
-  
-  const statsMap = (statsRaw || []).reduce((acc, curr) => {
-    acc[curr.status] = (acc[curr.status] || 0) + 1;
-    return acc;
-  }, {});
-  
-  // Get recent requests
+
+  // 3. Get recent requests
   let recentQuery = supabase
     .from('clearance_requests')
     .select('*, student:student_id(first_name, last_name, registration_number, email, program, department_id, department:department_id(id, name, code)), clearance_status!inner(*)');
@@ -61,14 +127,58 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
     recentQuery = recentQuery.eq('clearance_status.department_id', departmentId);
   }
   
-  const { data: recentRequests } = await recentQuery
+  const { data: rawRecentRequests } = await recentQuery
     .order('created_at', { ascending: false })
     .limit(10);
+
+  // Apply sequential flow to recent requests
+  const recentRequests = await applySequentialFlow(rawRecentRequests || [], currentDept, req.user);
+  
+  // 4. Adjust Statistics for Academic Departments
+  // For academic departments, we only count requests that have cleared Phase 1
+  let statsMap = (statsRaw || []).reduce((acc, curr) => {
+    acc[curr.status] = (acc[curr.status] || 0) + 1;
+    return acc;
+  }, {});
+
+  if (currentDept?.type === 'academic' && !isAdmin && statsRaw?.length > 0) {
+    // This is expensive but necessary for correct dashboard counts
+    const requestIds = statsRaw.map(s => s.request_id);
+    const { data: phase1Data } = await supabase
+      .from('clearance_status')
+      .select('request_id, status, department:department_id(type)')
+      .in('request_id', requestIds);
+
+    if (phase1Data) {
+      // Recalculate stats based on phase 1 completion
+      statsMap = { pending: 0, in_review: 0, cleared: 0, rejected: 0 };
+      
+      const readyRequestIds = new Set();
+      const requestsPhase1Status = (phase1Data || []).reduce((acc, curr) => {
+        if (!acc[curr.request_id]) acc[curr.request_id] = [];
+        acc[curr.request_id].push(curr);
+        return acc;
+      }, {});
+
+      Object.keys(requestsPhase1Status).forEach(rid => {
+        const statuses = requestsPhase1Status[rid];
+        const phase1Statuses = statuses.filter(s => s.department?.type !== 'academic');
+        const isPhase1Complete = phase1Statuses.length > 0 && phase1Statuses.every(s => s.status === 'cleared');
+        if (isPhase1Complete) readyRequestIds.add(rid);
+      });
+
+      statsRaw.forEach(s => {
+        if (readyRequestIds.has(s.request_id)) {
+          statsMap[s.status] = (statsMap[s.status] || 0) + 1;
+        }
+      });
+    }
+  }
   
   // Get department info
   let department = null;
   if (departmentId) {
-    const { data: deptData, error: deptError } = await supabase
+    const { data: deptData } = await supabase
       .from('departments')
       .select(`
         *,
@@ -76,21 +186,10 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
       `)
       .eq('id', departmentId)
       .single();
-    
-    if (deptError || !deptData) {
-      console.error('Error fetching department data:', deptError);
-      department = null;
-    } else {
-      department = deptData;
-      // Fetch head info manually if assigned
-      if (department.head_id) {
-         const { data: headData } = await supabase
-           .from('profiles')
-           .select('first_name, last_name, email')
-           .eq('id', department.head_id)
-           .single();
-         department.head = headData;
-      }
+    department = deptData;
+    if (department?.head_id) {
+       const { data: headData } = await supabase.from('profiles').select('first_name, last_name, email').eq('id', department.head_id).single();
+       department.head = headData;
     }
   }
   
@@ -99,10 +198,10 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
     data: {
       stats: {
         pending: statsMap.pending || 0,
-        inReview: statsMap.in_review || 0,
+        inReview: statsMap.in_review || statsMap.inReview || 0,
         cleared: statsMap.cleared || 0,
         rejected: statsMap.rejected || 0,
-        total: statsRaw?.length || 0
+        total: (statsMap.pending || 0) + (statsMap.in_review || 0) + (statsMap.cleared || 0) + (statsMap.rejected || 0)
       },
       recentRequests,
       department
@@ -191,7 +290,6 @@ router.put('/profile',
     if (req.body.clearanceConfig) updates.clearance_config = req.body.clearanceConfig;
     
     updates.updated_at = new Date().toISOString();
-    updates.updated_by = req.user.id;
     
     const { data: department, error } = await supabase
       .from('departments')
@@ -200,7 +298,12 @@ router.put('/profile',
       .select()
       .single();
     
-    if (!department || error) {
+    if (error) {
+      console.error('Error updating department profile:', error);
+      throw new AppError(`Failed to update department: ${error.message}`, 400, 'UPDATE_FAILED');
+    }
+    
+    if (!department) {
       throw new AppError('Department not found', 404, 'DEPARTMENT_NOT_FOUND');
     }
     
@@ -228,6 +331,13 @@ router.get('/requests', asyncHandler(async (req, res) => {
   }
   
   try {
+    // 1. Get current department info
+    const { data: currentDept } = await supabase
+      .from('departments')
+      .select('type')
+      .eq('id', departmentId)
+      .single();
+
     let queryBuilder = supabase
       .from('clearance_requests')
       .select('*, student:student_id(*, department:department_id(name, code)), clearance_status!inner(*)', { count: 'exact' });
@@ -241,27 +351,32 @@ router.get('/requests', asyncHandler(async (req, res) => {
     }
     
     const { data: records, count, error } = await queryBuilder
-      .order('created_at', { ascending: false })
-      .range((page - 1) * limit, page * limit - 1);
+      .order('created_at', { ascending: false });
     
     if (error) {
       console.error('Database error in /requests:', error);
       throw error;
     }
+
+    // 2. Sequential Flow Logic for Academic Departments
+    const finalRecords = await applySequentialFlow(records || [], currentDept, req.user);
+
+    // Apply pagination manually after filtering
+    const paginatedRecords = finalRecords.slice((page - 1) * limit, page * limit);
     
     res.status(200).json({
       success: true,
       data: {
-        requests: (records || []).map(req => ({
+        requests: paginatedRecords.map(req => ({
           ...req,
           currentDepartmentStatus: Array.isArray(req.clearance_status) 
             ? req.clearance_status.find(ds => !departmentId || ds.department_id === departmentId)
             : req.clearance_status
         })),
         pagination: {
-          total: count || 0,
+          total: finalRecords.length,
           page: parseInt(page),
-          pages: Math.ceil((count || 0) / limit)
+          pages: Math.ceil(finalRecords.length / limit)
         }
       }
     });
@@ -404,9 +519,52 @@ router.put('/requests/:id/status',
       timestamp: new Date().toISOString()
     });
 
+    // Recalculate progress
+    const { data: allStatusesForProgress } = await supabase
+      .from('clearance_status')
+      .select('status')
+      .eq('request_id', id);
+
+    const totalDepartments = allStatusesForProgress?.length || 0;
+    const clearedDeptsCount = allStatusesForProgress?.filter(s => s.status === 'cleared').length || 0;
+    const rejectedDeptsCount = allStatusesForProgress?.filter(s => s.status === 'rejected').length || 0;
+    const pendingDeptsCount = totalDepartments - clearedDeptsCount - rejectedDeptsCount;
+    const percentage = totalDepartments === 0 ? 0 : Math.round((clearedDeptsCount / totalDepartments) * 100);
+
+    const newProgress = {
+      totalDepartments,
+      clearedDepartments: clearedDeptsCount,
+      pendingDepartments: pendingDeptsCount,
+      rejectedDepartments: rejectedDeptsCount,
+      percentage
+    };
+
+    // Determine overall request status
+    let newOverallStatus = request.status;
+    if (rejectedDeptsCount > 0) {
+      newOverallStatus = 'rejected';
+    } else if (clearedDeptsCount === totalDepartments && totalDepartments > 0) {
+      newOverallStatus = 'cleared'; // All departments cleared
+    } else if (clearedDeptsCount > 0) {
+      newOverallStatus = 'partially_cleared';
+    } else {
+      newOverallStatus = 'in_progress';
+    }
+
     await supabase.from('clearance_requests')
-      .update({ timeline })
+      .update({ 
+        timeline,
+        progress: newProgress,
+        status: newOverallStatus
+      })
       .eq('id', id);
+
+    // If overall status changed, update student profile as well
+    if (newOverallStatus !== request.status) {
+      await supabase.from('student_profiles')
+        .update({ clearance_status: newOverallStatus })
+        .eq('id', request.student_id);
+    }
     
     // Check if overall request status should change
     // Simplified logic: for now we just emit update
@@ -431,12 +589,50 @@ router.put('/requests/:id/status',
         .single();
 
       if (student) {
+        // Fetch current department name
+        const deptIdToUse = departmentId || req.body.department_id;
+        const { data: currentDept } = await supabase
+          .from('departments')
+          .select('name')
+          .eq('id', deptIdToUse)
+          .single();
+          
+        const deptName = currentDept ? currentDept.name : 'The department';
+
+        // Fetch remaining departments
+        const { data: allStatuses } = await supabase
+          .from('clearance_status')
+          .select('status, department:department_id(name)')
+          .eq('request_id', id);
+          
+        const pendingDepts = (allStatuses || [])
+          .filter(s => s.status !== 'cleared')
+          .map(s => s.department?.name)
+          .filter(Boolean);
+
+        let customMessage = '';
+        if (status === 'cleared') {
+          customMessage = `${deptName} has cleared your request.`;
+          if (pendingDepts.length > 0) {
+            customMessage += ` Departments left to clear: ${pendingDepts.join(', ')}.`;
+          } else {
+            customMessage += ` All departments have cleared you! Your final certificate is ready to be issued.`;
+          }
+        } else if (status === 'rejected') {
+          customMessage = `${deptName} has rejected your request.`;
+          if (remarks) customMessage += ` Reason: ${remarks}`;
+        } else {
+          customMessage = `Your clearance status in ${deptName} has been updated to ${status}.`;
+        }
+
         await appsScript.sendClearanceNotification({
           studentEmail: student.email,
           firstName: student.first_name || 'Student',
           requestId: request.request_id,
           status,
-          message: remarks || `Your clearance status in ${departmentId || 'the department'} has been updated to ${status}.`
+          departmentName: deptName,
+          pendingDepartments: pendingDepts,
+          message: customMessage
         });
       }
     } catch (notifyError) {

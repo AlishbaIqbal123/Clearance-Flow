@@ -100,23 +100,29 @@ router.put('/profile',
     validate
   ],
   asyncHandler(async (req, res) => {
-    const allowedUpdates = ['phone', 'avatar_url'];
-    const updates = { 
-      updated_at: new Date().toISOString()
-    };
+    const allowedUpdates = [
+      'phone', 'avatar_url', 'first_name', 'last_name', 'email', 
+      'registration_number', 'department_id', 'program', 'discipline', 'batch'
+    ];
     
+    const updates = {};
+    
+    // Map frontend camelCase to snake_case if present
+    const body = { ...req.body };
+    if (body.firstName) body.first_name = body.firstName;
+    if (body.lastName) body.last_name = body.lastName;
+    if (body.registrationNumber) body.registration_number = body.registrationNumber.toUpperCase();
+    if (body.departmentId) body.department_id = body.departmentId;
+    if (body.avatar) body.avatar_url = body.avatar;
+    if (body.phone !== undefined) {
+      body.phone_number = body.phone;
+    }
+
     allowedUpdates.forEach(field => {
-      if (req.body[field] !== undefined) {
-        updates[field] = req.body[field];
+      if (body[field] !== undefined) {
+        updates[field] = body[field];
       }
     });
-    
-    // Remap phone to supabase schema if necessary
-    if (req.body.phone !== undefined) {
-      updates.phone = req.body.phone;
-      updates.phone_number = req.body.phone;
-    }
-    if (req.body.avatar) updates.avatar_url = req.body.avatar;
 
     const { data: student, error } = await supabase
       .from('student_profiles')
@@ -188,6 +194,14 @@ router.get('/dashboard',
         };
       });
       console.log('Processed statuses:', activeRequest.clearance_status.length, 'Mapped depts:', activeRequest.clearance_status.filter(s => s.department).length);
+
+      const totalDepartments = activeRequest.clearance_status.length;
+      const clearedDepartments = activeRequest.clearance_status.filter(s => s.status === 'cleared').length;
+      activeRequest.progress = {
+        totalDepartments,
+        clearedDepartments,
+        percentage: totalDepartments === 0 ? 0 : Math.round((clearedDepartments / totalDepartments) * 100)
+      };
     }
 
     // Get clearance history (flat, no joins)

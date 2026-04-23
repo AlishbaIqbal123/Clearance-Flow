@@ -55,6 +55,11 @@ export const adminService = {
     return response.data;
   },
 
+  resetStudent: async (id: string) => {
+    const response = await api.post(`/admin/students/${id}/reset`);
+    return response.data;
+  },
+
   getDepartments: async () => {
     const response = await api.get('/admin/departments');
     return response.data;

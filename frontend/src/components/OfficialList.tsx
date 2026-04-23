@@ -74,8 +74,13 @@ export const OfficialList = () => {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+    const payload = { ...formData };
+    if (payload.departmentId === '') {
+      delete payload.departmentId;
+    }
+
     try {
-      const res = await adminService.updateUser(selectedOfficial.id, formData);
+      const res = await adminService.updateUser(selectedOfficial.id, payload);
       if (res.success) {
         toast.success('Official updated successfully');
         setIsEditOpen(false);
@@ -115,7 +120,7 @@ export const OfficialList = () => {
         <Button 
           className="bg-blue-600 hover:bg-blue-700 h-11 px-6 rounded-xl shadow-lg shadow-blue-100 font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
           onClick={() => {
-            setFormData({ firstName: '', lastName: '', email: '', role: 'staff', departmentId: '' });
+            setFormData({ firstName: '', lastName: '', email: '', role: 'department_officer', departmentId: '' });
             setIsAddOpen(true);
           }}
         >
@@ -284,8 +289,12 @@ export const OfficialList = () => {
           </div>
           <form className="p-8 space-y-4" onSubmit={isEditOpen ? handleUpdate : async (e) => {
             e.preventDefault();
+            const payload = { ...formData, password: 'official123' };
+            if (payload.departmentId === '') {
+              delete payload.departmentId;
+            }
             try {
-              const res = await adminService.createUser({ ...formData, password: 'official123' });
+              const res = await adminService.createUser(payload);
               if (res.success) {
                 toast.success('Official added successfully');
                 setIsAddOpen(false);

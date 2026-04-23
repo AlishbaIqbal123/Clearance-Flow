@@ -13,7 +13,9 @@ import {
   Trash2,
   Edit,
   Key,
-  History
+  History,
+  Building2,
+  RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -64,6 +66,7 @@ export const StudentList = () => {
     batch: '',
     departmentId: ''
   });
+  const [selectedDeptFilter, setSelectedDeptFilter] = useState('all');
   const [departments, setDepartments] = useState<any[]>([]);
 
   const fetchStudents = async () => {
@@ -89,11 +92,16 @@ export const StudentList = () => {
     fetchStudents();
   }, []);
 
-  const filteredStudents = students.filter(s => 
-    s.registration_number.toLowerCase().includes(search.toLowerCase()) ||
-    s.first_name.toLowerCase().includes(search.toLowerCase()) ||
-    s.last_name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredStudents = students.filter(s => {
+    const matchesSearch = 
+      s.registration_number.toLowerCase().includes(search.toLowerCase()) ||
+      s.first_name.toLowerCase().includes(search.toLowerCase()) ||
+      s.last_name.toLowerCase().includes(search.toLowerCase());
+    
+    const matchesDept = selectedDeptFilter === 'all' || s.department_id === selectedDeptFilter;
+    
+    return matchesSearch && matchesDept;
+  });
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this student? This will remove all their clearance records.')) return;
@@ -117,6 +125,19 @@ export const StudentList = () => {
       }
     } catch (error) {
       toast.error('Failed to reset password');
+    }
+  };
+
+  const handleResetAccount = async (id: string) => {
+    if (!window.confirm("Are you sure you want to completely reset this student's clearance account? This will delete all their current clearance progress and allow them to start fresh with their current department.")) return;
+    try {
+      const res = await adminService.resetStudent(id);
+      if (res.success) {
+        toast.success('Student account reset successfully');
+        fetchStudents();
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to reset student account');
     }
   };
 
@@ -203,10 +224,18 @@ export const StudentList = () => {
                    onChange={(e) => setSearch(e.target.value)}
                  />
               </div>
-              <Button variant="ghost" className="rounded-xl h-12 px-6 font-bold text-slate-500 bg-white border border-slate-100 shadow-sm">
-                 <Filter className="w-4 h-4 mr-2" />
-                 Filters
-              </Button>
+              <Select value={selectedDeptFilter} onValueChange={setSelectedDeptFilter}>
+                <SelectTrigger className="rounded-xl h-12 w-[200px] font-bold text-slate-500 bg-white border border-slate-100 shadow-sm">
+                   <Filter className="w-4 h-4 mr-2" />
+                   <SelectValue placeholder="All Departments" />
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl">
+                   <SelectItem value="all">All Departments</SelectItem>
+                   {departments.filter(d => d.type === 'academic').map(dept => (
+                     <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                   ))}
+                </SelectContent>
+              </Select>
            </div>
         </CardHeader>
         <CardContent className="p-0">
@@ -220,6 +249,7 @@ export const StudentList = () => {
                 <TableRow className="border-none">
                   <TableHead className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Identification</TableHead>
                   <TableHead className="py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Academic Info</TableHead>
+                  <TableHead className="py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Department</TableHead>
                   <TableHead className="py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Clearance Status</TableHead>
                   <TableHead className="py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact Info</TableHead>
                   <TableHead className="px-8 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Operations</TableHead>
@@ -243,6 +273,12 @@ export const StudentList = () => {
                        <div className="space-y-0.5">
                           <p className="text-xs font-bold text-slate-700">{student.program}</p>
                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Batch: {student.batch}</p>
+                       </div>
+                    </TableCell>
+                    <TableCell>
+                       <div className="flex items-center gap-2">
+                          <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                          <span className="text-xs font-bold text-slate-600">{student.department?.name || 'Unassigned'}</span>
                        </div>
                     </TableCell>
                     <TableCell>
@@ -327,6 +363,13 @@ export const StudentList = () => {
                               >
                                 <Key className="w-4 h-4 mr-2" />
                                 Reset Password
+                             </DropdownMenuItem>
+                             <DropdownMenuItem 
+                                className="rounded-xl font-bold py-3 text-orange-600"
+                                onClick={() => handleResetAccount(student.id)}
+                              >
+                                <RefreshCw className="w-4 h-4 mr-2" />
+                                Reset Account
                              </DropdownMenuItem>
                              <DropdownMenuItem 
                                 className="rounded-xl font-bold py-3 text-red-600"

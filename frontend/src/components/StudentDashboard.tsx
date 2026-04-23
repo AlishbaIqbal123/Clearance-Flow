@@ -130,6 +130,13 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
   const activeRequest = data?.activeRequest || null;
   const canSubmitNewRequest = data?.canSubmitNewRequest ?? true;
 
+  const getDeptDisplayName = (deptId: string, deptName: string) => {
+    if (deptId === student.department_id && student.discipline) {
+      return student.discipline;
+    }
+    return deptName;
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Welcome Section */}
@@ -141,14 +148,15 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
           <div className="space-y-2">
             <h2 className="text-3xl font-bold text-white tracking-tight">Salaam, {student.first_name || 'Student'}! 👋</h2>
             <p className="text-blue-100 font-medium">Manage your university clearance process from your personal dashboard.</p>
-            <div className="flex items-center gap-3 mt-4">
               <Badge variant="outline" className="border-blue-400 text-blue-50 bg-blue-500/30 font-bold px-3 py-1 uppercase tracking-wider text-[10px]">
-                ID: {student.registration_number}
+                Program: {student.program}
               </Badge>
               <Badge variant="outline" className="border-blue-400 text-blue-50 bg-blue-500/30 font-bold px-3 py-1 uppercase tracking-wider text-[10px]">
-                Dept: {student.department?.code || 'N/A'}
+                Discipline: {student.discipline}
               </Badge>
-            </div>
+              <Badge variant="outline" className="border-blue-400 text-blue-50 bg-blue-500/30 font-bold px-3 py-1 uppercase tracking-wider text-[10px]">
+                Batch: {student.batch}
+              </Badge>
           </div>
           
           {canSubmitNewRequest && (
@@ -331,20 +339,43 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                       const Icon = ds.status === 'cleared' ? CheckCircle2 : ds.status === 'rejected' ? AlertCircle : ds.status === 'in_review' ? Loader2 : Clock;
                       const iconColor = ds.status === 'cleared' ? 'text-emerald-500' : ds.status === 'rejected' ? 'text-rose-500' : ds.status === 'in_review' ? 'text-blue-500' : 'text-amber-500';
 
+                      // Check if academic department is waiting for Phase 1
+                      const isAcademic = ds.department?.type === 'academic';
+                      const phase1Cleared = activeRequest.clearance_status.every((s: any) => 
+                        s.department?.type === 'academic' || s.status === 'cleared'
+                      );
+                      const isLocked = isAcademic && !phase1Cleared && ds.status === 'pending';
+
                       return (
-                        <div key={ds.id} className={`group relative p-5 rounded-3xl border shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${getStatusStyle()}`}>
+                        <div key={ds.id} className={`group relative p-5 rounded-3xl border shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${isLocked ? 'bg-slate-50 border-slate-200 opacity-80' : getStatusStyle()}`}>
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex items-center gap-3">
                               <div className={`p-2.5 rounded-2xl bg-slate-50 border border-slate-100 group-hover:bg-white transition-colors`}>
-                                <Icon className={`w-5 h-5 ${iconColor} ${ds.status === 'in_review' ? 'animate-[spin_3s_linear_infinite]' : ''}`} />
+                                <Icon className={`w-5 h-5 ${isLocked ? 'text-slate-300' : iconColor} ${ds.status === 'in_review' ? 'animate-[spin_3s_linear_infinite]' : ''}`} />
                               </div>
                               <div className="min-w-0 pr-10">
-                                <h4 className="text-sm font-black text-slate-900 truncate group-hover:text-blue-600 transition-colors uppercase tracking-tight">{ds.department?.name || 'Department Name'}</h4>
+                                <h4 className="text-sm font-black text-slate-900 truncate group-hover:text-blue-600 transition-colors uppercase tracking-tight">
+                                  {getDeptDisplayName(ds.department_id, ds.department?.name || 'Department')}
+                                </h4>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] leading-none mt-1">{ds.department?.code || 'CODE'}</p>
                               </div>
                             </div>
-                            <StatusBadge status={ds.status} size="sm" />
+                            <div className="flex flex-col items-end gap-1">
+                               {isLocked ? (
+                                  <Badge variant="outline" className="bg-slate-100 text-slate-500 border-slate-200 text-[9px] font-black uppercase py-1">Phase 2: Locked</Badge>
+                               ) : (
+                                  <StatusBadge status={ds.status} size="sm" />
+                               )}
+                            </div>
                           </div>
+
+                          {isLocked && (
+                             <div className="mb-4 p-3 rounded-2xl border bg-white/50 border-slate-200">
+                                <p className="text-[10px] text-slate-500 font-bold leading-relaxed italic">
+                                  Waiting for clearance from all other administrative offices (Phase 1) before departmental approval can begin.
+                                </p>
+                             </div>
+                          )}
 
                           {/* Center Section: Remarks/Dues */}
                           {(ds.remarks || ds.due_amount > 0) && (
@@ -386,7 +417,9 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                                     const contact = ds.department?.contact_info || {};
                                     const isSecondary = contact.contact_preference === 'secondary';
                                     const headEmail = ds.department?.head?.email;
-                                    const email = (isSecondary ? contact.secondary_email : contact.email) || contact.email || headEmail || ds.department?.email;
+                                    const rawEmail = (isSecondary ? contact.secondary_email : contact.email) || contact.email || headEmail || ds.department?.email;
+                                    const emailMatch = rawEmail?.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/);
+                                    const email = emailMatch ? emailMatch[0] : null;
                                     
                                     if (email && email !== 'N/A') {
                                       window.location.href = `mailto:${email}`;
@@ -452,7 +485,9 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                              {dept.code}
                           </div>
                           <div className="flex-1 min-w-0">
-                             <h5 className="text-sm font-bold text-slate-800 leading-none mb-1 truncate">{dept.name}</h5>
+                             <h5 className="text-sm font-bold text-slate-800 leading-none mb-1 truncate">
+                               {getDeptDisplayName(dept.id, dept.name)}
+                             </h5>
                              <p className={`text-[10px] font-bold uppercase tracking-widest leading-none ${dept.type === 'academic' ? 'text-indigo-400' : 'text-slate-400'}`}>
                                {displayEmail}
                              </p>
