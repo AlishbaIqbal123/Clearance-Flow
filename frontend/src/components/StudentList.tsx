@@ -93,10 +93,14 @@ export const StudentList = () => {
   }, []);
 
   const filteredStudents = students.filter(s => {
+    const searchLower = search.toLowerCase();
     const matchesSearch = 
-      s.registration_number.toLowerCase().includes(search.toLowerCase()) ||
-      s.first_name.toLowerCase().includes(search.toLowerCase()) ||
-      s.last_name.toLowerCase().includes(search.toLowerCase());
+      (s.registration_number?.toLowerCase() || '').includes(searchLower) ||
+      (s.first_name?.toLowerCase() || '').includes(searchLower) ||
+      (s.last_name?.toLowerCase() || '').includes(searchLower) ||
+      (s.email?.toLowerCase() || '').includes(searchLower) ||
+      (s.program?.toLowerCase() || '').includes(searchLower) ||
+      (s.batch?.toString() || '').includes(searchLower);
     
     const matchesDept = selectedDeptFilter === 'all' || s.department_id === selectedDeptFilter;
     

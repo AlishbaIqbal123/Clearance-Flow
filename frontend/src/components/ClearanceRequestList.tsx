@@ -18,6 +18,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import api from '@/lib/api';
 
 export const ClearanceRequestList = ({ user }: { user: any }) => {
@@ -84,12 +85,20 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
     );
   };
 
-  const filteredRequests = requests.filter(req => 
-    req.request_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    req.student?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    req.student?.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    req.student?.registration_number?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const [statusFilter, setStatusFilter] = useState('all');
+
+  const filteredRequests = requests.filter(req => {
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = 
+      (req.request_id?.toLowerCase() || '').includes(searchLower) ||
+      (req.student?.first_name?.toLowerCase() || '').includes(searchLower) ||
+      (req.student?.last_name?.toLowerCase() || '').includes(searchLower) ||
+      (req.student?.registration_number?.toLowerCase() || '').includes(searchLower);
+    
+    const matchesStatus = statusFilter === 'all' || req.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <div className="space-y-6">
@@ -132,10 +141,20 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <Button variant="outline" className="rounded-xl h-10 border-slate-200 bg-white">
-          <Filter className="w-4 h-4 mr-2 " />
-          Advanced Filters
-        </Button>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="rounded-xl h-10 w-[180px] border-slate-200 bg-white font-bold text-slate-600">
+            <Filter className="w-4 h-4 mr-2" />
+            <SelectValue placeholder="Filter Status" />
+          </SelectTrigger>
+          <SelectContent className="rounded-2xl">
+            <SelectItem value="all">All Statuses</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="submitted">Submitted</SelectItem>
+            <SelectItem value="in_progress">In Progress</SelectItem>
+            <SelectItem value="cleared">Cleared</SelectItem>
+            <SelectItem value="rejected">Rejected</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {viewMode === 'table' ? (

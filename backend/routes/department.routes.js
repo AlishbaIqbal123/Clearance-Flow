@@ -349,6 +349,11 @@ router.get('/requests', asyncHandler(async (req, res) => {
     if (status) {
       queryBuilder = queryBuilder.eq('clearance_status.status', status);
     }
+
+    if (search) {
+      // Search in student first_name, last_name, or registration_number
+      queryBuilder = queryBuilder.or(`student_id.first_name.ilike.%${search}%,student_id.last_name.ilike.%${search}%,registration_number.ilike.%${search}%`);
+    }
     
     const { data: records, count, error } = await queryBuilder
       .order('created_at', { ascending: false });

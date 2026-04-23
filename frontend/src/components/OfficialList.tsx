@@ -103,52 +103,80 @@ export const OfficialList = () => {
     }
   };
 
-  const filteredOfficials = officials.filter(off => 
-    off.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    off.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    off.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    off.department?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const [selectedRole, setSelectedRole] = useState('all');
+  const [selectedDept, setSelectedDept] = useState('all');
+
+  const filteredOfficials = officials.filter(off => {
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = 
+      (off.first_name?.toLowerCase() || '').includes(searchLower) ||
+      (off.last_name?.toLowerCase() || '').includes(searchLower) ||
+      (off.email?.toLowerCase() || '').includes(searchLower) ||
+      (off.role?.toLowerCase() || '').includes(searchLower) ||
+      (off.department?.name?.toLowerCase() || '').includes(searchLower);
+    
+    const matchesRole = selectedRole === 'all' || off.role === selectedRole;
+    const matchesDept = selectedDept === 'all' || off.department_id === selectedDept;
+
+    return matchesSearch && matchesRole && matchesDept;
+  });
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">University Officials</h2>
-          <p className="text-slate-500 font-medium italic">Manage credentials and permissions for faculty & administration.</p>
+           <h2 className="text-3xl font-black text-slate-900 tracking-tight">Staff Management</h2>
+           <p className="text-slate-500 font-medium italic">Manage university officials and department heads.</p>
         </div>
         <Button 
-          className="bg-blue-600 hover:bg-blue-700 h-11 px-6 rounded-xl shadow-lg shadow-blue-100 font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
+          className="rounded-xl bg-blue-600 text-white h-11 px-6 font-bold shadow-lg shadow-blue-100"
           onClick={() => {
-            setFormData({ firstName: '', lastName: '', email: '', role: 'department_officer', departmentId: '' });
+            setFormData({ firstName: '', lastName: '', email: '', role: '', departmentId: '' });
             setIsAddOpen(true);
           }}
         >
-          <UserPlus className="w-5 h-5 mr-2" />
+          <UserPlus className="w-4 h-4 mr-2" />
           Add Official
         </Button>
       </div>
 
+      <div className="flex flex-wrap gap-4">
+        <div className="relative flex-1 min-w-[300px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Input 
+            placeholder="Search officials by name, email, or department..." 
+            className="pl-10 h-11 rounded-xl border-slate-200 bg-white"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <Select value={selectedRole} onValueChange={setSelectedRole}>
+          <SelectTrigger className="w-[180px] h-11 rounded-xl font-bold text-slate-600">
+            <SelectValue placeholder="All Roles" />
+          </SelectTrigger>
+          <SelectContent className="rounded-2xl">
+            <SelectItem value="all">All Roles</SelectItem>
+            <SelectItem value="hod">Dept Head (HOD)</SelectItem>
+            <SelectItem value="finance_officer">Finance Officer</SelectItem>
+            <SelectItem value="library_officer">Library Officer</SelectItem>
+            <SelectItem value="transport_officer">Transport Officer</SelectItem>
+            <SelectItem value="staff">Regular Staff</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={selectedDept} onValueChange={setSelectedDept}>
+          <SelectTrigger className="w-[200px] h-11 rounded-xl font-bold text-slate-600">
+            <SelectValue placeholder="All Departments" />
+          </SelectTrigger>
+          <SelectContent className="rounded-2xl">
+            <SelectItem value="all">All Departments</SelectItem>
+            {departments.map(dept => (
+              <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       <Card className="border-none shadow-xl shadow-slate-100/50 rounded-[2rem] overflow-hidden">
-        <CardHeader className="bg-white border-b border-slate-50 px-8 py-6">
-          <div className="flex flex-col md:flex-row gap-4 justify-between">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <Input 
-                placeholder="Search by name, email or department..." 
-                className="pl-10 h-11 bg-slate-50 border-slate-100 rounded-xl focus:bg-white transition-all shadow-sm"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" className="rounded-xl h-11 border-slate-200 bg-white">
-                <Filter className="w-4 h-4 mr-2 text-slate-400" />
-                Advanced Filters
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader className="bg-slate-50/50">
