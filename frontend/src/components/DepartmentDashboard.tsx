@@ -224,7 +224,24 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                </TableRow>
             </TableHeader>
             <TableBody>
-               {(Array.isArray(recentRequests) ? recentRequests : []).map((request: any) => {
+               {(Array.isArray(recentRequests) ? recentRequests : [])
+                .filter((request: any) => {
+                  // 1. Search Query Filter
+                  const searchLower = searchQuery.toLowerCase();
+                  const matchesSearch = 
+                    (request.student?.registration_number?.toLowerCase() || '').includes(searchLower) ||
+                    (request.student?.first_name?.toLowerCase() || '').includes(searchLower) ||
+                    (request.student?.last_name?.toLowerCase() || '').includes(searchLower);
+
+                  // 2. Status Filter
+                  const currentDeptStatus = (request.clearance_status || []).find((ds: any) => 
+                    ds.department_id === currentDeptId || ds.department?.id === currentDeptId
+                  );
+                  const matchesStatus = statusFilter === 'all' || (currentDeptStatus?.status || 'pending') === statusFilter;
+
+                  return matchesSearch && matchesStatus;
+                })
+                .map((request: any) => {
                  // Use currentDeptId (from state or user context) to find the correct status row
                  const currentDeptStatus = (request.clearance_status || []).find((ds: any) => 
                   ds.department_id === currentDeptId || ds.department?.id === currentDeptId
