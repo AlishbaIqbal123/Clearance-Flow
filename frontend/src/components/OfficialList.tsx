@@ -74,10 +74,13 @@ export const OfficialList = () => {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    const payload: any = { ...formData };
-    if (payload.departmentId === '') {
-      delete payload.departmentId;
-    }
+    const payload: any = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      role: formData.role,
+      ...(formData.departmentId ? { departmentId: formData.departmentId } : {})
+    };
 
     try {
       const res = await adminService.updateUser(selectedOfficial.id, payload);
@@ -160,7 +163,7 @@ export const OfficialList = () => {
             <SelectItem value="finance_officer">Finance Officer</SelectItem>
             <SelectItem value="library_officer">Library Officer</SelectItem>
             <SelectItem value="transport_officer">Transport Officer</SelectItem>
-            <SelectItem value="staff">Regular Staff</SelectItem>
+            <SelectItem value="department_officer">Regular Staff</SelectItem>
           </SelectContent>
         </Select>
         <Select value={selectedDept} onValueChange={setSelectedDept}>
@@ -317,10 +320,14 @@ export const OfficialList = () => {
           </div>
           <form className="p-8 space-y-4" onSubmit={isEditOpen ? handleUpdate : async (e) => {
             e.preventDefault();
-            const payload: any = { ...formData, password: 'official123' };
-            if (payload.departmentId === '') {
-              delete payload.departmentId;
-            }
+            const payload: any = {
+              firstName: formData.firstName,
+              lastName: formData.lastName,
+              email: formData.email,
+              role: formData.role,
+              password: 'official123',
+              ...(formData.departmentId ? { departmentId: formData.departmentId } : {})
+            };
             try {
               const res = await adminService.createUser(payload);
               if (res.success) {
