@@ -74,7 +74,7 @@ export const OfficialList = () => {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    const payload = { ...formData };
+    const payload: any = { ...formData };
     if (payload.departmentId === '') {
       delete payload.departmentId;
     }
@@ -317,7 +317,7 @@ export const OfficialList = () => {
           </div>
           <form className="p-8 space-y-4" onSubmit={isEditOpen ? handleUpdate : async (e) => {
             e.preventDefault();
-            const payload = { ...formData, password: 'official123' };
+            const payload: any = { ...formData, password: 'official123' };
             if (payload.departmentId === '') {
               delete payload.departmentId;
             }
