@@ -121,19 +121,28 @@ router.get('/dashboard', adminPlus, asyncHandler(async (req, res) => {
   // Monthly clearance trend (Mocking calculation for now or using simple select if small)
   const monthlyTrend = []; // To implement properly later
 
-  // Degree Fulfillment Statistics
-  const { data: fulfillmentRequests } = await supabase
-    .from('clearance_requests')
-    .select('degree_fulfillment')
-    .not('degree_fulfillment', 'is', null);
+  // Degree Fulfillment Statistics (Safe retrieval)
+  let dispatchPendingCount = 0;
+  let manualPickupCount = 0;
+  
+  try {
+    const { data: fulfillmentRequests } = await supabase
+      .from('clearance_requests')
+      .select('degree_fulfillment')
+      .not('degree_fulfillment', 'is', null);
 
-  const dispatchPendingCount = (fulfillmentRequests || []).filter(r => 
-    r.degree_fulfillment && r.degree_fulfillment.method === 'dispatch'
-  ).length;
+    if (fulfillmentRequests) {
+      dispatchPendingCount = fulfillmentRequests.filter(r => 
+        r.degree_fulfillment && r.degree_fulfillment.method === 'dispatch'
+      ).length;
 
-  const manualPickupCount = (fulfillmentRequests || []).filter(r => 
-    r.degree_fulfillment && r.degree_fulfillment.method === 'manual'
-  ).length;
+      manualPickupCount = fulfillmentRequests.filter(r => 
+        r.degree_fulfillment && r.degree_fulfillment.method === 'manual'
+      ).length;
+    }
+  } catch (err) {
+    console.error('Fulfillment column likely missing:', err.message);
+  }
 
   res.status(200).json({
     success: true,
