@@ -178,6 +178,22 @@ router.get('/dashboard',
 
     let activeRequest = activeRequests?.[0] || null;
 
+    // If no truly active request, check for a recently cleared one that needs fulfillment info
+    if (!activeRequest) {
+      const { data: clearedRequests } = await supabase
+        .from('clearance_requests')
+        .select('*')
+        .eq('student_id', studentId)
+        .eq('status', 'cleared')
+        .is('degree_fulfillment', null)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      
+      if (clearedRequests?.[0]) {
+        activeRequest = clearedRequests[0];
+      }
+    }
+
     if (activeRequest) {
       // Fetch clearance statuses for this request
       const { data: statuses } = await supabase
@@ -267,7 +283,7 @@ router.get('/dashboard',
         activeRequest,
         clearanceHistory: historyRaw,
         departments,
-        canSubmitNewRequest: !activeRequest || ['cleared', 'cancelled', 'rejected'].includes(activeRequest.status)
+        canSubmitNewRequest: !activeRequest || (['cleared', 'cancelled', 'rejected'].includes(activeRequest.status) && activeRequest.degree_fulfillment)
       }
     });
   })
@@ -855,6 +871,81 @@ router.post('/clearance-request/:id/submit-form',
       success: true,
       message: 'Form submission notified successfully',
       data: { checklistItems }
+    });
+  })
+);
+
+/**
+ * @route   POST /api/students/clearance-request/:id/degree-preference
+ * @desc    Update degree fulfillment preference
+ * @access  Student
+ */
+router.post('/clearance-request/:id/degree-preference',
+  studentOnly,
+  [
+    body('method').isIn(['dispatch', 'manual']).withMessage('Invalid fulfillment method'),
+    body('address').optional().trim(),
+    validate
+  ],
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const studentId = req.user.id;
+    const { method, address } = req.body;
+
+    // Verify request ownership
+    const { data: request, error: fetchError } = await supabase
+      .from('clearance_requests')
+      .select('*, student:student_id(*)')
+      .eq('id', id)
+      .eq('student_id', studentId)
+      .single();
+
+    if (fetchError || !request) {
+      throw new AppError('Clearance request not found', 404, 'REQUEST_NOT_FOUND');
+    }
+
+    const degree_fulfillment = {
+      method,
+      address: method === 'dispatch' ? address : null,
+      selected_at: new Date().toISOString()
+    };
+
+    const timeline = request.timeline || [];
+    timeline.push({
+      action: 'fulfillment_selected',
+      performedBy: studentId,
+      performedByModel: 'Student',
+      description: `Student selected degree fulfillment method: ${method.toUpperCase()}${method === 'dispatch' ? ' (Address provided)' : ''}`,
+      timestamp: new Date().toISOString()
+    });
+
+    // Add a comment for the admin to see immediately in the audit console
+    const comments = request.comments || [];
+    comments.push({
+      author: studentId,
+      authorName: req.user.fullName,
+      author_model: 'Student',
+      message: `I have selected the degree collection method: ${method === 'dispatch' ? 'Home Dispatch' : 'Manual Pickup'}. ${method === 'dispatch' ? 'Address: ' + address : ''}`,
+      is_internal: false,
+      is_fulfillment_update: true,
+      created_at: new Date().toISOString()
+    });
+
+    const { error: updateError } = await supabase
+      .from('clearance_requests')
+      .update({ 
+        degree_fulfillment,
+        timeline,
+        comments
+      })
+      .eq('id', id);
+
+    if (updateError) throw updateError;
+
+    res.status(200).json({
+      success: true,
+      message: 'Fulfillment preference updated successfully',
+      data: { degree_fulfillment }
     });
   })
 );
