@@ -102,6 +102,8 @@ const AdminBentoCard = ({ title, value, icon: Icon, color, trend, trendUp, onCli
 export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => void }) => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedRequest, setSelectedRequest] = useState<any>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   const fetchDashboard = async () => {
     try {
@@ -501,7 +503,11 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
               </TableHeader>
               <TableBody>
                 {(Array.isArray(recentRequests) ? recentRequests : []).map((request: any) => (
-                  <TableRow key={request.id} className="group hover:bg-muted/10 transition-all duration-500 border-foreground/5 cursor-pointer">
+                  <TableRow 
+                    key={request.id} 
+                    className="group hover:bg-muted/10 transition-all duration-500 border-foreground/5 cursor-pointer"
+                    onClick={() => { setSelectedRequest(request); setIsDetailsOpen(true); }}
+                  >
                     <TableCell className="px-8 py-5">
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-xl bg-card shadow-soft border border-foreground/5 flex items-center justify-center font-black text-primary text-xs group-hover:scale-110 group-hover:rotate-6 transition-all duration-700 relative overflow-hidden">
@@ -551,13 +557,22 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="rounded-2xl w-56 border-none shadow-strong p-2 bg-background/95 backdrop-blur-2xl animate-in zoom-in-95 duration-300">
-                           <DropdownMenuItem className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4 cursor-pointer">
+                           <DropdownMenuItem 
+                            className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4 cursor-pointer"
+                            onClick={() => { setSelectedRequest(request); setIsDetailsOpen(true); }}
+                           >
                               <FileText className="w-4 h-4 mr-3 opacity-40" /> View Details
                            </DropdownMenuItem>
-                           <DropdownMenuItem className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4 cursor-pointer mt-1">
+                           <DropdownMenuItem 
+                            className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4 cursor-pointer mt-1"
+                            onClick={() => { setSelectedRequest(request); setIsDetailsOpen(true); }}
+                           >
                               <History className="w-4 h-4 mr-3 opacity-40" /> Request History
                            </DropdownMenuItem>
-                           <DropdownMenuItem className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-destructive focus:text-white px-4 cursor-pointer mt-1 text-destructive">
+                           <DropdownMenuItem 
+                            className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-destructive focus:text-white px-4 cursor-pointer mt-1 text-destructive"
+                            onClick={() => toast.info('Revoke functionality coming soon')}
+                           >
                               <ShieldAlert className="w-4 h-4 mr-3" /> Revoke
                            </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -587,6 +602,90 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
           </div>
         </CardContent>
       </Card>
+      {/* Premium Audit Master Console Dialog */}
+      <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+        <DialogContent className="sm:max-w-[750px] w-[95vw] max-h-[90vh] rounded-[2rem] sm:rounded-[3rem] p-0 overflow-y-auto overflow-x-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 custom-scrollbar">
+          <div className="bg-foreground p-6 sm:p-10 text-background relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/20 rounded-full -mr-48 -mt-48 blur-[100px] pointer-events-none" />
+            
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-12">
+              <div className="space-y-6">
+                 <div className="flex items-center gap-5">
+                    <div className="w-16 h-16 bg-primary/20 rounded-[1.75rem] flex items-center justify-center text-primary backdrop-blur-xl border border-white/5">
+                       <ShieldCheck className="w-9 h-9" />
+                    </div>
+                    <div className="space-y-1">
+                       <Badge className="bg-primary text-white border-none rounded-full px-5 py-1.5 text-[10px] font-black uppercase tracking-[0.4em]">Request Type</Badge>
+                       <p className="text-[10px] font-black text-background/30 uppercase tracking-[0.5em]">{selectedRequest?.request_type?.replace('_', ' ')}</p>
+                    </div>
+                 </div>
+                 <DialogTitle className="text-3xl lg:text-4xl font-black tracking-tighter uppercase leading-none">{selectedRequest?.request_id}</DialogTitle>
+              </div>
+              <div className="text-left sm:text-right space-y-2 sm:space-y-4">
+                 <p className="text-[9px] sm:text-[11px] font-black text-background/30 uppercase tracking-[0.5em]">Overall Status</p>
+                 {selectedRequest && <StatusBadge status={selectedRequest.status} size="lg" />}
+              </div>
+            </div>
+          </div>
+          
+          <div className="p-6 sm:p-10 space-y-8 bg-card/40 backdrop-blur-3xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+              <div className="space-y-4 sm:space-y-6 p-5 sm:p-8 bg-secondary/50 rounded-[2rem] sm:rounded-[2.5rem] border border-foreground/5 group hover:bg-secondary transition-all duration-700">
+                <div className="flex items-center gap-4 sm:gap-5">
+                   <div className="p-3 sm:p-4 bg-primary/10 rounded-xl sm:rounded-2xl group-hover:rotate-12 transition-transform duration-700">
+                      <Users className="w-5 h-5 sm:w-7 sm:h-7 text-primary" />
+                   </div>
+                   <div className="space-y-1">
+                      <p className="text-[9px] sm:text-[11px] font-black uppercase text-muted-foreground tracking-[0.4em]">Primary Identity</p>
+                   </div>
+                </div>
+                <div className="space-y-3 sm:space-y-4 pl-4 border-l-4 border-primary/20">
+                   <p className="text-xl sm:text-2xl font-black text-foreground leading-none tracking-tight uppercase">{selectedRequest?.student?.first_name} {selectedRequest?.student?.last_name}</p>
+                   <p className="text-[10px] sm:text-[12px] font-black text-muted-foreground uppercase tracking-[0.4em] opacity-60">{selectedRequest?.student?.registration_number}</p>
+                </div>
+              </div>
+              
+              <div className="space-y-6 p-8 bg-secondary/50 rounded-[2.5rem] border border-foreground/5 group hover:bg-secondary transition-all duration-700">
+                <div className="flex items-center gap-5">
+                   <div className="p-4 bg-primary/10 rounded-2xl group-hover:scale-110 transition-transform duration-700">
+                      <Activity className="w-7 h-7 text-primary" />
+                   </div>
+                   <div className="space-y-1">
+                      <p className="text-[11px] font-black uppercase text-muted-foreground tracking-[0.4em]">Timeline</p>
+                   </div>
+                </div>
+                <div className="flex items-center justify-between p-6 bg-card rounded-2xl border border-foreground/5 shadow-soft">
+                   <span className="text-[11px] font-black text-muted-foreground uppercase tracking-widest">Initialized</span>
+                   <span className="text-sm font-black uppercase">{selectedRequest && new Date(selectedRequest.created_at).toLocaleDateString()}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6 pt-4">
+               <h4 className="text-xl font-black text-foreground tracking-tight uppercase">Department Verifications</h4>
+               <div className="grid grid-cols-1 gap-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                 {(selectedRequest?.clearance_status || []).map((cs: any) => (
+                   <div key={cs.id} className="flex items-center justify-between p-6 bg-secondary/50 rounded-[1.5rem] border border-foreground/5">
+                     <div className="flex items-center gap-5">
+                       <div className="w-12 h-12 rounded-xl bg-card border border-foreground/5 flex items-center justify-center text-primary font-black text-xs">
+                         {cs.department?.code}
+                       </div>
+                       <p className="text-sm font-black text-foreground uppercase">{cs.department?.name}</p>
+                     </div>
+                     <StatusBadge status={cs.status} />
+                   </div>
+                 ))}
+               </div>
+            </div>
+            
+            <div className="pt-6">
+               <Button variant="ghost" className="h-14 rounded-xl px-8 font-black text-[10px] uppercase tracking-[0.4em] text-muted-foreground hover:bg-secondary/80 w-full border border-foreground/5" onClick={() => setIsDetailsOpen(false)}>
+                 Close Protocol
+               </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

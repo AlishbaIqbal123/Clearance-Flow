@@ -165,13 +165,32 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
   const saveProfile = async () => {
     setSavingProfile(true);
     try {
+      let res;
       if (user.role === 'student') {
-        await studentService.updateProfile(profileData);
+        res = await studentService.updateProfile(profileData);
       } else {
-        await api.put('/users/profile', profileData);
+        res = await api.put('/users/profile', profileData);
       }
-      toast.success('Profile saved successfully! Changes will reflect upon next login or refresh.');
-      setIsProfileOpen(false);
+      
+      if (res?.success) {
+        // Update local storage user object to reflect new email/name
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+        const updatedUser = { 
+          ...currentUser, 
+          email: profileData.email,
+          firstName: profileData.firstName,
+          lastName: profileData.lastName,
+          first_name: profileData.firstName,
+          last_name: profileData.lastName
+        };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        
+        toast.success('Profile saved successfully! Your login email and identity have been updated.');
+        setIsProfileOpen(false);
+        
+        // Reload after a short delay to refresh all system contexts with new data
+        setTimeout(() => window.location.reload(), 1500);
+      }
     } catch (e: any) {
       const errorMsg = e.response?.data?.message || 'Failed to save. Please try again.';
       toast.error(errorMsg);

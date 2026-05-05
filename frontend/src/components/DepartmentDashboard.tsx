@@ -313,14 +313,21 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                                <span>{new Date(request.created_at).toLocaleDateString()}</span>
                             </div>
                         </TableCell>
-                        <TableCell className="px-8 py-5 text-right">
+                         <TableCell className="px-8 py-5 text-right">
                            <Button 
                             className="rounded-xl h-12 px-6 font-black text-[10px] uppercase tracking-widest bg-secondary/80 text-foreground hover:bg-primary hover:text-white transition-all duration-700 active:scale-95 border border-foreground/5 hover:border-transparent"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedRequest(request);
+                              setRemarks(currentDeptStatus?.remarks || '');
+                              setDueAmount(currentDeptStatus?.due_amount || 0);
+                              setShowActionDialog(true);
+                            }}
                            >
                              <span>Manage</span>
                              <ArrowUpRight className="w-4 h-4 ml-3" />
                            </Button>
-                        </TableCell>
+                         </TableCell>
                       </TableRow>
                     );
                  })}

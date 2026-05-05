@@ -282,7 +282,10 @@ const DepartmentCard = ({
                      <p className="text-3xl font-black text-destructive tracking-tighter uppercase leading-none">PKR {dept.due_amount?.toLocaleString()}</p>
                   </div>
                </div>
-               <Button className="rounded-2xl h-14 px-10 bg-destructive text-white hover:bg-destructive/90 font-black text-[9px] uppercase tracking-[0.3em] shadow-strong active:scale-95 transition-all">
+               <Button 
+                className="rounded-2xl h-14 px-10 bg-destructive text-white hover:bg-destructive/90 font-black text-[9px] uppercase tracking-[0.3em] shadow-strong active:scale-95 transition-all"
+                onClick={() => toast.info('Redirecting to secure University Billing Gateway...')}
+               >
                   Pay Dues
                   <ArrowRight className="ml-4 w-4 h-4 group-hover/finance:translate-x-3 transition-transform" />
                </Button>
@@ -654,7 +657,20 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
               </p>
             </div>
             <div className="flex flex-col items-center gap-8">
-               <Button className="rounded-2xl h-16 bg-foreground text-background hover:bg-foreground/90 font-black text-xs uppercase tracking-[0.4em] px-12 shadow-strong group/cta active:scale-95 transition-all relative overflow-hidden">
+               <Button 
+                className="rounded-2xl h-16 bg-foreground text-background hover:bg-foreground/90 font-black text-xs uppercase tracking-[0.4em] px-12 shadow-strong group/cta active:scale-95 transition-all relative overflow-hidden"
+                onClick={async () => {
+                  const promise = studentService.submitRequest({ type: 'graduation' });
+                  toast.promise(promise, {
+                    loading: 'Initializing clearance protocol...',
+                    success: () => {
+                      fetchClearanceData();
+                      return 'Protocol sequence initiated successfully!';
+                    },
+                    error: 'Failed to initiate protocol. Please contact registry.'
+                  });
+                }}
+               >
                   <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover/cta:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
                   Initialize Workflow
                   <ArrowRight className="ml-4 w-6 h-6 group-hover/cta:translate-x-4 transition-transform duration-700" />

@@ -163,141 +163,138 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
       {/* Floating Theme Toggle */}
       <button 
         onClick={toggleTheme}
-        className="fixed top-8 right-8 z-[100] w-14 h-14 rounded-2xl bg-card/60 backdrop-blur-3xl border border-foreground/5 text-foreground hover:bg-primary hover:text-white transition-all duration-500 active:scale-90 shadow-strong flex items-center justify-center group"
+        className="fixed top-6 right-6 z-[100] w-12 h-12 rounded-xl bg-card/60 backdrop-blur-3xl border border-foreground/5 text-foreground hover:bg-primary hover:text-white transition-all duration-500 active:scale-90 shadow-strong flex items-center justify-center group"
       >
-        {isDark ? <Sun className="w-6 h-6 group-hover:rotate-90 transition-transform duration-700" /> : <Moon className="w-6 h-6 group-hover:-rotate-12 transition-transform duration-700" />}
+        {isDark ? <Sun className="w-5 h-5 group-hover:rotate-90 transition-transform duration-700" /> : <Moon className="w-5 h-5 group-hover:-rotate-12 transition-transform duration-700" />}
       </button>
 
       <div className="h-full w-full flex">
         {activePortal === 'student' ? (
           <div className="h-full w-full flex animate-in fade-in duration-700">
             {/* Left: Design Area (for Student) */}
-            <div className="hidden lg:flex w-[50%] h-full bg-[#006633] relative overflow-hidden flex-col justify-center p-20 xl:p-32">
+            <div className="hidden lg:flex w-[45%] h-full bg-[#006633] relative overflow-hidden flex-col justify-center p-12 xl:p-20">
                <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-black/20" />
                <div className="absolute top-0 left-0 w-full h-full opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
                <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-white/5 rounded-full blur-[120px]" />
                
-               <div className="relative z-10 space-y-12">
-                  <div className="flex items-center gap-4">
-                     <div className="w-16 h-16 bg-white/10 backdrop-blur-2xl rounded-2xl flex items-center justify-center border border-white/20">
-                        <GraduationCap className="w-10 h-10 text-white" />
+               <div className="relative z-10 space-y-8">
+                  <div className="flex items-center gap-3">
+                     <div className="w-12 h-12 bg-white/10 backdrop-blur-2xl rounded-xl flex items-center justify-center border border-white/20">
+                        <GraduationCap className="w-7 h-7 text-white" />
                      </div>
                      <div className="space-y-0.5 text-white">
-                        <h2 className="text-2xl font-black tracking-tighter uppercase leading-none">COMSATS</h2>
-                        <p className="text-[10px] font-bold uppercase tracking-[0.4em] opacity-60 italic">University Islamabad, Vehari Campus</p>
+                        <h2 className="text-xl font-black tracking-tighter uppercase leading-none">COMSATS</h2>
+                        <p className="text-[8px] font-bold uppercase tracking-[0.3em] opacity-60 italic">University Islamabad, Vehari Campus</p>
                      </div>
                   </div>
 
-                  <div className="space-y-8">
-                    <h2 className="text-7xl xl:text-8xl font-black text-white tracking-tighter leading-[0.85] uppercase">
+                  <div className="space-y-6">
+                    <h2 className="text-5xl xl:text-6xl font-black text-white tracking-tighter leading-[0.9] uppercase">
                        Student<br />
                        <span className="italic opacity-40">Portal</span>
                     </h2>
-                    <p className="text-white/70 text-xl xl:text-2xl font-medium leading-relaxed max-w-lg border-l-4 border-white/20 pl-8">
-                      A centralized digital environment for student clearance, academic tracking, and department approval.
+                    <p className="text-white/70 text-base xl:text-lg font-medium leading-relaxed max-w-sm border-l-2 border-white/20 pl-6">
+                      A centralized digital environment for student clearance and academic tracking.
                     </p>
                   </div>
                   
-                  <div className="flex flex-wrap gap-4">
-                     <div className="px-6 py-3 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center gap-3">
-                        <ShieldCheck className="w-4 h-4 text-white" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-white/70">Secure Login</span>
+                  <div className="flex flex-wrap gap-3">
+                     <div className="px-4 py-2 bg-white/5 backdrop-blur-xl rounded-lg border border-white/10 flex items-center gap-2">
+                        <ShieldCheck className="w-3 h-3 text-white" />
+                        <span className="text-[8px] font-black uppercase tracking-widest text-white/70">Secure</span>
                      </div>
-                     <div className="px-6 py-3 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center gap-3">
-                        <Globe className="w-4 h-4 text-white" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-white/70">Online System</span>
+                     <div className="px-4 py-2 bg-white/5 backdrop-blur-xl rounded-lg border border-white/10 flex items-center gap-2">
+                        <Globe className="w-3 h-3 text-white" />
+                        <span className="text-[8px] font-black uppercase tracking-widest text-white/70">Live</span>
                      </div>
                   </div>
                </div>
             </div>
 
             {/* Right: Form Area (for Student) */}
-            <div className="flex-1 h-full bg-background overflow-y-auto custom-scrollbar relative">
-               <div className="min-h-full w-full flex flex-col justify-center p-8 md:p-12 lg:p-24 xl:p-32">
-                  <div className="max-w-md w-full mx-auto space-y-12 py-12">
-                  <div className="space-y-8">
-                    <div className="inline-flex p-1.5 bg-secondary/30 backdrop-blur-3xl rounded-[2rem] gap-1 border border-foreground/5 w-fit">
+            <div className="flex-1 h-full bg-background relative overflow-hidden flex flex-col justify-center">
+               <div className="w-full max-w-md mx-auto p-8 space-y-8 animate-in slide-in-from-right-10 duration-1000">
+                  <div className="space-y-6">
+                    <div className="inline-flex p-1 bg-secondary/30 backdrop-blur-3xl rounded-2xl gap-1 border border-foreground/5 w-fit">
                       <button 
                         onClick={() => setActivePortal('student')}
-                        className="px-10 py-4 rounded-[1.75rem] text-[11px] font-black uppercase tracking-widest transition-all duration-500 bg-primary text-white shadow-strong"
+                        className="px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 bg-primary text-white shadow-strong"
                       >
                         Student
                       </button>
                       <button 
                         onClick={() => setActivePortal('staff')}
-                        className="px-10 py-4 rounded-[1.75rem] text-[11px] font-black uppercase tracking-widest transition-all duration-500 text-muted-foreground hover:text-primary hover:bg-background/80"
+                        className="px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 text-muted-foreground hover:text-primary hover:bg-background/80"
                       >
-                        Clearance Head
+                        Head
                       </button>
                     </div>
                     
-                    <div className="space-y-4">
-                       <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase leading-[1]">Welcome<br /><span className="text-primary italic">Back</span></h1>
-                       <p className="text-muted-foreground text-xs font-bold uppercase tracking-widest opacity-40">Please log in to your account.</p>
+                    <div className="space-y-2">
+                       <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase leading-none">Welcome<br /><span className="text-primary italic">Back</span></h1>
+                       <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest opacity-40">System Access Protocol Required</p>
                     </div>
                   </div>
 
-                  <form onSubmit={handleStudentLogin} className="space-y-8">
-                    <div className="space-y-3 group">
-                      <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within:text-primary transition-colors">Registration Number</label>
+                  <form onSubmit={handleStudentLogin} className="space-y-6">
+                    <div className="space-y-2 group">
+                      <label className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within:text-primary transition-colors">Registration ID</label>
                       <div className="relative">
-                        <Hash className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-all duration-500" />
+                        <Hash className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-all duration-500" />
                         <Input 
                           placeholder="FA21-BCS-000" 
                           value={studentId}
                           onChange={(e) => setStudentId(e.target.value)}
-                          className="h-16 pl-16 bg-secondary/30 border-none rounded-[1.25rem] font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-base placeholder:text-muted-foreground/10 uppercase"
+                          className="h-14 pl-14 bg-secondary/30 border-none rounded-xl font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm uppercase"
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-3 group">
+                    <div className="space-y-2 group">
                       <div className="flex justify-between items-center px-2">
-                        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] group-focus-within:text-primary transition-colors">Password</label>
+                        <label className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em] group-focus-within:text-primary transition-colors">Secret Key</label>
                         <button 
                           type="button"
                           onClick={() => setShowForgotDialog(true)}
-                          className="text-[10px] font-black text-primary hover:text-primary/70 uppercase tracking-widest transition-all italic underline underline-offset-4"
+                          className="text-[9px] font-black text-primary hover:text-primary/70 uppercase tracking-widest transition-all italic underline underline-offset-4"
                         >
-                          Forgot?
+                          Recover
                         </button>
                       </div>
                       <div className="relative">
-                        <Lock className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-all duration-500" />
+                        <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-all duration-500" />
                         <Input 
                           type="password"
                           value={studentPassword}
                           onChange={(e) => setStudentPassword(e.target.value)}
                           placeholder="••••••••" 
-                          className="h-16 pl-16 bg-secondary/30 border-none rounded-[1.25rem] font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-base placeholder:text-muted-foreground/10"
+                          className="h-14 pl-14 bg-secondary/30 border-none rounded-xl font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm"
                         />
                       </div>
                     </div>
                     
-                    <Button disabled={loading} className="w-full h-20 bg-primary hover:bg-primary/90 text-white rounded-[2rem] font-black text-[12px] uppercase tracking-[0.5em] shadow-strong shadow-primary/20 transition-all active:scale-95 group/btn overflow-hidden relative">
-                      <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
+                    <Button disabled={loading} className="w-full h-14 bg-primary hover:bg-primary/90 text-white rounded-xl font-black text-[11px] uppercase tracking-[0.4em] shadow-strong shadow-primary/20 transition-all active:scale-95 group/btn overflow-hidden relative">
                       {loading ? (
                          <div className="flex items-center gap-3">
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                            <span>Signing In...</span>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Authenticating...</span>
                          </div>
                       ) : (
                          <div className="flex items-center gap-3">
-                            <span>Sign In</span>
-                            <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-500" />
+                            <span>Authorize</span>
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-500" />
                          </div>
                       )}
                     </Button>
                   </form>
 
-                  <div className="pt-8 border-t border-foreground/5 text-center space-y-4">
-                    <p className="text-muted-foreground text-[10px] font-black uppercase tracking-[0.3em]">
-                      New student? <button onClick={onRegisterClick} className="text-primary hover:underline ml-2 underline-offset-4">Create account</button>
+                  <div className="pt-6 border-t border-foreground/5 text-center space-y-4">
+                    <p className="text-muted-foreground text-[9px] font-black uppercase tracking-[0.3em]">
+                      New student? <button onClick={onRegisterClick} className="text-primary hover:underline ml-2 underline-offset-4">Registry</button>
                     </p>
-                    <div className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-[8px] font-black uppercase tracking-[0.2em]">
-                      System Build: V2.0.4 - LIVE
+                    <div className="inline-block px-3 py-1 rounded-full bg-primary/5 text-primary text-[8px] font-black uppercase tracking-[0.2em] opacity-40">
+                      SYS: V2.0.4 - ENCRYPTED
                     </div>
-                  </div>
                   </div>
                </div>
             </div>
@@ -305,107 +302,104 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
         ) : (
           <div className="h-full w-full flex animate-in fade-in duration-700 bg-background">
             {/* Left: Form Area (for Faculty) */}
-            <div className="flex-1 h-full bg-background overflow-y-auto custom-scrollbar relative">
-               <div className="min-h-full w-full flex flex-col justify-center p-8 md:p-12 lg:p-24 xl:p-32">
-                  <div className="max-w-md w-full mx-auto space-y-12 py-12">
-                  <div className="space-y-8">
-                    <div className="inline-flex p-1.5 bg-secondary/30 backdrop-blur-3xl rounded-[2rem] gap-1 border border-foreground/5 w-fit">
+            <div className="flex-1 h-full bg-background relative overflow-hidden flex flex-col justify-center">
+               <div className="w-full max-w-md mx-auto p-8 space-y-8 animate-in slide-in-from-left-10 duration-1000">
+                  <div className="space-y-6">
+                    <div className="inline-flex p-1 bg-secondary/30 backdrop-blur-3xl rounded-2xl gap-1 border border-foreground/5 w-fit">
                       <button 
                         onClick={() => setActivePortal('student')}
-                        className="px-10 py-4 rounded-[1.75rem] text-[11px] font-black uppercase tracking-widest transition-all duration-500 text-muted-foreground hover:text-primary hover:bg-background/80"
+                        className="px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 text-muted-foreground hover:text-primary hover:bg-background/80"
                       >
                         Student
                       </button>
                       <button 
                         onClick={() => setActivePortal('staff')}
-                        className="px-10 py-4 rounded-[1.75rem] text-[11px] font-black uppercase tracking-widest transition-all duration-500 bg-foreground text-background shadow-strong"
+                        className="px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 bg-foreground text-background shadow-strong"
                       >
-                        Clearance Head
+                        Head
                       </button>
                     </div>
                     
-                    <div className="space-y-4">
-                       <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase leading-[1]">Clearance Head<br /><span className="text-primary italic">Login</span></h1>
-                       <p className="text-muted-foreground text-xs font-bold uppercase tracking-widest opacity-40">Administrative access required.</p>
+                    <div className="space-y-2">
+                       <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase leading-none">Authority<br /><span className="text-primary italic">Terminal</span></h1>
+                       <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest opacity-40">Administrative Clearance Hub</p>
                     </div>
                   </div>
 
-                  <form onSubmit={handleStaffLogin} className="space-y-8">
-                    <div className="space-y-3 group">
-                      <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within:text-primary transition-colors">University Email</label>
+                  <form onSubmit={handleStaffLogin} className="space-y-6">
+                    <div className="space-y-2 group">
+                      <label className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within:text-primary transition-colors">Official Email</label>
                       <div className="relative">
-                        <Mail className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-all duration-500" />
+                        <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-all duration-500" />
                         <Input 
                           type="email" 
                           placeholder="name@university.edu.pk" 
                           value={staffEmail}
                           onChange={(e) => setStaffEmail(e.target.value)}
-                          className="h-16 pl-16 bg-secondary/30 border-none rounded-[1.25rem] font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-base placeholder:text-muted-foreground/10"
+                          className="h-14 pl-14 bg-secondary/30 border-none rounded-xl font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm"
                         />
                       </div>
                     </div>
-                    <div className="space-y-3 group">
+                    <div className="space-y-2 group">
                       <div className="flex justify-between items-center px-2">
-                         <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] group-focus-within:text-primary transition-colors">Password</label>
+                         <label className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em] group-focus-within:text-primary transition-colors">Access Key</label>
                          <button 
                            type="button"
                            onClick={() => setShowForgotDialog(true)}
-                           className="text-[10px] font-black text-primary hover:text-primary/70 uppercase tracking-widest transition-all italic underline underline-offset-4"
+                           className="text-[9px] font-black text-primary hover:text-primary/70 uppercase tracking-widest transition-all italic underline underline-offset-4"
                          >
-                           Forgot?
+                           Reset
                          </button>
                       </div>
                       <div className="relative">
-                        <Lock className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-all duration-500" />
+                        <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-all duration-500" />
                         <Input 
                           type="password" 
                           placeholder="••••••••" 
                           value={staffPassword}
                           onChange={(e) => setStaffPassword(e.target.value)}
-                          className="h-16 pl-16 bg-secondary/30 border-none rounded-[1.25rem] font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-base placeholder:text-muted-foreground/10"
+                          className="h-14 pl-14 bg-secondary/30 border-none rounded-xl font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm"
                         />
                       </div>
                     </div>
-                    <Button disabled={loading} className="w-full h-20 bg-foreground hover:opacity-90 text-background rounded-[2rem] font-black text-[12px] uppercase tracking-[0.5em] shadow-strong transition-all active:scale-95 group/btn overflow-hidden relative">
-                       <div className="absolute inset-0 bg-white/5 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
-                       {loading ? "Signing In..." : "Sign In"}
+                    <Button disabled={loading} className="w-full h-14 bg-foreground hover:opacity-90 text-background rounded-xl font-black text-[11px] uppercase tracking-[0.5em] shadow-strong transition-all active:scale-95 group/btn overflow-hidden relative">
+                       {loading ? "Syncing..." : "Establish Link"}
                     </Button>
                   </form>
                   
-                  <div className="flex items-center justify-center gap-10 pt-8 opacity-20 grayscale hover:grayscale-0 transition-all duration-1000">
-                     <Globe className="w-6 h-6" />
-                     <ShieldCheck className="w-6 h-6" />
-                     <Activity className="w-6 h-6" />
+                  <div className="flex items-center justify-center gap-8 pt-6 opacity-20 grayscale hover:grayscale-0 transition-all duration-1000">
+                     <Globe className="w-5 h-5" />
+                     <ShieldCheck className="w-5 h-5" />
+                     <Activity className="w-5 h-5" />
                   </div>
                </div>
             </div>
-          </div>
 
-          {/* Right: Design Area (for Faculty) */}
-            <div className="hidden lg:flex w-[50%] h-full bg-[#1e293b] relative overflow-hidden flex-col justify-center p-20 xl:p-32 text-white">
+            {/* Right: Design Area (for Faculty) */}
+            <div className="hidden lg:flex w-[45%] h-full bg-[#1e293b] relative overflow-hidden flex-col justify-center p-12 xl:p-20 text-white">
                 <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-slate-800" />
                 <div className="absolute top-0 right-0 w-full h-full opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
                 
-                <div className="relative z-10 space-y-12">
-                   <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center backdrop-blur-3xl border border-primary/30 shadow-2xl">
-                      <Building2 className="w-9 h-9 text-primary" />
+                <div className="relative z-10 space-y-10">
+                   <div className="w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center backdrop-blur-3xl border border-primary/30 shadow-2xl">
+                      <Building2 className="w-8 h-8 text-primary" />
                    </div>
-                   <div className="space-y-8">
-                     <h2 className="text-7xl xl:text-8xl font-black tracking-tighter leading-[0.85] uppercase">Clearance Head<br /><span className="italic opacity-20">Portal</span></h2>
-                     <p className="text-slate-400 text-xl xl:text-2xl font-medium leading-relaxed max-w-sm italic border-l-4 border-primary/20 pl-8">
-                       Manage student clearance requests and department records from a central dashboard.
+                   <div className="space-y-6">
+                     <h2 className="text-5xl xl:text-6xl font-black tracking-tighter leading-[0.9] uppercase">Clearance Head<br /><span className="italic opacity-20">Portal</span></h2>
+                     <p className="text-slate-400 text-lg xl:text-xl font-medium leading-relaxed max-w-xs italic border-l-2 border-primary/20 pl-6">
+                       Secure administrative oversight for university clearance nodes.
                      </p>
                    </div>
                 </div>
 
-                <div className="relative z-10 space-y-8 mt-20">
-                   <div className="flex items-center gap-4 text-slate-500 font-black text-[11px] uppercase tracking-[0.5em] italic">
-                      <div className="w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.8)] animate-pulse" />
-                      Secured Login System
+                <div className="relative z-10 space-y-6 mt-16">
+                   <div className="flex items-center gap-3 text-slate-500 font-black text-[10px] uppercase tracking-[0.4em] italic">
+                      <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.8)] animate-pulse" />
+                      Matrix Node Active
                    </div>
-                   <div className="flex gap-4">
+                   <div className="flex gap-3">
                       {[1,2,3,4].map(i => (
-                        <div key={i} className="w-14 h-1 bg-white/5 rounded-full overflow-hidden">
+                        <div key={i} className="w-10 h-1 bg-white/5 rounded-full overflow-hidden">
                            <div className="h-full bg-primary/40 animate-progress" style={{ animationDelay: `${i * 0.4}s` }} />
                         </div>
                       ))}

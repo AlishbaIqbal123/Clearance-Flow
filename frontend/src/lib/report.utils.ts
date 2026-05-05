@@ -162,3 +162,10 @@ export const exportStudentStatus = (student: any, request: any) => {
 
   doc.save(`Clearance_Status_${student.registration_number}.pdf`);
 };
+
+export const exportStudentReport = (request: any) => {
+  if (!request?.student) {
+    throw new Error("Student data missing from request");
+  }
+  return exportStudentStatus(request.student, request);
+};
