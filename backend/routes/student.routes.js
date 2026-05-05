@@ -182,14 +182,22 @@ router.get('/dashboard',
       const deptIds = [...new Set((statuses || []).map(s => s.department_id).filter(Boolean))];
       const { data: deptsRaw } = await supabase
         .from('departments')
-        .select('*, head:head_id(first_name, last_name, email, phone)')
+        .select('*')
         .in('id', deptIds);
 
-      // Map depts and handle missing head_id by looking up HOD role
+      // Map depts and handle HOD lookup separately to avoid join issues
       const depts = [];
       if (deptsRaw) {
         for (const d of deptsRaw) {
-          if (!d.head) {
+          // If no formal head_id, try to find a user with role 'hod' for this dept
+          if (d.head_id) {
+            const { data: head } = await supabase
+              .from('profiles')
+              .select('first_name, last_name, email, phone')
+              .eq('id', d.head_id)
+              .maybeSingle();
+            if (head) d.head = head;
+          } else {
             const { data: hod } = await supabase
               .from('profiles')
               .select('first_name, last_name, email, phone')
