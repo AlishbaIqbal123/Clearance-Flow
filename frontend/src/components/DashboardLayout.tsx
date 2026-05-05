@@ -168,7 +168,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
       if (user.role === 'student') {
         await studentService.updateProfile(profileData);
       } else {
-        await api.put('/users/profile', { phone: profileData.phone });
+        await api.put('/users/profile', profileData);
       }
       toast.success('Profile saved successfully! Changes will reflect upon next login or refresh.');
       setIsProfileOpen(false);

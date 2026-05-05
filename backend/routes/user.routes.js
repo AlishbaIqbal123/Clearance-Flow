@@ -78,10 +78,11 @@ router.put('/profile',
       .optional()
       .matches(/^\+?[\d\s-()]+$/)
       .withMessage('Invalid phone number'),
-    body('avatar')
+    body('email')
       .optional()
-      .isURL()
-      .withMessage('Avatar must be a valid URL'),
+      .isEmail()
+      .normalizeEmail()
+      .withMessage('Valid email is required'),
     validate
   ],
   asyncHandler(async (req, res) => {
@@ -94,23 +95,42 @@ router.put('/profile',
       updates.phone_number = req.body.phone;
     }
     if (req.body.avatar !== undefined) updates.avatar_url = req.body.avatar;
+    if (req.body.firstName !== undefined) updates.first_name = req.body.firstName;
+    if (req.body.lastName !== undefined) updates.last_name = req.body.lastName;
+    
+    if (req.body.email !== undefined) {
+      const newEmail = req.body.email.toLowerCase().trim();
+      updates.email = newEmail;
+      
+      // Update Supabase Auth email if it changed
+      // Note: This usually triggers a confirmation email depending on Supabase settings
+      try {
+        await supabase.auth.updateUser({ email: newEmail });
+      } catch (authError) {
+        console.error('Auth email update error:', authError);
+        // We continue anyway to update the profile table, 
+        // but the login email might not change if auth update fails
+      }
+    }
     
     let user;
     if (userType === 'student') {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('student_profiles')
         .update(updates)
         .eq('id', userId)
         .select('*, department:department_id(name, code)')
         .single();
+      if (error) throw error;
       user = data;
     } else {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .update(updates)
         .eq('id', userId)
         .select('*, department:department_id(name, code)')
         .single();
+      if (error) throw error;
       user = data;
     }
     

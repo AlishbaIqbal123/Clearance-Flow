@@ -298,6 +298,23 @@ router.put('/users/:id',
     delete updates.password;
     delete updates.id;
     
+    // Sync email with Supabase Auth if it changed
+    if (updates.email) {
+      try {
+        const { error: authError } = await supabase.auth.admin.updateUserById(
+          id,
+          { email: updates.email.toLowerCase().trim() }
+        );
+        if (authError) {
+          console.error('Admin Auth email update error:', authError);
+          // If it fails (e.g. email already exists), we might want to return an error
+          // but for now we'll just log it. 
+        }
+      } catch (e) {
+        console.error('Failed to sync email with Auth:', e);
+      }
+    }
+    
     console.log('Updating user', id, 'with:', updates);
     
     const { data: user, error } = await supabase

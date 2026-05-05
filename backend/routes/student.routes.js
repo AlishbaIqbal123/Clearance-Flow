@@ -124,6 +124,14 @@ router.put('/profile',
       }
     });
 
+    if (updates.email) {
+      try {
+        await supabase.auth.updateUser({ email: updates.email.toLowerCase().trim() });
+      } catch (authError) {
+        console.error('Student auth email update error:', authError);
+      }
+    }
+
     const { data: student, error } = await supabase
       .from('student_profiles')
       .update(updates)
