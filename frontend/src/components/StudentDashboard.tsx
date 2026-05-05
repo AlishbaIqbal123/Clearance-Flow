@@ -419,17 +419,16 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                 </Dialog>
 
                 <Button 
-                  variant="outline" 
-                  className="h-16 sm:h-20 px-10 rounded-[1.75rem] border-2 border-white/20 text-white hover:bg-white hover:text-foreground font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 min-w-[240px]"
+                  className="h-16 sm:h-20 px-10 rounded-[1.75rem] bg-white/10 border border-white/20 text-white hover:bg-white hover:text-foreground font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 min-w-[240px]"
                   disabled={prefSubmitting}
                   onClick={() => handleUpdatePreference('manual')}
                 >
-                  <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
-                    <History className="w-5 h-5" />
+                  <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
+                    <History className="w-5 h-5 text-primary" />
                   </div>
                   <div className="text-left">
-                    <span className="block">Manual Pickup</span>
-                    <span className="block text-[7px] opacity-40 mt-0.5">Collect from Registrar</span>
+                    <span className="block text-white group-hover:text-inherit">Manual Pickup</span>
+                    <span className="block text-[7px] text-white/40 group-hover:text-inherit/40 mt-0.5">Collect from Registrar</span>
                   </div>
                 </Button>
               </div>
