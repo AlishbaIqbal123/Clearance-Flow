@@ -100,5 +100,10 @@ export const adminService = {
       responseType: 'blob'
     });
     return response.data;
+  },
+
+  getDispatchRequests: async () => {
+    const response = await api.get('/admin/dispatch-requests');
+    return response.data;
   }
 };

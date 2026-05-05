@@ -244,6 +244,33 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
         </div>
       </div>
 
+      {/* Dispatch Logistics Notification Alert */}
+      {counts.dispatchPendingCount > 0 && (
+        <div className="relative group overflow-hidden p-6 rounded-[2.5rem] bg-amber-500/10 border border-amber-500/20 backdrop-blur-3xl animate-in fade-in slide-in-from-top-10 duration-1000">
+           <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full -mr-16 -mt-16 blur-[60px]" />
+           <div className="flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10">
+              <div className="flex items-center gap-6">
+                 <div className="w-14 h-14 bg-amber-500/20 rounded-2xl flex items-center justify-center text-amber-600 shadow-soft group-hover:rotate-12 transition-all duration-700">
+                    <Truck className="w-7 h-7" />
+                 </div>
+                 <div className="space-y-1.5">
+                    <h4 className="text-base font-black text-amber-900 uppercase tracking-tighter leading-none">Logistics Alert: {counts.dispatchPendingCount} Pending Dispatches</h4>
+                    <p className="text-[11px] font-bold text-amber-700 uppercase tracking-widest opacity-70">
+                       Students have submitted shipping addresses. Administrative processing required.
+                    </p>
+                 </div>
+              </div>
+              <Button 
+                onClick={() => onNavigate('dispatch')}
+                className="bg-amber-600 hover:bg-amber-700 text-white h-14 px-8 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] shadow-strong shadow-amber-600/20 flex items-center gap-4 transition-all active:scale-95 shrink-0"
+              >
+                Go to Logistics Center
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+           </div>
+        </div>
+      )}
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <AdminBentoCard 

@@ -121,20 +121,40 @@ router.get('/dashboard', adminPlus, asyncHandler(async (req, res) => {
   // Monthly clearance trend (Mocking calculation for now or using simple select if small)
   const monthlyTrend = []; // To implement properly later
 
+  // Degree Fulfillment Statistics
+  const { data: fulfillmentRequests } = await supabase
+    .from('clearance_requests')
+    .select('degree_fulfillment')
+    .not('degree_fulfillment', 'is', null);
+
+  const dispatchPendingCount = (fulfillmentRequests || []).filter(r => 
+    r.degree_fulfillment && r.degree_fulfillment.method === 'dispatch'
+  ).length;
+
+  const manualPickupCount = (fulfillmentRequests || []).filter(r => 
+    r.degree_fulfillment && r.degree_fulfillment.method === 'manual'
+  ).length;
+
   res.status(200).json({
     success: true,
     data: {
       counts: {
-        totalStudents,
-        totalDepartments,
-        totalStaff,
-        totalClearanceRequests: requests?.length || 0
+        totalStudents: totalStudents || 0,
+        totalDepartments: totalDepartments || 0,
+        totalStaff: totalStaff || 0,
+        totalClearanceRequests: (requests || []).length,
+        dispatchPendingCount,
+        manualPickupCount
       },
-      clearanceStats: clearanceMap,
+      clearanceStats: {
+        cleared: clearanceMap.cleared || 0,
+        pending: clearanceMap.pending || 0,
+        in_review: clearanceMap.in_review || 0,
+        rejected: clearanceMap.rejected || 0
+      },
       recentRequests,
-      departmentPendingStats: deptPendingStats,
-      departmentStudentStats,
-      monthlyTrend
+      departmentPendingStats,
+      departmentStudentStats
     }
   });
 }));
@@ -1091,5 +1111,35 @@ router.post('/reset-official-password/:id', adminPlus, asyncHandler(async (req, 
     message: `Password reset successfully for ${user.email}. Default password is 'official123'.`
   });
 }));
+
+/**
+ * @route   GET /api/admin/dispatch-requests
+ * @desc    Get all clearance requests requiring degree dispatch
+ * @access  Admin Only
+ */
+router.get('/dispatch-requests',
+  adminOnly,
+  asyncHandler(async (req, res) => {
+    // Fetch requests where degree_fulfillment.method is 'dispatch'
+    const { data, error } = await supabase
+      .from('clearance_requests')
+      .select('*, student:student_id(*)')
+      .not('degree_fulfillment', 'is', null)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    // Filter in JS because Supabase JSONB filtering can be tricky for nested values
+    const dispatchRequests = data.filter(req => 
+      req.degree_fulfillment && req.degree_fulfillment.method === 'dispatch'
+    );
+
+    res.status(200).json({
+      success: true,
+      count: dispatchRequests.length,
+      data: dispatchRequests
+    });
+  })
+);
 
 module.exports = router;

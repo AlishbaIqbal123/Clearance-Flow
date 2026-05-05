@@ -14,6 +14,7 @@ import { DepartmentProfile } from '@/components/DepartmentProfile';
 import { ClearanceRequestList } from '@/components/ClearanceRequestList';
 import { Analytics } from '@/components/Analytics';
 import { MyClearance } from '@/components/MyClearance';
+import { DispatchList } from '@/components/DispatchList';
 import { authService } from '@/lib/auth.service';
 import { Loader2 } from 'lucide-react';
 import './App.css';
@@ -136,6 +137,9 @@ function App() {
         return <MyClearance filterType="academic" />;
       case 'my-clearance':
         return <MyClearance />;
+      case 'dispatch':
+        if (user.role === 'admin') return <DispatchList />;
+        return <div className="p-8 text-center text-slate-400 font-bold">ACCESS DENIED</div>;
       default:
         return <div className="p-8 text-center text-slate-400 font-bold">VIEW NOT FOUND</div>;
     }

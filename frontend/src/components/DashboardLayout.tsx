@@ -27,7 +27,8 @@ import {
   Zap,
   ShieldCheck,
   Activity,
-  Globe
+  Globe,
+  Truck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -231,6 +232,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
     { id: 'admin-clearance', label: 'Phase 1: Admin', icon: Shield, roles: ['student'] },
     { id: 'academic-clearance', label: 'Phase 2: Academic', icon: Trophy, roles: ['student'] },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, roles: ['admin', 'hod'] },
+    { id: 'dispatch', label: 'Dispatch', icon: Truck, roles: ['admin'] },
     { id: 'users', label: 'Staff List', icon: Users, roles: ['admin'] }
   ];
 
