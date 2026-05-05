@@ -296,8 +296,8 @@ const DepartmentCard = ({
                    <Mail className="w-5 h-5" />
                 </div>
                 <div className="space-y-1 overflow-hidden">
-                   <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest">Digital Endpoint</p>
-                   <p className="text-[11px] font-bold text-foreground truncate">{dept.department?.contact_info?.email || 'OFFLINE'}</p>
+                   <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest">Official Email</p>
+                   <p className="text-[11px] font-bold text-foreground truncate">{dept.department?.contact_info?.email || dept.department?.email || 'N/A'}</p>
                 </div>
              </div>
              <div className="flex items-center gap-5 p-4 sm:p-6 bg-secondary/30 rounded-[2rem] border border-foreground/5 group/meta">
@@ -305,8 +305,8 @@ const DepartmentCard = ({
                    <Phone className="w-5 h-5" />
                 </div>
                 <div className="space-y-1 overflow-hidden">
-                   <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest">Phone</p>
-                   <p className="text-[11px] font-bold text-foreground">{dept.department?.contact_info?.phone || 'NO_LINK'}</p>
+                   <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest">Phone Number</p>
+                   <p className="text-[11px] font-bold text-foreground">{dept.department?.contact_info?.phone || dept.department?.phone || 'N/A'}</p>
                 </div>
              </div>
              <div className="flex items-center gap-5 p-4 sm:p-6 bg-secondary/30 rounded-[2rem] border border-foreground/5 group/meta">
@@ -314,8 +314,8 @@ const DepartmentCard = ({
                    <MapPin className="w-5 h-5" />
                 </div>
                 <div className="space-y-1 overflow-hidden">
-                   <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest">Location</p>
-                   <p className="text-[11px] font-bold text-foreground truncate">{dept.department?.location || 'CAMPUS_GLOBAL'}</p>
+                   <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest">Campus Location</p>
+                   <p className="text-[11px] font-bold text-foreground truncate">{dept.department?.location || 'General Campus'}</p>
                 </div>
              </div>
           </div>
