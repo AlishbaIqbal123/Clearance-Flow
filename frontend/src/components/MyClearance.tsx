@@ -92,77 +92,77 @@ const DepartmentCard = ({
   };
 
   return (
-    <div className={`flex gap-4 sm:gap-10 relative group animate-in slide-in-from-left-8 duration-700 delay-[${index * 100}ms]`}>
+    <div className={`flex gap-3 sm:gap-6 relative group animate-in slide-in-from-left-8 duration-700 delay-[${index * 100}ms]`}>
       {/* Timeline */}
       <div className="flex flex-col items-center">
         <div className={`
-          relative z-10 w-10 h-10 sm:w-16 sm:h-16 rounded-xl sm:rounded-[1.75rem] flex items-center justify-center border-4 transition-all duration-1000 flex-shrink-0 shadow-strong
-          ${isCompleted ? 'bg-emerald-500 border-emerald-500/20 scale-110' : ''}
-          ${isActive ? 'bg-primary border-primary/20 scale-125 shadow-primary/40 animate-pulse' : ''}
+          relative z-10 w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl flex items-center justify-center border-2 transition-all duration-1000 flex-shrink-0 shadow-strong
+          ${isCompleted ? 'bg-emerald-500 border-emerald-500/20 scale-105' : ''}
+          ${isActive ? 'bg-primary border-primary/20 scale-110 shadow-primary/40 animate-pulse' : ''}
           ${isFuture ? 'bg-card border-foreground/5 text-muted-foreground' : ''}
         `}>
           <div className="absolute inset-0 bg-white/20 rounded-[inherit] opacity-0 group-hover:opacity-100 transition-opacity" />
-          {isCompleted && <CheckCircle2 className="w-5 h-5 sm:w-8 sm:h-8 text-white" />}
-          {isActive && <Clock className="w-5 h-5 sm:w-8 sm:h-8 text-white" />}
-          {isFuture && <span className="text-xs sm:text-sm font-black uppercase tracking-widest opacity-40">{index + 1}</span>}
+          {isCompleted && <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-white" />}
+          {isActive && <Clock className="w-4 h-4 sm:w-6 sm:h-6 text-white" />}
+          {isFuture && <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest opacity-40">{index + 1}</span>}
         </div>
         {/* Connector */}
-        <div className={`w-1.5 flex-1 mt-6 mb-6 rounded-full transition-all duration-1000 bg-gradient-to-b ${isCompleted ? 'from-emerald-500/50 to-emerald-500/20' : 'from-muted/20 to-muted/5'}`} />
+        <div className={`w-1 flex-1 mt-4 mb-4 rounded-full transition-all duration-1000 bg-gradient-to-b ${isCompleted ? 'from-emerald-500/50 to-emerald-500/20' : 'from-muted/20 to-muted/5'}`} />
       </div>
 
       {/* Department Card */}
       <div className={`
-        flex-1 mb-10 rounded-3xl border transition-all duration-700 overflow-hidden relative group/card
+        flex-1 mb-6 rounded-2xl border transition-all duration-700 overflow-hidden relative group/card
         ${isActive ? 'border-primary/20 shadow-strong scale-[1.01] bg-card/60 backdrop-blur-3xl' : 'border-foreground/5 bg-card/40'}
         ${isCompleted ? 'border-emerald-500/10' : ''}
         ${isFuture ? 'opacity-40' : ''}
       `}>
         {/* Ambient Glow Decoration */}
-        <div className={`absolute top-0 right-0 w-64 h-64 rounded-full blur-[100px] opacity-10 -mr-32 -mt-32 transition-all duration-1000 group-hover/card:scale-150 ${isCompleted ? 'bg-emerald-500' : isActive ? 'bg-primary' : 'bg-muted'}`} />
+        <div className={`absolute top-0 right-0 w-48 h-48 rounded-full blur-[80px] opacity-10 -mr-24 -mt-24 transition-all duration-1000 group-hover/card:scale-150 ${isCompleted ? 'bg-emerald-500' : isActive ? 'bg-primary' : 'bg-muted'}`} />
 
-        <div className="p-6 sm:p-8">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
-            <div className="flex items-center gap-6">
+        <div className="p-5 sm:p-6">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-4">
               <div className={`
-                w-16 h-16 rounded-2xl flex items-center justify-center font-black text-lg flex-shrink-0 shadow-inner relative overflow-hidden group-hover/card:rotate-6 transition-transform duration-700
+                w-12 h-12 rounded-xl flex items-center justify-center font-black text-base flex-shrink-0 shadow-inner relative overflow-hidden group-hover/card:rotate-6 transition-transform duration-700
                 ${isActive ? 'bg-primary/10 text-primary' : ''}
                 ${isCompleted ? 'bg-emerald-500/10 text-emerald-600' : ''}
                 ${isFuture ? 'bg-secondary text-muted-foreground opacity-40' : ''}
               `}>
                 <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/card:opacity-100 transition-opacity" />
-                <span className="relative z-10">{dept.department?.code || (index + 1)}</span>
+                <span className="relative z-10 text-xs">{dept.department?.code || (index + 1)}</span>
               </div>
-              <div className="space-y-1">
-                <h3 className={`font-black text-xl tracking-tight uppercase leading-none transition-colors ${isActive ? 'text-primary' : 'text-foreground'}`}>
+              <div className="space-y-0.5">
+                <h3 className={`font-black text-lg tracking-tight uppercase leading-none transition-colors ${isActive ? 'text-primary' : 'text-foreground'}`}>
                   {dept.department_id === student.department_id ? student.discipline : (dept.department?.name || `Node ${index + 1}`)}
                 </h3>
-                <div className="flex items-center gap-4">
-                   <Badge variant="outline" className={`rounded-lg px-4 py-1 text-[9px] font-black uppercase tracking-[0.3em] border-none shadow-soft ${isAcademic ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted-foreground opacity-60'}`}>
+                <div className="flex items-center gap-3">
+                   <Badge variant="outline" className={`rounded-md px-3 py-0.5 text-[8px] font-black uppercase tracking-[0.2em] border-none shadow-soft ${isAcademic ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted-foreground opacity-60'}`}>
                       {isAcademic ? 'Academic Unit' : 'Administrative Unit'}
                    </Badge>
-                   <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] opacity-30 italic">Sequential Node {index + 1}</span>
+                   <span className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-30 italic">Sequential Node {index + 1}</span>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col items-end gap-3 shrink-0">
+            <div className="flex flex-col items-end gap-2 shrink-0">
                {isAcademic && !phase1Cleared && dept.status === 'pending' ? (
-                  <StatusBadge status="hold" size="lg" />
+                  <StatusBadge status="hold" size="sm" />
                ) : (
-                  <StatusBadge status={dept.status || 'pending'} size="lg" />
+                  <StatusBadge status={dept.status || 'pending'} size="sm" />
                )}
             </div>
           </div>
           
           {isAcademic && !phase1Cleared && dept.status === 'pending' && (
-             <div className="mb-10 p-8 rounded-[2.5rem] bg-amber-500/5 border border-amber-500/10 flex gap-6 animate-in fade-in duration-1000 group/alert">
-                <div className="w-14 h-14 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-600 shrink-0 group-hover/alert:scale-110 transition-transform">
-                   <Info className="w-7 h-7" />
+             <div className="mb-8 p-6 rounded-2xl bg-amber-500/5 border border-amber-500/10 flex gap-4 animate-in fade-in duration-1000 group/alert">
+                <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-600 shrink-0 group-hover/alert:scale-110 transition-transform">
+                   <Info className="w-5 h-5" />
                 </div>
-                <div className="space-y-1">
-                   <p className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-600/60">Sequence Lock Active</p>
-                   <p className="text-sm text-muted-foreground font-medium leading-relaxed italic max-w-2xl">
-                     Phase 2 verification will engage automatically upon successful validation of all administrative departments (Library, Finance, Security).
+                <div className="space-y-0.5">
+                   <p className="text-[8px] font-black uppercase tracking-[0.4em] text-amber-600/60">Sequence Lock Active</p>
+                   <p className="text-xs text-muted-foreground font-medium leading-relaxed italic max-w-xl">
+                     Phase 2 verification will engage automatically upon validation of all administrative departments.
                    </p>
                 </div>
              </div>
@@ -421,22 +421,22 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-10 duration-1000 pb-20">
 
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-12">
-          <div className="space-y-8">
-             <div className="flex items-center gap-6">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary/10 rounded-[1.5rem] sm:rounded-[2.5rem] flex items-center justify-center text-primary shadow-soft relative overflow-hidden group">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+          <div className="space-y-4">
+             <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-soft relative overflow-hidden group">
                    <div className="absolute inset-0 bg-primary/10 group-hover:scale-110 transition-transform duration-700" />
-                   <Fingerprint className="w-8 h-8 sm:w-10 sm:h-10 relative z-10" />
+                   <Fingerprint className="w-7 h-7 relative z-10" />
                 </div>
-                <div className="space-y-1">
-                   <div className="flex items-center gap-4">
-                      <Badge className="bg-primary/10 text-primary border-none rounded-full px-5 py-1.5 text-[10px] font-black uppercase tracking-[0.4em]">Audit</Badge>
-                      <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] opacity-40">Identity Verified</span>
+                <div className="space-y-0.5">
+                   <div className="flex items-center gap-3">
+                      <Badge className="bg-primary/10 text-primary border-none rounded-full px-3 py-1 text-[8px] font-black uppercase tracking-[0.4em]">Audit</Badge>
+                      <span className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em] opacity-40">Identity Verified</span>
                    </div>
-                   <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground tracking-tighter uppercase leading-none">{pageTitle}</h1>
+                   <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tighter uppercase leading-none">{pageTitle}</h1>
                 </div>
              </div>
-             <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground font-medium max-w-3xl leading-relaxed italic">
+             <p className="text-lg text-muted-foreground font-medium max-w-2xl leading-relaxed italic">
                {pageDescription}
              </p>
           </div>
@@ -445,9 +445,9 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
             variant="ghost" 
             onClick={fetchClearanceData}
             disabled={refreshing}
-            className="w-full sm:w-auto rounded-[1.5rem] sm:rounded-[2.5rem] h-16 sm:h-20 px-8 sm:px-12 font-black text-[10px] sm:text-[11px] uppercase tracking-[0.4em] text-muted-foreground hover:bg-card hover:text-primary hover:shadow-strong transition-all duration-700 bg-card/40 backdrop-blur-md shrink-0 border border-foreground/5 group/refresh"
+            className="w-full sm:w-auto rounded-2xl h-14 px-8 font-black text-[10px] uppercase tracking-[0.4em] text-muted-foreground hover:bg-card hover:text-primary hover:shadow-strong transition-all duration-700 bg-card/40 backdrop-blur-md shrink-0 border border-foreground/5 group/refresh"
           >
-            <RefreshCcw className={`w-5 h-5 sm:w-6 sm:h-6 mr-3 sm:mr-5 group-hover/refresh:rotate-180 transition-transform duration-700 ${refreshing ? 'animate-spin' : ''}`} />
+            <RefreshCcw className={`w-5 h-5 mr-3 group-hover/refresh:rotate-180 transition-transform duration-700 ${refreshing ? 'animate-spin' : ''}`} />
             Sync Status
           </Button>
       </div>
@@ -456,74 +456,70 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
         <>
           {/* Progress Overview */}
           {(!filterType || filterType === 'administrative') && (
-            <Card className="border-none shadow-strong rounded-[2.5rem] overflow-hidden bg-foreground text-background relative border border-white/5 group">
-              <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[160px] -mr-64 -mt-64 animate-pulse" />
-              <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-[140px] -ml-64 -mb-64" />
+            <Card className="border-none shadow-strong rounded-3xl overflow-hidden bg-foreground text-background relative border border-white/5 group">
+              <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/20 rounded-full blur-[120px] -mr-32 -mt-32 animate-pulse" />
               
-              <CardContent className="p-6 sm:p-12 relative z-10">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-12">
-                  <div className="space-y-8">
-                    <div className="flex items-center gap-4">
-                      <div className="w-3 h-3 bg-primary rounded-full shadow-[0_0_15px_hsl(var(--primary)/1)] animate-ping" />
-                      <span className="text-primary text-[10px] font-black uppercase tracking-[0.5em]">Live Status</span>
+              <CardContent className="p-6 sm:p-8 relative z-10">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-primary rounded-full shadow-[0_0_15px_hsl(var(--primary)/1)] animate-ping" />
+                      <span className="text-primary text-[9px] font-black uppercase tracking-[0.5em]">Live Status</span>
                     </div>
-                    <div className="space-y-3">
-                       <p className="text-[9px] font-black text-background/30 uppercase tracking-[0.5em] mb-2">Overall progress</p>
-                       <h3 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tighter leading-none flex items-baseline gap-4">
-                        {progress.clearedDepartments || 0}<span className="text-xl sm:text-2xl text-background/20 font-black uppercase tracking-widest">/ {progress.totalDepartments || allDepartments.length}</span>
+                    <div className="space-y-2">
+                       <p className="text-[8px] font-black text-background/30 uppercase tracking-[0.5em] mb-1">Overall progress</p>
+                       <h3 className="text-3xl sm:text-5xl font-black tracking-tighter leading-none flex items-baseline gap-3">
+                        {progress.clearedDepartments || 0}<span className="text-base text-background/20 font-black uppercase tracking-widest">/ {progress.totalDepartments || allDepartments.length}</span>
                        </h3>
-                      <div className="flex items-center gap-4 pt-2">
-                         <Badge className="bg-primary text-white border-none rounded-lg px-4 py-1.5 text-[9px] font-black uppercase tracking-widest shadow-strong shadow-primary/40">ID: {activeRequest.request_id}</Badge>
-                         <div className="hidden sm:flex items-center gap-2 text-background/40 font-black text-[9px] uppercase tracking-widest italic">
-                            <Database className="w-3.5 h-3.5" /> Sync Complete
+                      <div className="flex items-center gap-3 pt-1">
+                         <Badge className="bg-primary text-white border-none rounded-md px-3 py-1 text-[8px] font-black uppercase tracking-widest shadow-strong shadow-primary/40">ID: {activeRequest.request_id}</Badge>
+                         <div className="hidden sm:flex items-center gap-2 text-background/40 font-black text-[8px] uppercase tracking-widest italic">
+                            <Database className="w-3 h-3" /> Sync Complete
                          </div>
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-col items-start lg:items-end gap-2">
-                    <div className="text-6xl sm:text-8xl font-black tracking-tighter leading-none text-primary group-hover:scale-110 transition-transform duration-1000 origin-bottom-right">
-                       {progress.percentage || 0}<span className="text-3xl sm:text-4xl text-background/10 ml-1">%</span>
+                  <div className="flex flex-col items-start lg:items-end gap-1">
+                    <div className="text-5xl sm:text-7xl font-black tracking-tighter leading-none text-primary group-hover:scale-110 transition-transform duration-1000 origin-bottom-right">
+                       {progress.percentage || 0}<span className="text-2xl text-background/10 ml-1">%</span>
                     </div>
-                    <div className="text-background/20 text-[9px] font-black uppercase tracking-[0.5em] italic mr-2">Progress Percentage</div>
+                    <div className="text-background/20 text-[8px] font-black uppercase tracking-[0.5em] italic mr-1">Progress Percentage</div>
                   </div>
                 </div>
 
-                <div className="mt-12 sm:mt-24 space-y-8">
-                   <div className="flex items-center justify-between px-4">
-                      <div className="flex items-center gap-3 text-background/30 font-black text-[10px] uppercase tracking-[0.4em]">
-                         <Activity className="w-4 h-4" /> Start Cycle
+                <div className="mt-8 sm:mt-12 space-y-4">
+                   <div className="flex items-center justify-between px-2">
+                      <div className="flex items-center gap-2 text-background/30 font-black text-[9px] uppercase tracking-[0.4em]">
+                         <Activity className="w-3 h-3" /> Start
                       </div>
-                      <div className="flex items-center gap-3 text-background/30 font-black text-[10px] uppercase tracking-[0.4em]">
-                         Finality <ChevronRight className="w-4 h-4" />
+                      <div className="flex items-center gap-2 text-background/30 font-black text-[9px] uppercase tracking-[0.4em]">
+                         Finality <ChevronRight className="w-3 h-3" />
                       </div>
                    </div>
-                   <div className="w-full h-8 bg-background/5 rounded-full p-2 overflow-hidden shadow-inner border border-white/5 relative">
+                   <div className="w-full h-4 bg-background/5 rounded-full p-1 overflow-hidden shadow-inner border border-white/5 relative">
                     <div
-                      className="h-full bg-primary rounded-full transition-all duration-2000 ease-out relative group/shimmer overflow-hidden shadow-[0_0_30px_rgba(var(--primary),0.4)]"
+                      className="h-full bg-primary rounded-full transition-all duration-2000 ease-out relative group/shimmer overflow-hidden shadow-[0_0_20px_rgba(var(--primary),0.4)]"
                       style={{ width: `${progress.percentage || 0}%` }}
                     >
                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent translate-x-[-100%] animate-[shimmer_3s_infinite]" />
-                    </div>
-                  </div>
-                </div>
               </CardContent>
             </Card>
           )}
-
+          
           {/* Active Unit Focus Portal */}
           {activeIndex >= 0 && (
-            <div className="flex items-center gap-8 px-6 sm:px-12 py-8 bg-primary/5 border border-primary/10 rounded-[3rem] shadow-strong animate-in slide-in-from-left-10 duration-1000 group">
-              <div className="w-5 h-5 bg-primary rounded-full animate-ping flex-shrink-0" />
-              <div className="space-y-1">
-                 <p className="text-[9px] font-black text-primary uppercase tracking-[0.5em] mb-2">Current Department</p>
-                 <p className="text-lg sm:text-2xl font-black uppercase tracking-tight text-foreground leading-none">
-                   Currently At:{' '}
-                   <span className="text-primary block sm:inline sm:ml-4 group-hover:tracking-wider transition-all duration-700">
-                     {departments[activeIndex]?.department_id === data.student.department_id ? data.student.discipline : (departments[activeIndex]?.department?.name || 'Authorized Unit')}
-                   </span>
+            <div className="flex items-center gap-6 px-6 sm:px-8 py-6 bg-primary/5 border border-primary/10 rounded-3xl shadow-strong animate-in slide-in-from-left-10 duration-1000 group">
+              <div className="w-4 h-4 bg-primary rounded-full animate-ping flex-shrink-0" />
+              <div className="space-y-0.5">
+                 <p className="text-[8px] font-black text-primary uppercase tracking-[0.5em] mb-1">Current Department</p>
+                 <p className="text-base sm:text-lg font-black uppercase tracking-tight text-foreground leading-none">
+                    Currently At:{' '}
+                    <span className="text-primary block sm:inline sm:ml-3 group-hover:tracking-wider transition-all duration-700">
+                      {departments[activeIndex]?.department_id === data.student.department_id ? data.student.discipline : (departments[activeIndex]?.department?.name || 'Authorized Unit')}
+                    </span>
                  </p>
               </div>
-              <ArrowUpRight className="ml-auto w-10 h-10 text-primary opacity-20 group-hover:translate-x-4 group-hover:-translate-y-4 transition-transform duration-700" />
+              <ArrowUpRight className="ml-auto w-8 h-8 text-primary opacity-20 group-hover:translate-x-3 group-hover:-translate-y-3 transition-transform duration-700" />
             </div>
           )}
 
@@ -553,45 +549,45 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
 
             {/* Final Approval */}
             {filterType === 'academic' && (
-              <div className="flex gap-10 group/terminal">
+              <div className="flex gap-6 group/terminal">
                 <div className="flex flex-col items-center">
                   <div className={`
-                    w-16 h-16 rounded-[1.75rem] flex items-center justify-center border-4 flex-shrink-0 transition-all duration-1000 shadow-strong
+                    w-12 h-12 rounded-2xl flex items-center justify-center border-2 flex-shrink-0 transition-all duration-1000 shadow-strong
                     ${progress.percentage === 100
-                      ? 'bg-primary border-primary scale-125 shadow-primary/40'
+                      ? 'bg-primary border-primary scale-110 shadow-primary/40'
                       : 'bg-card border-dashed border-foreground/5 text-muted-foreground/10'
                     }
                   `}>
-                    <Trophy className={`w-8 h-8 transition-all duration-1000 ${progress.percentage === 100 ? 'text-white scale-110' : 'text-muted-foreground/20'}`} />
+                    <Trophy className={`w-6 h-6 transition-all duration-1000 ${progress.percentage === 100 ? 'text-white scale-110' : 'text-muted-foreground/20'}`} />
                   </div>
                 </div>
                 <div className={`
-                  flex-1 mb-10 rounded-3xl border-2 p-8 flex flex-col md:flex-row items-center justify-between gap-8 transition-all duration-1000 relative overflow-hidden
+                  flex-1 mb-6 rounded-2xl border-2 p-6 flex flex-col md:flex-row items-center justify-between gap-6 transition-all duration-1000 relative overflow-hidden
                   ${progress.percentage === 100
                     ? 'border-primary/20 bg-primary/5 shadow-strong'
                     : 'border-dashed border-foreground/5 bg-muted/5'
                   }
                 `}>
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] -mr-32 -mt-32 opacity-0 group-hover/terminal:opacity-100 transition-opacity" />
-                  <div className="space-y-4 relative z-10">
-                    <div className="flex items-center gap-3">
-                       <div className={`w-2 h-2 rounded-full ${progress.percentage === 100 ? 'bg-primary animate-pulse shadow-primary/40' : 'bg-muted/20'}`} />
-                       <span className={`text-[9px] font-black uppercase tracking-[0.4em] ${progress.percentage === 100 ? 'text-primary' : 'text-muted-foreground/30'}`}>Final Clearance</span>
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full blur-[60px] -mr-24 -mt-24 opacity-0 group-hover/terminal:opacity-100 transition-opacity" />
+                  <div className="space-y-2 relative z-10">
+                    <div className="flex items-center gap-2">
+                       <div className={`w-1.5 h-1.5 rounded-full ${progress.percentage === 100 ? 'bg-primary animate-pulse shadow-primary/40' : 'bg-muted/20'}`} />
+                       <span className={`text-[8px] font-black uppercase tracking-[0.4em] ${progress.percentage === 100 ? 'text-primary' : 'text-muted-foreground/30'}`}>Final Clearance</span>
                     </div>
-                    <div className="space-y-2">
-                       <p className={`font-black text-3xl tracking-tight leading-none uppercase ${progress.percentage === 100 ? 'text-foreground' : 'text-muted-foreground/20'}`}>
+                    <div className="space-y-1">
+                       <p className={`font-black text-2xl tracking-tight leading-none uppercase ${progress.percentage === 100 ? 'text-foreground' : 'text-muted-foreground/20'}`}>
                         {progress.percentage === 100 ? 'Clearance Complete' : 'Pending'}
                       </p>
-                      <p className={`text-base font-medium italic leading-relaxed max-w-xl ${progress.percentage === 100 ? 'text-muted-foreground' : 'text-muted-foreground/10'}`}>
+                      <p className={`text-sm font-medium italic leading-relaxed max-w-xl ${progress.percentage === 100 ? 'text-muted-foreground' : 'text-muted-foreground/10'}`}>
                         {progress.percentage === 100
-                          ? 'All departments have cleared your request. Your clearance is now complete.'
-                          : 'Final clearance will be available once all departments have approved your request.'}
+                          ? 'All departments have cleared your request.'
+                          : 'Final clearance will be available once all departments have approved.'}
                       </p>
                     </div>
                   </div>
                   {progress.percentage === 100 && (
-                     <div className="w-16 h-16 bg-primary text-white rounded-2xl flex items-center justify-center shadow-strong shadow-primary/30 animate-bounce relative z-10">
-                        <Sparkles className="w-8 h-8" />
+                     <div className="w-12 h-12 bg-primary text-white rounded-xl flex items-center justify-center shadow-strong shadow-primary/30 animate-bounce relative z-10">
+                        <Sparkles className="w-6 h-6" />
                      </div>
                   )}
                 </div>
