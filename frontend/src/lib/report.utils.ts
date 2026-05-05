@@ -9,6 +9,7 @@ interface UserOptions {
   theme?: 'striped' | 'grid' | 'plain';
   styles?: any;
   headStyles?: any;
+  columnStyles?: any;
   margin?: { top?: number; right?: number; bottom?: number; left?: number };
 }
 
