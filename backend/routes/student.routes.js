@@ -168,30 +168,30 @@ router.get('/dashboard',
       .eq('id', studentId)
       .single();
     
-    // Get active clearance request (no nested joins)
-    const { data: activeRequests } = await supabase
+    // Get all requests for this student to find the most relevant one
+    const { data: allRequests } = await supabase
       .from('clearance_requests')
       .select('*')
       .eq('student_id', studentId)
-      .not('status', 'in', '("cancelled","cleared")')
       .order('created_at', { ascending: false });
 
-    let activeRequest = activeRequests?.[0] || null;
-
-    // If no truly active request, check for a recently cleared one that needs fulfillment info
-    if (!activeRequest) {
-      const { data: clearedRequests } = await supabase
-        .from('clearance_requests')
-        .select('*')
-        .eq('student_id', studentId)
-        .eq('status', 'cleared')
-        .is('degree_fulfillment', null)
-        .order('created_at', { ascending: false })
-        .limit(1);
+    let activeRequest = null;
+    
+    if (allRequests && allRequests.length > 0) {
+      const latest = allRequests[0];
       
-      if (clearedRequests?.[0]) {
-        activeRequest = clearedRequests[0];
+      // If the latest request is cleared but fulfillment is missing, it's still "active" for the student
+      const isFulfillmentMissing = !latest.degree_fulfillment || 
+                                   (typeof latest.degree_fulfillment === 'object' && Object.keys(latest.degree_fulfillment).length === 0);
+      
+      if (latest.status === 'cleared' && isFulfillmentMissing) {
+        activeRequest = latest;
+      } else if (!['cleared', 'cancelled'].includes(latest.status)) {
+        // Any other non-terminal status is active
+        activeRequest = latest;
       }
+      // Note: if it's cleared and HAS fulfillment, or if it's cancelled, we let it fall through to null
+      // so the student can start a new request.
     }
 
     if (activeRequest) {
