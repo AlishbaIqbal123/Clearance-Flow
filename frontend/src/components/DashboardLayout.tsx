@@ -467,74 +467,74 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
 
       {/* Redesigned Dialogs - Premium & Bento Style */}
       <Dialog open={isProfileOpen} onOpenChange={setIsProfileOpen}>
-        <DialogContent className="sm:max-w-[600px] rounded-[3.5rem] p-0 overflow-hidden border-none shadow-strong">
-          <div className="absolute top-0 left-0 w-full h-40 bg-primary/5 pointer-events-none" />
-          <div className="p-6 sm:p-12 pt-12 sm:pt-16 space-y-6 sm:space-y-10 relative">
-            <div className="flex flex-col items-center text-center space-y-6">
+        <DialogContent className="sm:max-w-[500px] rounded-[2rem] p-0 overflow-hidden border-none shadow-strong">
+          <div className="absolute top-0 left-0 w-full h-32 bg-primary/5 pointer-events-none" />
+          <div className="p-6 sm:p-10 pt-10 sm:pt-12 space-y-5 sm:space-y-8 relative">
+            <div className="flex flex-col items-center text-center space-y-5">
               <div className="relative group">
-                <Avatar className="w-28 h-28 sm:w-36 sm:h-36 border-[6px] sm:border-[8px] border-background shadow-strong group-hover:scale-105 transition-all duration-700">
+                <Avatar className="w-24 h-24 sm:w-28 sm:h-28 border-[4px] sm:border-[6px] border-background shadow-strong group-hover:scale-105 transition-all duration-700">
                   <AvatarImage src={user.avatar} />
-                  <AvatarFallback className="bg-primary text-white text-3xl sm:text-5xl font-black">
+                  <AvatarFallback className="bg-primary text-white text-2xl sm:text-4xl font-black">
                     {user.firstName?.[0]}{user.lastName?.[0]}
                   </AvatarFallback>
                 </Avatar>
-                <button className="absolute bottom-0 right-0 sm:bottom-1 sm:right-1 p-3 sm:p-4 bg-white dark:bg-card rounded-full shadow-strong text-primary hover:scale-110 transition-transform active:scale-95 border border-foreground/5">
-                  <Camera className="w-5 h-5 sm:w-6 sm:h-6" />
+                <button className="absolute bottom-0 right-0 p-2 sm:p-3 bg-white dark:bg-card rounded-full shadow-strong text-primary hover:scale-110 transition-transform active:scale-95 border border-foreground/5">
+                  <Camera className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
-              <div className="space-y-2">
-                <DialogTitle className="text-2xl sm:text-4xl font-black tracking-tighter uppercase">{user.fullName}</DialogTitle>
-                <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-none px-4 sm:px-6 py-1.5 sm:py-2 rounded-full font-black uppercase tracking-[0.3em] text-[8px] sm:text-[10px] shadow-sm">
+              <div className="space-y-1.5">
+                <DialogTitle className="text-xl sm:text-3xl font-black tracking-tighter uppercase">{user.fullName}</DialogTitle>
+                <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-none px-3 sm:px-5 py-1 sm:py-1.5 rounded-full font-black uppercase tracking-[0.3em] text-[7px] sm:text-[9px] shadow-sm">
                    {user.role?.replace('_', ' ')}
                 </Badge>
               </div>
             </div>
-             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
-              <div className="space-y-2 sm:space-y-3">
-                <Label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-2">Identity One</Label>
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-2">Identity One</Label>
                 <Input 
                   value={profileData.firstName} 
                   onChange={(e) => setProfileData({...profileData, firstName: e.target.value})}
-                  className="h-14 sm:h-16 rounded-xl sm:rounded-[1.5rem] bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all px-6 text-sm sm:text-base" 
+                  className="h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all px-5 text-sm" 
                 />
               </div>
-              <div className="space-y-2 sm:space-y-3">
-                <Label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-2">Identity Two</Label>
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-2">Identity Two</Label>
                 <Input 
                   value={profileData.lastName} 
                   onChange={(e) => setProfileData({...profileData, lastName: e.target.value})}
-                  className="h-14 sm:h-16 rounded-xl sm:rounded-[1.5rem] bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all px-6 text-sm sm:text-base" 
+                  className="h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all px-5 text-sm" 
                 />
               </div>
-              <div className="col-span-1 sm:col-span-2 space-y-2 sm:space-y-3">
-                <Label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-2">Secure Endpoint</Label>
+              <div className="col-span-1 sm:col-span-2 space-y-1.5 sm:space-y-2">
+                <Label className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-2">Secure Endpoint</Label>
                 <div className="relative">
-                  <Mail className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
+                  <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input 
                     value={profileData.email} 
                     onChange={(e) => setProfileData({...profileData, email: e.target.value})}
-                    className="pl-14 sm:pl-16 h-14 sm:h-16 rounded-xl sm:rounded-[1.5rem] bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm sm:text-base" 
+                    className="pl-12 sm:pl-14 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm" 
                   />
                 </div>
               </div>
-              <div className="col-span-1 sm:col-span-2 space-y-2 sm:space-y-3">
-                <Label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-2">Contact Trace</Label>
+              <div className="col-span-1 sm:col-span-2 space-y-1.5 sm:space-y-2">
+                <Label className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-2">Contact Trace</Label>
                 <div className="relative">
-                  <Phone className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
+                  <Phone className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input 
                     value={profileData.phone}
                     onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
                     placeholder="+92 000 0000000"
-                    className="pl-14 sm:pl-16 h-14 sm:h-16 rounded-xl sm:rounded-[1.5rem] bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm sm:text-base"
+                    className="pl-12 sm:pl-14 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm"
                   />
                 </div>
               </div>
             </div>
           </div>
-          <DialogFooter className="p-6 sm:p-12 pt-0 flex flex-col sm:flex-row gap-4 sm:gap-6">
-             <Button variant="ghost" className="h-16 rounded-2xl font-black text-[10px] uppercase tracking-widest text-muted-foreground px-10 hover:bg-secondary" onClick={() => setIsProfileOpen(false)}>Abort</Button>
+          <DialogFooter className="p-6 sm:p-10 pt-0 flex flex-col sm:flex-row gap-3 sm:gap-4">
+             <Button variant="ghost" className="h-14 rounded-xl font-black text-[9px] uppercase tracking-widest text-muted-foreground px-8 hover:bg-secondary" onClick={() => setIsProfileOpen(false)}>Abort</Button>
              <Button 
-               className="flex-1 bg-primary hover:bg-primary/90 h-16 rounded-3xl font-black text-[10px] uppercase tracking-[0.3em] shadow-strong shadow-primary/20 transition-all active:scale-95"
+               className="flex-1 bg-primary hover:bg-primary/90 h-14 rounded-2xl font-black text-[9px] uppercase tracking-[0.3em] shadow-strong shadow-primary/20 transition-all active:scale-95"
                onClick={saveProfile}
                disabled={savingProfile}
              >
@@ -546,54 +546,54 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
 
       {/* Account Settings Dialog */}
       <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-        <DialogContent className="sm:max-w-[550px] rounded-[3.5rem] p-0 overflow-hidden border-none shadow-strong">
-          <div className="bg-foreground p-12 text-background relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-primary/20 rounded-full -mr-24 -mt-24 blur-[80px]" />
-            <DialogTitle className="text-4xl font-black tracking-tighter flex items-center gap-6 uppercase">
-              <div className="p-4 bg-background/10 rounded-[1.5rem] backdrop-blur-md">
-                <Settings className="w-8 h-8 text-primary" />
+        <DialogContent className="sm:max-w-[450px] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong">
+          <div className="bg-foreground p-8 sm:p-10 text-background relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full -mr-16 -mt-16 blur-[60px]" />
+            <DialogTitle className="text-2xl sm:text-3xl font-black tracking-tighter flex items-center gap-4 uppercase">
+              <div className="p-3 bg-background/10 rounded-2xl backdrop-blur-md">
+                <Settings className="w-6 h-6 text-primary" />
               </div>
               Settings
             </DialogTitle>
           </div>
-          <div className="p-12 space-y-4">
+          <div className="p-6 sm:p-10 space-y-3">
             <button 
-              className="w-full flex items-center justify-between p-6 rounded-[2rem] bg-secondary/50 hover:bg-primary hover:text-white group transition-all duration-700 border border-foreground/5"
+              className="w-full flex items-center justify-between p-4 sm:p-5 rounded-2xl bg-secondary/50 hover:bg-primary hover:text-white group transition-all duration-700 border border-foreground/5"
               onClick={() => { setIsPrivacyOpen(true); setIsSettingsOpen(false); }}
             >
-              <div className="flex items-center gap-6">
-                <div className="p-4 rounded-[1.25rem] bg-background group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-soft">
-                  <Shield className="w-7 h-7 text-primary" />
+              <div className="flex items-center gap-4 sm:gap-6">
+                <div className="p-3 rounded-xl bg-background group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-soft">
+                  <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                 </div>
-                <div className="text-left space-y-1">
-                  <p className="text-base font-black uppercase tracking-tight">Security Protocol</p>
-                  <p className="text-[10px] font-bold opacity-60 uppercase tracking-widest">Visibility & Cryptography</p>
+                <div className="text-left space-y-0.5">
+                  <p className="text-sm font-black uppercase tracking-tight">Security Protocol</p>
+                  <p className="text-[8px] font-bold opacity-60 uppercase tracking-widest">Visibility & Cryptography</p>
                 </div>
               </div>
-              <div className="w-12 h-12 rounded-full border border-foreground/10 flex items-center justify-center group-hover:border-white/20">
-                 <ArrowRight className="w-5 h-5 opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+              <div className="w-10 h-10 rounded-full border border-foreground/10 flex items-center justify-center group-hover:border-white/20">
+                 <ArrowRight className="w-4 h-4 opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
               </div>
             </button>
             <button 
-              className="w-full flex items-center justify-between p-6 rounded-[2rem] bg-secondary/50 hover:bg-primary hover:text-white group transition-all duration-700 border border-foreground/5"
+              className="w-full flex items-center justify-between p-4 sm:p-5 rounded-2xl bg-secondary/50 hover:bg-primary hover:text-white group transition-all duration-700 border border-foreground/5"
               onClick={() => { setIsPasswordOpen(true); setIsSettingsOpen(false); }}
             >
-              <div className="flex items-center gap-6">
-                <div className="p-4 rounded-[1.25rem] bg-background group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500 shadow-soft">
-                  <Key className="w-7 h-7 text-primary" />
+              <div className="flex items-center gap-4 sm:gap-6">
+                <div className="p-3 rounded-xl bg-background group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500 shadow-soft">
+                  <Key className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                 </div>
-                <div className="text-left space-y-1">
-                  <p className="text-base font-black uppercase tracking-tight">Credentials</p>
-                  <p className="text-[10px] font-bold opacity-60 uppercase tracking-widest">Access Keys & Authentication</p>
+                <div className="text-left space-y-0.5">
+                  <p className="text-sm font-black uppercase tracking-tight">Credentials</p>
+                  <p className="text-[8px] font-bold opacity-60 uppercase tracking-widest">Access Keys & Authentication</p>
                 </div>
               </div>
-              <div className="w-12 h-12 rounded-full border border-foreground/10 flex items-center justify-center group-hover:border-white/20">
-                 <ArrowRight className="w-5 h-5 opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+              <div className="w-10 h-10 rounded-full border border-foreground/10 flex items-center justify-center group-hover:border-white/20">
+                 <ArrowRight className="w-4 h-4 opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
               </div>
             </button>
           </div>
-          <DialogFooter className="p-12 pt-0">
-             <Button variant="ghost" className="w-full text-muted-foreground font-black text-[10px] uppercase tracking-[0.3em] h-16 rounded-3xl hover:bg-secondary" onClick={() => setIsSettingsOpen(false)}>
+          <DialogFooter className="p-6 sm:p-10 pt-0">
+             <Button variant="ghost" className="w-full text-muted-foreground font-black text-[9px] uppercase tracking-[0.3em] h-14 rounded-2xl hover:bg-secondary" onClick={() => setIsSettingsOpen(false)}>
                Return to Terminal
              </Button>
           </DialogFooter>
