@@ -180,13 +180,32 @@ router.get('/dashboard',
 
       // Fetch department details for each status
       const deptIds = [...new Set((statuses || []).map(s => s.department_id).filter(Boolean))];
-      const { data: depts } = await supabase
+      const { data: deptsRaw } = await supabase
         .from('departments')
-        .select('*')
+        .select('*, head:head_id(first_name, last_name, email, phone)')
         .in('id', deptIds);
 
+      // Map depts and handle missing head_id by looking up HOD role
+      const depts = [];
+      if (deptsRaw) {
+        for (const d of deptsRaw) {
+          if (!d.head) {
+            const { data: hod } = await supabase
+              .from('profiles')
+              .select('first_name, last_name, email, phone')
+              .eq('department_id', d.id)
+              .eq('role', 'hod')
+              .eq('is_active', true)
+              .limit(1)
+              .maybeSingle();
+            if (hod) d.head = hod;
+          }
+          depts.push(d);
+        }
+      }
+
       activeRequest.clearance_status = (statuses || []).map(s => {
-        const dept = depts?.find(d => d.id === s.department_id) || null;
+        const dept = depts.find(d => d.id === s.department_id) || null;
         return {
           ...s,
           department: dept
@@ -254,7 +273,7 @@ router.get('/clearance-status',
         *,
         clearance_status(
           *,
-          department:department_id(*),
+          department:department_id(*, head:head_id(first_name, last_name, email, phone)),
           clearedBy:cleared_by(first_name, last_name)
         )
       `)
