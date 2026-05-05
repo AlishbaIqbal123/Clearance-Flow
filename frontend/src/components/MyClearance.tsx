@@ -48,7 +48,7 @@ const DepartmentCard = ({
   );
 
   const handleWhatsApp = () => {
-    const phone = dept.department?.contact_info?.phone || dept.department?.phone;
+    const phone = dept.department?.head?.phone || dept.department?.contact_info?.phone || dept.department?.phone;
     if (phone) {
       const clean = phone.replace(/[^0-9]/g, '');
       window.open(
@@ -313,7 +313,7 @@ const DepartmentCard = ({
                 </div>
                 <div className="space-y-1 overflow-hidden">
                    <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest">Phone Number</p>
-                   <p className="text-[11px] font-bold text-foreground">{dept.department?.contact_info?.phone || dept.department?.phone || 'N/A'}</p>
+                   <p className="text-[11px] font-bold text-foreground">{dept.department?.head?.phone || dept.department?.contact_info?.phone || dept.department?.phone || 'N/A'}</p>
                 </div>
              </div>
              <div className="flex items-center gap-5 p-4 sm:p-6 bg-secondary/30 rounded-[2rem] border border-foreground/5 group/meta">
