@@ -199,7 +199,7 @@ router.get('/notifications', asyncHandler(async (req, res) => {
         (requests || []).forEach(req_data => {
           const comments = req_data.comments || [];
           comments.forEach(c => {
-            if (c.is_notification && (!c.target_department_id || c.target_department_id === profile.department_id)) {
+            if (c.is_notification && c.target_department_id === profile.department_id) {
               notifications.push({
                 id: `${req_data.id}-${c.created_at}`,
                 title: 'Form Submitted',
