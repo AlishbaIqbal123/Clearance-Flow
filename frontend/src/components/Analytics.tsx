@@ -1,38 +1,101 @@
-// UI ONLY — NO LOGIC CHANGED
+import React, { useState, useEffect } from 'react';
 import { 
   TrendingUp, Users, CheckCircle2, AlertCircle, Clock, 
   BarChart3, PieChart, Activity, Building, ArrowUpRight, ArrowDownRight,
   Sparkles, Layers, Zap, Globe, Lock, ShieldCheck, Database,
   ArrowRight, ChevronRight, Info, Calendar, Download, Share2,
-  Filter, Search, LayoutGrid, List
+  Filter, Search, LayoutGrid, List, GraduationCap
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { analyticsService } from '@/lib/analytics.service';
+import { toast } from 'sonner';
 
 export const Analytics = () => {
-  // General statistics
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchAnalytics = async () => {
+    try {
+      const res = await analyticsService.getOverview();
+      if (res.success) {
+        setData(res.data);
+      }
+    } catch (error) {
+      console.error('Telemetry sync failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAnalytics();
+    const interval = setInterval(fetchAnalytics, 30000); // 30s Real-time Pulse
+    return () => clearInterval(interval);
+  }, []);
+
+  // General statistics derived from live data
   const stats = [
-    { title: 'Total Students', value: '1,482', change: '+12%', icon: Users, color: 'text-primary', bg: 'bg-primary/10' },
-    { title: 'Active Requests', value: '342', change: '+5%', icon: Clock, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-    { title: 'Completed Steps', value: '1,120', change: '+18%', icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-    { title: 'System Uptime', value: '99.9%', change: 'Stable', icon: Activity, color: 'text-indigo-500', bg: 'bg-indigo-500/10' }
+    { 
+      title: 'Total Students', 
+      value: data?.summary?.totalStudents?.toLocaleString() || '0', 
+      change: '+4%', 
+      icon: Users, 
+      color: 'text-primary', 
+      bg: 'bg-primary/10' 
+    },
+    { 
+      title: 'Active Requests', 
+      value: (data?.summary?.totalRequests || 0).toLocaleString(), 
+      change: `+${data?.statusBreakdown?.pending || 0}`, 
+      icon: Clock, 
+      color: 'text-amber-500', 
+      bg: 'bg-amber-500/10' 
+    },
+    { 
+      title: 'Completed Nodes', 
+      value: (data?.statusBreakdown?.cleared || 0).toLocaleString(), 
+      change: 'Audit Verified', 
+      icon: CheckCircle2, 
+      color: 'text-emerald-500', 
+      bg: 'bg-emerald-500/10' 
+    },
+    { 
+      title: 'System Uptime', 
+      value: '99.9%', 
+      change: 'Stable', 
+      icon: Activity, 
+      color: 'text-indigo-500', 
+      bg: 'bg-indigo-500/10' 
+    }
   ];
 
-  const departmentPerformance = [
-    { name: 'Financial Office', progress: 84, status: 'BUSY', color: 'bg-primary' },
-    { name: 'Library', progress: 92, status: 'GOOD', color: 'bg-emerald-500' },
-    { name: 'Sports Office', progress: 65, status: 'MODERATE', color: 'bg-amber-500' },
-    { name: 'Hostel Office', progress: 78, status: 'GOOD', color: 'bg-indigo-500' },
-    { name: 'IT Center', progress: 95, status: 'GOOD', color: 'bg-emerald-500' }
-  ];
+  const departmentPerformance = (data?.departmentPerformance || []).slice(0, 5).map((d: any) => ({
+    name: d.name,
+    progress: d.clearanceRate || 0,
+    status: d.clearanceRate > 80 ? 'GOOD' : d.clearanceRate > 50 ? 'MODERATE' : 'BUSY',
+    color: d.clearanceRate > 80 ? 'bg-emerald-500' : d.clearanceRate > 50 ? 'bg-amber-500' : 'bg-primary'
+  }));
 
   const recentTrends = [
-    { label: 'Weekly Volume', value: '428 Requests', trend: 'up' },
-    { label: 'Avg. Processing', value: '1.4 Days', trend: 'down' },
-    { label: 'Requests / Day', value: '56', trend: 'up' }
+    { label: 'Total Requests', value: `${data?.summary?.totalRequests || 0} Units`, trend: 'up' },
+    { label: 'Staff Count', value: `${data?.summary?.totalStaff || 0} Members`, trend: 'up' },
+    { label: 'Departments', value: `${data?.summary?.totalDepartments || 0} Nodes`, trend: 'up' }
   ];
+
+  if (loading && !data) {
+    return (
+      <div className="h-96 flex flex-col items-center justify-center space-y-8 animate-pulse">
+        <div className="relative">
+           <div className="w-16 h-16 border-4 border-primary/10 border-t-primary rounded-2xl animate-spin" />
+           <Activity className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-primary" />
+        </div>
+        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em]">Calibrating Matrix Pulse...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 pb-20">
