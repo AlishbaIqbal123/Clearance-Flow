@@ -199,16 +199,7 @@ router.get('/notifications', asyncHandler(async (req, res) => {
         (requests || []).forEach(req_data => {
           const comments = req_data.comments || [];
           comments.forEach(c => {
-            if (c.is_notification) {
-              const targetId = String(c.target_department_id || '');
-              const userDeptId = String(profile.department_id || '');
-              
-              // If it's targeted, it MUST match the user's department
-              // If it's NOT targeted (old data), we show it to maintain history (leak will only affect old data)
-              if (targetId && targetId !== 'undefined' && targetId !== 'null' && targetId !== userDeptId) {
-                return; // Skip targeted notification for other department
-              }
-
+            if (c.is_notification && c.target_department_id && String(c.target_department_id) === String(profile.department_id)) {
               notifications.push({
                 id: `${req_data.id}-${c.created_at}`,
                 title: 'Form Submitted',
