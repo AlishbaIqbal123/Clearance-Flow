@@ -721,4 +721,107 @@ router.get('/certificate/:requestId',
   })
 );
 
+/**
+ * @route   POST /api/students/clearance-request/:id/submit-form
+ * @desc    Mark a department form as submitted
+ * @access  Student
+ */
+router.post('/clearance-request/:id/submit-form',
+  studentOnly,
+  [
+    body('departmentId').isUUID().withMessage('Invalid department ID'),
+    body('formLabel').trim().notEmpty().withMessage('Form label is required'),
+    validate
+  ],
+  asyncHandler(async (req, res) => {
+    const { id: requestId } = req.params;
+    const { departmentId, formLabel } = req.body;
+    const studentId = req.user.id;
+
+    // 1. Verify the request exists and belongs to the student
+    const { data: request, error: reqError } = await supabase
+      .from('clearance_requests')
+      .select('*, student:student_id(*)')
+      .eq('id', requestId)
+      .eq('student_id', studentId)
+      .single();
+
+    if (reqError || !request) {
+      throw new AppError('Clearance request not found', 404, 'REQUEST_NOT_FOUND');
+    }
+
+    // 2. Get the clearance status for this department
+    const { data: status, error: statusError } = await supabase
+      .from('clearance_status')
+      .select('*')
+      .eq('request_id', requestId)
+      .eq('department_id', departmentId)
+      .single();
+
+    if (statusError || !status) {
+      throw new AppError('Clearance status for this department not found', 404, 'STATUS_NOT_FOUND');
+    }
+
+    // 3. Update checklist_items to include the form submission
+    const checklistItems = status.checklist_items || [];
+    const itemLabel = `Form Submission: ${formLabel}`;
+    const existingItemIndex = checklistItems.findIndex(item => item.item === itemLabel);
+
+    if (existingItemIndex > -1) {
+      checklistItems[existingItemIndex].completed = true;
+      checklistItems[existingItemIndex].submitted_at = new Date().toISOString();
+    } else {
+      checklistItems.push({
+        item: itemLabel,
+        completed: true,
+        type: 'form_submission',
+        submitted_at: new Date().toISOString()
+      });
+    }
+
+    const { error: updateError } = await supabase
+      .from('clearance_status')
+      .update({ checklist_items: checklistItems })
+      .eq('id', status.id);
+
+    if (updateError) throw updateError;
+
+    // 4. Add a comment to the request for visibility
+    const comments = request.comments || [];
+    const studentName = `${request.student?.first_name} ${request.student?.last_name}`;
+    const regNo = request.student?.registration_number;
+    
+    const notificationMessage = `Student ${studentName} (${regNo}) has submitted the form: "${formLabel}". Please check and verify.`;
+    
+    comments.push({
+      author: studentId,
+      authorName: studentName,
+      author_model: 'Student',
+      message: notificationMessage,
+      is_internal: false,
+      is_notification: true, // Special flag for the UI
+      created_at: new Date().toISOString()
+    });
+
+    await supabase
+      .from('clearance_requests')
+      .update({ comments })
+      .eq('id', requestId);
+
+    // 5. In a real app, we would emit a socket event here
+    // req.app.get('io')?.to(`dept_${departmentId}`)?.emit('form_submitted', {
+    //   studentName,
+    //   regNo,
+    //   formLabel,
+    //   requestId
+    // });
+
+    res.status(200).json({
+      success: true,
+      message: 'Form submission notified successfully',
+      data: { checklistItems }
+    });
+  })
+);
+
 module.exports = router;

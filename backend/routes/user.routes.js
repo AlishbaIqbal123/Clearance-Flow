@@ -167,14 +167,64 @@ router.put('/change-password',
  * @access  Private
  */
 router.get('/notifications', asyncHandler(async (req, res) => {
-  // TODO: Implement notification system
-  // For now, return empty array
+  const userId = req.user.id;
+  const userType = req.user.userType;
   
+  let notifications = [];
+
+  if (userType !== 'student') {
+    // Get staff profile to find department
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('department_id')
+      .eq('id', userId)
+      .single();
+
+    if (profile?.department_id) {
+      // Fetch requests that have clearance status for this department
+      const { data: statuses } = await supabase
+        .from('clearance_status')
+        .select('request_id')
+        .eq('department_id', profile.department_id);
+
+      const requestIds = (statuses || []).map(s => s.request_id);
+
+      if (requestIds.length > 0) {
+        // Fetch comments marked as notifications from these requests
+        const { data: requests } = await supabase
+          .from('clearance_requests')
+          .select('id, request_id, comments, student_id')
+          .in('id', requestIds);
+
+        (requests || []).forEach(req_data => {
+          const comments = req_data.comments || [];
+          comments.forEach(c => {
+            if (c.is_notification) {
+              notifications.push({
+                id: `${req_data.id}-${c.created_at}`,
+                title: 'Form Submitted',
+                description: c.message,
+                time: new Date(c.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                date: new Date(c.created_at).toLocaleDateString(),
+                requestId: req_data.id,
+                studentId: req_data.student_id,
+                type: 'form_submission'
+              });
+            }
+          });
+        });
+      }
+    }
+  }
+
+  // Sort by time descending
+  notifications.sort((a, b) => new Date(b.date + ' ' + b.time) - new Date(a.date + ' ' + a.time));
+
   res.status(200).json({
     success: true,
     data: {
-      notifications: [],
-      unreadCount: 0
+      notifications: notifications.slice(0, 10), // Limit to recent 10
+      unreadCount: notifications.length
     }
   });
 }));

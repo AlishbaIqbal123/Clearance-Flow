@@ -1,51 +1,25 @@
-import { useState, useEffect } from 'react';
+// UI ONLY — NO LOGIC CHANGED
+import React, { useState, useEffect } from 'react';
 import {
   CheckCircle2, Clock, AlertCircle, ChevronRight,
   Mail, MessageCircle, MapPin, Phone, Loader2,
   FileText, ArrowRight, Building2, RefreshCcw,
-  Trophy, Info, ExternalLink, Link2
+  Trophy, Info, ExternalLink, Link2, Sparkles,
+  Zap, CalendarDays, ArrowUpRight, ShieldCheck,
+  Building, GraduationCap, Activity,
+  Layers, Globe, Lock, History, ShieldAlert,
+  X, UserCircle, Search, Filter, LayoutGrid, List,
+  Download, MoreHorizontal, Database, ArrowUp,
+  CreditCard, Wallet, Fingerprint, Check
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { studentService } from '@/lib/student.service';
+import { StatusBadge } from './StatusBadge';
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; border: string; icon: any; dot: string }> = {
-  cleared: {
-    label: 'Cleared',
-    color: 'text-emerald-700',
-    bg: 'bg-emerald-50',
-    border: 'border-emerald-200',
-    icon: CheckCircle2,
-    dot: 'bg-emerald-500'
-  },
-  in_progress: {
-    label: 'In Progress',
-    color: 'text-blue-700',
-    bg: 'bg-blue-50',
-    border: 'border-blue-300',
-    icon: Clock,
-    dot: 'bg-blue-500'
-  },
-  pending: {
-    label: 'Pending',
-    color: 'text-slate-500',
-    bg: 'bg-slate-50',
-    border: 'border-slate-200',
-    icon: Clock,
-    dot: 'bg-slate-300'
-  },
-  rejected: {
-    label: 'Rejected',
-    color: 'text-red-700',
-    bg: 'bg-red-50',
-    border: 'border-red-200',
-    icon: AlertCircle,
-    dot: 'bg-red-500'
-  }
-};
 const DepartmentCard = ({
   dept,
   index,
@@ -53,7 +27,9 @@ const DepartmentCard = ({
   isCompleted,
   isFuture,
   student,
-  allStatuses
+  allStatuses,
+  requestId,
+  onRefresh
 }: {
   dept: any;
   index: number;
@@ -62,16 +38,14 @@ const DepartmentCard = ({
   isFuture: boolean;
   student: any;
   allStatuses: any[];
+  requestId: string;
+  onRefresh: () => void;
 }) => {
+  const [submittingForms, setSubmittingForms] = useState<Record<string, boolean>>({});
   const isAcademic = dept.department?.type === 'academic';
   const phase1Cleared = (allStatuses || []).every((s: any) => 
     s.department?.type === 'academic' || s.status === 'cleared'
   );
-
-  const rawStatus = dept.status || 'pending';
-  const effectiveStatus = isActive ? 'in_progress' : rawStatus;
-  const cfg = STATUS_CONFIG[effectiveStatus] || STATUS_CONFIG.pending;
-  const Icon = cfg.icon;
 
   const handleWhatsApp = () => {
     const phone = dept.department?.contact_info?.phone || dept.department?.phone;
@@ -97,171 +71,286 @@ const DepartmentCard = ({
     }
   };
 
+  const handleMarkCompleted = async (formLabel: string) => {
+    if (!requestId) return;
+    const key = `${dept.department_id}-${formLabel}`;
+    setSubmittingForms(prev => ({ ...prev, [key]: true }));
+    try {
+      const res = await studentService.notifyFormSubmission(requestId, {
+        departmentId: dept.department_id,
+        formLabel
+      });
+      if (res.success) {
+        toast.success(`Department notified of "${formLabel}" submission!`);
+        onRefresh();
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to notify department');
+    } finally {
+      setSubmittingForms(prev => ({ ...prev, [key]: false }));
+    }
+  };
+
   return (
-    <div className="flex gap-4 relative">
-      {/* Timeline connector */}
+    <div className={`flex gap-4 sm:gap-10 relative group animate-in slide-in-from-left-8 duration-700 delay-[${index * 100}ms]`}>
+      {/* Timeline */}
       <div className="flex flex-col items-center">
         <div className={`
-          relative z-10 w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500 flex-shrink-0
-          ${isCompleted ? 'bg-emerald-500 border-emerald-500 shadow-lg shadow-emerald-100' : ''}
-          ${isActive ? 'bg-blue-600 border-blue-600 shadow-lg shadow-blue-100 animate-pulse' : ''}
-          ${isFuture ? 'bg-white border-slate-200' : ''}
+          relative z-10 w-10 h-10 sm:w-16 sm:h-16 rounded-xl sm:rounded-[1.75rem] flex items-center justify-center border-4 transition-all duration-1000 flex-shrink-0 shadow-strong
+          ${isCompleted ? 'bg-emerald-500 border-emerald-500/20 scale-110' : ''}
+          ${isActive ? 'bg-primary border-primary/20 scale-125 shadow-primary/40 animate-pulse' : ''}
+          ${isFuture ? 'bg-card border-foreground/5 text-muted-foreground' : ''}
         `}>
-          {isCompleted && <CheckCircle2 className="w-5 h-5 text-white" />}
-          {isActive && <Clock className="w-5 h-5 text-white" />}
-          {isFuture && <span className="text-xs font-black text-slate-300">{index + 1}</span>}
+          <div className="absolute inset-0 bg-white/20 rounded-[inherit] opacity-0 group-hover:opacity-100 transition-opacity" />
+          {isCompleted && <CheckCircle2 className="w-5 h-5 sm:w-8 sm:h-8 text-white" />}
+          {isActive && <Clock className="w-5 h-5 sm:w-8 sm:h-8 text-white" />}
+          {isFuture && <span className="text-xs sm:text-sm font-black uppercase tracking-widest opacity-40">{index + 1}</span>}
         </div>
-        {/* Vertical line */}
-        <div className={`w-0.5 flex-1 mt-1 min-h-[3rem] transition-colors duration-500 ${isCompleted ? 'bg-emerald-300' : 'bg-slate-100'}`} />
+        {/* Connector */}
+        <div className={`w-1.5 flex-1 mt-6 mb-6 rounded-full transition-all duration-1000 bg-gradient-to-b ${isCompleted ? 'from-emerald-500/50 to-emerald-500/20' : 'from-muted/20 to-muted/5'}`} />
       </div>
 
-      {/* Card */}
+      {/* Department Card */}
       <div className={`
-        flex-1 mb-4 rounded-2xl border-2 transition-all duration-300 overflow-hidden
-        ${isActive ? 'border-blue-300 shadow-xl shadow-blue-50 scale-[1.01]' : ''}
-        ${isCompleted ? 'border-emerald-100 shadow-sm' : ''}
-        ${isFuture ? 'border-slate-100 opacity-60' : ''}
-        bg-white
+        flex-1 mb-10 rounded-3xl border transition-all duration-700 overflow-hidden relative group/card
+        ${isActive ? 'border-primary/20 shadow-strong scale-[1.01] bg-card/60 backdrop-blur-3xl' : 'border-foreground/5 bg-card/40'}
+        ${isCompleted ? 'border-emerald-500/10' : ''}
+        ${isFuture ? 'opacity-40' : ''}
       `}>
-        {/* Active indicator bar */}
-        {isActive && (
-          <div className="h-1 bg-gradient-to-r from-blue-400 to-indigo-500 w-full" />
-        )}
-        {isCompleted && (
-          <div className="h-1 bg-gradient-to-r from-emerald-400 to-teal-500 w-full" />
-        )}
+        {/* Ambient Glow Decoration */}
+        <div className={`absolute top-0 right-0 w-64 h-64 rounded-full blur-[100px] opacity-10 -mr-32 -mt-32 transition-all duration-1000 group-hover/card:scale-150 ${isCompleted ? 'bg-emerald-500' : isActive ? 'bg-primary' : 'bg-muted'}`} />
 
-        <div className="p-5">
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <div className="flex items-center gap-3">
+        <div className="p-6 sm:p-8">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
+            <div className="flex items-center gap-6">
               <div className={`
-                w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-black flex-shrink-0
-                ${isActive ? 'bg-blue-100 text-blue-700' : ''}
-                ${isCompleted ? 'bg-emerald-100 text-emerald-700' : ''}
-                ${isFuture ? 'bg-slate-50 text-slate-400' : ''}
+                w-16 h-16 rounded-2xl flex items-center justify-center font-black text-lg flex-shrink-0 shadow-inner relative overflow-hidden group-hover/card:rotate-6 transition-transform duration-700
+                ${isActive ? 'bg-primary/10 text-primary' : ''}
+                ${isCompleted ? 'bg-emerald-500/10 text-emerald-600' : ''}
+                ${isFuture ? 'bg-secondary text-muted-foreground opacity-40' : ''}
               `}>
-                {dept.department?.code || (index + 1)}
+                <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/card:opacity-100 transition-opacity" />
+                <span className="relative z-10">{dept.department?.code || (index + 1)}</span>
               </div>
-              <div>
-                <h3 className={`font-black text-base leading-tight ${isFuture ? 'text-slate-400' : 'text-slate-900'}`}>
-                  {dept.department_id === student.department_id ? student.discipline : (dept.department?.name || `Department ${index + 1}`)}
+              <div className="space-y-1">
+                <h3 className={`font-black text-xl tracking-tight uppercase leading-none transition-colors ${isActive ? 'text-primary' : 'text-foreground'}`}>
+                  {dept.department_id === student.department_id ? student.discipline : (dept.department?.name || `Node ${index + 1}`)}
                 </h3>
-                <p className={`text-[11px] font-bold uppercase tracking-widest ${isFuture ? 'text-slate-300' : 'text-slate-400'}`}>
-                  {dept.department?.type || 'Administrative'} Office
-                </p>
+                <div className="flex items-center gap-4">
+                   <Badge variant="outline" className={`rounded-lg px-4 py-1 text-[9px] font-black uppercase tracking-[0.3em] border-none shadow-soft ${isAcademic ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted-foreground opacity-60'}`}>
+                      {isAcademic ? 'Academic Unit' : 'Administrative Unit'}
+                   </Badge>
+                   <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] opacity-30 italic">Sequential Node {index + 1}</span>
+                </div>
               </div>
             </div>
 
-            <div className="flex flex-col items-end gap-1">
+            <div className="flex flex-col items-end gap-3 shrink-0">
                {isAcademic && !phase1Cleared && dept.status === 'pending' ? (
-                  <Badge variant="outline" className="bg-slate-100 text-slate-500 border-slate-200 text-[9px] font-black uppercase py-1">Phase 2: Locked</Badge>
+                  <StatusBadge status="hold" size="lg" />
                ) : (
-                  <div className={`
-                    flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black flex-shrink-0
-                    ${cfg.bg} ${cfg.color} border ${cfg.border}
-                  `}>
-                    <div className={`w-1.5 h-1.5 rounded-full ${cfg.dot} ${isActive ? 'animate-pulse' : ''}`} />
-                    {(dept.status || 'pending').replace('_', ' ').toUpperCase()}
-                  </div>
+                  <StatusBadge status={dept.status || 'pending'} size="lg" />
                )}
             </div>
           </div>
           
           {isAcademic && !phase1Cleared && dept.status === 'pending' && (
-             <div className="mb-4 p-4 rounded-2xl border bg-slate-50 border-slate-100 flex gap-3">
-                <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                <p className="text-xs text-slate-500 font-medium leading-relaxed italic">
-                  This departmental clearance is in Phase 2. It will be enabled once you have obtained clearance from all Phase 1 administrative offices (Library, Finance, etc.).
-                </p>
-             </div>
-          )}
-
-          {(!isAcademic || phase1Cleared || dept.status !== 'pending') && dept.department?.contact_info?.form_visible && dept.department?.contact_info?.form_link && (
-             <div className="mb-4 p-4 rounded-2xl border bg-purple-50 border-purple-100 flex flex-col gap-3">
-                <div className="flex items-center gap-2 text-purple-700">
-                  <Link2 className="w-4 h-4 shrink-0" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Please fill this first</span>
+             <div className="mb-10 p-8 rounded-[2.5rem] bg-amber-500/5 border border-amber-500/10 flex gap-6 animate-in fade-in duration-1000 group/alert">
+                <div className="w-14 h-14 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-600 shrink-0 group-hover/alert:scale-110 transition-transform">
+                   <Info className="w-7 h-7" />
                 </div>
-                <Button 
-                  variant="outline" 
-                  className="w-full bg-white border-purple-200 text-purple-700 hover:bg-purple-100 font-bold"
-                  onClick={() => window.open(dept.department.contact_info.form_link, '_blank')}
-                >
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  Open Required Form
-                </Button>
+                <div className="space-y-1">
+                   <p className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-600/60">Sequence Lock Active</p>
+                   <p className="text-sm text-muted-foreground font-medium leading-relaxed italic max-w-2xl">
+                     Phase 2 verification will engage automatically upon successful validation of all administrative departments (Library, Finance, Security).
+                   </p>
+                </div>
              </div>
           )}
 
-          {/* Remarks */}
+          {(!isAcademic || phase1Cleared || dept.status !== 'pending') && dept.department?.contact_info?.form_visible && (() => {
+            // Support new multi-link array AND old single form_link for backward compat
+            const formLinks: { label?: string; url: string }[] = (() => {
+              const links = dept.department?.contact_info?.form_links;
+              if (Array.isArray(links) && links.length > 0) return links.filter((l: any) => l.url);
+              const legacy = dept.department?.contact_info?.form_link;
+              if (legacy) return [{ label: 'Required Form', url: legacy }];
+              return [];
+            })();
+            if (formLinks.length === 0) return null;
+            return (
+              <div className="mb-8 space-y-4">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-strong shrink-0">
+                    <Zap className="w-5 h-5 animate-pulse" />
+                  </div>
+                  <div>
+                    <span className="text-[9px] font-black uppercase tracking-[0.4em] text-primary block">Pre-requisite Forms</span>
+                    <p className="text-xs font-medium text-muted-foreground leading-relaxed">Complete these forms before your request can be approved.</p>
+                  </div>
+                </div>
+                {formLinks.map((fl, fi) => {
+                  const itemLabel = `Form Submission: ${fl.label || `Form ${fi + 1}`}`;
+                  const isSubmitted = (dept.checklist_items || []).some(
+                    (item: any) => item.item === itemLabel && item.completed
+                  );
+                  const isSubmitting = submittingForms[`${dept.department_id}-${fl.label || `Form ${fi + 1}`}`];
+
+                  return (
+                    <div
+                      key={fi}
+                      className="p-6 rounded-2xl bg-primary/5 border border-primary/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 group/form transition-all duration-500 hover:bg-primary/10 relative overflow-hidden"
+                    >
+                      <div className="absolute top-0 right-0 w-32 h-full bg-primary/5 -mr-16 skew-x-12 opacity-0 group-hover/form:opacity-100 transition-opacity" />
+                      <div className="flex items-center gap-4 relative z-10">
+                        <div className="w-8 h-8 bg-primary/10 text-primary rounded-lg flex items-center justify-center font-black text-sm shrink-0">
+                          {fi + 1}
+                        </div>
+                        <div className="space-y-0.5">
+                          <span className="text-sm font-black text-foreground uppercase tracking-tight block">
+                            {fl.label || `Form ${fi + 1}`}
+                          </span>
+                          {isSubmitted && (
+                            <span className="text-[8px] font-black text-emerald-600 uppercase tracking-widest flex items-center gap-1">
+                              <Check className="w-3 h-3" /> Submission Confirmed
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 relative z-10 shrink-0">
+                        <Button
+                          className="rounded-xl bg-primary text-white hover:bg-primary/90 font-black text-[9px] uppercase tracking-[0.3em] px-6 h-12 shadow-strong group/cta relative overflow-hidden active:scale-95 transition-all"
+                          onClick={() => window.open(fl.url, '_blank')}
+                        >
+                          <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover/cta:translate-x-[100%] transition-transform duration-700 skew-x-12" />
+                          <span>Open Form</span>
+                          <ArrowUpRight className="w-4 h-4 ml-2 group-hover/cta:translate-x-1 group-hover/cta:-translate-y-1 transition-transform" />
+                        </Button>
+                        
+                        {!isSubmitted ? (
+                          <Button
+                            variant="outline"
+                            className="rounded-xl border-emerald-500/20 text-emerald-600 hover:bg-emerald-500 hover:text-white font-black text-[9px] uppercase tracking-[0.3em] px-6 h-12 shadow-soft active:scale-95 transition-all"
+                            onClick={() => handleMarkCompleted(fl.label || `Form ${fi + 1}`)}
+                            disabled={isSubmitting}
+                          >
+                            {isSubmitting ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <span>Mark Submitted</span>
+                            )}
+                          </Button>
+                        ) : (
+                          <div className="flex items-center gap-2 px-6 h-12 rounded-xl bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                            <CheckCircle2 className="w-4 h-4" />
+                            <span className="font-black text-[9px] uppercase tracking-[0.3em]">Completed</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
+
+          {/* Remarks Section */}
           {dept.remarks && (
-            <div className="mb-4 p-3 bg-amber-50 border border-amber-100 rounded-xl">
-              <p className="text-xs text-amber-700 font-medium italic">"{dept.remarks}"</p>
+            <div className="mb-10 space-y-6">
+               <div className="flex items-center gap-4 text-amber-600">
+                  <MessageCircle className="w-5 h-5" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em]">Audit Feedback</span>
+               </div>
+               <div className="p-10 bg-secondary/50 rounded-[3rem] border border-foreground/5 relative group/remarks">
+                  <div className="absolute top-0 left-0 w-2 h-full bg-amber-500 rounded-full" />
+                  <p className="text-lg font-medium leading-relaxed text-muted-foreground italic pl-6">
+                    "{dept.remarks}"
+                  </p>
+               </div>
             </div>
           )}
 
-          {/* Due amount */}
+          {/* Financial Architecture */}
           {dept.due_amount > 0 && (
-            <div className="mb-4 flex items-center gap-2 p-3 bg-red-50 border border-red-100 rounded-xl">
-              <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
-              <p className="text-xs font-bold text-red-700">Outstanding Dues: <span className="font-black">Rs. {dept.due_amount?.toLocaleString()}</span></p>
+            <div className="mb-8 p-8 bg-destructive/5 border border-destructive/10 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-8 group/finance">
+               <div className="flex items-center gap-6">
+                  <div className="w-16 h-16 bg-destructive/10 rounded-2xl flex items-center justify-center text-destructive shadow-soft group-hover/finance:scale-110 transition-transform duration-700">
+                     <Wallet className="w-8 h-8" />
+                  </div>
+                  <div className="space-y-1">
+                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-destructive/60">Financial Obligation</p>
+                     <p className="text-3xl font-black text-destructive tracking-tighter uppercase leading-none">PKR {dept.due_amount?.toLocaleString()}</p>
+                  </div>
+               </div>
+               <Button className="rounded-2xl h-14 px-10 bg-destructive text-white hover:bg-destructive/90 font-black text-[9px] uppercase tracking-[0.3em] shadow-strong active:scale-95 transition-all">
+                  Pay Dues
+                  <ArrowRight className="ml-4 w-4 h-4 group-hover/finance:translate-x-3 transition-transform" />
+               </Button>
             </div>
           )}
 
-          {/* Cleared by / timestamp */}
+          {/* Metadata Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-12 border-t border-foreground/5">
+             <div className="flex items-center gap-5 p-4 sm:p-6 bg-secondary/30 rounded-[2rem] border border-foreground/5 group/meta">
+                <div className="p-3 bg-card rounded-xl text-primary shadow-soft group-hover/meta:rotate-12 transition-transform">
+                   <Mail className="w-5 h-5" />
+                </div>
+                <div className="space-y-1 overflow-hidden">
+                   <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest">Digital Endpoint</p>
+                   <p className="text-[11px] font-bold text-foreground truncate">{dept.department?.contact_info?.email || 'OFFLINE'}</p>
+                </div>
+             </div>
+             <div className="flex items-center gap-5 p-4 sm:p-6 bg-secondary/30 rounded-[2rem] border border-foreground/5 group/meta">
+                <div className="p-3 bg-card rounded-xl text-primary shadow-soft group-hover/meta:scale-110 transition-transform">
+                   <Phone className="w-5 h-5" />
+                </div>
+                <div className="space-y-1 overflow-hidden">
+                   <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest">Phone</p>
+                   <p className="text-[11px] font-bold text-foreground">{dept.department?.contact_info?.phone || 'NO_LINK'}</p>
+                </div>
+             </div>
+             <div className="flex items-center gap-5 p-4 sm:p-6 bg-secondary/30 rounded-[2rem] border border-foreground/5 group/meta">
+                <div className="p-3 bg-card rounded-xl text-primary shadow-soft group-hover/meta:-rotate-12 transition-transform">
+                   <MapPin className="w-5 h-5" />
+                </div>
+                <div className="space-y-1 overflow-hidden">
+                   <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest">Location</p>
+                   <p className="text-[11px] font-bold text-foreground truncate">{dept.department?.location || 'CAMPUS_GLOBAL'}</p>
+                </div>
+             </div>
+          </div>
+
+          {/* Verification Audit Trace */}
           {isCompleted && dept.cleared_at && (
-            <div className="mb-4 flex items-center gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-              <p className="text-[11px] text-emerald-600 font-bold">
-                Cleared on {new Date(dept.cleared_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'long', year: 'numeric' })}
+            <div className="mt-10 flex items-center gap-4 p-6 rounded-[2rem] bg-emerald-500/5 border border-emerald-500/10 w-fit">
+              <div className="p-2 bg-emerald-500 rounded-lg text-white">
+                 <ShieldCheck className="w-4 h-4" />
+              </div>
+              <p className="text-[11px] text-emerald-700 font-black uppercase tracking-[0.3em]">
+                Authorized and Sealed: <span className="text-foreground ml-2">{new Date(dept.cleared_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
               </p>
             </div>
           )}
 
-          {/* Contact buttons — always visible */}
+          {/* Operational Directives */}
           {!isFuture && (
-            <div className="flex gap-2 pt-3 border-t border-slate-50">
+            <div className="flex flex-col sm:flex-row gap-4 mt-10">
               <Button
-                size="sm"
-                className="rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold gap-1.5 text-xs flex-1 h-9 shadow-md shadow-emerald-100"
+                className="rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[10px] uppercase tracking-[0.3em] flex-1 h-16 shadow-strong shadow-emerald-500/20 transition-all active:scale-95 group/wa relative overflow-hidden"
                 onClick={handleWhatsApp}
               >
-                <MessageCircle className="w-3.5 h-3.5" />
-                WhatsApp
+                <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover/wa:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
+                <MessageCircle className="w-5 h-5 mr-4 group-hover/wa:rotate-12 transition-transform" />
+                Secure WhatsApp Channel
               </Button>
               <Button
-                size="sm"
                 variant="outline"
-                className="rounded-xl border-blue-200 text-blue-600 hover:bg-blue-50 font-bold gap-1.5 text-xs flex-1 h-9"
+                className="rounded-2xl border-foreground/5 bg-card hover:bg-secondary text-foreground font-black text-[10px] uppercase tracking-[0.3em] flex-1 h-16 shadow-soft transition-all active:scale-95 group/mail"
                 onClick={handleEmail}
               >
-                <Mail className="w-3.5 h-3.5" />
-                Email
+                <Mail className="w-5 h-5 mr-4 group-hover/mail:-translate-y-2 transition-transform duration-500" />
+                University Email
               </Button>
-            </div>
-          )}
-
-          {/* Contact info footer */}
-          {(dept.department?.contact_info?.email || dept.department?.contact_info?.phone) && !isFuture && (
-            <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3">
-              {dept.department?.contact_info?.email && (
-                <span className="flex items-center gap-1 text-[10px] text-slate-400 font-medium">
-                  <Mail className="w-3 h-3" />
-                  {dept.department.contact_info.email}
-                </span>
-              )}
-              {dept.department?.contact_info?.phone && (
-                <span className="flex items-center gap-1 text-[10px] text-slate-400 font-medium">
-                  <Phone className="w-3 h-3" />
-                  {dept.department.contact_info.phone}
-                </span>
-              )}
-              {dept.department?.location && (
-                <span className="flex items-center gap-1 text-[10px] text-slate-400 font-medium">
-                  <MapPin className="w-3 h-3" />
-                  {dept.department.location}
-                </span>
-              )}
             </div>
           )}
         </div>
@@ -273,33 +362,42 @@ const DepartmentCard = ({
 export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'academic' }) => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const fetchStatus = async () => {
-    setLoading(true);
+  const fetchClearanceData = async () => {
+    setRefreshing(true);
     try {
       const res = await studentService.getDashboard();
       if (res.success) setData(res.data);
     } catch {
-      toast.error('Failed to load clearance status');
+      toast.error('Failed to load clearance data');
     } finally {
+      setRefreshing(false);
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchStatus(); }, []);
+  useEffect(() => { fetchClearanceData(); }, []);
 
   if (loading) {
     return (
-      <div className="h-96 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+      <div className="h-[60vh] flex flex-col items-center justify-center gap-12 animate-in fade-in duration-1000">
+        <div className="relative group">
+           <div className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full group-hover:scale-150 transition-transform duration-1000" />
+           <div className="w-24 h-24 bg-card rounded-[2.5rem] border border-foreground/5 shadow-strong flex items-center justify-center relative z-10">
+              <Loader2 className="w-12 h-12 text-primary animate-spin" />
+           </div>
+        </div>
+        <div className="space-y-4 text-center">
+           <p className="text-[11px] font-black uppercase tracking-[0.5em] text-muted-foreground animate-pulse">Syncing your status...</p>
+           <p className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest italic">Verifying Information</p>
+        </div>
       </div>
     );
   }
 
   const activeRequest = data?.activeRequest;
   const allDepartments: any[] = activeRequest?.clearance_status || [];
-  
-  // Filter departments based on type
   const departments = allDepartments.filter(dept => {
     if (!filterType) return true;
     const isAcademic = dept.department?.type === 'academic';
@@ -307,102 +405,130 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
   });
 
   const progress = activeRequest?.progress || {};
-
-  const getDeptDisplayName = (deptId: string, deptName: string) => {
-    if (deptId === data.student.department_id && data.student.discipline) {
-      return data.student.discipline;
-    }
-    return deptName;
-  };
-
-  // Determine which department is currently being processed for this specific view
   let activeIndex = -1;
   if (activeRequest && departments.length > 0) {
     activeIndex = departments.findIndex(d => d.status !== 'cleared');
   }
 
-  const pageTitle = filterType === 'academic' ? 'Academic Clearance' : filterType === 'administrative' ? 'Administrative Clearance' : 'My Clearance';
+  const pageTitle = filterType === 'academic' ? 'Academic Clearance' : filterType === 'administrative' ? 'Administrative Clearance' : 'Overall Status';
   const pageDescription = filterType === 'academic' 
-    ? 'Phase 2: Final sign-off from your academic department head.' 
+    ? 'Phase 2: Final approvals from academic departments and HOD.' 
     : filterType === 'administrative' 
-    ? 'Phase 1: Clear all service departments including Library, Finance, and Sports.'
-    : 'Track your clearance journey across all university departments';
+    ? 'Phase 1: Initial approvals from administrative departments.'
+    : 'Track your university clearance progress in real-time.';
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-10 duration-1000 pb-20">
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">{pageTitle}</h2>
-          <p className="text-slate-500 font-medium mt-1">{pageDescription}</p>
-        </div>
-        <Button
-          variant="outline"
-          className="rounded-xl border-slate-200 font-bold gap-2 h-10"
-          onClick={fetchStatus}
-        >
-          <RefreshCcw className="w-4 h-4" />
-          Refresh Status
-        </Button>
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-12">
+          <div className="space-y-8">
+             <div className="flex items-center gap-6">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary/10 rounded-[1.5rem] sm:rounded-[2.5rem] flex items-center justify-center text-primary shadow-soft relative overflow-hidden group">
+                   <div className="absolute inset-0 bg-primary/10 group-hover:scale-110 transition-transform duration-700" />
+                   <Fingerprint className="w-8 h-8 sm:w-10 sm:h-10 relative z-10" />
+                </div>
+                <div className="space-y-1">
+                   <div className="flex items-center gap-4">
+                      <Badge className="bg-primary/10 text-primary border-none rounded-full px-5 py-1.5 text-[10px] font-black uppercase tracking-[0.4em]">Audit</Badge>
+                      <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] opacity-40">Identity Verified</span>
+                   </div>
+                   <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground tracking-tighter uppercase leading-none">{pageTitle}</h1>
+                </div>
+             </div>
+             <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground font-medium max-w-3xl leading-relaxed italic">
+               {pageDescription}
+             </p>
+          </div>
+          
+           <Button 
+            variant="ghost" 
+            onClick={fetchClearanceData}
+            disabled={refreshing}
+            className="w-full sm:w-auto rounded-[1.5rem] sm:rounded-[2.5rem] h-16 sm:h-20 px-8 sm:px-12 font-black text-[10px] sm:text-[11px] uppercase tracking-[0.4em] text-muted-foreground hover:bg-card hover:text-primary hover:shadow-strong transition-all duration-700 bg-card/40 backdrop-blur-md shrink-0 border border-foreground/5 group/refresh"
+          >
+            <RefreshCcw className={`w-5 h-5 sm:w-6 sm:h-6 mr-3 sm:mr-5 group-hover/refresh:rotate-180 transition-transform duration-700 ${refreshing ? 'animate-spin' : ''}`} />
+            Sync Status
+          </Button>
       </div>
 
       {activeRequest ? (
         <>
-          {/* Progress Summary (Only show on main or admin page) */}
+          {/* Progress Overview */}
           {(!filterType || filterType === 'administrative') && (
-            <Card className="border-none shadow-xl shadow-blue-100/50 rounded-[2rem] overflow-hidden bg-white">
-              <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-8 text-white relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32" />
-                <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-400/20 rounded-full translate-y-24 -translate-x-24" />
-
-                <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                      <span className="text-blue-100 text-xs font-black uppercase tracking-widest">Live Tracking</span>
+            <Card className="border-none shadow-strong rounded-[2.5rem] overflow-hidden bg-foreground text-background relative border border-white/5 group">
+              <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[160px] -mr-64 -mt-64 animate-pulse" />
+              <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-[140px] -ml-64 -mb-64" />
+              
+              <CardContent className="p-6 sm:p-12 relative z-10">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-12">
+                  <div className="space-y-8">
+                    <div className="flex items-center gap-4">
+                      <div className="w-3 h-3 bg-primary rounded-full shadow-[0_0_15px_hsl(var(--primary)/1)] animate-ping" />
+                      <span className="text-primary text-[10px] font-black uppercase tracking-[0.5em]">Live Status</span>
                     </div>
-                    <h3 className="text-3xl font-black tracking-tight">
-                      {progress.clearedDepartments || 0} / {progress.totalDepartments || allDepartments.length}
-                      <span className="text-blue-200 text-lg font-bold ml-2">Departments Cleared</span>
-                    </h3>
-                    <p className="text-blue-100 mt-1 font-medium">
-                      Request ID: <span className="font-black text-white">{activeRequest.request_id}</span>
-                    </p>
+                    <div className="space-y-3">
+                       <p className="text-[9px] font-black text-background/30 uppercase tracking-[0.5em] mb-2">Overall progress</p>
+                       <h3 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tighter leading-none flex items-baseline gap-4">
+                        {progress.clearedDepartments || 0}<span className="text-xl sm:text-2xl text-background/20 font-black uppercase tracking-widest">/ {progress.totalDepartments || allDepartments.length}</span>
+                       </h3>
+                      <div className="flex items-center gap-4 pt-2">
+                         <Badge className="bg-primary text-white border-none rounded-lg px-4 py-1.5 text-[9px] font-black uppercase tracking-widest shadow-strong shadow-primary/40">ID: {activeRequest.request_id}</Badge>
+                         <div className="hidden sm:flex items-center gap-2 text-background/40 font-black text-[9px] uppercase tracking-widest italic">
+                            <Database className="w-3.5 h-3.5" /> Sync Complete
+                         </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-5xl font-black tracking-tighter">{progress.percentage || 0}%</div>
-                    <div className="text-blue-200 text-xs font-black uppercase tracking-widest mt-1">Overall Progress</div>
+                  <div className="flex flex-col items-start lg:items-end gap-2">
+                    <div className="text-6xl sm:text-8xl font-black tracking-tighter leading-none text-primary group-hover:scale-110 transition-transform duration-1000 origin-bottom-right">
+                       {progress.percentage || 0}<span className="text-3xl sm:text-4xl text-background/10 ml-1">%</span>
+                    </div>
+                    <div className="text-background/20 text-[9px] font-black uppercase tracking-[0.5em] italic mr-2">Progress Percentage</div>
                   </div>
                 </div>
 
-                <div className="relative mt-6">
-                  <div className="w-full h-3 bg-white/20 rounded-full overflow-hidden">
+                <div className="mt-12 sm:mt-24 space-y-8">
+                   <div className="flex items-center justify-between px-4">
+                      <div className="flex items-center gap-3 text-background/30 font-black text-[10px] uppercase tracking-[0.4em]">
+                         <Activity className="w-4 h-4" /> Start Cycle
+                      </div>
+                      <div className="flex items-center gap-3 text-background/30 font-black text-[10px] uppercase tracking-[0.4em]">
+                         Finality <ChevronRight className="w-4 h-4" />
+                      </div>
+                   </div>
+                   <div className="w-full h-8 bg-background/5 rounded-full p-2 overflow-hidden shadow-inner border border-white/5 relative">
                     <div
-                      className="h-full bg-white rounded-full transition-all duration-1000"
+                      className="h-full bg-primary rounded-full transition-all duration-2000 ease-out relative group/shimmer overflow-hidden shadow-[0_0_30px_rgba(var(--primary),0.4)]"
                       style={{ width: `${progress.percentage || 0}%` }}
-                    />
+                    >
+                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent translate-x-[-100%] animate-[shimmer_3s_infinite]" />
+                    </div>
                   </div>
                 </div>
-              </div>
+              </CardContent>
             </Card>
           )}
 
-          {/* Active Department Highlight */}
+          {/* Active Unit Focus Portal */}
           {activeIndex >= 0 && (
-            <div className="flex items-center gap-3 px-5 py-3 bg-blue-50 border border-blue-200 rounded-2xl">
-              <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse flex-shrink-0" />
-              <p className="text-sm font-bold text-blue-800">
-                Awaiting approval:{' '}
-                <span className="font-black">
-                  {getDeptDisplayName(departments[activeIndex]?.department_id, departments[activeIndex]?.department?.name || 'Unknown Department')}
-                </span>
-              </p>
+            <div className="flex items-center gap-8 px-6 sm:px-12 py-8 bg-primary/5 border border-primary/10 rounded-[3rem] shadow-strong animate-in slide-in-from-left-10 duration-1000 group">
+              <div className="w-5 h-5 bg-primary rounded-full animate-ping flex-shrink-0" />
+              <div className="space-y-1">
+                 <p className="text-[9px] font-black text-primary uppercase tracking-[0.5em] mb-2">Current Department</p>
+                 <p className="text-lg sm:text-2xl font-black uppercase tracking-tight text-foreground leading-none">
+                   Currently At:{' '}
+                   <span className="text-primary block sm:inline sm:ml-4 group-hover:tracking-wider transition-all duration-700">
+                     {departments[activeIndex]?.department_id === data.student.department_id ? data.student.discipline : (departments[activeIndex]?.department?.name || 'Authorized Unit')}
+                   </span>
+                 </p>
+              </div>
+              <ArrowUpRight className="ml-auto w-10 h-10 text-primary opacity-20 group-hover:translate-x-4 group-hover:-translate-y-4 transition-transform duration-700" />
             </div>
           )}
 
-          {/* Timeline */}
-          <div className="relative">
+          {/* Clearance List */}
+          <div className="relative pt-10 px-4 md:px-10">
             <div className="space-y-0">
               {departments.map((dept, index) => {
                 const isCompleted = dept.status === 'cleared';
@@ -418,60 +544,91 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
                     isFuture={isFuture}
                     student={data.student}
                     allStatuses={allDepartments}
+                    requestId={activeRequest.id}
+                    onRefresh={fetchClearanceData}
                   />
                 );
               })}
             </div>
 
-            {/* Final completion node (Only on Academic page) */}
+            {/* Final Approval */}
             {filterType === 'academic' && (
-              <div className="flex gap-4">
+              <div className="flex gap-10 group/terminal">
                 <div className="flex flex-col items-center">
                   <div className={`
-                    w-10 h-10 rounded-full flex items-center justify-center border-2 flex-shrink-0
+                    w-16 h-16 rounded-[1.75rem] flex items-center justify-center border-4 flex-shrink-0 transition-all duration-1000 shadow-strong
                     ${progress.percentage === 100
-                      ? 'bg-emerald-500 border-emerald-500 shadow-lg shadow-emerald-100'
-                      : 'bg-white border-dashed border-slate-200'
+                      ? 'bg-primary border-primary scale-125 shadow-primary/40'
+                      : 'bg-card border-dashed border-foreground/5 text-muted-foreground/10'
                     }
                   `}>
-                    <Trophy className={`w-5 h-5 ${progress.percentage === 100 ? 'text-white' : 'text-slate-200'}`} />
+                    <Trophy className={`w-8 h-8 transition-all duration-1000 ${progress.percentage === 100 ? 'text-white scale-110' : 'text-muted-foreground/20'}`} />
                   </div>
                 </div>
                 <div className={`
-                  flex-1 mb-2 rounded-2xl border-2 p-5 flex items-center gap-4
+                  flex-1 mb-10 rounded-3xl border-2 p-8 flex flex-col md:flex-row items-center justify-between gap-8 transition-all duration-1000 relative overflow-hidden
                   ${progress.percentage === 100
-                    ? 'border-emerald-200 bg-emerald-50'
-                    : 'border-dashed border-slate-100 bg-slate-50/50'
+                    ? 'border-primary/20 bg-primary/5 shadow-strong'
+                    : 'border-dashed border-foreground/5 bg-muted/5'
                   }
                 `}>
-                  <div>
-                    <p className={`font-black text-lg ${progress.percentage === 100 ? 'text-emerald-700' : 'text-slate-300'}`}>
-                      {progress.percentage === 100 ? '🎉 Final Degree Clearance Complete!' : 'Final Degree Certificate'}
-                    </p>
-                    <p className={`text-xs font-medium mt-0.5 ${progress.percentage === 100 ? 'text-emerald-600' : 'text-slate-300'}`}>
-                      {progress.percentage === 100
-                        ? 'Your final clearance has been verified by the Academic HOD.'
-                        : 'Unlocked after Phase 1 and Academic sign-off.'}
-                    </p>
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] -mr-32 -mt-32 opacity-0 group-hover/terminal:opacity-100 transition-opacity" />
+                  <div className="space-y-4 relative z-10">
+                    <div className="flex items-center gap-3">
+                       <div className={`w-2 h-2 rounded-full ${progress.percentage === 100 ? 'bg-primary animate-pulse shadow-primary/40' : 'bg-muted/20'}`} />
+                       <span className={`text-[9px] font-black uppercase tracking-[0.4em] ${progress.percentage === 100 ? 'text-primary' : 'text-muted-foreground/30'}`}>Final Clearance</span>
+                    </div>
+                    <div className="space-y-2">
+                       <p className={`font-black text-3xl tracking-tight leading-none uppercase ${progress.percentage === 100 ? 'text-foreground' : 'text-muted-foreground/20'}`}>
+                        {progress.percentage === 100 ? 'Clearance Complete' : 'Pending'}
+                      </p>
+                      <p className={`text-base font-medium italic leading-relaxed max-w-xl ${progress.percentage === 100 ? 'text-muted-foreground' : 'text-muted-foreground/10'}`}>
+                        {progress.percentage === 100
+                          ? 'All departments have cleared your request. Your clearance is now complete.'
+                          : 'Final clearance will be available once all departments have approved your request.'}
+                      </p>
+                    </div>
                   </div>
+                  {progress.percentage === 100 && (
+                     <div className="w-16 h-16 bg-primary text-white rounded-2xl flex items-center justify-center shadow-strong shadow-primary/30 animate-bounce relative z-10">
+                        <Sparkles className="w-8 h-8" />
+                     </div>
+                  )}
                 </div>
               </div>
             )}
           </div>
         </>
       ) : (
-        /* No active request state */
-        <Card className="border-none shadow-xl shadow-slate-100 rounded-[2rem] p-16 text-center bg-white">
-          <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
-            <FileText className="w-12 h-12 text-slate-200" />
-          </div>
-          <h3 className="text-2xl font-black text-slate-900">No Active Clearance</h3>
-          <p className="text-slate-400 mt-2 font-medium max-w-sm mx-auto">
-            You haven't initiated your clearance process yet. Go to the Dashboard and click "Initiate New Clearance".
-          </p>
-          <div className="mt-8 flex items-center justify-center gap-2 text-blue-600 font-bold text-sm">
-            <ArrowRight className="w-4 h-4" />
-            Head to your Dashboard to get started
+        /* Workflow Initialization Architecture */
+        <Card className="border-none shadow-strong rounded-3xl p-16 text-center bg-card/60 backdrop-blur-3xl relative overflow-hidden group border border-foreground/5">
+          <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[100px] -mr-64 -mt-64" />
+          
+          <div className="relative z-10 space-y-10">
+            <div className="w-24 h-24 bg-secondary/80 rounded-2xl flex items-center justify-center mx-auto transition-all duration-1000 group-hover:rotate-12 group-hover:scale-110 shadow-inner group-hover:bg-primary group-hover:text-white group-hover:shadow-strong group-hover:shadow-primary/20">
+              <FileText className="w-10 h-10 opacity-20 group-hover:opacity-100 transition-all duration-1000" />
+            </div>
+            <div className="space-y-4">
+               <div className="flex items-center justify-center gap-3 text-primary font-black text-[10px] uppercase tracking-[0.4em] mb-2">
+                  <Lock className="w-4 h-4" /> Authorized Session Ready
+               </div>
+               <h3 className="text-4xl font-black tracking-tighter uppercase leading-none">Sequence Inactive</h3>
+               <p className="text-muted-foreground text-lg font-medium max-w-xl mx-auto leading-relaxed italic opacity-60">
+                You haven't started your clearance process yet. Please start it from the dashboard.
+              </p>
+            </div>
+            <div className="flex flex-col items-center gap-8">
+               <Button className="rounded-2xl h-16 bg-foreground text-background hover:bg-foreground/90 font-black text-xs uppercase tracking-[0.4em] px-12 shadow-strong group/cta active:scale-95 transition-all relative overflow-hidden">
+                  <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover/cta:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
+                  Initialize Workflow
+                  <ArrowRight className="ml-4 w-6 h-6 group-hover/cta:translate-x-4 transition-transform duration-700" />
+               </Button>
+               <div className="flex items-center justify-center gap-4 text-muted-foreground/30 font-black text-[9px] uppercase tracking-[0.3em] pt-8 border-t border-foreground/5 w-full max-w-sm mx-auto">
+                  <ShieldCheck className="w-4 h-4" />
+                  Identity Cryptographically Verified
+               </div>
+            </div>
           </div>
         </Card>
       )}

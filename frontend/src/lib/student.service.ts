@@ -58,5 +58,10 @@ export const studentService = {
   downloadCertificate: async (requestId: string) => {
     const response = await api.get(`/students/certificate/${requestId}`);
     return response.data;
+  },
+
+  notifyFormSubmission: async (id: string, submissionData: { departmentId: string, formLabel: string }) => {
+    const response = await api.post(`/students/clearance-request/${id}/submit-form`, submissionData);
+    return response.data;
   }
 };
