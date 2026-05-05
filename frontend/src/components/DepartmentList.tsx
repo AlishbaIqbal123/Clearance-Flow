@@ -336,7 +336,13 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
                 <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Type</Label>
                 <Select 
                   value={formData.type} 
-                  onValueChange={(val) => setFormData({...formData, type: val})}
+                  onValueChange={(val) => {
+                    const updates: any = { type: val };
+                    if (val !== 'custom' && val !== 'administrative' && !formData.name) {
+                      updates.name = val.charAt(0).toUpperCase() + val.slice(1);
+                    }
+                    setFormData({...formData, ...updates});
+                  }}
                 >
                   <SelectTrigger className="h-12 rounded-xl bg-secondary/50 border-none font-black text-[9px] uppercase tracking-widest px-6 shadow-inner focus:ring-4 focus:ring-primary/10 transition-all">
                     <SelectValue />
@@ -346,11 +352,15 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
                       <SelectItem value="academic" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">Academic Dept</SelectItem>
                     ) : (
                       <>
-                        <SelectItem value="financial" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">Financial</SelectItem>
+                        <SelectItem value="finance" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">Finance</SelectItem>
                         <SelectItem value="library" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">Library</SelectItem>
                         <SelectItem value="transport" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">Transport</SelectItem>
                         <SelectItem value="hostel" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">Hostel</SelectItem>
+                        <SelectItem value="sports" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">Sports</SelectItem>
+                        <SelectItem value="medical" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">Medical</SelectItem>
+                        <SelectItem value="security" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">Security</SelectItem>
                         <SelectItem value="administrative" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">Administrative</SelectItem>
+                        <SelectItem value="custom" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">Other (Custom Name)</SelectItem>
                       </>
                     )}
                   </SelectContent>
