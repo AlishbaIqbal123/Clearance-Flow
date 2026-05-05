@@ -800,6 +800,7 @@ router.post('/clearance-request/:id/submit-form',
       message: notificationMessage,
       is_internal: false,
       is_notification: true, // Special flag for the UI
+      target_department_id: departmentId, // Only show to this department
       created_at: new Date().toISOString()
     });
 
