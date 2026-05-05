@@ -61,7 +61,7 @@ const DepartmentCard = ({
   };
 
   const handleEmail = () => {
-    const rawEmail = dept.department?.contact_info?.email || dept.department?.email;
+    const rawEmail = dept.department?.head?.email || dept.department?.contact_info?.email || dept.department?.email;
     const emailMatch = rawEmail?.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/);
     const email = emailMatch ? emailMatch[0] : null;
     if (email) {
@@ -296,8 +296,15 @@ const DepartmentCard = ({
                    <Mail className="w-5 h-5" />
                 </div>
                 <div className="space-y-1 overflow-hidden">
-                   <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest">Official Email</p>
-                   <p className="text-[11px] font-bold text-foreground truncate">{dept.department?.contact_info?.email || dept.department?.email || 'N/A'}</p>
+                   <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest">Contact Officer</p>
+                   <p className="text-[11px] font-bold text-foreground truncate">
+                     {dept.department?.head?.email || dept.department?.contact_info?.email || dept.department?.email || 'N/A'}
+                   </p>
+                   {dept.department?.head && (
+                     <p className="text-[9px] font-bold text-primary/60 truncate uppercase tracking-tighter">
+                       {dept.department.head.first_name} {dept.department.head.last_name}
+                     </p>
+                   )}
                 </div>
              </div>
              <div className="flex items-center gap-5 p-4 sm:p-6 bg-secondary/30 rounded-[2rem] border border-foreground/5 group/meta">
