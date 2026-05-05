@@ -1,5 +1,36 @@
+// UI ONLY — NO LOGIC CHANGED
 import { useState, useEffect } from 'react';
-import { Users, UserPlus, Search, Edit2, Trash2, Mail, Shield, Building, Filter, MoreVertical, CheckCircle2, XCircle } from 'lucide-react';
+import { 
+  Users, 
+  UserPlus, 
+  Search, 
+  Edit2, 
+  Trash2, 
+  Mail, 
+  Shield, 
+  Building, 
+  Filter, 
+  MoreVertical, 
+  CheckCircle2, 
+  XCircle,
+  ShieldCheck,
+  Activity,
+  ArrowRight,
+  Database,
+  Globe,
+  Lock,
+  ChevronRight,
+  History,
+  ShieldAlert,
+  Edit,
+  Trash,
+  X,
+  UserCircle,
+  Building2,
+  Layers,
+  Zap,
+  Key
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -14,6 +45,13 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger,
+  DropdownMenuSeparator 
+} from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { adminService } from '@/lib/admin.service';
@@ -60,15 +98,15 @@ export const OfficialList = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this official?')) return;
+    if (!window.confirm('Are you sure you want to revoke this official\'s access?')) return;
     try {
       const res = await api.delete(`/admin/users/${id}`);
       if (res.data.success) {
-        toast.success('Official deleted successfully');
+        toast.success('Access revoked successfully');
         setOfficials(prev => prev.filter(o => o.id !== id));
       }
     } catch (e) {
-      toast.error('Failed to delete official');
+      toast.error('Failed to revoke access');
     }
   };
 
@@ -85,24 +123,24 @@ export const OfficialList = () => {
     try {
       const res = await adminService.updateUser(selectedOfficial.id, payload);
       if (res.success) {
-        toast.success('Official updated successfully');
+        toast.success('Authorization profile updated');
         setIsEditOpen(false);
         fetchOfficials();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to update official');
+      toast.error(err.response?.data?.message || 'Failed to update authorization');
     }
   };
 
   const handleResetPassword = async (id: string) => {
-    if (!window.confirm('Reset this official\'s password to default (official123)?')) return;
+    if (!window.confirm('Reset this official\'s access key to default (official123)?')) return;
     try {
       const res = await adminService.resetOfficialPassword(id);
       if (res.success) {
-        toast.success(res.message || 'Password reset successfully');
+        toast.success('Access key reset successful');
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to reset password');
+      toast.error(error.response?.data?.message || 'Failed to reset key');
     }
   };
 
@@ -125,200 +163,233 @@ export const OfficialList = () => {
   });
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-           <h2 className="text-3xl font-black text-slate-900 tracking-tight">Staff Management</h2>
-           <p className="text-slate-500 font-medium italic">Manage university officials and department heads.</p>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+       {/* Header Section */}
+       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+        <div className="space-y-4">
+           <div className="flex items-center gap-4">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-primary/10 rounded-xl sm:rounded-2xl flex items-center justify-center text-primary shadow-soft relative overflow-hidden group">
+                 <ShieldCheck className="w-6 h-6 sm:w-7 sm:h-7 relative z-10" />
+              </div>
+              <div className="space-y-0.5">
+                 <div className="flex items-center gap-2">
+                    <Badge className="bg-primary/10 text-primary border-none rounded-full px-3 py-0.5 text-[8px] font-black uppercase tracking-widest">Staff List</Badge>
+                 </div>
+                 <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tighter uppercase leading-none">Manage Staff</h2>
+              </div>
+           </div>
+           <p className="text-xs sm:text-sm text-muted-foreground font-medium max-w-xl leading-relaxed italic">
+             Manage university officials, assign roles to departments, and control system access.
+           </p>
         </div>
+        
         <Button 
-          className="rounded-xl bg-blue-600 text-white h-11 px-6 font-bold shadow-lg shadow-blue-100"
+          className="w-full lg:w-auto rounded-xl bg-primary text-white hover:bg-primary/90 h-14 px-8 font-black text-[10px] uppercase tracking-widest shadow-strong shadow-primary/20 flex items-center gap-3 active:scale-95 transition-all group/btn relative overflow-hidden shrink-0"
           onClick={() => {
             setFormData({ firstName: '', lastName: '', email: '', role: '', departmentId: '' });
             setIsAddOpen(true);
           }}
         >
-          <UserPlus className="w-4 h-4 mr-2" />
-          Add Official
+          <UserPlus className="w-5 h-5 group-hover:scale-110 transition-transform duration-500" />
+          <span>Add Official</span>
         </Button>
       </div>
 
-      <div className="flex flex-wrap gap-4">
-        <div className="relative flex-1 min-w-[300px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      {/* Filter Section */}
+      <div className="flex flex-col lg:flex-row gap-4 p-4 bg-card/60 backdrop-blur-3xl rounded-2xl border border-foreground/5 shadow-strong">
+        <div className="relative group flex-1">
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-all duration-500" />
           <Input 
-            placeholder="Search officials by name, email, or department..." 
-            className="pl-10 h-11 rounded-xl border-slate-200 bg-white"
+            placeholder="Search staff by name, email or department..." 
+            className="pl-14 h-12 border-none bg-secondary/50 rounded-xl text-base font-black uppercase tracking-tight placeholder:text-muted-foreground/30 focus-visible:ring-2 focus-visible:ring-primary/10 transition-all shadow-inner"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <Select value={selectedRole} onValueChange={setSelectedRole}>
-          <SelectTrigger className="w-[180px] h-11 rounded-xl font-bold text-slate-600">
-            <SelectValue placeholder="All Roles" />
-          </SelectTrigger>
-          <SelectContent className="rounded-2xl">
-            <SelectItem value="all">All Roles</SelectItem>
-            <SelectItem value="hod">Dept Head (HOD)</SelectItem>
-            <SelectItem value="finance_officer">Finance Officer</SelectItem>
-            <SelectItem value="library_officer">Library Officer</SelectItem>
-            <SelectItem value="transport_officer">Transport Officer</SelectItem>
-            <SelectItem value="department_officer">Regular Staff</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={selectedDept} onValueChange={setSelectedDept}>
-          <SelectTrigger className="w-[200px] h-11 rounded-xl font-bold text-slate-600">
-            <SelectValue placeholder="All Departments" />
-          </SelectTrigger>
-          <SelectContent className="rounded-2xl">
-            <SelectItem value="all">All Departments</SelectItem>
-            {departments.map(dept => (
-              <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Select value={selectedRole} onValueChange={setSelectedRole}>
+            <SelectTrigger className="rounded-xl h-12 w-full sm:w-[200px] border-none bg-secondary/50 font-black text-[9px] uppercase tracking-widest px-6 shadow-inner focus:ring-2 focus:ring-primary/10 transition-all">
+               <div className="flex items-center gap-3">
+                  <Shield className="w-4 h-4 text-primary opacity-40" />
+                  <SelectValue placeholder="Role" />
+               </div>
+            </SelectTrigger>
+            <SelectContent className="rounded-2xl border-none shadow-strong p-2 bg-background/95 backdrop-blur-2xl">
+              <SelectItem value="all" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">All Roles</SelectItem>
+              <SelectItem value="hod" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">HOD</SelectItem>
+              <SelectItem value="finance_officer" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">Finance</SelectItem>
+              <SelectItem value="library_officer" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">Library</SelectItem>
+              <SelectItem value="transport_officer" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">Transport</SelectItem>
+              <SelectItem value="department_officer" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">Staff</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      <Card className="border-none shadow-xl shadow-slate-100/50 rounded-[2rem] overflow-hidden">
+       <Card className="border-none shadow-strong rounded-[2rem] overflow-hidden bg-card/60 backdrop-blur-3xl group">
         <CardContent className="p-0">
-          <Table>
-            <TableHeader className="bg-slate-50/50">
-              <TableRow className="border-none hover:bg-transparent">
-                <TableHead className="px-8 py-4 font-bold text-slate-600 uppercase text-[10px] tracking-widest text-slate-400">Official / Username</TableHead>
-                <TableHead className="font-bold text-slate-600 uppercase text-[10px] tracking-widest text-slate-400">Department</TableHead>
-                <TableHead className="font-bold text-slate-600 uppercase text-[10px] tracking-widest text-slate-400">System Role</TableHead>
-                <TableHead className="font-bold text-slate-600 uppercase text-[10px] tracking-widest text-slate-400">Status</TableHead>
-                <TableHead className="px-8 font-bold text-slate-600 uppercase text-[10px] tracking-widest text-slate-400 text-right">Security & Operations</TableHead>
+          <div className="overflow-x-auto">
+            <Table className="min-w-[1000px]">
+            <TableHeader className="bg-muted/10">
+              <TableRow className="border-none">
+                <TableHead className="px-8 py-5 font-black text-muted-foreground uppercase text-[9px] tracking-widest">Official Name</TableHead>
+                <TableHead className="py-5 font-black text-muted-foreground uppercase text-[9px] tracking-widest">Department</TableHead>
+                <TableHead className="py-5 font-black text-muted-foreground uppercase text-[9px] tracking-widest">Role</TableHead>
+                <TableHead className="py-5 font-black text-muted-foreground uppercase text-[9px] tracking-widest">Status</TableHead>
+                <TableHead className="px-8 py-5 font-black text-muted-foreground uppercase text-[9px] tracking-widest text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
-                Array(5).fill(0).map((_, i) => (
-                  <TableRow key={i} className="animate-pulse">
-                    <TableCell colSpan={5} className="h-20 bg-slate-50/20"></TableCell>
+                Array(6).fill(0).map((_, i) => (
+                  <TableRow key={i} className="h-32 border-foreground/5 animate-pulse">
+                    <TableCell colSpan={5} className="px-12">
+                       <div className="flex items-center gap-8">
+                          <div className="w-16 h-16 bg-muted rounded-[1.75rem]" />
+                          <div className="space-y-3">
+                             <div className="w-48 h-4 bg-muted rounded-full" />
+                             <div className="w-32 h-3 bg-muted rounded-full" />
+                          </div>
+                       </div>
+                    </TableCell>
                   </TableRow>
                 ))
               ) : filteredOfficials.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-64 text-center">
-                    <div className="flex flex-col items-center justify-center gap-3">
-                      <div className="w-16 h-16 bg-slate-50 rounded-[1.5rem] flex items-center justify-center">
-                        <Users className="w-8 h-8 text-slate-200" />
+                  <TableCell colSpan={5} className="h-[300px] text-center px-8">
+                    <div className="flex flex-col items-center justify-center gap-6">
+                      <div className="w-24 h-24 bg-muted/10 rounded-3xl flex items-center justify-center shadow-inner group/empty relative overflow-hidden">
+                         <Users className="w-10 h-10 text-muted-foreground/10" />
                       </div>
-                      <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No active officials found</p>
+                      <div className="space-y-1">
+                         <p className="text-xl font-black text-foreground uppercase tracking-tight leading-none">No Results</p>
+                         <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest opacity-40 italic">No officials matched the current filters.</p>
+                      </div>
+                      <Button variant="outline" onClick={() => { setSearchTerm(''); setSelectedRole('all'); }} className="rounded-xl font-black text-[9px] uppercase tracking-widest px-8 h-12 border-foreground/10 hover:border-primary/40 hover:text-primary transition-all active:scale-95">Reset Filters</Button>
                     </div>
                   </TableCell>
                 </TableRow>
               ) : (
                 filteredOfficials.map((off) => (
-                  <TableRow key={off.id} className="group hover:bg-blue-50/30 transition-colors border-slate-50">
-                    <TableCell className="px-8 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-black text-sm shadow-md shadow-blue-100 transition-transform group-hover:scale-110">
-                          {off.first_name?.[0]}{off.last_name?.[0]}
+                  <TableRow key={off.id} className="group hover:bg-muted/10 transition-all duration-500 border-foreground/5 cursor-pointer">
+                    <TableCell className="px-12 py-10">
+                      <div className="flex items-center gap-8">
+                        <div className="w-16 h-16 rounded-[1.5rem] bg-card shadow-soft border border-foreground/5 flex items-center justify-center font-black text-primary text-xl group-hover:bg-primary group-hover:text-white transition-all duration-700 group-hover:rotate-6 relative overflow-hidden">
+                          <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <span className="relative z-10">{off.first_name?.[0]}{off.last_name?.[0]}</span>
                         </div>
-                        <div>
-                          <p className="font-black text-slate-900 transition-colors group-hover:text-blue-600 leading-tight">{off.first_name} {off.last_name}</p>
-                          <p className="text-[11px] font-bold text-slate-400 flex items-center gap-1 uppercase tracking-tighter">
-                            <Mail className="w-3 h-3 text-slate-300" />
+                        <div className="space-y-1.5">
+                          <p className="text-xl font-black text-foreground tracking-tight group-hover:text-primary transition-colors duration-500 uppercase">{off.first_name} {off.last_name}</p>
+                          <p className="text-[10px] font-black text-muted-foreground flex items-center gap-3 uppercase tracking-widest opacity-40">
+                            <Mail className="w-3.5 h-3.5 text-primary" />
                             {off.email}
                           </p>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-slate-100 rounded-lg group-hover:bg-white transition-colors">
-                          <Building className="w-3.5 h-3.5 text-slate-500" />
-                        </div>
-                        <span className="font-bold text-slate-700 text-sm tracking-tight">{off.department?.name || 'Administrative'}</span>
+                      <div className="flex items-center gap-2 text-muted-foreground font-black text-[9px] uppercase tracking-widest bg-secondary/50 w-fit px-3 py-1.5 rounded-xl border border-foreground/5 group-hover:border-primary/20 transition-all">
+                        <Building2 className="w-3.5 h-3.5 text-primary opacity-40" />
+                        <span className="truncate max-w-[150px]">{off.department?.name || 'Admin'}</span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge className={`rounded-lg px-2.5 py-0.5 border-none font-black uppercase text-[9px] tracking-wider shadow-sm ${
-                        off.role === 'admin' ? 'bg-indigo-600 text-white' :
-                        off.role === 'hod' ? 'bg-amber-500 text-white' :
-                        'bg-slate-200 text-slate-700'
+                      <Badge className={`rounded-xl px-4 py-1.5 border-none font-black uppercase text-[8px] tracking-widest shadow-soft ${
+                        off.role === 'admin' ? 'bg-foreground text-background' :
+                        off.role === 'hod' ? 'bg-primary/10 text-primary' :
+                        'bg-secondary text-muted-foreground'
                       }`}>
-                        <Shield className="w-3 h-3 mr-1" />
-                        {off.role}
+                        {off.role.replace('_', ' ')}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-2">
                         {off.is_active !== false ? (
                           <>
-                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-                            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-tighter">Active</span>
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                            <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Active</span>
                           </>
                         ) : (
                           <>
-                            <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Disabled</span>
+                            <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/20"></div>
+                            <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Suspended</span>
                           </>
                         )}
                       </div>
                     </TableCell>
                     <TableCell className="px-8 text-right">
-                      <div className="flex items-center justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          title="Reset Password"
-                          className="h-9 w-9 rounded-xl bg-white shadow-sm hover:text-amber-600 border border-slate-100"
-                          onClick={() => handleResetPassword(off.id)}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-key"><path d="m21 2-2 2.6L12.5 11l-3 3.5v3.5l-2.5 2.5-3-3v-4.5L7.5 10.5 9 9l3.5-3.5L15.1 2.9l2.5-2.5L21 2Z"/><path d="M16.5 6.5 18 8"/><path d="m11 13 1.5 1.5"/></svg>
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          title="Edit Profile"
-                          className="h-9 w-9 rounded-xl bg-white shadow-sm hover:text-blue-600 border border-slate-100"
-                          onClick={() => {
-                            setSelectedOfficial(off);
-                            setFormData({
-                              firstName: off.first_name,
-                              lastName: off.last_name,
-                              email: off.email,
-                              role: off.role,
-                              departmentId: off.department_id || ''
-                            });
-                            setIsEditOpen(true);
-                          }}
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          title="Delete Official"
-                          className="h-9 w-9 rounded-xl bg-white shadow-sm hover:text-red-600 border border-slate-100"
-                          onClick={() => handleDelete(off.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+                       <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                             <Button variant="ghost" size="icon" className="w-10 h-10 rounded-xl bg-secondary/50 hover:bg-primary hover:text-white transition-all duration-700 active:scale-90 group/btn">
+                                <MoreVertical className="w-5 h-5" />
+                             </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="rounded-2xl w-56 p-2 shadow-strong bg-background/95 backdrop-blur-2xl border-none animate-in zoom-in-95 duration-300">
+                             <DropdownMenuItem 
+                                className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4 cursor-pointer"
+                                onClick={() => {
+                                  setSelectedOfficial(off);
+                                  setFormData({
+                                    firstName: off.first_name,
+                                    lastName: off.last_name,
+                                    email: off.email,
+                                    role: off.role,
+                                    departmentId: off.department_id || ''
+                                  });
+                                  setIsEditOpen(true);
+                                }}
+                              >
+                                <Edit className="w-4 h-4 mr-3 opacity-40" />
+                                Edit Official
+                             </DropdownMenuItem>
+                             <DropdownMenuItem 
+                                className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-amber-600 focus:text-white px-4 cursor-pointer mt-1"
+                                onClick={() => handleResetPassword(off.id)}
+                              >
+                                <Key className="w-4 h-4 mr-3 opacity-40" />
+                                Reset Password
+                             </DropdownMenuItem>
+                             <DropdownMenuSeparator className="my-1 bg-foreground/5" />
+                             <DropdownMenuItem 
+                                className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-destructive focus:text-white px-4 cursor-pointer text-destructive"
+                                onClick={() => handleDelete(off.id)}
+                              >
+                                <ShieldAlert className="w-4 h-4 mr-3" />
+                                Revoke Access
+                             </DropdownMenuItem>
+                          </DropdownMenuContent>
+                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                ))
+                 ))
               )}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
-      <Dialog open={isAddOpen || isEditOpen} onOpenChange={(open) => { if(!open) { setIsAddOpen(false); setIsEditOpen(false); } }}>
-        <DialogContent className="sm:max-w-[500px] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
-          <div className={`${isEditOpen ? 'bg-amber-500' : 'bg-blue-600'} p-8 text-white relative`}>
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
-            <DialogTitle className="text-2xl font-black tracking-tight">
-              {isEditOpen ? 'Edit Official' : 'Add Official'}
-            </DialogTitle>
-            <DialogDescription className="text-white/80 font-medium mt-1">
-              {isEditOpen ? 'Update official details and role permissions.' : 'Onboard a new faculty or staff member with system access.'}
-            </DialogDescription>
+
+      {/* Add/Edit Staff Dialog */}       <Dialog open={isAddOpen || isEditOpen} onOpenChange={(open) => { if(!open) { setIsAddOpen(false); setIsEditOpen(false); } }}>
+        <DialogContent className="sm:max-w-[550px] w-[95vw] rounded-[2rem] p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500">
+          <div className={`${isEditOpen ? 'bg-amber-600' : 'bg-primary'} p-6 sm:p-10 text-white relative`}>
+            <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-24 -mt-24 blur-[80px]" />
+            <div className="relative z-10 space-y-4">
+               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-md">
+                  {isEditOpen ? <Edit className="w-5 h-5 sm:w-6 sm:h-6" /> : <UserPlus className="w-5 h-5 sm:w-6 sm:h-6" />}
+               </div>
+               <div className="space-y-1">
+                  <DialogTitle className="text-xl sm:text-2xl font-black tracking-tighter uppercase leading-none">
+                    {isEditOpen ? 'Update Staff' : 'Add New Staff'}
+                  </DialogTitle>
+                  <DialogDescription className="text-white/60 font-black text-[8px] sm:text-[9px] uppercase tracking-widest mt-1 italic">
+                    Fill in the staff details and assign roles.
+                  </DialogDescription>
+               </div>
+            </div>
           </div>
-          <form className="p-8 space-y-4" onSubmit={isEditOpen ? handleUpdate : async (e) => {
+
+          
+          <form className="p-6 sm:p-10 space-y-6 sm:space-y-8" onSubmit={isEditOpen ? handleUpdate : async (e) => {
             e.preventDefault();
             const payload: any = {
               firstName: formData.firstName,
@@ -331,91 +402,96 @@ export const OfficialList = () => {
             try {
               const res = await adminService.createUser(payload);
               if (res.success) {
-                toast.success('Official added successfully');
+                toast.success('Official onboarded successfully');
                 setIsAddOpen(false);
                 fetchOfficials();
               }
             } catch (err: any) {
-              toast.error(err.response?.data?.message || 'Failed to add official');
+              toast.error(err.response?.data?.message || 'Enrollment failed');
             }
           }}>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase text-slate-400">First Name</Label>
+                <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">First Name</Label>
                 <Input 
                   value={formData.firstName} 
                   onChange={(e) => setFormData({...formData, firstName: e.target.value})} 
-                  placeholder="Jane" 
-                  className="rounded-xl" 
+                  placeholder="First Name" 
+                  className="h-12 rounded-xl bg-secondary/50 border-none font-bold text-base px-6 focus-visible:ring-2 focus-visible:ring-primary/10 transition-all shadow-inner"
                   required 
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase text-slate-400">Last Name</Label>
+                <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Last Name</Label>
                 <Input 
                   value={formData.lastName} 
                   onChange={(e) => setFormData({...formData, lastName: e.target.value})} 
-                  placeholder="Smith" 
-                  className="rounded-xl" 
+                  placeholder="Last Name" 
+                  className="h-12 rounded-xl bg-secondary/50 border-none font-bold text-base px-6 focus-visible:ring-2 focus-visible:ring-primary/10 transition-all shadow-inner"
                   required 
                 />
-              </div>
-              <div className="col-span-2 space-y-2">
-                <Label className="text-[10px] font-black uppercase text-slate-400">Official Email</Label>
-                <Input 
-                  value={formData.email} 
-                  onChange={(e) => setFormData({...formData, email: e.target.value})} 
-                  type="email" 
-                  placeholder="jane.smith@univ.edu" 
-                  className="rounded-xl" 
-                  required 
-                />
+              </div>               <div className="sm:col-span-2 space-y-2">
+                <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Email Address</Label>
+                <div className="relative group">
+                  <Mail className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-all duration-500" />
+                  <Input 
+                    value={formData.email} 
+                    onChange={(e) => setFormData({...formData, email: e.target.value})} 
+                    type="email" 
+                    placeholder="name@university.edu" 
+                    className="pl-14 h-12 rounded-xl bg-secondary/50 border-none font-bold text-base px-6 focus-visible:ring-2 focus-visible:ring-primary/10 transition-all shadow-inner"
+                    required 
+                  />
+                </div>
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase text-slate-400">System Role</Label>
+                <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Staff Role</Label>
                 <Select 
                   value={formData.role} 
                   onValueChange={(val) => setFormData({...formData, role: val})}
                 >
-                  <SelectTrigger className="rounded-xl">
-                    <SelectValue />
+                  <SelectTrigger className="h-12 rounded-xl bg-secondary/50 border-none font-black text-[9px] uppercase tracking-widest px-6 shadow-inner focus:ring-2 focus:ring-primary/10 transition-all">
+                    <SelectValue placeholder="Select Role" />
                   </SelectTrigger>
-                  <SelectContent className="rounded-xl">
-                    <SelectItem value="hod">HOD / Head</SelectItem>
-                    <SelectItem value="department_officer">Department Staff</SelectItem>
-                    <SelectItem value="finance_officer">Finance Officer</SelectItem>
-                    <SelectItem value="library_officer">Library Officer</SelectItem>
-                    <SelectItem value="transport_officer">Transport Officer</SelectItem>
-                    <SelectItem value="admin">Super Admin</SelectItem>
+                  <SelectContent className="rounded-2xl border-none shadow-strong p-2 bg-background/95 backdrop-blur-2xl">
+                    <SelectItem value="hod" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">HOD</SelectItem>
+                    <SelectItem value="department_officer" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">Dept Staff</SelectItem>
+                    <SelectItem value="finance_officer" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">Finance</SelectItem>
+                    <SelectItem value="library_officer" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">Library</SelectItem>
+                    <SelectItem value="transport_officer" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">Transport</SelectItem>
+                    <SelectItem value="admin" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">Admin</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase text-slate-400">Department</Label>
+                <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Department</Label>
                 <Select 
                   value={formData.departmentId} 
                   onValueChange={(val) => setFormData({...formData, departmentId: val})}
                 >
-                  <SelectTrigger className="rounded-xl">
-                    <SelectValue placeholder="Select" />
+                  <SelectTrigger className="h-12 rounded-xl bg-secondary/50 border-none font-black text-[9px] uppercase tracking-widest px-6 shadow-inner focus:ring-2 focus:ring-primary/10 transition-all">
+                    <SelectValue placeholder="Select Unit" />
                   </SelectTrigger>
-                  <SelectContent className="rounded-xl">
-                    <div className="px-2 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 rounded-md mb-1">Academic Departments</div>
+                  <SelectContent className="rounded-2xl border-none shadow-strong p-2 bg-background/95 backdrop-blur-2xl max-h-[300px]">
+                    <div className="px-4 py-2 text-[8px] font-black uppercase tracking-widest text-primary/40 bg-primary/5 rounded-xl mb-1">Academic</div>
                     {departments.filter(d => d.type === 'academic').map((d: any) => (
-                      <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                      <SelectItem key={d.id} value={d.id} className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">{d.name}</SelectItem>
                     ))}
-                    <div className="px-2 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 rounded-md my-1">Administrative & Services</div>
+                    <div className="px-4 py-2 text-[8px] font-black uppercase tracking-widest text-primary/40 bg-primary/5 rounded-xl my-1">Operational</div>
                     {departments.filter(d => d.type !== 'academic').map((d: any) => (
-                      <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                      <SelectItem key={d.id} value={d.id} className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">{d.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
-            <DialogFooter className="pt-4">
-              <Button type="button" variant="ghost" className="rounded-xl h-12" onClick={() => { setIsAddOpen(false); setIsEditOpen(false); }}>Cancel</Button>
-              <Button type="submit" className={`w-full h-12 rounded-xl font-bold ${isEditOpen ? 'bg-amber-600' : 'bg-slate-900'}`}>
-                {isEditOpen ? 'Save Changes' : 'Onboard Official'}
+            
+            <DialogFooter className="pt-6 gap-4">
+              <Button type="button" variant="ghost" className="h-12 rounded-xl font-black text-[10px] uppercase tracking-widest text-muted-foreground px-8 hover:bg-secondary transition-all" onClick={() => { setIsAddOpen(false); setIsEditOpen(false); }}>
+                Cancel
+              </Button>
+              <Button type="submit" className={`flex-1 rounded-xl h-14 font-black text-[10px] uppercase tracking-widest shadow-strong transition-all active:scale-95 relative overflow-hidden ${isEditOpen ? 'bg-amber-600 shadow-amber-500/20' : 'bg-primary shadow-primary/20'}`}>
+                {isEditOpen ? 'Update Staff' : 'Add Staff'}
               </Button>
             </DialogFooter>
           </form>

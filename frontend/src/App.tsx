@@ -58,11 +58,11 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-4">
-        <div className="w-16 h-16 bg-blue-600 rounded-[1.5rem] flex items-center justify-center shadow-2xl shadow-blue-100 animate-bounce">
-           <Loader2 className="w-8 h-8 text-white animate-spin" />
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-6">
+        <div className="w-20 h-20 bg-primary rounded-[2rem] flex items-center justify-center shadow-2xl shadow-primary/20 animate-pulse">
+           <Loader2 className="w-10 h-10 text-white animate-spin" />
         </div>
-        <p className="text-slate-400 font-black text-[10px] uppercase tracking-[0.3em]">System Initializing</p>
+        <p className="text-muted-foreground font-black text-[10px] uppercase tracking-[0.4em] animate-pulse">Establishing Secure Session</p>
       </div>
     );
   }

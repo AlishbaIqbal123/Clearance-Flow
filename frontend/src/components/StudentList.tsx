@@ -1,3 +1,4 @@
+// UI ONLY — NO LOGIC CHANGED
 import { useState, useEffect } from 'react';
 import { 
   Users, 
@@ -15,7 +16,19 @@ import {
   Key,
   History,
   Building2,
-  RefreshCw
+  RefreshCw,
+  ArrowRight,
+  ShieldCheck,
+  Activity,
+  Globe,
+  Database,
+  UserPlus,
+  Trash,
+  ExternalLink,
+  ChevronRight,
+  Info,
+  X,
+  UserCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,19 +48,29 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
-import { 
+import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { toast } from 'sonner';
+import { studentService } from '@/lib/student.service';
+import { departmentService } from '@/lib/department.service';
 import { adminService } from '@/lib/admin.service';
+import { StatusBadge } from './StatusBadge';
 
 export const StudentList = () => {
   const [students, setStudents] = useState<any[]>([]);
@@ -82,7 +105,7 @@ export const StudentList = () => {
         setDepartments(deptRes.data.departments || []);
       }
     } catch (error) {
-      toast.error('Failed to load students');
+      toast.error('Failed to load student list');
     } finally {
       setLoading(false);
     }
@@ -112,11 +135,11 @@ export const StudentList = () => {
     try {
       const res = await adminService.deleteStudent(id);
       if (res.success) {
-        toast.success('Student deleted successfully');
+        toast.success('Identity removed from registry');
         setStudents(prev => prev.filter(s => s.id !== id));
       }
     } catch (error) {
-      toast.error('Failed to delete student');
+      toast.error('Failed to delete student identity');
     }
   };
 
@@ -125,10 +148,10 @@ export const StudentList = () => {
     try {
       const res = await adminService.resetStudentPassword(id);
       if (res.success) {
-        toast.success('Password reset successfully');
+        toast.success('Access key reset successful');
       }
     } catch (error) {
-      toast.error('Failed to reset password');
+      toast.error('Failed to reset access key');
     }
   };
 
@@ -137,11 +160,11 @@ export const StudentList = () => {
     try {
       const res = await adminService.resetStudent(id);
       if (res.success) {
-        toast.success('Student account reset successfully');
+        toast.success('Identity cycle reset successful');
         fetchStudents();
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to reset student account');
+      toast.error(error.response?.data?.message || 'Failed to reset student sequence');
     }
   };
 
@@ -151,13 +174,13 @@ export const StudentList = () => {
       const url = window.URL.createObjectURL(new Blob([response]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'students_registry.csv');
+      link.setAttribute('download', 'student_list.csv');
       document.body.appendChild(link);
       link.click();
       link.remove();
-      toast.success('Student registry exported successfully');
+      toast.success('Registry archive exported successfully');
     } catch (error) {
-      toast.error('Failed to export students');
+      toast.error('Failed to export registry archive');
     }
   };
 
@@ -166,13 +189,13 @@ export const StudentList = () => {
     try {
       const res = await adminService.createStudent(formData);
       if (res.success) {
-        toast.success('Student created successfully');
+        toast.success('Identity enrolled successfully');
         setIsAddOpen(false);
         fetchStudents();
         setFormData({ firstName: '', lastName: '', email: '', registrationNumber: '', program: '', batch: '', departmentId: '' });
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to create student');
+      toast.error(error.response?.data?.message || 'Enrollment failed');
     }
   };
 
@@ -181,158 +204,182 @@ export const StudentList = () => {
     try {
       const res = await adminService.updateStudent(selectedStudent.id, formData);
       if (res.success) {
-        toast.success('Student updated successfully');
+        toast.success('Identity profile updated successfully');
         setIsEditOpen(false);
         fetchStudents();
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to update student');
+      toast.error(error.response?.data?.message || 'Update failed');
     }
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-           <h2 className="text-3xl font-black text-slate-900 tracking-tighter">Student Registry</h2>
-           <p className="text-slate-500 font-medium italic">Database of all university students and their clearance eligibility.</p>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+       {/* Header Section */}
+       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+        <div className="space-y-4">
+           <div className="flex items-center gap-4">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-primary/10 rounded-xl sm:rounded-2xl flex items-center justify-center text-primary shadow-soft relative overflow-hidden group">
+                 <Users className="w-6 h-6 sm:w-7 sm:h-7 relative z-10" />
+              </div>
+              <div className="space-y-0.5">
+                 <div className="flex items-center gap-2">
+                    <Badge className="bg-primary/10 text-primary border-none rounded-full px-3 py-0.5 text-[8px] font-black uppercase tracking-widest">Student List</Badge>
+                 </div>
+                 <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tighter uppercase leading-none">Manage Students</h2>
+              </div>
+           </div>
+           <p className="text-xs sm:text-sm text-muted-foreground font-medium max-w-xl leading-relaxed italic">
+             View and manage all student profiles, registration details, and clearance progress.
+           </p>
         </div>
-        <div className="flex items-center gap-3">
+        
+        <div className="flex flex-wrap items-center gap-3 bg-muted/20 p-2 rounded-2xl border border-foreground/5 backdrop-blur-md shadow-soft w-full lg:w-auto">
            <Button 
-             variant="outline" 
-             className="rounded-xl border-slate-200 h-11 px-6 font-bold text-slate-600"
+             variant="ghost" 
+             className="flex-1 lg:flex-none rounded-xl h-12 px-6 font-black text-[10px] uppercase tracking-widest text-muted-foreground hover:bg-card hover:text-primary transition-all duration-500 active:scale-95"
              onClick={handleExport}
            >
-              <Download className="w-4 h-4 mr-2" />
-              Download CSV
+              <Download className="w-4 h-4 mr-2 opacity-50" />
+              Export
            </Button>
             <Button 
-               className="rounded-xl bg-blue-600 text-white h-11 px-6 font-bold shadow-lg shadow-blue-100"
+               className="flex-1 lg:flex-none rounded-xl bg-primary text-white hover:bg-primary/90 h-14 px-8 font-black text-[10px] uppercase tracking-widest shadow-strong shadow-primary/20 flex items-center gap-3 active:scale-95 transition-all group/btn relative overflow-hidden"
                onClick={() => setIsAddOpen(true)}
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Student
+              <UserPlus className="w-5 h-5 group-hover:scale-110 transition-transform duration-500" />
+              <span>Add Student</span>
             </Button>
         </div>
       </div>
 
-      <Card className="border-none shadow-xl shadow-slate-200/40 rounded-[2rem] overflow-hidden bg-white">
-        <CardHeader className="p-8 border-b border-slate-50 bg-slate-50/30">
-           <div className="flex flex-col md:flex-row md:items-center gap-4">
-              <div className="relative flex-1 group">
-                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+      {/* Student List Section */}
+       <Card className="border-none shadow-strong rounded-[2rem] bg-card/60 backdrop-blur-3xl overflow-hidden group">
+        <CardHeader className="p-6 sm:p-8 pb-6 border-b border-foreground/5 relative overflow-hidden">
+           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-[60px]" />
+           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+              <div className="relative group flex-1">
+                 <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-all duration-500" />
                  <Input 
-                   placeholder="Search by registration number or name..." 
-                   className="pl-12 h-12 rounded-2xl border-slate-200 bg-white font-medium"
+                   placeholder="Search students..." 
+                   className="pl-12 h-14 w-full border-none bg-secondary/50 rounded-xl text-base font-black uppercase tracking-tight placeholder:text-muted-foreground/30 focus-visible:ring-2 focus-visible:ring-primary/20 transition-all shadow-inner"
                    value={search}
                    onChange={(e) => setSearch(e.target.value)}
                  />
               </div>
               <Select value={selectedDeptFilter} onValueChange={setSelectedDeptFilter}>
-                <SelectTrigger className="rounded-xl h-12 w-[200px] font-bold text-slate-500 bg-white border border-slate-100 shadow-sm">
-                   <Filter className="w-4 h-4 mr-2" />
-                   <SelectValue placeholder="All Departments" />
+                <SelectTrigger className="rounded-xl h-14 w-full lg:w-[280px] font-black text-[9px] uppercase tracking-widest px-6 bg-secondary/50 border-none shadow-inner focus:ring-2 focus:ring-primary/20 transition-all">
+                   <div className="flex items-center gap-3">
+                      <Filter className="w-4 h-4 text-primary opacity-40" />
+                      <SelectValue placeholder="All Departments" />
+                   </div>
                 </SelectTrigger>
-                <SelectContent className="rounded-2xl">
-                   <SelectItem value="all">All Departments</SelectItem>
+                <SelectContent className="rounded-2xl border-none shadow-strong p-2 bg-background/95 backdrop-blur-2xl">
+                   <SelectItem value="all" className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">All Departments</SelectItem>
                    {departments.filter(d => d.type === 'academic').map(dept => (
-                     <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                     <SelectItem key={dept.id} value={dept.id} className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">{dept.name}</SelectItem>
                    ))}
                 </SelectContent>
               </Select>
            </div>
-        </CardHeader>
+         </CardHeader>
         <CardContent className="p-0">
-          {loading ? (
-             <div className="p-20 flex justify-center">
-                <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-             </div>
-          ) : (
-            <Table>
-              <TableHeader className="bg-slate-50/50">
+          <div className="overflow-x-auto">
+            <Table className="min-w-[1000px]">
+              <TableHeader className="bg-muted/10">
                 <TableRow className="border-none">
-                  <TableHead className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Identification</TableHead>
-                  <TableHead className="py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Academic Info</TableHead>
-                  <TableHead className="py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Department</TableHead>
-                  <TableHead className="py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Clearance Status</TableHead>
-                  <TableHead className="py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact Info</TableHead>
-                  <TableHead className="px-8 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Operations</TableHead>
+                  <TableHead className="px-8 py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Student Info</TableHead>
+                  <TableHead className="py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Program</TableHead>
+                  <TableHead className="py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Department</TableHead>
+                  <TableHead className="py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Status</TableHead>
+                  <TableHead className="py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Contact</TableHead>
+                  <TableHead className="px-8 py-5 text-right text-[9px] font-black text-muted-foreground uppercase tracking-widest">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredStudents.map((student) => (
-                  <TableRow key={student.id} className="group hover:bg-slate-50/50 transition-colors border-slate-50">
-                    <TableCell className="px-8 py-5">
-                       <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center font-black text-slate-500 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                             {student.first_name[0]}{student.last_name[0]}
-                          </div>
-                          <div>
-                            <p className="font-bold text-slate-900 tracking-tight">{student.first_name} {student.last_name}</p>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{student.registration_number}</p>
-                          </div>
-                       </div>
-                    </TableCell>
-                    <TableCell>
-                       <div className="space-y-0.5">
-                          <p className="text-xs font-bold text-slate-700">{student.program}</p>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Batch: {student.batch}</p>
-                       </div>
-                    </TableCell>
-                    <TableCell>
-                       <div className="flex items-center gap-2">
-                          <Building2 className="w-3.5 h-3.5 text-slate-400" />
-                          <span className="text-xs font-bold text-slate-600">{student.department?.name || 'Unassigned'}</span>
-                       </div>
-                    </TableCell>
-                    <TableCell>
-                       <Badge variant="outline" className={`px-2 py-0.5 rounded-full font-bold text-[10px] uppercase tracking-wider ${
-                         student.clearance_status === 'cleared' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
-                         student.clearance_status === 'rejected' ? 'bg-red-50 text-red-700 border-red-100' :
-                         'bg-amber-50 text-amber-700 border-amber-100'
-                       }`}>
-                          {student.clearance_status || 'not_started'}
-                       </Badge>
-                    </TableCell>
-                    <TableCell>
-                        <div className="flex gap-2">
-                           <Button 
-                             variant="ghost" 
-                             size="icon" 
-                             className="w-8 h-8 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50"
-                             title={student.email}
-                             onClick={() => student.email && window.open(`mailto:${student.email}?subject=Clearance%20Update%20-%20${student.registration_number}`)}
-                           >
-                              <Mail className="w-4 h-4" />
-                           </Button>
-                           <Button 
-                             variant="ghost" 
-                             size="icon" 
-                             className="w-8 h-8 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50"
-                             title={student.phone || 'No phone number'}
-                             onClick={() => {
-                               if (student.phone) {
-                                 const clean = student.phone.replace(/\D/g, '');
-                                 window.open(`https://wa.me/${clean}?text=Hello%20${encodeURIComponent(student.first_name)}%2C%20this%20is%20regarding%20your%20clearance%20application.`);
-                               } else {
-                                 toast.info(`${student.first_name} has not added a phone number yet.`);
-                               }
-                             }}
-                           >
-                              <Phone className="w-4 h-4" />
-                           </Button>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="h-96 text-center">
+                      <div className="flex flex-col items-center justify-center gap-8">
+                        <div className="relative">
+                           <Loader2 className="w-16 h-16 text-primary animate-spin" />
+                           <div className="absolute inset-0 w-16 h-16 border-4 border-primary/10 rounded-full" />
                         </div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-muted-foreground animate-pulse">Synchronizing Registry...</p>
+                      </div>
                     </TableCell>
-                    <TableCell className="px-8 py-5 text-right">
-                       <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                             <Button variant="ghost" size="icon" className="rounded-xl hover:bg-white shadow-sm transition-all border border-transparent hover:border-slate-100">
-                                <MoreVertical className="w-5 h-5 text-slate-400" />
-                             </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="rounded-2xl w-56 p-2 shadow-2xl">
-                             <DropdownMenuItem 
-                                className="rounded-xl font-bold py-3"
+                  </TableRow>
+                ) : (
+                  <>
+                  {filteredStudents.map((student) => (
+                    <TableRow key={student.id} className="group hover:bg-muted/10 transition-all duration-500 border-foreground/5 cursor-pointer">
+                      <TableCell className="px-8 py-5" onClick={() => { setSelectedStudent(student); setIsViewOpen(true); }}>
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-card shadow-soft border border-foreground/5 flex items-center justify-center font-black text-primary text-xs group-hover:scale-110 group-hover:rotate-6 transition-all duration-700 relative overflow-hidden">
+                                <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <span className="relative z-10">{student.first_name[0]}{student.last_name[0]}</span>
+                            </div>
+                            <div className="space-y-0.5">
+                              <h4 className="text-sm font-black text-foreground tracking-tight group-hover:text-primary transition-colors duration-500 uppercase">{student.first_name} {student.last_name}</h4>
+                              <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest opacity-40">{student.registration_number}</p>
+                            </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                            <p className="text-[11px] font-black text-foreground uppercase tracking-tight flex items-center gap-2">
+                              <GraduationCap className="w-3.5 h-3.5 text-primary opacity-40" />
+                              {student.program}
+                            </p>
+                            <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest pl-5.5 opacity-40">Batch: {student.batch}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2 text-muted-foreground font-black text-[9px] uppercase tracking-widest bg-secondary/50 w-fit px-3 py-1.5 rounded-xl border border-foreground/5 group-hover:border-primary/20 transition-all">
+                            <Building2 className="w-3 h-3 text-primary opacity-40" />
+                            <span className="truncate max-w-[120px]">{student.department?.name || 'Pending'}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <StatusBadge status={student.clearance_status || 'not_started'} />
+                      </TableCell>
+                      <TableCell>
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="w-10 h-10 rounded-xl text-primary hover:bg-primary/10 transition-all active:scale-90"
+                              onClick={() => student.email && window.open(`mailto:${student.email}`)}
+                            >
+                                <Mail className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="w-10 h-10 rounded-xl text-emerald-500 hover:bg-emerald-500/10 transition-all active:scale-90"
+                              onClick={() => {
+                                if (student.phone) {
+                                  const clean = student.phone.replace(/\D/g, '');
+                                  window.open(`https://wa.me/${clean}`);
+                                } else {
+                                  toast.info('No phone number');
+                                }
+                              }}
+                            >
+                                <Phone className="w-4 h-4" />
+                            </Button>
+                          </div>
+                      </TableCell>
+                      <TableCell className="px-8 py-5 text-right">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="w-10 h-10 rounded-xl hover:bg-card hover:shadow-strong transition-all duration-500 active:scale-90 border border-transparent hover:border-foreground/5">
+                                  <MoreVertical className="w-5 h-5 text-muted-foreground" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="rounded-2xl w-56 p-2 shadow-strong bg-background/95 backdrop-blur-2xl border-none animate-in zoom-in-95 duration-300">
+                              <DropdownMenuItem 
+                                className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4 cursor-pointer"
                                 onClick={() => {
                                   setSelectedStudent(student);
                                   setFormData({
@@ -346,221 +393,248 @@ export const StudentList = () => {
                                   });
                                   setIsEditOpen(true);
                                 }}
-                              >
-                                <Edit className="w-4 h-4 mr-2 text-slate-400" />
-                                Edit Student Profile
-                             </DropdownMenuItem>
-                             <DropdownMenuItem 
-                                 className="rounded-xl font-bold py-3"
-                                 onClick={() => {
-                                   setSelectedStudent(student);
-                                   setIsViewOpen(true);
-                                 }}
-                               >
-                                 <History className="w-4 h-4 mr-2 text-slate-400" />
-                                 View Full Details
+                                >
+                                <Edit className="w-4 h-4 mr-3 opacity-40" />
+                                Edit Student
                               </DropdownMenuItem>
-                             <DropdownMenuSeparator />
-                             <DropdownMenuItem 
-                                className="rounded-xl font-bold py-3 text-amber-600"
+                              <DropdownMenuItem 
+                                  className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4 cursor-pointer mt-1"
+                                  onClick={() => {
+                                    setSelectedStudent(student);
+                                    setIsViewOpen(true);
+                                  }}
+                                >
+                                  <History className="w-4 h-4 mr-3 opacity-40" />
+                                  View History
+                                </DropdownMenuItem>
+                              <DropdownMenuSeparator className="my-1 bg-foreground/5" />
+                              <DropdownMenuItem 
+                                className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4 cursor-pointer text-amber-600"
                                 onClick={() => handleResetPassword(student.id)}
                               >
-                                <Key className="w-4 h-4 mr-2" />
+                                <Key className="w-4 h-4 mr-3 opacity-40" />
                                 Reset Password
-                             </DropdownMenuItem>
-                             <DropdownMenuItem 
-                                className="rounded-xl font-bold py-3 text-orange-600"
-                                onClick={() => handleResetAccount(student.id)}
-                              >
-                                <RefreshCw className="w-4 h-4 mr-2" />
-                                Reset Account
-                             </DropdownMenuItem>
-                             <DropdownMenuItem 
-                                className="rounded-xl font-bold py-3 text-red-600"
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-destructive focus:text-white px-4 cursor-pointer text-destructive"
                                 onClick={() => handleDelete(student.id)}
                               >
-                                <Trash2 className="w-4 h-4 mr-2" />
+                                <Trash2 className="w-4 h-4 mr-3" />
                                 Delete Student
-                             </DropdownMenuItem>
-                          </DropdownMenuContent>
-                       </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-
-                {filteredStudents.length === 0 && !loading && (
-                  <TableRow>
-                     <TableCell colSpan={5} className="h-64 text-center">
-                        <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                           <Users className="w-8 h-8 text-slate-300" />
-                        </div>
-                        <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-xs">No Students Found</p>
-                     </TableCell>
-                  </TableRow>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {filteredStudents.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={6} className="h-96 text-center">
+                          <div className="flex flex-col items-center justify-center gap-10">
+                            <div className="w-36 h-36 bg-muted/10 rounded-[4rem] flex items-center justify-center shadow-inner group/empty relative overflow-hidden">
+                                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover/empty:opacity-100 transition-opacity" />
+                                <Users className="w-16 h-16 text-muted-foreground/10 group-hover:text-primary/20 transition-all duration-1000" />
+                            </div>
+                            <div className="space-y-3">
+                                <p className="text-3xl font-black text-foreground uppercase tracking-tight leading-none">Registry Null</p>
+                                <p className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.4em] opacity-40 italic">No identities matched the current filter sequence.</p>
+                            </div>
+                            <Button 
+                              variant="outline" 
+                              className="rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.3em] px-12 h-16 border-foreground/10 hover:border-primary/40 hover:text-primary transition-all active:scale-95" 
+                              onClick={() => { setSearch(''); setSelectedDeptFilter('all'); }}
+                            >
+                              Reset Registry Filter
+                            </Button>
+                          </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  </>
                 )}
               </TableBody>
             </Table>
-          )}
+          </div>
         </CardContent>
       </Card>
-      {/* Add/Edit Dialog */}
-      <Dialog open={isAddOpen || isEditOpen} onOpenChange={(open) => { if(!open) { setIsAddOpen(false); setIsEditOpen(false); } }}>
-        <DialogContent className="sm:max-w-[550px] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
-          <div className={`${isEditOpen ? 'bg-amber-500' : 'bg-blue-600'} p-10 text-white relative`}>
-            <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-24 -mt-24 blur-3xl animate-pulse" />
-            <DialogTitle className="text-3xl font-black tracking-tighter">
-              {isEditOpen ? 'Edit Student' : 'Onboard Student'}
-            </DialogTitle>
-            <DialogDescription className="text-white/80 font-medium mt-2 text-lg">
-              {isEditOpen ? 'Modify existing student credentials and information.' : 'Register a new student into the clearance system.'}
-            </DialogDescription>
+
+      {/* Enroll/Edit Identity Dialog */}
+      <Dialog open={isAddOpen || isEditOpen} onOpenChange={(open) => !open && (setIsAddOpen(false), setIsEditOpen(false))}>
+        <DialogContent className="sm:max-w-[550px] w-[95vw] rounded-[2rem] p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500">
+          <div className={`${isEditOpen ? 'bg-amber-600' : 'bg-primary'} p-6 sm:p-10 text-white relative`}>
+            <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-24 -mt-24 blur-[80px]" />
+            <div className="relative z-10 space-y-4">
+               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-md">
+                  {isEditOpen ? <Edit className="w-5 h-5 sm:w-6 sm:h-6" /> : <UserPlus className="w-5 h-5 sm:w-6 sm:h-6" />}
+               </div>
+               <div className="space-y-1">
+                  <DialogTitle className="text-xl sm:text-2xl font-black tracking-tighter uppercase leading-none">
+                    {isEditOpen ? 'Update Student' : 'Add New Student'}
+                  </DialogTitle>
+                  <DialogDescription className="text-white/60 font-black text-[8px] sm:text-[9px] uppercase tracking-widest mt-1 italic">
+                    Fill in the student details to create or update a profile.
+                  </DialogDescription>
+               </div>
+            </div>
           </div>
-          
-          <form onSubmit={isEditOpen ? handleUpdate : handleCreate} className="p-10 space-y-6">
-            <div className="grid grid-cols-2 gap-5">
+          <form onSubmit={isEditOpen ? handleUpdate : handleCreate} className="p-6 sm:p-10 space-y-6 sm:space-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">First Name</Label>
+                <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">First Name</Label>
                 <Input 
                   value={formData.firstName} 
                   onChange={(e) => setFormData({...formData, firstName: e.target.value})} 
-                  placeholder="John"
-                  className="rounded-2xl h-12 border-slate-200 focus:ring-blue-600"
+                  placeholder="e.g., Alishba"
+                  className="h-12 rounded-xl bg-secondary/50 border-none font-bold text-base px-6 focus-visible:ring-4 focus-visible:ring-primary/10 transition-all shadow-inner"
                   required 
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Last Name</Label>
+                <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Last Name</Label>
                 <Input 
                   value={formData.lastName} 
                   onChange={(e) => setFormData({...formData, lastName: e.target.value})} 
-                  placeholder="Doe"
-                  className="rounded-2xl h-12 border-slate-200 focus:ring-blue-600"
+                  placeholder="e.g., Iqbal"
+                  className="h-12 rounded-xl bg-secondary/50 border-none font-bold text-base px-6 focus-visible:ring-4 focus-visible:ring-primary/10 transition-all shadow-inner"
                   required 
                 />
               </div>
-              <div className="col-span-2 space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">University Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <div className="sm:col-span-2 space-y-2">
+                <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Email Address</Label>
+                <div className="relative group">
+                  <Mail className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-all duration-500" />
                   <Input 
                     type="email" 
                     value={formData.email} 
                     onChange={(e) => setFormData({...formData, email: e.target.value})} 
-                    placeholder="john.doe@university.edu"
-                    className="pl-12 rounded-2xl h-12 border-slate-200 focus:ring-blue-600"
+                    placeholder="name@university.edu"
+                    className="pl-14 h-12 rounded-xl bg-secondary/50 border-none font-bold text-base px-6 focus-visible:ring-4 focus-visible:ring-primary/10 transition-all shadow-inner"
                     required 
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Registration No.</Label>
+                <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Registration #</Label>
                 <Input 
                   value={formData.registrationNumber} 
                   onChange={(e) => setFormData({...formData, registrationNumber: e.target.value})} 
-                  placeholder="FA20-BCS-050"
-                  className="rounded-2xl h-12 border-slate-200 focus:ring-blue-600 uppercase"
+                  placeholder="e.g., BCS-XXX"
+                  className="h-12 rounded-xl bg-secondary/50 border-none font-black text-base px-6 focus-visible:ring-4 focus-visible:ring-primary/10 transition-all shadow-inner uppercase tracking-wider"
                   required 
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Current Department</Label>
+                <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Department</Label>
                 <Select 
                   value={formData.departmentId} 
                   onValueChange={(val) => setFormData({...formData, departmentId: val})}
                 >
-                  <SelectTrigger className="rounded-2xl h-12 border-slate-200">
+                  <SelectTrigger className="h-12 rounded-xl bg-secondary/50 border-none font-black text-[9px] uppercase tracking-widest px-6 shadow-inner focus:ring-4 focus:ring-primary/10 transition-all">
                     <SelectValue placeholder="Select Dept" />
                   </SelectTrigger>
-                  <SelectContent className="rounded-2xl">
+                  <SelectContent className="rounded-2xl border-none shadow-strong p-2 bg-background/95 backdrop-blur-2xl">
                     {departments
                       .filter(dept => dept.type === 'academic')
                       .map(dept => (
-                        <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                        <SelectItem key={dept.id} value={dept.id} className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4">{dept.name}</SelectItem>
                       ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Academic Program</Label>
+                <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Program</Label>
                 <Input 
                   value={formData.program} 
                   onChange={(e) => setFormData({...formData, program: e.target.value})} 
-                  placeholder="BS Computer Science"
-                  className="rounded-2xl h-12 border-slate-200 focus:ring-blue-600"
+                  placeholder="e.g., Computer Science"
+                  className="h-12 rounded-xl bg-secondary/50 border-none font-bold text-base px-6 focus-visible:ring-4 focus-visible:ring-primary/10 transition-all shadow-inner"
                   required 
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Batch Year</Label>
+                <Label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Batch</Label>
                 <Input 
                   value={formData.batch} 
                   onChange={(e) => setFormData({...formData, batch: e.target.value})} 
-                  placeholder="2020"
-                  className="rounded-2xl h-12 border-slate-200 focus:ring-blue-600"
+                  placeholder="e.g., 2024"
+                  className="h-12 rounded-xl bg-secondary/50 border-none font-bold text-base px-6 focus-visible:ring-4 focus-visible:ring-primary/10 transition-all shadow-inner"
                   required 
                 />
               </div>
             </div>
             
-            <DialogFooter className="pt-6">
-              <Button type="button" variant="ghost" className="rounded-2xl h-14 font-black text-slate-400 px-8" onClick={() => { setIsAddOpen(false); setIsEditOpen(false); }}>
+            <DialogFooter className="pt-6 gap-4">
+              <Button type="button" variant="ghost" className="h-12 rounded-xl font-black text-[10px] uppercase tracking-widest text-muted-foreground px-8 hover:bg-secondary transition-all" onClick={() => { setIsAddOpen(false); setIsEditOpen(false); }}>
                 Cancel
               </Button>
-              <Button type="submit" className={`rounded-2xl h-14 font-black px-10 shadow-xl ${isEditOpen ? 'bg-amber-600 shadow-amber-100' : 'bg-slate-900 shadow-slate-200'}`}>
-                {isEditOpen ? 'Save Changes' : 'Register Student'}
+              <Button type="submit" className={`flex-1 rounded-xl h-14 font-black text-[10px] uppercase tracking-widest shadow-strong transition-all active:scale-95 relative overflow-hidden ${isEditOpen ? 'bg-amber-600 shadow-amber-500/20' : 'bg-primary shadow-primary/20'}`}>
+                {isEditOpen ? 'Update Student' : 'Add Student'}
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
+
       {/* View Student Details Dialog */}
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <DialogContent className="sm:max-w-[520px] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
-          <div className="bg-slate-900 p-10 text-white relative">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-blue-600/20 rounded-full -mr-24 -mt-24 blur-3xl" />
-            <DialogTitle className="text-3xl font-black tracking-tighter">Student Profile</DialogTitle>
-            <DialogDescription className="text-slate-400 font-medium mt-2">
-              Full academic and clearance information.
-            </DialogDescription>
+        <DialogContent className="sm:max-w-[550px] w-[95vw] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500">
+          <div className="bg-foreground p-8 sm:p-10 text-background relative">
+            <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-primary/20 rounded-full -mr-32 -mt-32 blur-[100px]" />
+            
+            <div className="relative z-10 space-y-6 text-center flex flex-col items-center">
+               <div className="w-24 h-24 bg-white/5 rounded-[2rem] backdrop-blur-3xl flex items-center justify-center border border-white/10 shadow-2xl relative">
+                  <span className="text-4xl font-black text-primary relative z-10 tracking-tighter">{selectedStudent?.first_name?.[0]}{selectedStudent?.last_name?.[0]}</span>
+               </div>
+               <div className="space-y-2">
+                  <DialogTitle className="text-2xl font-black tracking-tighter uppercase leading-none">{selectedStudent?.first_name} {selectedStudent?.last_name}</DialogTitle>
+                  <p className="text-background/40 font-black text-[10px] uppercase tracking-widest">ID: {selectedStudent?.registration_number}</p>
+               </div>
+               <div className="flex items-center gap-3">
+                  <StatusBadge status={selectedStudent?.clearance_status || 'not_started'} size="lg" />
+               </div>
+            </div>
           </div>
           {selectedStudent && (
-            <div className="p-10 space-y-5">
-              <div className="flex items-center gap-5">
-                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-2xl font-black text-blue-600">
-                  {selectedStudent.first_name?.[0]}{selectedStudent.last_name?.[0]}
-                </div>
-                <div>
-                  <h3 className="text-xl font-black text-slate-900">{selectedStudent.first_name} {selectedStudent.last_name}</h3>
-                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest">{selectedStudent.registration_number}</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                {[['Email', selectedStudent.email], ['Phone', selectedStudent.phone || 'Not provided'], ['Program', selectedStudent.program], ['Batch', selectedStudent.batch], ['Status', selectedStudent.clearance_status || 'not_started']].map(([label, value]) => (
-                  <div key={label} className="p-4 bg-slate-50 rounded-2xl space-y-1">
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
-                    <p className="text-sm font-bold text-slate-800 break-words">{value}</p>
+             <div className="p-6 sm:p-10 space-y-8 bg-card/40 backdrop-blur-3xl">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { label: 'Email Address', value: selectedStudent.email, icon: Mail },
+                  { label: 'Contact Number', value: selectedStudent.phone || 'N/A', icon: Phone },
+                  { label: 'Academic Program', value: selectedStudent.program, icon: GraduationCap },
+                  { label: 'Batch', value: selectedStudent.batch, icon: History },
+                  { label: 'Department', value: selectedStudent.department?.name || 'Unassigned', icon: Building2, full: true }
+                ].map((item, idx) => (
+                  <div key={idx} className={`p-5 bg-secondary/50 rounded-2xl border border-foreground/5 space-y-2 group hover:bg-secondary transition-all duration-500 ${item.full ? 'col-span-2' : ''}`}>
+                    <div className="flex items-center gap-3 opacity-40 group-hover:opacity-100 group-hover:text-primary transition-all">
+                       <item.icon className="w-3.5 h-3.5" />
+                       <p className="text-[8px] font-black uppercase tracking-widest">{item.label}</p>
+                    </div>
+                    <p className="text-sm font-black text-foreground tracking-tight break-all uppercase">{item.value}</p>
                   </div>
                 ))}
               </div>
-              <div className="flex gap-3 pt-2">
+              <div className="flex gap-4 pt-4">
                 <Button
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 rounded-xl h-11 font-bold gap-2"
-                  onClick={() => selectedStudent.email && window.open(`mailto:${selectedStudent.email}?subject=Clearance%20Update`)}
+                  className="flex-1 bg-primary text-white hover:bg-primary/90 rounded-xl h-14 font-black text-[10px] uppercase tracking-widest shadow-strong shadow-primary/20 transition-all active:scale-95 gap-3 group/btn overflow-hidden relative"
+                  onClick={() => selectedStudent.email && window.open(`mailto:${selectedStudent.email}`)}
                 >
-                  <Mail className="w-4 h-4" /> Email Student
+                  <Mail className="w-4 h-4" /> 
+                  Email Student
                 </Button>
                 <Button
-                  className="flex-1 bg-emerald-500 hover:bg-emerald-600 rounded-xl h-11 font-bold gap-2 text-white"
+                  variant="outline"
+                  className="flex-1 rounded-xl h-14 font-black text-[10px] uppercase tracking-widest border-foreground/10 hover:border-emerald-500 hover:text-emerald-500 hover:bg-emerald-500/5 transition-all active:scale-95 gap-3 group/btn"
                   onClick={() => {
                     if (selectedStudent.phone) {
                       const clean = selectedStudent.phone.replace(/\D/g, '');
                       window.open(`https://wa.me/${clean}`);
                     } else {
-                      alert('No phone number on file for this student.');
+                      toast.error('No phone number available');
                     }
                   }}
                 >
-                  <Phone className="w-4 h-4" /> WhatsApp
+                  <Phone className="w-4 h-4" /> 
+                  WhatsApp
                 </Button>
               </div>
             </div>

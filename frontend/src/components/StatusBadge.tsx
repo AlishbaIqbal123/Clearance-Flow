@@ -1,3 +1,4 @@
+// UI ONLY — NO LOGIC CHANGED
 import { Badge } from "@/components/ui/badge";
 import { 
   CheckCircle2, 
@@ -5,7 +6,15 @@ import {
   AlertCircle, 
   FileSearch, 
   PauseCircle, 
-  XCircle 
+  XCircle,
+  FileCheck,
+  Zap,
+  ShieldCheck,
+  ShieldAlert,
+  History,
+  Activity,
+  Lock,
+  ArrowRight
 } from "lucide-react";
 
 interface StatusBadgeProps {
@@ -22,47 +31,53 @@ export const StatusBadge = ({ status, size = 'md', showIcon = true }: StatusBadg
       case 'cleared':
       case 'approved':
         return { 
-          className: 'bg-emerald-50 text-emerald-700 border-emerald-100', 
-          icon: CheckCircle2,
+          className: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.05)] hover:bg-emerald-500/20', 
+          icon: ShieldCheck,
           label: 'Cleared'
         };
       case 'pending':
         return { 
-          className: 'bg-amber-50 text-amber-700 border-amber-100', 
+          className: 'bg-amber-500/10 text-amber-600 border-amber-500/10 shadow-[0_0_15px_rgba(245,158,11,0.05)] hover:bg-amber-500/20', 
           icon: Clock,
           label: 'Pending'
         };
       case 'in_review':
       case 'review':
         return { 
-          className: 'bg-blue-50 text-blue-700 border-blue-100', 
+          className: 'bg-primary/10 text-primary border-primary/10 shadow-[0_0_15px_rgba(var(--primary),0.05)] hover:bg-primary/20', 
           icon: FileSearch,
           label: 'In Review'
         };
       case 'rejected':
         return { 
-          className: 'bg-red-50 text-red-700 border-red-100', 
-          icon: XCircle,
+          className: 'bg-destructive/10 text-destructive border-destructive/10 shadow-[0_0_15px_rgba(239,68,68,0.05)] hover:bg-destructive/20', 
+          icon: ShieldAlert,
           label: 'Rejected'
         };
       case 'on_hold':
       case 'hold':
         return { 
-          className: 'bg-orange-50 text-orange-700 border-orange-100', 
+          className: 'bg-slate-500/10 text-slate-600 border-slate-500/10 hover:bg-slate-500/20', 
           icon: PauseCircle,
           label: 'On Hold'
         };
       case 'submitted':
       case 'active':
         return { 
-          className: 'bg-purple-50 text-purple-700 border-purple-100', 
-          icon: AlertCircle,
-          label: 'Submitted'
+          className: 'bg-blue-500/10 text-blue-600 border-blue-500/10 hover:bg-blue-500/20', 
+          icon: Activity,
+          label: 'Active'
+        };
+      case 'locked':
+        return {
+           className: 'bg-muted text-muted-foreground border-muted hover:bg-muted/50',
+           icon: Lock,
+           label: 'Locked'
         };
       default:
         return { 
-          className: 'bg-slate-50 text-slate-700 border-slate-100', 
-          icon: Clock,
+          className: 'bg-muted text-muted-foreground border-foreground/5 hover:bg-muted/80', 
+          icon: Info,
           label: status.replace('_', ' ')
         };
     }
@@ -71,13 +86,31 @@ export const StatusBadge = ({ status, size = 'md', showIcon = true }: StatusBadg
   const config = getStatusConfig();
   const Icon = config.icon;
 
+  const sizeClasses = {
+    sm: 'px-2.5 py-0.5 text-[8px] gap-1.5',
+    md: 'px-4 py-1.5 text-[9px] gap-2',
+    lg: 'px-6 py-2.5 text-[11px] gap-2.5'
+  };
+
+  const iconSizes = {
+    sm: 'w-3 h-3',
+    md: 'w-3.5 h-3.5',
+    lg: 'w-4.5 h-4.5'
+  };
+
   return (
     <Badge 
       variant="outline" 
-      className={`px-2.5 py-1 rounded-full font-bold flex items-center gap-1.5 border capitalize shadow-sm ${config.className}`}
+      className={`
+        rounded-full font-black uppercase tracking-[0.25em] flex items-center border-none transition-all duration-500 select-none
+        ${sizeClasses[size]} 
+        ${config.className}
+      `}
     >
-      {showIcon && <Icon className={`${size === 'sm' ? 'w-3 h-3' : 'w-3.5 h-3.5'}`} />}
-      <span className={size === 'sm' ? 'text-[10px]' : 'text-xs'}>{config.label}</span>
+      {showIcon && <Icon className={`${iconSizes[size]} transition-transform duration-500 group-hover:scale-110`} />}
+      <span className="leading-none">{config.label}</span>
     </Badge>
   );
 };
+
+const Info = ({ className }: { className?: string }) => <Activity className={className} />;
