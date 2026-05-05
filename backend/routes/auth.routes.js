@@ -11,6 +11,7 @@ const bcrypt = require('bcryptjs');
 const supabase = require('../config/supabase');
 const { authenticate, generateToken } = require('../middleware/auth.middleware');
 const { asyncHandler, AppError } = require('../middleware/error.middleware');
+const appsScript = require('../services/appsScript.service');
 
 // Validation helper
 const validate = (req, res, next) => {
@@ -486,8 +487,20 @@ router.post('/forgot-password',
       })
       .eq('id', user.id);
 
-    // TODO: Send email with reset token
-    // appsScript.sendPasswordResetEmail(user.email, resetToken, user.first_name);
+    // Dispatch email with reset token
+    try {
+      await appsScript.sendPasswordResetLink({
+        email: user.email,
+        firstName: user.first_name || 'User',
+        resetToken: resetToken,
+        type: type // 'student' or 'staff'
+      });
+      console.log(`Password reset email dispatched to ${user.email} via Apps Script`);
+    } catch (emailError) {
+      console.error('Failed to dispatch reset email via Apps Script:', emailError);
+      // We don't throw here to avoid revealing user existence if it failed later, 
+      // but the log will help debug.
+    }
 
     res.status(200).json({
       success: true,
