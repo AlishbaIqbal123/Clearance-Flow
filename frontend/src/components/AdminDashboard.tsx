@@ -57,6 +57,14 @@ import { toast } from 'sonner';
 import { adminService } from '@/lib/admin.service';
 import { StatusBadge } from './StatusBadge';
 import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { 
   BarChart, 
   Bar, 
   XAxis, 
@@ -72,21 +80,21 @@ import {
 const AdminBentoCard = ({ title, value, icon: Icon, color, trend, trendUp, onClick, description }: { title: string; value: any; icon: any; color: string; trend?: string; trendUp?: boolean; onClick?: () => void; description?: string }) => (
   <button 
     className={`
-      flex flex-col justify-between p-8 rounded-3xl bg-card/40 backdrop-blur-3xl border border-foreground/5 shadow-soft overflow-hidden group relative transition-all duration-700 text-left
+      flex flex-col justify-between p-5 rounded-2xl bg-card/40 backdrop-blur-3xl border border-foreground/5 shadow-soft overflow-hidden group relative transition-all duration-700 text-left
       ${onClick ? 'cursor-pointer hover:shadow-strong hover:bg-card hover:-translate-y-1' : ''}
     `}
     onClick={onClick}
   >
-    <div className={`absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 rounded-full ${color} opacity-[0.08] group-hover:opacity-[0.15] transition-opacity blur-3xl`} />
-    <div className="flex items-center justify-between relative z-10 w-full mb-6">
-      <div className={`w-12 h-12 rounded-xl ${color} bg-opacity-10 flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-soft shadow-inner`}>
-        <Icon className={`w-6 h-6 ${color.replace('bg-', 'text-')}`} />
+    <div className={`absolute top-0 right-0 w-20 h-20 -mr-8 -mt-8 rounded-full ${color} opacity-[0.08] group-hover:opacity-[0.15] transition-opacity blur-3xl`} />
+    <div className="flex items-center justify-between relative z-10 w-full mb-4">
+      <div className={`w-10 h-10 rounded-xl ${color} bg-opacity-10 flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-soft shadow-inner`}>
+        <Icon className={`w-5 h-5 ${color.replace('bg-', 'text-')}`} />
       </div>
       {onClick && <ArrowUpRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-500" />}
     </div>
     <div className="space-y-1 relative z-10">
       <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none opacity-50">{title}</p>
-      <h3 className="text-2xl font-black text-foreground mt-2 tracking-tighter uppercase leading-none">{value}</h3>
+      <h3 className="text-lg font-black text-foreground mt-1.5 tracking-tighter uppercase leading-none">{value}</h3>
       <div className="flex items-center justify-between mt-3">
         <p className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-widest">{description || 'Total Count'}</p>
         {trend && (
@@ -156,26 +164,26 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-10 duration-1000">
       {/* Premium Dashboard Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 relative overflow-hidden p-6 sm:p-10 lg:p-14 rounded-[3rem] sm:rounded-[4rem] bg-foreground group">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 relative overflow-hidden p-5 sm:p-8 lg:p-10 rounded-[2rem] sm:rounded-[2.5rem] bg-foreground group">
         <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[20%] -mt-[10%] blur-[120px] group-hover:scale-110 transition-transform duration-1000" />
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/10 rounded-full -ml-16 -mb-16 blur-[60px]" />
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/10 rounded-full -ml-12 -mb-12 blur-[60px]" />
         
-        <div className="space-y-8 relative z-10 max-w-3xl">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-6">
-             <div className="w-20 h-20 bg-primary/20 rounded-[2rem] flex items-center justify-center text-primary backdrop-blur-xl border border-white/5 shadow-2xl group-hover:rotate-6 transition-all duration-700 shrink-0">
-                <Database className="w-10 h-10" />
+        <div className="space-y-6 relative z-10 max-w-3xl">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-5">
+             <div className="w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center text-primary backdrop-blur-xl border border-white/5 shadow-2xl group-hover:rotate-6 transition-all duration-700 shrink-0">
+                <Database className="w-7 h-7" />
              </div>
-             <div className="space-y-2">
+             <div className="space-y-1.5">
                 <div className="flex items-center gap-3">
-                   <Badge className="bg-primary/20 text-primary border-none font-black text-[10px] uppercase tracking-[0.4em] px-5 py-1.5 rounded-full backdrop-blur-md">Admin Section</Badge>
-                   <span className="flex gap-1.5">
-                      {[1,2,3].map(i => <div key={i} className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" style={{ animationDelay: `${i*0.2}s` }} />)}
+                   <Badge className="bg-primary/20 text-primary border-none font-black text-[9px] uppercase tracking-[0.4em] px-4 py-1 rounded-full backdrop-blur-md">Admin Section</Badge>
+                   <span className="flex gap-1">
+                      {[1,2,3].map(i => <div key={i} className="w-1 h-1 bg-primary rounded-full animate-pulse" style={{ animationDelay: `${i*0.2}s` }} />)}
                    </span>
                 </div>
-                <h1 className="text-3xl sm:text-4xl lg:text-6xl font-black text-background tracking-tighter uppercase leading-[0.9]">Admin Dashboard</h1>
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-background tracking-tighter uppercase leading-[0.9]">Admin Dashboard</h1>
              </div>
           </div>
-          <p className="text-lg lg:text-xl text-background/40 font-medium leading-relaxed max-w-2xl italic">
+          <p className="text-sm lg:text-base text-background/40 font-medium leading-relaxed max-w-2xl italic">
              Central management for student clearance, department records, and staff access across the university.
           </p>
         </div>
@@ -209,9 +217,9 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
            </Button>
            <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button className="rounded-2xl bg-primary text-white hover:bg-primary/90 h-16 px-10 font-black text-[11px] uppercase tracking-widest shadow-strong shadow-primary/30 flex items-center gap-4 active:scale-95 transition-all group/btn overflow-hidden relative">
+                <Button className="rounded-2xl bg-primary text-white hover:bg-primary/90 h-12 px-8 font-black text-[10px] uppercase tracking-widest shadow-strong shadow-primary/30 flex items-center gap-3 active:scale-95 transition-all group/btn overflow-hidden relative">
                   <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
-                  <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-700" />
+                  <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform duration-700" />
                   <span className="hidden sm:inline">Add New</span>
                   <span className="sm:hidden">Add</span>
                 </Button>
@@ -278,17 +286,17 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
         
         {/* Analytics Throughput Card */}
         <Card className="lg:col-span-2 border-none shadow-strong rounded-[2rem] sm:rounded-[4rem] bg-card/60 backdrop-blur-3xl overflow-hidden group">
-          <CardHeader className="p-6 sm:p-12 pb-10 border-b border-foreground/5 relative overflow-hidden">
+          <CardHeader className="p-5 sm:p-8 pb-5 border-b border-foreground/5 relative overflow-hidden">
              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-[80px]" />
-             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-8 relative z-10">
-               <div className="space-y-3">
-                <div className="flex items-center gap-4">
-                   <div className="p-3 bg-primary/10 rounded-2xl">
-                      <BarChart3 className="w-7 h-7 text-primary" />
+             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10">
+               <div className="space-y-1.5">
+                <div className="flex items-center gap-3">
+                   <div className="p-2.5 bg-primary/10 rounded-xl">
+                      <BarChart3 className="w-6 h-6 text-primary" />
                    </div>
-                   <CardTitle className="text-3xl font-black tracking-tighter uppercase leading-none">Clearance Overview</CardTitle>
+                   <CardTitle className="text-xl sm:text-2xl font-black tracking-tighter uppercase leading-none">Clearance Overview</CardTitle>
                 </div>
-                <CardDescription className="text-base text-muted-foreground font-bold uppercase tracking-widest opacity-60">Distribution of all clearance statuses across the system.</CardDescription>
+                <CardDescription className="text-xs text-muted-foreground font-bold uppercase tracking-widest opacity-60">Distribution of all clearance statuses.</CardDescription>
               </div>
               <div className="flex items-center gap-3 bg-background/50 backdrop-blur-xl px-5 py-2.5 rounded-full border border-foreground/5">
                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.5)]" />
@@ -296,8 +304,8 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-6 sm:p-12">
-            <div className="h-[300px] sm:h-[450px] w-full">
+          <CardContent className="p-5 sm:p-8">
+            <div className="h-[250px] sm:h-[350px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="6 6" vertical={false} stroke="hsl(var(--foreground) / 0.03)" />
@@ -350,16 +358,16 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
 
         {/* Bottleneck Command Sidebar */}
         <Card className="border-none shadow-strong rounded-[2rem] bg-card overflow-hidden group">
-          <CardHeader className="p-8 border-b border-foreground/5 bg-primary/5">
+          <CardHeader className="p-6 border-b border-foreground/5 bg-primary/5">
             <div className="flex items-center gap-3 text-destructive">
-               <div className="p-2.5 bg-destructive/10 rounded-xl">
-                  <AlertCircle className="w-5 h-5" />
+               <div className="p-2 bg-destructive/10 rounded-xl">
+                  <AlertCircle className="w-4 h-4" />
                </div>
-               <CardTitle className="text-xl font-black tracking-tighter uppercase leading-none">Pending by<br />Department</CardTitle>
+               <CardTitle className="text-lg font-black tracking-tighter uppercase leading-none">Pending by<br />Department</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="p-8">
-            <div className="space-y-12">
+          <CardContent className="p-6">
+            <div className="space-y-8">
               {(Array.isArray(departmentPendingStats) ? departmentPendingStats : []).slice(0, 6).map((dept: any, index: number) => (
                 <div key={index} className="space-y-4 group cursor-pointer relative">
                   <div className="flex items-center justify-between">
@@ -445,22 +453,22 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
         <Card className="border-none shadow-strong rounded-[2rem] bg-foreground text-background overflow-hidden relative group">
            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/20 rounded-full -mr-48 -mt-48 blur-[100px] group-hover:bg-primary/30 transition-colors duration-1000" />
            
-           <CardContent className="p-10 h-full flex flex-col justify-center items-center text-center space-y-8 relative z-10">
-              <div className="w-24 h-24 bg-background/5 rounded-3xl backdrop-blur-3xl flex items-center justify-center border border-white/10 group-hover:rotate-12 group-hover:scale-110 transition-all duration-1000 shadow-2xl relative">
-                 <Globe className="w-12 h-12 text-primary relative z-10" />
+           <CardContent className="p-8 h-full flex flex-col justify-center items-center text-center space-y-6 relative z-10">
+              <div className="w-20 h-20 bg-background/5 rounded-2xl backdrop-blur-3xl flex items-center justify-center border border-white/10 group-hover:rotate-12 group-hover:scale-110 transition-all duration-1000 shadow-2xl relative">
+                 <Globe className="w-10 h-10 text-primary relative z-10" />
               </div>
-              <div className="space-y-3">
-                 <h3 className="text-3xl font-black tracking-tighter uppercase leading-none">Student<br /><span className="text-primary italic">List</span></h3>
-                 <p className="text-background/40 text-sm font-medium max-w-[240px] mx-auto leading-relaxed italic">
+              <div className="space-y-2">
+                 <h3 className="text-2xl font-black tracking-tighter uppercase leading-none">Student<br /><span className="text-primary italic">List</span></h3>
+                 <p className="text-background/40 text-[10px] font-medium max-w-[200px] mx-auto leading-relaxed italic">
                    Manage all student records and clearance progress.
                  </p>
               </div>
               <Button 
-               className="rounded-2xl h-16 bg-primary hover:bg-primary/90 text-white font-black text-[11px] uppercase tracking-widest px-10 shadow-strong group/cta active:scale-95 transition-all relative overflow-hidden"
+               className="rounded-xl h-12 bg-primary hover:bg-primary/90 text-white font-black text-[10px] uppercase tracking-widest px-8 shadow-strong group/cta active:scale-95 transition-all relative overflow-hidden"
                onClick={() => onNavigate('students')}
               >
                  <span>View Students</span>
-                 <ArrowRight className="ml-3 w-4 h-4 group-hover/cta:translate-x-2 transition-transform" />
+                 <ArrowRight className="ml-2 w-3.5 h-3.5 group-hover/cta:translate-x-2 transition-transform" />
               </Button>
            </CardContent>
         </Card>
@@ -468,15 +476,15 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
 
       {/* Recent Activity Section */}
       <Card className="border-none shadow-strong rounded-[2rem] bg-card/60 backdrop-blur-3xl overflow-hidden">
-        <CardHeader className="p-8 pb-6 flex flex-col lg:flex-row lg:items-center justify-between border-b border-foreground/5 gap-6">
+        <CardHeader className="p-6 pb-4 flex flex-col lg:flex-row lg:items-center justify-between border-b border-foreground/5 gap-6">
           <div className="space-y-1">
             <div className="flex items-center gap-3 text-primary">
-               <div className="p-2 bg-primary/10 rounded-xl">
-                  <Activity className="w-5 h-5" />
+               <div className="p-1.5 bg-primary/10 rounded-lg">
+                  <Activity className="w-4 h-4" />
                </div>
-               <CardTitle className="text-2xl font-black tracking-tighter uppercase leading-none">Recent Activity</CardTitle>
+               <CardTitle className="text-xl font-black tracking-tighter uppercase leading-none">Recent Activity</CardTitle>
             </div>
-            <CardDescription className="text-sm text-muted-foreground font-bold uppercase tracking-widest opacity-60">Latest clearance requests across campus.</CardDescription>
+            <CardDescription className="text-xs text-muted-foreground font-bold uppercase tracking-widest opacity-60">Latest clearance requests across campus.</CardDescription>
           </div>
           <div className="flex flex-wrap gap-4">
              <div className="relative group">
@@ -604,73 +612,73 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
       </Card>
       {/* Premium Audit Master Console Dialog */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="sm:max-w-[750px] w-[95vw] max-h-[90vh] rounded-[2rem] sm:rounded-[3rem] p-0 overflow-y-auto overflow-x-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 custom-scrollbar">
-          <div className="bg-foreground p-6 sm:p-10 text-background relative overflow-hidden">
+        <DialogContent className="sm:max-w-[650px] w-[95vw] max-h-[90vh] rounded-[2rem] p-0 overflow-y-auto overflow-x-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 custom-scrollbar">
+          <div className="bg-foreground p-5 sm:p-8 text-background relative overflow-hidden border-b border-white/5">
             <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/20 rounded-full -mr-48 -mt-48 blur-[100px] pointer-events-none" />
             
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-12">
-              <div className="space-y-6">
-                 <div className="flex items-center gap-5">
-                    <div className="w-16 h-16 bg-primary/20 rounded-[1.75rem] flex items-center justify-center text-primary backdrop-blur-xl border border-white/5">
-                       <ShieldCheck className="w-9 h-9" />
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+              <div className="space-y-4">
+                 <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center text-primary backdrop-blur-xl border border-white/5">
+                       <ShieldCheck className="w-6 h-6" />
                     </div>
-                    <div className="space-y-1">
-                       <Badge className="bg-primary text-white border-none rounded-full px-5 py-1.5 text-[10px] font-black uppercase tracking-[0.4em]">Request Type</Badge>
-                       <p className="text-[10px] font-black text-background/30 uppercase tracking-[0.5em]">{selectedRequest?.request_type?.replace('_', ' ')}</p>
+                    <div className="space-y-0.5">
+                       <Badge className="bg-primary text-white border-none rounded-full px-4 py-1 text-[8px] font-black uppercase tracking-[0.4em]">Audit Request</Badge>
+                       <p className="text-[9px] font-black text-background/30 uppercase tracking-[0.5em]">{selectedRequest?.request_type?.replace('_', ' ')}</p>
                     </div>
                  </div>
-                 <DialogTitle className="text-3xl lg:text-4xl font-black tracking-tighter uppercase leading-none">{selectedRequest?.request_id}</DialogTitle>
+                 <DialogTitle className="text-xl sm:text-2xl font-black tracking-tighter uppercase leading-none">{selectedRequest?.request_id}</DialogTitle>
               </div>
-              <div className="text-left sm:text-right space-y-2 sm:space-y-4">
-                 <p className="text-[9px] sm:text-[11px] font-black text-background/30 uppercase tracking-[0.5em]">Overall Status</p>
+              <div className="text-left sm:text-right space-y-2">
+                 <p className="text-[8px] sm:text-[10px] font-black text-background/30 uppercase tracking-[0.5em]">Overall Status</p>
                  {selectedRequest && <StatusBadge status={selectedRequest.status} size="lg" />}
               </div>
             </div>
           </div>
           
-          <div className="p-6 sm:p-10 space-y-8 bg-card/40 backdrop-blur-3xl">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-              <div className="space-y-4 sm:space-y-6 p-5 sm:p-8 bg-secondary/50 rounded-[2rem] sm:rounded-[2.5rem] border border-foreground/5 group hover:bg-secondary transition-all duration-700">
-                <div className="flex items-center gap-4 sm:gap-5">
-                   <div className="p-3 sm:p-4 bg-primary/10 rounded-xl sm:rounded-2xl group-hover:rotate-12 transition-transform duration-700">
-                      <Users className="w-5 h-5 sm:w-7 sm:h-7 text-primary" />
+          <div className="p-5 sm:p-8 space-y-6 bg-card/40 backdrop-blur-3xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              <div className="space-y-4 p-5 sm:p-6 bg-secondary/50 rounded-2xl sm:rounded-3xl border border-foreground/5 group hover:bg-secondary transition-all duration-700">
+                <div className="flex items-center gap-4">
+                   <div className="p-3 bg-primary/10 rounded-xl group-hover:rotate-12 transition-transform duration-700">
+                      <Users className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                    </div>
-                   <div className="space-y-1">
-                      <p className="text-[9px] sm:text-[11px] font-black uppercase text-muted-foreground tracking-[0.4em]">Primary Identity</p>
+                   <div className="space-y-0.5">
+                      <p className="text-[9px] sm:text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Primary Identity</p>
                    </div>
                 </div>
-                <div className="space-y-3 sm:space-y-4 pl-4 border-l-4 border-primary/20">
-                   <p className="text-xl sm:text-2xl font-black text-foreground leading-none tracking-tight uppercase">{selectedRequest?.student?.first_name} {selectedRequest?.student?.last_name}</p>
-                   <p className="text-[10px] sm:text-[12px] font-black text-muted-foreground uppercase tracking-[0.4em] opacity-60">{selectedRequest?.student?.registration_number}</p>
+                <div className="space-y-2.5 pl-4 border-l-4 border-primary/20">
+                   <p className="text-lg sm:text-xl font-black text-foreground leading-none tracking-tight uppercase">{selectedRequest?.student?.first_name} {selectedRequest?.student?.last_name}</p>
+                   <p className="text-[9px] sm:text-[11px] font-black text-muted-foreground uppercase tracking-[0.4em] opacity-60">{selectedRequest?.student?.registration_number}</p>
                 </div>
               </div>
               
-              <div className="space-y-6 p-8 bg-secondary/50 rounded-[2.5rem] border border-foreground/5 group hover:bg-secondary transition-all duration-700">
-                <div className="flex items-center gap-5">
-                   <div className="p-4 bg-primary/10 rounded-2xl group-hover:scale-110 transition-transform duration-700">
-                      <Activity className="w-7 h-7 text-primary" />
+              <div className="space-y-4 p-6 bg-secondary/50 rounded-3xl border border-foreground/5 group hover:bg-secondary transition-all duration-700">
+                <div className="flex items-center gap-4">
+                   <div className="p-3.5 bg-primary/10 rounded-xl group-hover:scale-110 transition-transform duration-700">
+                      <Activity className="w-6 h-6 text-primary" />
                    </div>
-                   <div className="space-y-1">
-                      <p className="text-[11px] font-black uppercase text-muted-foreground tracking-[0.4em]">Timeline</p>
+                   <div className="space-y-0.5">
+                      <p className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Timeline</p>
                    </div>
                 </div>
-                <div className="flex items-center justify-between p-6 bg-card rounded-2xl border border-foreground/5 shadow-soft">
-                   <span className="text-[11px] font-black text-muted-foreground uppercase tracking-widest">Initialized</span>
-                   <span className="text-sm font-black uppercase">{selectedRequest && new Date(selectedRequest.created_at).toLocaleDateString()}</span>
+                <div className="flex items-center justify-between p-4 bg-card rounded-xl border border-foreground/5 shadow-soft">
+                   <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Initialized</span>
+                   <span className="text-xs font-black uppercase">{selectedRequest && new Date(selectedRequest.created_at).toLocaleDateString()}</span>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-6 pt-4">
-               <h4 className="text-xl font-black text-foreground tracking-tight uppercase">Department Verifications</h4>
-               <div className="grid grid-cols-1 gap-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="space-y-4 pt-2">
+               <h4 className="text-lg font-black text-foreground tracking-tight uppercase">Department Pulse</h4>
+               <div className="grid grid-cols-1 gap-3 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
                  {(selectedRequest?.clearance_status || []).map((cs: any) => (
-                   <div key={cs.id} className="flex items-center justify-between p-6 bg-secondary/50 rounded-[1.5rem] border border-foreground/5">
-                     <div className="flex items-center gap-5">
-                       <div className="w-12 h-12 rounded-xl bg-card border border-foreground/5 flex items-center justify-center text-primary font-black text-xs">
+                   <div key={cs.id} className="flex items-center justify-between p-4 bg-secondary/50 rounded-2xl border border-foreground/5">
+                     <div className="flex items-center gap-4">
+                       <div className="w-10 h-10 rounded-xl bg-card border border-foreground/5 flex items-center justify-center text-primary font-black text-[10px]">
                          {cs.department?.code}
                        </div>
-                       <p className="text-sm font-black text-foreground uppercase">{cs.department?.name}</p>
+                       <p className="text-xs font-black text-foreground uppercase">{cs.department?.name}</p>
                      </div>
                      <StatusBadge status={cs.status} />
                    </div>
@@ -678,8 +686,8 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                </div>
             </div>
             
-            <div className="pt-6">
-               <Button variant="ghost" className="h-14 rounded-xl px-8 font-black text-[10px] uppercase tracking-[0.4em] text-muted-foreground hover:bg-secondary/80 w-full border border-foreground/5" onClick={() => setIsDetailsOpen(false)}>
+            <div className="pt-4">
+               <Button variant="ghost" className="h-10 rounded-xl px-8 font-black text-[9px] uppercase tracking-[0.4em] text-muted-foreground hover:bg-secondary/80 w-full border border-foreground/5" onClick={() => setIsDetailsOpen(false)}>
                  Close Protocol
                </Button>
             </div>

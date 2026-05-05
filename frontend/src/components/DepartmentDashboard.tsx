@@ -70,22 +70,22 @@ import { StatusBadge } from './StatusBadge';
 const StatCard = ({ title, value, icon: Icon, color, onClick, description }: { title: string; value: any; icon: any; color: string; onClick?: () => void; description?: string }) => (
   <button 
     className={`
-      flex flex-col justify-between p-8 rounded-3xl bg-card/40 backdrop-blur-3xl border border-foreground/5 shadow-soft overflow-hidden group relative transition-all duration-700 text-left
+      flex flex-col justify-between p-5 rounded-2xl bg-card/40 backdrop-blur-3xl border border-foreground/5 shadow-soft overflow-hidden group relative transition-all duration-700 text-left
       ${onClick ? 'cursor-pointer hover:shadow-strong hover:bg-card hover:-translate-y-1' : ''}
     `}
     onClick={onClick}
   >
-    <div className={`absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 rounded-full ${color} opacity-[0.08] group-hover:opacity-[0.15] transition-opacity blur-3xl`} />
-    <div className="flex items-center justify-between relative z-10 w-full mb-6">
-      <div className={`w-12 h-12 rounded-xl ${color} bg-opacity-10 flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-soft shadow-inner`}>
-        <Icon className={`w-6 h-6 ${color.replace('bg-', 'text-')}`} />
+    <div className={`absolute top-0 right-0 w-20 h-20 -mr-8 -mt-8 rounded-full ${color} opacity-[0.08] group-hover:opacity-[0.15] transition-opacity blur-3xl`} />
+    <div className="flex items-center justify-between relative z-10 w-full mb-4">
+      <div className={`w-10 h-10 rounded-xl ${color} bg-opacity-10 flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-soft shadow-inner`}>
+        <Icon className={`w-5 h-5 ${color.replace('bg-', 'text-')}`} />
       </div>
       {onClick && <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-500" />}
     </div>
     <div className="space-y-1 relative z-10">
       <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none opacity-50">{title}</p>
-      <h3 className="text-2xl font-black text-foreground mt-2 tracking-tighter uppercase leading-none">{value}</h3>
-      <p className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-widest mt-3">{description || 'Total Count'}</p>
+      <h3 className="text-lg font-black text-foreground mt-1.5 tracking-tighter uppercase leading-none">{value}</h3>
+      <p className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-widest mt-2">{description || 'Total Count'}</p>
     </div>
   </button>
 );
@@ -165,19 +165,19 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
       {/* Department Hero */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 relative overflow-hidden p-6 sm:p-10 lg:p-12 rounded-[3rem] bg-foreground group">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 relative overflow-hidden p-5 sm:p-8 lg:p-10 rounded-[2rem] bg-foreground group">
         <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[15%] -mt-[5%] blur-3xl group-hover:scale-110 transition-transform duration-1000" />
         
-        <div className="flex flex-col lg:flex-row lg:items-center gap-8 relative z-10 flex-1">
-           <div className="w-20 h-20 bg-card shadow-strong rounded-2xl flex items-center justify-center border border-white/5 relative overflow-hidden shrink-0">
-              <span className="text-3xl lg:text-4xl font-black text-primary relative z-10 tracking-tighter">{department.code || '??'}</span>
+        <div className="flex flex-col lg:flex-row lg:items-center gap-6 relative z-10 flex-1">
+           <div className="w-14 h-14 bg-card shadow-strong rounded-2xl flex items-center justify-center border border-white/5 relative overflow-hidden shrink-0">
+              <span className="text-2xl lg:text-3xl font-black text-primary relative z-10 tracking-tighter">{department.code || '??'}</span>
            </div>
-           <div className="space-y-2">
+           <div className="space-y-1.5">
               <div className="flex items-center gap-3">
                  <Badge className="bg-primary/20 text-primary border-none rounded-full px-4 py-1 text-[9px] font-black uppercase tracking-widest backdrop-blur-md">Active Dashboard</Badge>
               </div>
-              <h2 className="text-3xl lg:text-4xl font-black text-background tracking-tighter leading-none uppercase">{department.name || 'Department'}</h2>
-              <p className="text-base text-background/40 font-medium leading-relaxed max-w-lg italic">
+              <h2 className="text-2xl lg:text-3xl font-black text-background tracking-tighter leading-none uppercase">{department.name || 'Department'}</h2>
+              <p className="text-sm text-background/40 font-medium leading-relaxed max-w-lg italic">
                 Manage clearance requests and verify student records.
               </p>
            </div>
@@ -186,14 +186,14 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
          <div className="flex flex-wrap items-center gap-4 relative z-10 w-full sm:w-auto">
           <Button 
             variant="ghost" 
-            className="flex-1 sm:flex-none rounded-xl h-14 px-6 font-black text-[9px] uppercase tracking-widest text-background/60 hover:text-background hover:bg-white/5 transition-all duration-700 border border-white/5 active:scale-95 backdrop-blur-sm"
+            className="flex-1 sm:flex-none rounded-xl h-12 px-6 font-black text-[9px] uppercase tracking-widest text-background/60 hover:text-background hover:bg-white/5 transition-all duration-700 border border-white/5 active:scale-95 backdrop-blur-sm"
             onClick={() => onNavigate('requests')}
           >
              <History className="w-4 h-4 mr-3 opacity-50" />
              View Requests
           </Button>
           <Button 
-            className="flex-1 sm:flex-none rounded-xl bg-primary text-white hover:bg-primary/90 h-14 px-8 font-black text-[10px] uppercase tracking-widest shadow-strong shadow-primary/30 flex items-center gap-4 active:scale-95 transition-all group/btn overflow-hidden relative"
+            className="flex-1 sm:flex-none rounded-xl bg-primary text-white hover:bg-primary/90 h-12 px-8 font-black text-[10px] uppercase tracking-widest shadow-strong shadow-primary/30 flex items-center gap-4 active:scale-95 transition-all group/btn overflow-hidden relative"
             onClick={() => toast.info('Batch approval started.')}
           >
              <Zap className="w-5 h-5 group-hover:scale-110 transition-transform duration-700" />
@@ -224,13 +224,13 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-all duration-500" />
                     <Input 
                      placeholder="Search Registration #..." 
-                     className="pl-12 h-12 w-full sm:w-[250px] border-none bg-secondary/50 rounded-xl text-sm font-black uppercase tracking-tight placeholder:text-muted-foreground/30 focus-visible:ring-2 focus-visible:ring-primary/20 transition-all shadow-inner"
+                     className="pl-12 h-10 w-full sm:w-[250px] border-none bg-secondary/50 rounded-xl text-[10px] font-black uppercase tracking-tight placeholder:text-muted-foreground/30 focus-visible:ring-2 focus-visible:ring-primary/20 transition-all shadow-inner"
                      value={searchQuery}
                      onChange={(e) => setSearchQuery(e.target.value)}
                     />
                  </div>
                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="h-12 w-full sm:w-44 rounded-xl border-none bg-secondary/50 font-black text-[9px] uppercase tracking-widest px-6 shadow-inner focus:ring-2 focus:ring-primary/20">
+                    <SelectTrigger className="h-10 w-full sm:w-44 rounded-xl border-none bg-secondary/50 font-black text-[9px] uppercase tracking-widest px-6 shadow-inner focus:ring-2 focus:ring-primary/20">
                        <SelectValue placeholder="Status" />
                     </SelectTrigger>
                     <SelectContent className="rounded-2xl border-none shadow-strong p-2 bg-background/95 backdrop-blur-2xl">
@@ -276,25 +276,24 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                       ds.department_id === currentDeptId || ds.department?.id === currentDeptId
                     );
                     
-                    return (
-                      <TableRow key={request.id} className="group hover:bg-muted/10 transition-all duration-500 border-foreground/5 cursor-pointer" onClick={() => {
+                    return (                       <TableRow key={request.id} className="group hover:bg-muted/10 transition-all duration-500 border-foreground/5 cursor-pointer" onClick={() => {
                         setSelectedRequest(request);
                         setRemarks(currentDeptStatus?.remarks || '');
                         setDueAmount(currentDeptStatus?.due_amount || 0);
                         setShowActionDialog(true);
                       }}>
-                        <TableCell className="px-8 py-5">
+                        <TableCell className="px-8 py-3">
                            <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 rounded-xl bg-card shadow-soft border border-foreground/5 flex items-center justify-center font-black text-primary text-sm group-hover:bg-primary group-hover:text-white transition-all duration-700 relative overflow-hidden">
+                              <div className="w-8 h-8 rounded-xl bg-card shadow-soft border border-foreground/5 flex items-center justify-center font-black text-primary text-xs group-hover:bg-primary group-hover:text-white transition-all duration-700 relative overflow-hidden">
                                  <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                                  <span className="relative z-10">{request.student?.first_name?.[0]}</span>
                               </div>
                               <div className="space-y-0.5">
-                                 <h4 className="text-sm font-black text-foreground tracking-tight group-hover:text-primary transition-colors duration-500 uppercase">{request.student?.first_name} {request.student?.last_name}</h4>
-                                 <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest opacity-50">{request.student?.registration_number}</p>
+                                 <h4 className="text-xs font-black text-foreground tracking-tight group-hover:text-primary transition-colors duration-500 uppercase">{request.student?.first_name} {request.student?.last_name}</h4>
+                                 <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest opacity-50">{request.student?.registration_number}</p>
                               </div>
                            </div>
-                        </TableCell>
+                        </TableCell>l>
                         <TableCell>
                            <div className="space-y-1">
                               <p className="text-sm font-black text-foreground flex items-center gap-2 uppercase tracking-tight">
@@ -313,9 +312,9 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                                <span>{new Date(request.created_at).toLocaleDateString()}</span>
                             </div>
                         </TableCell>
-                         <TableCell className="px-8 py-5 text-right">
+                         <TableCell className="px-8 py-3 text-right">
                            <Button 
-                            className="rounded-xl h-12 px-6 font-black text-[10px] uppercase tracking-widest bg-secondary/80 text-foreground hover:bg-primary hover:text-white transition-all duration-700 active:scale-95 border border-foreground/5 hover:border-transparent"
+                            className="rounded-xl h-10 px-6 font-black text-[9px] uppercase tracking-widest bg-secondary/80 text-foreground hover:bg-primary hover:text-white transition-all duration-700 active:scale-95 border border-foreground/5 hover:border-transparent"
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelectedRequest(request);
@@ -366,32 +365,32 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
         <DialogContent className="sm:max-w-[650px] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 max-h-[90vh] overflow-y-auto custom-scrollbar">
           {selectedRequest && (
             <>
-              <div className="bg-card p-6 sm:p-10 text-foreground relative border-b border-foreground/5">
+              <div className="bg-card p-5 sm:p-8 text-foreground relative border-b border-foreground/5">
                  <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-primary/10 rounded-full -mr-32 -mt-32 blur-[100px]" />
                  
-                 <div className="relative z-10 space-y-6">
+                 <div className="relative z-10 space-y-4">
                     <div className="flex items-center justify-between">                        <div className="flex items-center gap-4">
-                          <Badge className="bg-primary/10 text-primary border-none rounded-full px-4 py-1.5 text-[9px] font-black uppercase tracking-widest backdrop-blur-xl">Request Review</Badge>
-                          <span className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-widest">ID: {selectedRequest.id.substring(0, 8)}</span>
+                          <Badge className="bg-primary/10 text-primary border-none rounded-full px-4 py-1 text-[8px] font-black uppercase tracking-widest backdrop-blur-xl">Request Review</Badge>
+                          <span className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-widest">ID: {selectedRequest.id.substring(0, 8)}</span>
                        </div>
-                       <Button variant="ghost" size="icon" className="text-muted-foreground/40 hover:text-foreground hover:bg-muted rounded-xl w-10 h-10 transition-all" onClick={() => setShowActionDialog(false)}>
-                          <X className="w-5 h-5" />
+                       <Button variant="ghost" size="icon" className="text-muted-foreground/40 hover:text-foreground hover:bg-muted rounded-xl w-8 h-8 transition-all" onClick={() => setShowActionDialog(false)}>
+                          <X className="w-4 h-4" />
                        </Button>
                     </div>
-                    <div className="space-y-1">
-                       <h3 className="text-3xl font-black tracking-tighter uppercase leading-none">{selectedRequest.student.first_name} {selectedRequest.student.last_name}</h3>
+                    <div className="space-y-0.5">
+                       <h3 className="text-xl font-black tracking-tighter uppercase leading-none">{selectedRequest.student.first_name} {selectedRequest.student.last_name}</h3>
                        <div className="flex items-center gap-3 text-muted-foreground/40">
                           <p className="font-black text-[10px] uppercase tracking-widest">Reg #: {selectedRequest.student.registration_number}</p>
                        </div>
                     </div>
-                    <div className="flex flex-wrap gap-4 pt-2">
-                       <div className="px-6 py-4 bg-secondary/30 rounded-2xl border border-foreground/5 backdrop-blur-2xl flex flex-col items-start gap-1 min-w-[150px]">
-                          <p className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-widest leading-none mb-1">Program</p>
-                          <p className="text-base font-black tracking-tight">{selectedRequest.student.program}</p>
+                    <div className="flex flex-wrap gap-3 pt-2">
+                       <div className="px-4 py-3 bg-secondary/30 rounded-xl border border-foreground/5 backdrop-blur-2xl flex flex-col items-start gap-1 min-w-[120px]">
+                          <p className="text-[7px] font-black text-muted-foreground/30 uppercase tracking-widest leading-none mb-1">Program</p>
+                          <p className="text-sm font-black tracking-tight">{selectedRequest.student.program}</p>
                        </div>
-                       <div className="px-6 py-4 bg-secondary/30 rounded-2xl border border-foreground/5 backdrop-blur-2xl flex flex-col items-center justify-center gap-1 min-w-[100px]">
-                          <p className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-widest leading-none mb-1">Dept</p>p>
-                          <p className="text-base font-black text-primary uppercase tracking-tighter">{department.code || 'SYS'}</p>
+                       <div className="px-4 py-3 bg-secondary/30 rounded-xl border border-foreground/5 backdrop-blur-2xl flex flex-col items-center justify-center gap-1 min-w-[80px]">
+                          <p className="text-[7px] font-black text-muted-foreground/30 uppercase tracking-widest leading-none mb-1">Dept</p>
+                          <p className="text-sm font-black text-primary uppercase tracking-tighter">{department.code || 'SYS'}</p>
                        </div>
                     </div>
                  </div>
@@ -418,57 +417,57 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                   />
                 </div>
 
-                <div className="pt-2">
-                  <div className="flex items-center justify-between p-6 bg-secondary/80 rounded-[2rem] border border-foreground/5 shadow-inner group/dues transition-all duration-700 hover:bg-secondary">
-                     <div className="space-y-2">
-                        <div className="flex items-center gap-4">
-                           <div className="p-3 bg-primary/10 rounded-2xl group-hover/dues:rotate-12 transition-transform duration-700">
-                              <TrendingUp className="w-5 h-5 text-primary" />
-                           </div>
-                           <label className="text-[10px] font-black text-foreground uppercase tracking-widest">Due Amount</label>
-                        </div>
-                        <p className="text-[8px] text-muted-foreground font-bold uppercase tracking-widest pl-7 opacity-50">Pending fees for clearance.</p>
-                     </div>
-                     <div className="relative">
-                        <span className="absolute left-8 top-1/2 -translate-y-1/2 font-black text-primary text-sm uppercase tracking-[0.4em] opacity-40">PKR</span>
-                        <Input 
-                          type="number" 
-                          className="w-40 pl-16 h-12 rounded-xl bg-card border-none font-black text-xl text-right pr-6 shadow-soft focus-visible:ring-2 focus-visible:ring-primary/10 transition-all"
-                          value={dueAmount}
-                          onChange={(e) => setDueAmount(Number(e.target.value))}
-                        />
-                     </div>
-                  </div>
-                </div>
-
-                   <div className="grid grid-cols-2 gap-4 pt-4">
-                     <Button 
-                       variant="outline" 
-                       className="h-20 rounded-2xl border-destructive/10 text-destructive hover:bg-destructive hover:text-white font-black text-[10px] uppercase tracking-widest flex flex-col items-center justify-center gap-2 group transition-all duration-700 relative overflow-hidden"
-                       onClick={() => handleUpdateStatus('rejected')}
-                       disabled={submittingAction}
-                     >
-                       <ShieldAlert className="w-5 h-5 group-hover:scale-110 transition-transform duration-700" />
-                       <span>Reject Request</span>
-                     </Button>
-                     <Button 
-                       className="h-20 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] uppercase tracking-widest flex flex-col items-center justify-center gap-2 group shadow-strong transition-all duration-700 relative overflow-hidden"
-                       onClick={() => handleUpdateStatus('cleared')}
-                       disabled={submittingAction}
-                     >
-                       <ShieldCheck className="w-5 h-5 group-hover:scale-110 transition-transform duration-700" />
-                       <span>Approve Clearance</span>
-                     </Button>
+                 <div className="pt-2">
+                   <div className="flex items-center justify-between p-5 bg-secondary/80 rounded-2xl border border-foreground/5 shadow-inner group/dues transition-all duration-700 hover:bg-secondary">
+                      <div className="space-y-1.5">
+                         <div className="flex items-center gap-3">
+                            <div className="p-2.5 bg-primary/10 rounded-xl group-hover/dues:rotate-12 transition-transform duration-700">
+                               <TrendingUp className="w-4 h-4 text-primary" />
+                            </div>
+                            <label className="text-[9px] font-black text-foreground uppercase tracking-widest">Due Amount</label>
+                         </div>
+                         <p className="text-[7px] text-muted-foreground font-bold uppercase tracking-widest pl-7 opacity-50 italic">Pending fees for clearance.</p>
+                      </div>
+                      <div className="relative">
+                         <span className="absolute left-6 top-1/2 -translate-y-1/2 font-black text-primary text-xs uppercase tracking-[0.4em] opacity-40">PKR</span>
+                         <Input 
+                           type="number" 
+                           className="w-32 pl-14 h-10 rounded-lg bg-card border-none font-black text-lg text-right pr-4 shadow-soft focus-visible:ring-2 focus-visible:ring-primary/10 transition-all"
+                           value={dueAmount}
+                           onChange={(e) => setDueAmount(Number(e.target.value))}
+                         />
+                      </div>
                    </div>
-                   
-                   <Button 
-                     variant="ghost" 
-                     className="w-full h-14 rounded-xl font-black text-[10px] uppercase tracking-widest bg-secondary/50 text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all duration-700 border border-foreground/5 mt-4"
-                     onClick={() => handleUpdateStatus('in_review')}
-                     disabled={submittingAction}
-                   >
-                     Mark Under Review
-                   </Button>
+                 </div>
+
+                    <div className="grid grid-cols-2 gap-4 pt-2">
+                      <Button 
+                        variant="outline" 
+                        className="h-14 rounded-xl border-destructive/10 text-destructive hover:bg-destructive hover:text-white font-black text-[9px] uppercase tracking-widest flex flex-col items-center justify-center gap-1.5 group transition-all duration-700 relative overflow-hidden"
+                        onClick={() => handleUpdateStatus('rejected')}
+                        disabled={submittingAction}
+                      >
+                        <ShieldAlert className="w-4 h-4 group-hover:scale-110 transition-transform duration-700" />
+                        <span>Reject</span>
+                      </Button>
+                      <Button 
+                        className="h-14 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[9px] uppercase tracking-widest flex flex-col items-center justify-center gap-1.5 group shadow-strong transition-all duration-700 relative overflow-hidden"
+                        onClick={() => handleUpdateStatus('cleared')}
+                        disabled={submittingAction}
+                      >
+                        <ShieldCheck className="w-4 h-4 group-hover:scale-110 transition-transform duration-700" />
+                        <span>Approve</span>
+                      </Button>
+                    </div>
+                    
+                    <Button 
+                      variant="ghost" 
+                      className="w-full h-10 rounded-xl font-black text-[9px] uppercase tracking-widest bg-secondary/50 text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all duration-700 border border-foreground/5 mt-2"
+                      onClick={() => handleUpdateStatus('in_review')}
+                      disabled={submittingAction}
+                    >
+                      Under Review
+                    </Button>
                 </div>
             </>
           )}

@@ -56,22 +56,22 @@ import { studentService } from '@/lib/student.service';
 const BentoStatCard = ({ title, value, icon: Icon, color, onClick, description }: { title: string; value: any; icon: any; color: string; onClick?: () => void; description?: string }) => (
   <button 
     className={`
-      flex flex-col justify-between p-6 rounded-3xl bg-card/40 backdrop-blur-md border border-foreground/5 shadow-soft overflow-hidden group relative transition-all duration-700
-      ${onClick ? 'cursor-pointer hover:shadow-strong hover:bg-card hover:-translate-y-2' : ''}
+      flex flex-col justify-between p-5 rounded-2xl bg-card/40 backdrop-blur-md border border-foreground/5 shadow-soft overflow-hidden group relative transition-all duration-700
+      ${onClick ? 'cursor-pointer hover:shadow-strong hover:bg-card hover:-translate-y-1.5' : ''}
     `}
     onClick={onClick}
   >
-    <div className={`absolute top-0 right-0 w-32 h-32 -mr-12 -mt-12 rounded-full ${color} opacity-[0.05] group-hover:opacity-[0.1] transition-opacity blur-[60px]`} />
-    <div className="flex items-center justify-between relative z-10 w-full mb-6">
-      <div className={`w-12 h-12 rounded-xl ${color} bg-opacity-10 flex items-center justify-center transition-all duration-700 group-hover:scale-110 group-hover:rotate-6 shadow-soft shadow-inner`}>
-        <Icon className={`w-6 h-6 ${color.replace('bg-', 'text-')}`} />
+    <div className={`absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 rounded-full ${color} opacity-[0.05] group-hover:opacity-[0.1] transition-opacity blur-3xl`} />
+    <div className="flex items-center justify-between relative z-10 w-full mb-4">
+      <div className={`w-10 h-10 rounded-xl ${color} bg-opacity-10 flex items-center justify-center transition-all duration-700 group-hover:scale-110 group-hover:rotate-6 shadow-soft shadow-inner`}>
+        <Icon className={`w-5 h-5 ${color.replace('bg-', 'text-')}`} />
       </div>
       {onClick && <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-500" />}
     </div>
     <div className="space-y-1 text-left relative z-10">
-      <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em] leading-none opacity-60">{title}</p>
-      <h3 className="text-2xl font-black text-foreground mt-2 tracking-tighter uppercase leading-none">{value}</h3>
-      {description && <p className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-widest mt-2">{description}</p>}
+      <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.3em] leading-none opacity-60">{title}</p>
+      <h3 className="text-lg font-black text-foreground mt-1.5 tracking-tighter uppercase leading-none">{value}</h3>
+      {description && <p className="text-[7px] font-bold text-muted-foreground/60 uppercase tracking-widest mt-1.5">{description}</p>}
     </div>
   </button>
 );
@@ -158,29 +158,29 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
       {/* Premium Hero Section - Bento Hero */}
-      <div className="relative overflow-hidden rounded-3xl bg-foreground p-6 sm:p-10 lg:p-12 shadow-strong group">
+      <div className="relative overflow-hidden rounded-[2rem] bg-foreground p-5 sm:p-8 lg:p-10 shadow-strong group">
         {/* Dynamic Effects */}
         <div className="absolute top-0 right-0 w-[45%] h-full bg-primary/20 rounded-full -mr-[20%] -mt-[10%] blur-[120px] group-hover:scale-125 transition-transform duration-1000" />
         <div className="absolute bottom-0 left-0 w-[25%] h-[60%] bg-primary/10 rounded-full -ml-[12%] -mb-[12%] blur-[80px]" />
         
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 relative z-10">
-          <div className="space-y-6 max-w-2xl">
-            <div className="space-y-3">
+          <div className="space-y-5 max-w-2xl">
+            <div className="space-y-2">
               <div className="flex items-center gap-4">
-                <Badge className="bg-primary/20 text-primary border-none font-black text-[9px] uppercase tracking-[0.4em] px-4 py-1.5 rounded-full backdrop-blur-md shadow-sm">
+                <Badge className="bg-primary/20 text-primary border-none font-black text-[8px] uppercase tracking-[0.4em] px-4 py-1 rounded-full backdrop-blur-md shadow-sm">
                    Student Dashboard
                 </Badge>
                 <div className="flex gap-1">
                    {[1,2,3].map(i => <div key={i} className="w-1 h-1 bg-primary rounded-full animate-pulse" style={{ animationDelay: `${i*0.2}s` }} />)}
                 </div>
               </div>
-              <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black text-background tracking-tighter leading-none uppercase">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-background tracking-tighter leading-none uppercase">
                 Welcome back,<br /><span className="text-primary italic">{student.first_name || 'Scholar'}</span>
               </h2>
             </div>
             
-            <p className="text-base text-background/50 font-medium leading-relaxed max-w-xl opacity-80">
-              Easily manage and track your university clearance status in one place. Monitor departmental approvals and manage dues in real-time.
+            <p className="text-sm text-background/50 font-medium leading-relaxed max-w-xl opacity-80 italic">
+              Easily manage and track your university clearance status in one place.
             </p>
 
             <div className="flex flex-wrap gap-3 pt-2">
@@ -203,11 +203,11 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
           {canSubmitNewRequest && (
             <Dialog>
               <DialogTrigger asChild>
-                 <Button className="w-full sm:w-auto bg-primary text-white hover:bg-primary/90 h-16 px-10 rounded-2xl font-black text-[10px] uppercase tracking-[0.4em] shadow-strong shadow-primary/20 group shrink-0 active:scale-95 transition-all relative overflow-hidden">
+                 <Button className="w-full sm:w-auto bg-primary text-white hover:bg-primary/90 h-12 px-8 rounded-xl font-black text-[9px] uppercase tracking-[0.4em] shadow-strong shadow-primary/20 group shrink-0 active:scale-95 transition-all relative overflow-hidden">
                   <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
-                  <div className="flex items-center gap-4 relative z-10">
-                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-transform">
-                      <Plus className="w-6 h-6" />
+                  <div className="flex items-center gap-3 relative z-10">
+                    <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-transform">
+                      <Plus className="w-5 h-5" />
                     </div>
                     <span>Start Clearance</span>
                   </div>
@@ -363,24 +363,24 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
         <div className="lg:col-span-2 space-y-10">
           {activeRequest ? (
             <Card className="border-none shadow-strong rounded-3xl overflow-hidden bg-card/60 backdrop-blur-2xl">
-              <CardHeader className="p-6 sm:p-10 pb-6">
-                <div className="flex items-center justify-between gap-8">
-                  <div className="space-y-1">
+              <CardHeader className="p-5 sm:p-8 pb-5">
+                <div className="flex items-center justify-between gap-6">
+                  <div className="space-y-0.5">
                     <div className="flex items-center gap-3">
-                      <h3 className="text-2xl font-black text-foreground tracking-tighter uppercase">Current Status</h3>
+                      <h3 className="text-xl font-black text-foreground tracking-tighter uppercase">Current Status</h3>
                       <div className="relative flex items-center justify-center">
                          <div className="absolute w-full h-full bg-emerald-500/20 rounded-full animate-ping" />
-                         <Badge className="bg-emerald-500/10 text-emerald-500 border-none rounded-full font-black text-[8px] uppercase tracking-[0.3em] px-3 py-0.5 relative">Updating</Badge>
+                         <Badge className="bg-emerald-500/10 text-emerald-500 border-none rounded-full font-black text-[7px] uppercase tracking-[0.3em] px-2 py-0.5 relative">Updating</Badge>
                       </div>
                     </div>
-                    <CardDescription className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em] opacity-60">Request ID: <span className="text-primary">{activeRequest.request_id}</span></CardDescription>
+                    <CardDescription className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.3em] opacity-60">ID: <span className="text-primary">{activeRequest.request_id}</span></CardDescription>
                   </div>
                   <div className="text-right">
-                    <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em] leading-none opacity-50">Authorized Progress</p>
-                    <h4 className="text-4xl font-black text-primary tracking-tighter mt-2 leading-none">{activeRequest.progress?.percentage || 0}%</h4>
+                    <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.3em] leading-none opacity-50">Progress</p>
+                    <h4 className="text-2xl font-black text-primary tracking-tighter mt-1.5 leading-none">{activeRequest.progress?.percentage || 0}%</h4>
                   </div>
                 </div>
-                <div className="mt-8 relative h-4 bg-secondary/50 rounded-full overflow-hidden border border-foreground/5 p-1">
+                <div className="mt-6 relative h-3 bg-secondary/50 rounded-full overflow-hidden border border-foreground/5 p-0.5">
                    <div 
                     className="h-full bg-primary rounded-full transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(var(--primary),0.4)] relative"
                     style={{ width: `${activeRequest.progress?.percentage || 0}%` }}
@@ -406,17 +406,17 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                       const isLocked = isAcademic && !phase1Cleared && ds.status === 'pending';
 
                       return (
-                        <div key={ds.id} className={`group relative p-6 rounded-2xl border-2 transition-all duration-700 flex flex-col min-h-[220px] ${isLocked ? 'bg-muted/5 border-muted/50 grayscale opacity-40' : 'bg-background/40 border-foreground/5 hover:bg-background hover:shadow-strong hover:border-primary/20'}`}>
-                          <div className="flex items-start justify-between mb-6">
-                            <div className="flex items-center gap-4">
-                              <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-700 group-hover:scale-110 group-hover:rotate-6 shadow-soft ${isLocked ? 'bg-muted/20' : 'bg-secondary/50'}`}>
-                                 <Zap className={`w-6 h-6 ${isLocked ? 'text-muted-foreground' : 'text-primary'} ${ds.status === 'in_review' ? 'animate-pulse' : ''}`} />
+                        <div key={ds.id} className={`group relative p-5 rounded-2xl border-2 transition-all duration-700 flex flex-col min-h-[180px] ${isLocked ? 'bg-muted/5 border-muted/50 grayscale opacity-40' : 'bg-background/40 border-foreground/5 hover:bg-background hover:shadow-strong hover:border-primary/20'}`}>
+                          <div className="flex items-start justify-between mb-5">
+                            <div className="flex items-center gap-3">
+                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-soft ${isLocked ? 'bg-muted/20' : 'bg-secondary/50'}`}>
+                                 <Zap className={`w-5 h-5 ${isLocked ? 'text-muted-foreground' : 'text-primary'} ${ds.status === 'in_review' ? 'animate-pulse' : ''}`} />
                               </div>
                               <div className="min-w-0">
-                                <h4 className="text-sm font-black text-foreground truncate group-hover:text-primary transition-colors uppercase tracking-tight leading-tight">
+                                <h4 className="text-xs font-black text-foreground truncate group-hover:text-primary transition-colors uppercase tracking-tight leading-tight">
                                   {getDeptDisplayName(ds.department_id, ds.department?.name || 'Department')}
                                 </h4>
-                                <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em] mt-1 opacity-50">{ds.department?.code || 'DEPT'}</p>
+                                <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.3em] mt-1 opacity-50">{ds.department?.code || 'DEPT'}</p>
                               </div>
                             </div>
                             <div className="absolute top-6 right-6">
@@ -547,22 +547,22 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
         {/* Right Bento Column */}
         <div className="space-y-12">
           {/* Terminal Support Card */}
-          <Card className="border-none shadow-strong rounded-3xl bg-foreground overflow-hidden group">
-            <CardContent className="p-10 relative">
+          <Card className="border-none shadow-strong rounded-[2rem] bg-foreground overflow-hidden group">
+            <CardContent className="p-6 sm:p-8 relative">
               <div className="absolute top-0 right-0 w-64 h-64 bg-primary/30 rounded-full -mr-32 -mt-32 blur-[120px] group-hover:scale-125 transition-transform duration-1000" />
-              <div className="space-y-6 relative z-10">
-                <div className="w-14 h-14 bg-background/5 rounded-xl flex items-center justify-center border border-background/10 backdrop-blur-md">
-                   <MessageSquare className="w-7 h-7 text-primary" />
+              <div className="space-y-5 relative z-10">
+                <div className="w-12 h-12 bg-background/5 rounded-xl flex items-center justify-center border border-background/10 backdrop-blur-md">
+                   <MessageSquare className="w-6 h-6 text-primary" />
                 </div>
-                <div className="space-y-2">
-                  <CardTitle className="text-background text-2xl font-black tracking-tighter uppercase leading-none">Support</CardTitle>
-                  <CardDescription className="text-background/40 font-bold uppercase tracking-[0.2em] text-[10px] leading-relaxed">
+                <div className="space-y-1.5">
+                  <CardTitle className="text-background text-xl font-black tracking-tighter uppercase leading-none">Support</CardTitle>
+                  <CardDescription className="text-background/40 font-bold uppercase tracking-[0.2em] text-[9px] leading-relaxed italic">
                     Need help? Contact the IT help desk for any technical issues.
                   </CardDescription>
-                </div>
-                <div className="space-y-3 pt-4">
+                 </div>
+                 <div className="space-y-3 pt-2">
                    <Button 
-                    className="w-full bg-background text-foreground border-none hover:bg-background/90 rounded-xl h-14 font-black text-[10px] uppercase tracking-[0.3em] shadow-strong transition-all active:scale-95"
+                    className="w-full bg-background text-foreground border-none hover:bg-background/90 rounded-xl h-12 font-black text-[9px] uppercase tracking-[0.3em] shadow-strong transition-all active:scale-95"
                     onClick={() => window.open('mailto:it.support@comsats.edu.pk')}
                    >
                       <Mail className="w-4 h-4 mr-3" />
@@ -570,7 +570,7 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                    </Button>
                    <Button 
                     variant="ghost" 
-                    className="w-full text-background/40 hover:text-background hover:bg-background/5 rounded-xl h-14 font-black text-[10px] uppercase tracking-[0.2em] transition-all"
+                    className="w-full text-background/40 hover:text-background hover:bg-background/5 rounded-xl h-12 font-black text-[9px] uppercase tracking-[0.2em] transition-all"
                     onClick={() => toast.info('Loading Instructions...')}
                    >
                       <ExternalLink className="w-4 h-4 mr-3" />
@@ -582,43 +582,43 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
           </Card>
 
           {/* Quick Contact Bento List */}
-          <Card className="border-none shadow-strong rounded-3xl bg-card/60 backdrop-blur-2xl border border-foreground/5 overflow-hidden">
-            <CardHeader className="p-8 pb-4">
+          <Card className="border-none shadow-strong rounded-[2rem] bg-card/60 backdrop-blur-2xl border border-foreground/5 overflow-hidden">
+            <CardHeader className="p-6 pb-4">
               <div className="flex items-center gap-4">
                 <div className="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.5)] animate-pulse" />
-                <CardTitle className="text-lg font-black text-foreground tracking-tighter uppercase">All Departments</CardTitle>
+                <CardTitle className="text-base font-black text-foreground tracking-tighter uppercase">Directory</CardTitle>
               </div>
             </CardHeader>
-            <CardContent className="p-8 pt-0 space-y-6">
+            <CardContent className="p-6 pt-0 space-y-4">
               {(data?.departments || []).slice(0, 5).map((dept: any) => (
-                <div key={dept.id} className="flex items-center justify-between group cursor-pointer hover:bg-background/50 p-3 -mx-3 rounded-2xl transition-all duration-500">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-[9px] font-black text-muted-foreground group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-soft">
+                <div key={dept.id} className="flex items-center justify-between group cursor-pointer hover:bg-background/50 p-2.5 -mx-2.5 rounded-xl transition-all duration-500">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center text-[8px] font-black text-muted-foreground group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-soft">
                       {dept.code}
                     </div>
                     <div className="min-w-0">
-                      <h5 className="text-[12px] font-black text-foreground truncate w-28 group-hover:text-primary transition-colors uppercase tracking-tight">{dept.name}</h5>
-                      <p className="text-[7px] font-black text-muted-foreground/30 uppercase tracking-widest mt-1">Verified Access</p>
+                      <h5 className="text-[11px] font-black text-foreground truncate w-24 group-hover:text-primary transition-colors uppercase tracking-tight">{dept.name}</h5>
+                      <p className="text-[7px] font-black text-muted-foreground/30 uppercase tracking-widest mt-0.5">Contact</p>
                     </div>
                   </div>
                   <div className="flex gap-2">
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="w-8 h-8 rounded-xl text-emerald-500 hover:bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-all duration-500 scale-90 group-hover:scale-100"
+                      className="w-7 h-7 rounded-lg text-emerald-500 hover:bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-all duration-500 scale-90 group-hover:scale-100"
                       onClick={() => {
                          const wa = dept.contact_info?.whatsapp_number;
                          if (wa) window.open(`https://wa.me/${wa.replace(/\D/g, '')}`, '_blank');
                          else toast.error('WhatsApp unavailable');
                       }}
                     >
-                      <Phone className="w-4 h-4" />
+                      <Phone className="w-3.5 h-3.5" />
                     </Button>
                   </div>
                 </div>
               ))}
-              <Button variant="link" className="w-full text-[9px] font-black uppercase tracking-[0.4em] text-primary mt-6 hover:no-underline group hover:opacity-70 transition-all" onClick={() => onNavigate('my-clearance')}>
-                 System Directory <ChevronRight className="w-3.5 h-3.5 ml-2 group-hover:translate-x-2 transition-transform" />
+              <Button variant="link" className="w-full text-[8px] font-black uppercase tracking-[0.4em] text-primary mt-4 hover:no-underline group hover:opacity-70 transition-all" onClick={() => onNavigate('my-clearance')}>
+                 View All <ChevronRight className="w-3 h-3 ml-1 group-hover:translate-x-1.5 transition-transform" />
               </Button>
             </CardContent>
           </Card>
