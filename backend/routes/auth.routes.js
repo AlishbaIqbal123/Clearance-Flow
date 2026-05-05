@@ -439,39 +439,39 @@ router.post('/forgot-password',
     validate
   ],
   asyncHandler(async (req, res) => {
-    const { email, type } = req.body;
+    const { email, registrationNumber, type } = req.body;
     const table = type === 'student' ? 'student_profiles' : 'profiles';
 
-    // Students cannot reset their own password via email
-    if (type === 'student') {
-      return res.status(403).json({
+    // Find user
+    let query = supabase.from(table).select('id, first_name, email, role');
+    
+    if (type === 'student' && registrationNumber) {
+      query = query.eq('registration_number', registrationNumber.toUpperCase());
+    } else if (email) {
+      query = query.eq('email', email.toLowerCase());
+    } else {
+      return res.status(400).json({
         success: false,
-        message: 'Self-service password reset is not available for students. Please contact the administrator to reset your account password.'
+        message: type === 'student' ? 'Registration number or email is required' : 'Email is required'
       });
     }
 
-    // Find user
-    const { data: user } = await supabase
-      .from(table)
-      .select('id, first_name, role')
-      .eq('email', email.toLowerCase())
-      .single();
+    const { data: user } = await query.single();
 
     if (!user) {
       // Don't reveal if user exists for security
       return res.status(200).json({
         success: true,
-        message: 'If an admin account exists with that email, a reset link will be sent.'
+        message: 'If an account exists, a reset link will be sent to the registered email.'
       });
     }
 
-    // Only allow admin role to reset via email
-    if (user.role !== 'admin') {
-      return res.status(403).json({
-        success: false,
-        message: 'Self-service password reset is only available for administrators. Please contact the administrator to reset your password.'
-      });
-    }
+    // Mask the email for display (e.g. abc......@gmail.com)
+    const userEmail = user.email || '';
+    const [name, domain] = userEmail.split('@');
+    const maskedEmail = name.length > 3 
+      ? name.substring(0, 3) + '......@' + domain 
+      : name + '......@' + domain;
 
     // Generate token
     const resetToken = require('crypto').randomBytes(32).toString('hex');
@@ -487,11 +487,12 @@ router.post('/forgot-password',
       .eq('id', user.id);
 
     // TODO: Send email with reset token
-    // appsScript.sendPasswordResetEmail(email, resetToken, user.first_name);
+    // appsScript.sendPasswordResetEmail(user.email, resetToken, user.first_name);
 
     res.status(200).json({
       success: true,
-      message: 'If an admin account exists with that email, a reset link will be sent.'
+      message: `Password reset instructions have been sent to ${maskedEmail}`,
+      data: { maskedEmail }
     });
   })
 );

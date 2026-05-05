@@ -43,7 +43,7 @@ export const authService = {
     return response.data;
   },
 
-  forgotPassword: async (data: { email: string; type: 'student' | 'staff' }) => {
+  forgotPassword: async (data: { email?: string; registrationNumber?: string; type: 'student' | 'staff' }) => {
     const response = await api.post('/auth/forgot-password', data);
     return response.data;
   },

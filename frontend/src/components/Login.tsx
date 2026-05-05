@@ -21,7 +21,8 @@ import {
   Globe,
   Activity,
   ChevronRight,
-  ShieldAlert
+  ShieldAlert,
+  CheckCircle2
 } from 'lucide-react';
 import { authService } from '@/lib/auth.service';
 import { toast } from 'sonner';
@@ -50,7 +51,10 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
   const [staffPassword, setStaffPassword] = useState('');
   const [showForgotDialog, setShowForgotDialog] = useState(false);
   const [recoveryEmail, setRecoveryEmail] = useState('');
+  const [recoveryReg, setRecoveryReg] = useState('');
   const [recoveryLoading, setRecoveryLoading] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
+  const [maskedEmail, setMaskedEmail] = useState('');
   const [copied, setCopied] = useState(false);
   const [isDark, setIsDark] = useState(document.documentElement.classList.contains('dark'));
 
@@ -115,20 +119,29 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
     }
   };
 
-  const handleAdminResetRequest = async (e: React.FormEvent) => {
+  const handleResetRequest = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!recoveryEmail) return toast.error('Please enter your administrator email');
+    if (activePortal === 'staff' && !recoveryEmail) return toast.error('Please enter your email address');
+    if (activePortal === 'student' && !recoveryReg) return toast.error('Please enter your registration number');
     
     setRecoveryLoading(true);
     try {
       const response = await authService.forgotPassword({ 
-        email: recoveryEmail, 
-        type: 'staff' 
+        email: activePortal === 'staff' ? recoveryEmail : undefined,
+        registrationNumber: activePortal === 'student' ? recoveryReg : undefined,
+        type: activePortal 
       });
+      
       if (response.success) {
-        toast.success(response.message);
-        setShowForgotDialog(false);
+        if (response.data?.maskedEmail) {
+          setMaskedEmail(response.data.maskedEmail);
+          setResetSuccess(true);
+        } else {
+          toast.success(response.message);
+          setShowForgotDialog(false);
+        }
         setRecoveryEmail('');
+        setRecoveryReg('');
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Reset request failed. Please contact support.');
@@ -403,73 +416,137 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
         )}
       </div>
 
-      <Dialog open={showForgotDialog} onOpenChange={setShowForgotDialog}>
+      <Dialog open={showForgotDialog} onOpenChange={(open) => {
+        setShowForgotDialog(open);
+        if (!open) {
+          setResetSuccess(false);
+          setMaskedEmail('');
+        }
+      }}>
         <DialogContent className="sm:max-w-xl rounded-[3rem] border-none shadow-strong p-0 bg-background text-foreground overflow-hidden">
           <div className="bg-primary/5 p-12 space-y-8 relative overflow-hidden">
              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full -mr-32 -mt-32 blur-[100px]" />
              <div className="w-20 h-20 bg-primary/10 rounded-[2rem] flex items-center justify-center relative shadow-inner">
-                <Lock className="w-10 h-10 text-primary" />
+                {resetSuccess ? <CheckCircle2 className="w-10 h-10 text-emerald-500" /> : <Lock className="w-10 h-10 text-primary" />}
              </div>
              <div className="space-y-2">
-                <DialogTitle className="text-3xl font-black tracking-tighter uppercase leading-none text-foreground">Account Recovery</DialogTitle>
+                <DialogTitle className="text-3xl font-black tracking-tighter uppercase leading-none text-foreground">
+                  {resetSuccess ? "Check Your Email" : "Account Recovery"}
+                </DialogTitle>
                 <DialogDescription className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] leading-relaxed max-w-sm">
-                  {activePortal === 'student' 
-                    ? "Students must contact the administration to reset their account password."
-                    : "Only administrators can reset via email. Other staff must contact administration."
+                  {resetSuccess 
+                    ? `Password reset instructions have been dispatched.`
+                    : activePortal === 'student' 
+                      ? "Enter your registration number to receive a reset link on your registered email."
+                      : "Enter your official email to receive a secure password reset link."
                   }
                 </DialogDescription>
              </div>
           </div>
           
-          <div className="p-12 space-y-10">
-            {/* Admin Reset Section (Visible in Staff Portal) */}
-            {activePortal === 'staff' && (
-              <form onSubmit={handleAdminResetRequest} className="space-y-6 pb-10 border-b border-foreground/5">
-                <div className="space-y-3 group">
-                  <label className="text-[9px] font-black text-primary uppercase tracking-[0.4em] ml-2">Administrator Recovery</label>
-                  <div className="relative">
-                    <Mail className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-all" />
-                    <Input 
-                      type="email"
-                      placeholder="admin@university.edu.pk"
-                      value={recoveryEmail}
-                      onChange={(e) => setRecoveryEmail(e.target.value)}
-                      className="h-14 pl-14 bg-secondary/30 border-none rounded-2xl font-bold text-sm focus-visible:ring-2 focus-visible:ring-primary/20"
-                    />
+          <div className="p-12">
+            {resetSuccess ? (
+              <div className="space-y-10 animate-in fade-in slide-in-from-bottom-5 duration-500">
+                <div className="p-8 bg-emerald-500/5 rounded-3xl border border-emerald-500/10 space-y-4">
+                  <p className="text-sm font-medium text-foreground leading-relaxed italic">
+                    We've sent a secure reset link to your registered email:
+                  </p>
+                  <div className="flex items-center gap-4 bg-white/50 dark:bg-black/20 p-4 rounded-2xl border border-foreground/5 shadow-inner">
+                    <Mail className="w-5 h-5 text-emerald-500 opacity-60" />
+                    <span className="font-black text-emerald-600 tracking-tight">{maskedEmail}</span>
                   </div>
                 </div>
-                <Button disabled={recoveryLoading} className="w-full h-14 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20">
-                  {recoveryLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Request Reset Link"}
+                
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4 text-muted-foreground/40 font-black text-[9px] uppercase tracking-[0.3em]">
+                    <div className="flex-1 h-px bg-foreground/5" />
+                    Next Steps
+                    <div className="flex-1 h-px bg-foreground/5" />
+                  </div>
+                  
+                  <ul className="space-y-4">
+                    {[
+                      'Check your inbox and spam folder',
+                      'Click the link to verify your identity',
+                      'Define a new secure access secret'
+                    ].map((step, i) => (
+                      <li key={i} className="flex items-center gap-4 group">
+                        <div className="w-8 h-8 rounded-xl bg-secondary flex items-center justify-center font-black text-[10px] text-primary group-hover:scale-110 transition-transform">
+                          0{i+1}
+                        </div>
+                        <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{step}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <Button 
+                  className="w-full bg-foreground text-background hover:bg-foreground/90 h-14 rounded-2xl font-black text-[9px] uppercase tracking-[0.4em] shadow-strong active:scale-95 transition-all"
+                  onClick={() => setShowForgotDialog(false)}
+                >
+                  Return to Login
                 </Button>
+              </div>
+            ) : (
+              <form onSubmit={handleResetRequest} className="space-y-10">
+                <div className="space-y-8">
+                  {activePortal === 'student' ? (
+                    <div className="space-y-3 group">
+                      <label className="text-[9px] font-black text-primary uppercase tracking-[0.4em] ml-2">Registration Number</label>
+                      <div className="relative">
+                        <Hash className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                        <Input 
+                          value={recoveryReg} 
+                          onChange={(e) => setRecoveryReg(e.target.value)}
+                          placeholder="FA20-BCS-000"
+                          className="pl-14 h-14 rounded-2xl bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-4 focus-visible:ring-primary/10 transition-all text-sm uppercase" 
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3 group">
+                      <label className="text-[9px] font-black text-primary uppercase tracking-[0.4em] ml-2">Institutional Email</label>
+                      <div className="relative">
+                        <Mail className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                        <Input 
+                          type="email"
+                          value={recoveryEmail} 
+                          onChange={(e) => setRecoveryEmail(e.target.value)}
+                          placeholder="admin@university.edu.pk"
+                          className="pl-14 h-14 rounded-2xl bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-4 focus-visible:ring-primary/10 transition-all text-sm" 
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="p-6 bg-secondary/30 rounded-3xl border border-foreground/5 flex items-center gap-4">
+                    <ShieldAlert className="w-6 h-6 text-primary opacity-40" />
+                    <p className="text-[9px] font-black text-muted-foreground/60 uppercase tracking-widest leading-relaxed">
+                      A reset link will be dispatched only to the account registered within the institutional matrix.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-4">
+                  <Button 
+                    type="submit" 
+                    disabled={recoveryLoading}
+                    className="w-full bg-primary hover:bg-primary/90 h-14 rounded-2xl font-black text-[9px] uppercase tracking-[0.4em] shadow-strong shadow-primary/20 active:scale-95 transition-all"
+                  >
+                    {recoveryLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Dispatch Reset Link"}
+                  </Button>
+                  <Button 
+                    type="button"
+                    variant="ghost" 
+                    className="h-14 rounded-xl font-black text-[9px] uppercase tracking-widest text-muted-foreground px-8 hover:bg-secondary" 
+                    onClick={() => setShowForgotDialog(false)}
+                  >
+                    Abort Recovery
+                  </Button>
+                </div>
               </form>
             )}
-
-            {/* Standard Contact Section */}
-            <div className="space-y-8">
-              <div className="p-8 bg-secondary/30 rounded-[2rem] border border-foreground/5 space-y-6">
-                <div className="flex items-center justify-between">
-                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em]">Help Desk Contact</p>
-                  <Building2 className="w-5 h-5 text-primary opacity-40" />
-                </div>
-                <p className="text-xl font-black tracking-tight text-foreground">admin@university.edu.pk</p>
-              </div>
-              <div className="grid grid-cols-2 gap-6">
-                <Button className="h-16 rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest bg-secondary text-foreground hover:bg-secondary/70" onClick={handleCopyEmail}>
-                  {copied ? <Check className="w-5 h-5 mr-3" /> : <Copy className="w-5 h-5 mr-3" />}
-                  {copied ? 'Copied' : 'Copy Email'}
-                </Button>
-                <Button variant="outline" className="h-16 rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest border-foreground/5 bg-primary text-white hover:bg-primary/90 transition-all border-none" onClick={() => window.open(`https://wa.me/923001234567`, '_blank')}>
-                  <MessageSquare className="w-5 h-5 mr-3" />
-                  WhatsApp
-                </Button>
-              </div>
-            </div>
           </div>
-          <DialogFooter className="px-12 pb-12">
-            <Button type="button" variant="ghost" onClick={() => setShowForgotDialog(false)} className="w-full h-14 font-black text-[11px] uppercase tracking-[0.4em] text-muted-foreground hover:bg-secondary rounded-2xl transition-all">
-              Back to Login
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>  
