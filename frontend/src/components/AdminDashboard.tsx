@@ -32,7 +32,9 @@ import {
   Globe,
   Database,
   Lock,
-  Layers
+  Layers,
+  Truck,
+  MapPin
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -668,6 +670,48 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                 </div>
               </div>
             </div>
+
+            {/* Fulfillment Intelligence */}
+            {selectedRequest?.degree_fulfillment && (
+              <div className="p-6 bg-primary/5 rounded-[2rem] border-2 border-primary/10 space-y-5 animate-in slide-in-from-top-4 duration-700">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-white shadow-strong shadow-primary/20">
+                      <Truck className="w-6 h-6" />
+                    </div>
+                    <div className="space-y-1">
+                      <Badge className="bg-primary/20 text-primary border-none rounded-full px-3 py-0.5 text-[7px] font-black uppercase tracking-widest">Fulfillment Strategy</Badge>
+                      <h4 className="text-xl font-black tracking-tighter uppercase leading-none">
+                        {selectedRequest.degree_fulfillment.method === 'dispatch' ? 'Secure Dispatch' : 'Manual Collection'}
+                      </h4>
+                    </div>
+                  </div>
+                </div>
+                
+                {selectedRequest.degree_fulfillment.method === 'dispatch' && (
+                  <div className="p-6 bg-card rounded-2xl border border-foreground/5 shadow-soft space-y-3">
+                    <div className="flex items-center gap-2 text-[9px] font-black text-muted-foreground uppercase tracking-widest opacity-40">
+                      <MapPin className="w-3.5 h-3.5" />
+                      Dispatch Coordinates
+                    </div>
+                    <p className="text-sm font-bold text-foreground leading-relaxed">
+                      {selectedRequest.degree_fulfillment.address}
+                    </p>
+                  </div>
+                )}
+                
+                {selectedRequest.degree_fulfillment.method === 'manual' && (
+                  <div className="flex items-center gap-3 p-5 bg-card rounded-2xl border border-foreground/5 shadow-soft">
+                    <div className="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-500">
+                      <ShieldCheck className="w-4 h-4" />
+                    </div>
+                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
+                      Student will collect physically from Registrar
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="space-y-4 pt-2">
                <h4 className="text-lg font-black text-foreground tracking-tight uppercase">Department Pulse</h4>

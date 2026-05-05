@@ -59,6 +59,11 @@ export const studentService = {
     const response = await api.get(`/students/certificate/${requestId}`);
     return response.data;
   },
+  
+  updateDegreePreference: async (requestId: string, preferenceData: { method: 'dispatch' | 'manual', address?: string }) => {
+    const response = await api.post(`/students/clearance-request/${requestId}/degree-preference`, preferenceData);
+    return response.data;
+  },
 
   notifyFormSubmission: async (id: string, submissionData: { departmentId: string, formLabel: string }) => {
     const response = await api.post(`/students/clearance-request/${id}/submit-form`, submissionData);

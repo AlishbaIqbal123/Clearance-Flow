@@ -25,7 +25,9 @@ import {
   Activity,
   History,
   TrendingUp,
-  LayoutDashboard
+  LayoutDashboard,
+  MapPin,
+  Truck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -83,6 +85,8 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
   const [requestType, setRequestType] = useState('graduation');
   const [reason, setReason] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [degreePref, setDegreePref] = useState<{ method: 'dispatch' | 'manual' | '', address: string }>({ method: '', address: '' });
+  const [prefSubmitting, setPrefSubmitting] = useState(false);
 
   const fetchDashboard = async () => {
     try {
@@ -126,6 +130,30 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
       toast.error(error.response?.data?.message || 'Clearance request failed');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleUpdatePreference = async (method: 'dispatch' | 'manual') => {
+    if (method === 'dispatch' && !degreePref.address.trim()) {
+      toast.error('Shipping address required for dispatch');
+      return;
+    }
+
+    try {
+      setPrefSubmitting(true);
+      const res = await studentService.updateDegreePreference(activeRequest.id, {
+        method,
+        address: method === 'dispatch' ? degreePref.address : undefined
+      });
+
+      if (res.success) {
+        toast.success('Fulfillment strategy recorded');
+        fetchDashboard();
+      }
+    } catch (error) {
+      toast.error('Sync failed with fulfillment server');
+    } finally {
+      setPrefSubmitting(false);
     }
   };
 
@@ -321,6 +349,93 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
           )}
         </div>
       </div>
+
+      {/* Degree Fulfillment Section - Appears at 100% Clearance */}
+      {activeRequest?.progress?.percentage === 100 && !activeRequest.degree_fulfillment && (
+        <div className="animate-in zoom-in-95 slide-in-from-top-12 duration-1000 ease-out">
+          <Card className="border-none shadow-strong rounded-[2.5rem] bg-foreground text-background overflow-hidden relative group">
+            <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[15%] -mt-[10%] blur-[120px] animate-pulse" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 rounded-full -ml-32 -mb-32 blur-[80px]" />
+            
+            <div className="flex flex-col lg:flex-row items-center gap-10 p-8 sm:p-12 relative z-10">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/10 rounded-[2rem] flex items-center justify-center backdrop-blur-xl shadow-soft shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-700">
+                <Sparkles className="w-10 h-10 sm:w-12 sm:h-12 text-primary animate-pulse" />
+              </div>
+              
+              <div className="flex-1 text-center lg:text-left space-y-4">
+                <div className="space-y-1">
+                  <Badge className="bg-primary text-white border-none font-black text-[9px] uppercase tracking-[0.4em] px-4 py-1.5 rounded-full shadow-lg mb-2">Final Fulfillment</Badge>
+                  <h3 className="text-3xl font-black tracking-tighter uppercase leading-none">Your Degree is Ready</h3>
+                </div>
+                <p className="text-sm font-bold text-white/60 uppercase tracking-widest max-w-xl">
+                  Congratulations! All clearance protocols have been satisfied. Select your preferred method of degree collection.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button className="h-16 sm:h-20 px-10 rounded-[1.75rem] bg-white text-foreground hover:bg-white/90 font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 group/btn min-w-[240px]">
+                      <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center group-hover/btn:scale-110 transition-transform">
+                        <Truck className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="text-left">
+                        <span className="block">Dispatch Degree</span>
+                        <span className="block text-[7px] opacity-40 mt-0.5">Secure Home Delivery</span>
+                      </div>
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background">
+                    <div className="bg-foreground p-10 text-white relative">
+                       <div className="absolute top-0 right-0 w-48 h-48 bg-primary/20 rounded-full -mr-24 -mt-24 blur-[100px]" />
+                       <div className="relative z-10 space-y-4">
+                          <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md">
+                             <MapPin className="w-7 h-7 text-primary" />
+                          </div>
+                          <DialogTitle className="text-3xl font-black tracking-tighter uppercase">Shipping Logistics</DialogTitle>
+                          <DialogDescription className="text-white/40 font-bold uppercase tracking-widest text-[9px]">Provide your official residence address for secure degree dispatch.</DialogDescription>
+                       </div>
+                    </div>
+                    <div className="p-10 space-y-8">
+                       <div className="space-y-4">
+                          <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2">Mailing Address</label>
+                          <Textarea 
+                            placeholder="Enter full shipping address with postal code..." 
+                            className="min-h-[160px] rounded-[2rem] border-none bg-secondary/50 font-bold text-foreground px-8 py-6 focus-visible:ring-2 focus-visible:ring-primary/20 resize-none text-base shadow-inner"
+                            value={degreePref.address}
+                            onChange={(e) => setDegreePref(prev => ({ ...prev, address: e.target.value }))}
+                          />
+                       </div>
+                       <Button 
+                         className="w-full h-16 rounded-[2rem] bg-primary hover:bg-primary/90 text-white font-black text-[11px] uppercase tracking-[0.4em] shadow-strong shadow-primary/20 transition-all active:scale-95"
+                         disabled={prefSubmitting}
+                         onClick={() => handleUpdatePreference('dispatch')}
+                       >
+                         {prefSubmitting ? 'Securing Transit...' : 'Confirm Dispatch Location'}
+                       </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                <Button 
+                  variant="outline" 
+                  className="h-16 sm:h-20 px-10 rounded-[1.75rem] border-2 border-white/20 text-white hover:bg-white hover:text-foreground font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 min-w-[240px]"
+                  disabled={prefSubmitting}
+                  onClick={() => handleUpdatePreference('manual')}
+                >
+                  <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
+                    <History className="w-5 h-5" />
+                  </div>
+                  <div className="text-left">
+                    <span className="block">Manual Pickup</span>
+                    <span className="block text-[7px] opacity-40 mt-0.5">Collect from Registrar</span>
+                  </div>
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+
 
       {/* Bento Grid Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
