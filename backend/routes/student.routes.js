@@ -182,12 +182,11 @@ router.get('/dashboard',
       const deptIds = [...new Set((statuses || []).map(s => s.department_id).filter(Boolean))];
       const { data: depts } = await supabase
         .from('departments')
-        .select('id, name, code, type, location, contact_info')
+        .select('*')
         .in('id', deptIds);
 
       activeRequest.clearance_status = (statuses || []).map(s => {
         const dept = depts?.find(d => d.id === s.department_id) || null;
-        if (!dept) console.warn(`Mapping failed for dept_id: ${s.department_id} in request: ${activeRequest.id}`);
         return {
           ...s,
           department: dept
@@ -255,7 +254,7 @@ router.get('/clearance-status',
         *,
         clearance_status(
           *,
-          department:department_id(name, code, type, contact_info),
+          department:department_id(*),
           clearedBy:cleared_by(first_name, last_name)
         )
       `)
