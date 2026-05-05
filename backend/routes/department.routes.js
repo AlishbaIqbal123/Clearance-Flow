@@ -288,9 +288,6 @@ router.put('/profile',
 
     if (req.body.contactInfo) {
       updates.contact_info = req.body.contactInfo;
-      // Sync top-level columns for easier querying/filtering if they exist
-      if (req.body.contactInfo.email) updates.email = req.body.contactInfo.email;
-      if (req.body.contactInfo.phone) updates.phone = req.body.contactInfo.phone;
     }
     if (req.body.clearanceConfig) updates.clearance_config = req.body.clearanceConfig;
     
