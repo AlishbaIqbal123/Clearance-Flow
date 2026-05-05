@@ -442,10 +442,18 @@ router.post('/forgot-password',
     const { email, type } = req.body;
     const table = type === 'student' ? 'student_profiles' : 'profiles';
 
+    // Students cannot reset their own password via email
+    if (type === 'student') {
+      return res.status(403).json({
+        success: false,
+        message: 'Self-service password reset is not available for students. Please contact the administrator to reset your account password.'
+      });
+    }
+
     // Find user
     const { data: user } = await supabase
       .from(table)
-      .select('id, first_name')
+      .select('id, first_name, role')
       .eq('email', email.toLowerCase())
       .single();
 
@@ -453,7 +461,15 @@ router.post('/forgot-password',
       // Don't reveal if user exists for security
       return res.status(200).json({
         success: true,
-        message: 'If an account exists with that email, a reset link will be sent.'
+        message: 'If an admin account exists with that email, a reset link will be sent.'
+      });
+    }
+
+    // Only allow admin role to reset via email
+    if (user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Self-service password reset is only available for administrators. Please contact the administrator to reset your password.'
       });
     }
 
@@ -475,7 +491,7 @@ router.post('/forgot-password',
 
     res.status(200).json({
       success: true,
-      message: 'If an account exists with that email, a reset link will be sent.'
+      message: 'If an admin account exists with that email, a reset link will be sent.'
     });
   })
 );

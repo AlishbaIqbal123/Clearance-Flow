@@ -49,6 +49,8 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
   const [staffEmail, setStaffEmail] = useState('');
   const [staffPassword, setStaffPassword] = useState('');
   const [showForgotDialog, setShowForgotDialog] = useState(false);
+  const [recoveryEmail, setRecoveryEmail] = useState('');
+  const [recoveryLoading, setRecoveryLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isDark, setIsDark] = useState(document.documentElement.classList.contains('dark'));
 
@@ -110,6 +112,28 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
       toast.error(error.response?.data?.message || 'Access denied.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAdminResetRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!recoveryEmail) return toast.error('Please enter your administrator email');
+    
+    setRecoveryLoading(true);
+    try {
+      const response = await authService.forgotPassword({ 
+        email: recoveryEmail, 
+        type: 'staff' 
+      });
+      if (response.success) {
+        toast.success(response.message);
+        setShowForgotDialog(false);
+        setRecoveryEmail('');
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Reset request failed. Please contact support.');
+    } finally {
+      setRecoveryLoading(false);
     }
   };
 
@@ -310,7 +334,13 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
                     <div className="space-y-3 group">
                       <div className="flex justify-between items-center px-2">
                          <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] group-focus-within:text-primary transition-colors">Password</label>
-                         <ShieldAlert className="w-4 h-4 text-primary opacity-40" />
+                         <button 
+                           type="button"
+                           onClick={() => setShowForgotDialog(true)}
+                           className="text-[10px] font-black text-primary hover:text-primary/70 uppercase tracking-widest transition-all italic underline underline-offset-4"
+                         >
+                           Forgot?
+                         </button>
                       </div>
                       <div className="relative">
                         <Lock className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-all duration-500" />
@@ -381,34 +411,63 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
                 <Lock className="w-10 h-10 text-primary" />
              </div>
              <div className="space-y-2">
-                <DialogTitle className="text-3xl font-black tracking-tighter uppercase leading-none text-foreground">Password Recovery</DialogTitle>
+                <DialogTitle className="text-3xl font-black tracking-tighter uppercase leading-none text-foreground">Account Recovery</DialogTitle>
                 <DialogDescription className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] leading-relaxed max-w-sm">
-                  Contact the institutional administrator to verify your identity and reset your account access.
+                  {activePortal === 'student' 
+                    ? "Students must contact the administration to reset their account password."
+                    : "Only administrators can reset via email. Other staff must contact administration."
+                  }
                 </DialogDescription>
              </div>
           </div>
-          <div className="p-12 space-y-8">
-            <div className="p-8 bg-secondary/30 rounded-[2rem] border border-foreground/5 space-y-6">
-              <div className="flex items-center justify-between">
-                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em]">Official Email</p>
-                <Mail className="w-5 h-5 text-primary opacity-40" />
+          
+          <div className="p-12 space-y-10">
+            {/* Admin Reset Section (Visible in Staff Portal) */}
+            {activePortal === 'staff' && (
+              <form onSubmit={handleAdminResetRequest} className="space-y-6 pb-10 border-b border-foreground/5">
+                <div className="space-y-3 group">
+                  <label className="text-[9px] font-black text-primary uppercase tracking-[0.4em] ml-2">Administrator Recovery</label>
+                  <div className="relative">
+                    <Mail className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-all" />
+                    <Input 
+                      type="email"
+                      placeholder="admin@university.edu.pk"
+                      value={recoveryEmail}
+                      onChange={(e) => setRecoveryEmail(e.target.value)}
+                      className="h-14 pl-14 bg-secondary/30 border-none rounded-2xl font-bold text-sm focus-visible:ring-2 focus-visible:ring-primary/20"
+                    />
+                  </div>
+                </div>
+                <Button disabled={recoveryLoading} className="w-full h-14 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20">
+                  {recoveryLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Request Reset Link"}
+                </Button>
+              </form>
+            )}
+
+            {/* Standard Contact Section */}
+            <div className="space-y-8">
+              <div className="p-8 bg-secondary/30 rounded-[2rem] border border-foreground/5 space-y-6">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em]">Help Desk Contact</p>
+                  <Building2 className="w-5 h-5 text-primary opacity-40" />
+                </div>
+                <p className="text-xl font-black tracking-tight text-foreground">admin@university.edu.pk</p>
               </div>
-              <p className="text-xl font-black tracking-tight text-foreground">admin@university.edu.pk</p>
-            </div>
-            <div className="grid grid-cols-2 gap-6">
-              <Button className="h-16 rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest bg-primary shadow-strong" onClick={handleCopyEmail}>
-                {copied ? <Check className="w-5 h-5 mr-3" /> : <Copy className="w-5 h-5 mr-3" />}
-                {copied ? 'Copied' : 'Copy Email'}
-              </Button>
-              <Button variant="outline" className="h-16 rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest border-foreground/5 bg-secondary/50 hover:bg-emerald-500 hover:text-white transition-all" onClick={() => window.open(`https://wa.me/923001234567`, '_blank')}>
-                <MessageSquare className="w-5 h-5 mr-3" />
-                Support
-              </Button>
+              <div className="grid grid-cols-2 gap-6">
+                <Button className="h-16 rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest bg-secondary text-foreground hover:bg-secondary/70" onClick={handleCopyEmail}>
+                  {copied ? <Check className="w-5 h-5 mr-3" /> : <Copy className="w-5 h-5 mr-3" />}
+                  {copied ? 'Copied' : 'Copy Email'}
+                </Button>
+                <Button variant="outline" className="h-16 rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest border-foreground/5 bg-primary text-white hover:bg-primary/90 transition-all border-none" onClick={() => window.open(`https://wa.me/923001234567`, '_blank')}>
+                  <MessageSquare className="w-5 h-5 mr-3" />
+                  WhatsApp
+                </Button>
+              </div>
             </div>
           </div>
           <DialogFooter className="px-12 pb-12">
             <Button type="button" variant="ghost" onClick={() => setShowForgotDialog(false)} className="w-full h-14 font-black text-[11px] uppercase tracking-[0.4em] text-muted-foreground hover:bg-secondary rounded-2xl transition-all">
-              Cancel
+              Back to Login
             </Button>
           </DialogFooter>
         </DialogContent>
