@@ -434,7 +434,7 @@ router.put('/change-password',
  */
 router.post('/forgot-password',
   [
-    body('email').isEmail().withMessage('Valid email is required'),
+    body('email').optional().isEmail().withMessage('Valid email is required'),
     body('type').isIn(['student', 'staff']).withMessage('Valid user type is required'),
     validate
   ],
