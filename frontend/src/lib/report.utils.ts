@@ -1,23 +1,5 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-
-// Type definitions for jspdf-autotable
-interface UserOptions {
-  startY?: number;
-  head?: any[][];
-  body?: any[][];
-  theme?: 'striped' | 'grid' | 'plain';
-  styles?: any;
-  headStyles?: any;
-  columnStyles?: any;
-  margin?: { top?: number; right?: number; bottom?: number; left?: number };
-}
-
-declare module 'jspdf' {
-  interface jsPDF {
-    autoTable: (options: UserOptions) => jsPDF;
-  }
-}
+import autoTable from 'jspdf-autotable';
 
 export const exportAdminReport = (data: any) => {
   const doc = new jsPDF();
@@ -54,7 +36,7 @@ export const exportAdminReport = (data: any) => {
     ['Clearance Requests', counts.totalClearanceRequests || 0]
   ];
 
-  doc.autoTable({
+  autoTable(doc, {
     startY: 55,
     head: [['Metric', 'Value']],
     body: stats,
@@ -71,7 +53,7 @@ export const exportAdminReport = (data: any) => {
     d.count || 0
   ]);
 
-  doc.autoTable({
+  autoTable(doc, {
     startY: (doc as any).lastAutoTable.finalY + 20,
     head: [['Department', 'Code', 'Pending Requests']],
     body: pendingStats,
@@ -126,7 +108,7 @@ export const exportStudentStatus = (student: any, request: any) => {
     ['Batch', student.batch]
   ];
 
-  doc.autoTable({
+  autoTable(doc, {
     startY: 50,
     body: studentInfo,
     theme: 'plain',
@@ -143,7 +125,7 @@ export const exportStudentStatus = (student: any, request: any) => {
     s.cleared_at ? new Date(s.cleared_at).toLocaleDateString() : '---'
   ]);
 
-  doc.autoTable({
+  autoTable(doc, {
     startY: (doc as any).lastAutoTable.finalY + 20,
     head: [['Department', 'Status', 'Dues/Remarks', 'Cleared Date']],
     body: statuses,
