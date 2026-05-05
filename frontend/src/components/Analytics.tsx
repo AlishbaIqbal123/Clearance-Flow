@@ -13,6 +13,13 @@ import { Button } from '@/components/ui/button';
 import { analyticsService } from '@/lib/analytics.service';
 import { toast } from 'sonner';
 
+interface DepartmentStat {
+  name: string;
+  progress: number;
+  status: string;
+  color: string;
+}
+
 export const Analytics = () => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -72,11 +79,11 @@ export const Analytics = () => {
     }
   ];
 
-  const departmentPerformance = (data?.departmentPerformance || []).slice(0, 5).map((d: any) => ({
-    name: d.name,
+  const departmentPerformance: DepartmentStat[] = (data?.departmentPerformance || []).slice(0, 5).map((d: any) => ({
+    name: d.name || 'Unknown Node',
     progress: d.clearanceRate || 0,
-    status: d.clearanceRate > 80 ? 'GOOD' : d.clearanceRate > 50 ? 'MODERATE' : 'BUSY',
-    color: d.clearanceRate > 80 ? 'bg-emerald-500' : d.clearanceRate > 50 ? 'bg-amber-500' : 'bg-primary'
+    status: (d.clearanceRate || 0) > 80 ? 'GOOD' : (d.clearanceRate || 0) > 50 ? 'MODERATE' : 'BUSY',
+    color: (d.clearanceRate || 0) > 80 ? 'bg-emerald-500' : (d.clearanceRate || 0) > 50 ? 'bg-amber-500' : 'bg-primary'
   }));
 
   const recentTrends = [
@@ -187,7 +194,7 @@ export const Analytics = () => {
             </div>
           </CardHeader>
           <CardContent className="p-5 sm:p-6 space-y-5 sm:space-y-8">
-            {departmentPerformance.map((dept, i) => (
+            {Array.isArray(departmentPerformance) && departmentPerformance.map((dept: DepartmentStat, i: number) => (
               <div key={i} className="space-y-3 sm:space-y-4 group/item">
                 <div className="flex justify-between items-end">
                    <div className="space-y-0.5">
