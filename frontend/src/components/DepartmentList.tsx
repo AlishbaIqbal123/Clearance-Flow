@@ -282,7 +282,7 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
       </div>
 
       <Dialog open={isAddOpen || isEditOpen} onOpenChange={(open) => { if(!open) { setIsAddOpen(false); setIsEditOpen(false); } }}>
-        <DialogContent className="sm:max-w-[480px] w-[95vw] rounded-2xl p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500">
+        <DialogContent className="sm:max-w-[480px] w-[95vw] rounded-2xl p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 max-h-[90vh] overflow-y-auto custom-scrollbar">
           <div className={`${isEditOpen ? 'bg-amber-600' : 'bg-primary'} p-6 text-white relative`}>
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-[60px]" />
             <div className="relative z-10 space-y-3">

@@ -469,8 +469,8 @@ export const StudentList = () => {
       </Card>
 
       {/* Enroll/Edit Identity Dialog */}
-      <Dialog open={isAddOpen || isEditOpen} onOpenChange={(open) => !open && (setIsAddOpen(false), setIsEditOpen(false))}>
-        <DialogContent className="sm:max-w-[550px] w-[95vw] rounded-[2rem] p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500">
+      <Dialog open={isAddOpen || isEditOpen} onOpenChange={(open) => { if(!open) { setIsAddOpen(false); setIsEditOpen(false); } }}>
+        <DialogContent className="sm:max-w-[550px] w-[95vw] rounded-[2rem] p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 max-h-[90vh] overflow-y-auto custom-scrollbar">
           <div className={`${isEditOpen ? 'bg-amber-600' : 'bg-primary'} p-6 sm:p-10 text-white relative`}>
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-24 -mt-24 blur-[80px]" />
             <div className="relative z-10 space-y-4">
@@ -584,7 +584,7 @@ export const StudentList = () => {
 
       {/* View Student Details Dialog */}
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <DialogContent className="sm:max-w-[550px] w-[95vw] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500">
+        <DialogContent className="sm:max-w-[550px] w-[95vw] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 max-h-[90vh] overflow-y-auto custom-scrollbar">
           <div className="bg-foreground p-8 sm:p-10 text-background relative">
             <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-primary/20 rounded-full -mr-32 -mt-32 blur-[100px]" />
             

@@ -418,7 +418,7 @@ export const OfficialList = () => {
 
       {/* Add/Edit Staff Dialog */}
       <Dialog open={isAddOpen || isEditOpen} onOpenChange={(open) => { if(!open) { setIsAddOpen(false); setIsEditOpen(false); } }}>
-        <DialogContent className="sm:max-w-[500px] w-[95vw] rounded-2xl p-0 overflow-hidden border-none shadow-strong bg-background">
+        <DialogContent className="sm:max-w-[500px] w-[95vw] rounded-2xl p-0 overflow-hidden border-none shadow-strong bg-background max-h-[90vh] overflow-y-auto custom-scrollbar">
           <div className={`${isEditOpen ? 'bg-amber-600' : 'bg-primary'} p-6 text-white relative`}>
             <div className="relative z-10 space-y-2">
                <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center backdrop-blur-md">

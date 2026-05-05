@@ -417,7 +417,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
           setMaskedEmail('');
         }
       }}>
-        <DialogContent className="sm:max-w-xl rounded-[3rem] border-none shadow-strong p-0 bg-background text-foreground overflow-hidden">
+        <DialogContent className="sm:max-w-xl rounded-[3rem] border-none shadow-strong p-0 bg-background text-foreground overflow-hidden max-h-[90vh] overflow-y-auto custom-scrollbar">
           <div className="bg-primary/5 p-12 space-y-8 relative overflow-hidden">
              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full -mr-32 -mt-32 blur-[100px]" />
              <div className="w-20 h-20 bg-primary/10 rounded-[2rem] flex items-center justify-center relative shadow-inner">
