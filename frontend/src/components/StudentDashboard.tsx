@@ -350,10 +350,11 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
         </div>
       </div>
 
-      {/* Degree Fulfillment Section - Appears at 100% Clearance */}
+      {/* Degree Fulfillment Section - Selection Phase */}
       {(activeRequest?.status === 'cleared' || activeRequest?.progress?.percentage === 100) && 
        (!activeRequest?.degree_fulfillment || Object.keys(activeRequest.degree_fulfillment).length === 0) && (
         <div className="animate-in zoom-in-95 slide-in-from-top-12 duration-1000 ease-out">
+          {/* ... existing selection card content ... */}
           <Card className="border-none shadow-strong rounded-[2.5rem] bg-foreground text-background overflow-hidden relative group">
             <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[15%] -mt-[10%] blur-[120px] animate-pulse" />
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 rounded-full -ml-32 -mb-32 blur-[80px]" />
@@ -429,6 +430,51 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                   <div className="text-left">
                     <span className="block text-white group-hover:text-inherit">Manual Pickup</span>
                     <span className="block text-[7px] text-white/40 group-hover:text-inherit/40 mt-0.5">Collect from Registrar</span>
+                  </div>
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Fulfillment Status Section - Appears after Selection */}
+      {activeRequest?.degree_fulfillment && Object.keys(activeRequest.degree_fulfillment).length > 0 && (
+        <div className="animate-in zoom-in-95 slide-in-from-top-12 duration-1000 ease-out">
+          <Card className="border-none shadow-strong rounded-[2.5rem] bg-emerald-950 text-white overflow-hidden relative group">
+            <div className="absolute top-0 right-0 w-[40%] h-full bg-emerald-500/20 rounded-full -mr-[15%] -mt-[10%] blur-[120px]" />
+            
+            <div className="flex flex-col lg:flex-row items-center gap-10 p-8 sm:p-12 relative z-10">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-emerald-500/20 rounded-[2rem] flex items-center justify-center backdrop-blur-xl border border-emerald-500/30">
+                <Truck className="w-10 h-10 sm:w-12 sm:h-12 text-emerald-400" />
+              </div>
+              
+              <div className="flex-1 text-center lg:text-left space-y-4">
+                <div className="space-y-1">
+                  <Badge className="bg-emerald-500 text-white border-none font-black text-[9px] uppercase tracking-[0.4em] px-4 py-1.5 rounded-full shadow-lg mb-2">Fulfillment in Progress</Badge>
+                  <h3 className="text-3xl font-black tracking-tighter uppercase leading-none">
+                    {activeRequest.degree_fulfillment.method === 'dispatch' ? 'Dispatch Request Sent' : 'Manual Pickup Scheduled'}
+                  </h3>
+                </div>
+                <p className="text-sm font-bold text-emerald-100/60 uppercase tracking-widest max-w-xl">
+                  {activeRequest.degree_fulfillment.method === 'dispatch' 
+                    ? `Your degree is being prepared for dispatch to: ${activeRequest.degree_fulfillment.address}`
+                    : 'Your degree is available for pickup at the Registrar Office during official hours.'}
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+                <Button 
+                  variant="outline"
+                  className="h-16 sm:h-20 px-10 rounded-[1.75rem] border-2 border-emerald-500/30 text-white hover:bg-white hover:text-emerald-950 font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 min-w-[240px]"
+                  onClick={() => window.location.href = 'mailto:registrar@university.edu?subject=Clearance Fulfillment Inquiry'}
+                >
+                  <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center">
+                    <MessageSquare className="w-5 h-5 text-emerald-400" />
+                  </div>
+                  <div className="text-left">
+                    <span className="block">Support Center</span>
+                    <span className="block text-[7px] opacity-40 mt-0.5">Contact for Inquiries</span>
                   </div>
                 </Button>
               </div>

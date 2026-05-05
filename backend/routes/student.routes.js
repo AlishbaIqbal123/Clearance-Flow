@@ -180,18 +180,14 @@ router.get('/dashboard',
     if (allRequests && allRequests.length > 0) {
       const latest = allRequests[0];
       
-      // If the latest request is cleared but fulfillment is missing, it's still "active" for the student
-      const isFulfillmentMissing = !latest.degree_fulfillment || 
-                                   (typeof latest.degree_fulfillment === 'object' && Object.keys(latest.degree_fulfillment).length === 0);
-      
-      if (latest.status === 'cleared' && isFulfillmentMissing) {
+      // If the latest request is cleared, it stays the "active" context for the student 
+      // until they manually acknowledge completion or start a new process.
+      if (latest.status === 'cleared') {
         activeRequest = latest;
-      } else if (!['cleared', 'cancelled'].includes(latest.status)) {
-        // Any other non-terminal status is active
+      } else if (latest.status !== 'cancelled') {
+        // Any other non-terminal status (rejected, submitted, in_progress) is active
         activeRequest = latest;
       }
-      // Note: if it's cleared and HAS fulfillment, or if it's cancelled, we let it fall through to null
-      // so the student can start a new request.
     }
 
     if (activeRequest) {
