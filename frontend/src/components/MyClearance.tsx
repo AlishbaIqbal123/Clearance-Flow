@@ -448,15 +448,44 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
              </p>
           </div>
           
-           <Button 
-            variant="ghost" 
-            onClick={fetchClearanceData}
-            disabled={refreshing}
-            className="w-full sm:w-auto rounded-2xl h-14 px-8 font-black text-[10px] uppercase tracking-[0.4em] text-muted-foreground hover:bg-card hover:text-primary hover:shadow-strong transition-all duration-700 bg-card/40 backdrop-blur-md shrink-0 border border-foreground/5 group/refresh"
-          >
-            <RefreshCcw className={`w-5 h-5 mr-3 group-hover/refresh:rotate-180 transition-transform duration-700 ${refreshing ? 'animate-spin' : ''}`} />
-            Sync Status
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 shrink-0">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                if (!data?.activeRequest) {
+                  toast.error('No active clearance protocol found');
+                  return;
+                }
+                const promise = new Promise((resolve) => {
+                  setTimeout(() => {
+                    import('@/lib/report.utils').then(module => {
+                      module.exportStudentStatus(data.student, data.activeRequest);
+                      resolve(true);
+                    });
+                  }, 1000);
+                });
+                toast.promise(promise, {
+                  loading: 'Synthesizing clearance status report...',
+                  success: 'Clearance status exported successfully!',
+                  error: 'Failed to synthesize report'
+                });
+              }}
+              className="w-full sm:w-auto rounded-2xl h-14 px-8 font-black text-[10px] uppercase tracking-[0.4em] text-primary hover:bg-primary/5 hover:shadow-strong transition-all duration-700 bg-card/40 backdrop-blur-md border border-primary/20 group/export"
+            >
+              <Download className="w-5 h-5 mr-3 group-hover/export:-translate-y-1 transition-transform" />
+              Export PDF
+            </Button>
+
+            <Button 
+              variant="ghost" 
+              onClick={fetchClearanceData}
+              disabled={refreshing}
+              className="w-full sm:w-auto rounded-2xl h-14 px-8 font-black text-[10px] uppercase tracking-[0.4em] text-muted-foreground hover:bg-card hover:text-primary hover:shadow-strong transition-all duration-700 bg-card/40 backdrop-blur-md shrink-0 border border-foreground/5 group/refresh"
+            >
+              <RefreshCcw className={`w-5 h-5 mr-3 group-hover/refresh:rotate-180 transition-transform duration-700 ${refreshing ? 'animate-spin' : ''}`} />
+              Sync Status
+            </Button>
+          </div>
       </div>
 
       {activeRequest ? (

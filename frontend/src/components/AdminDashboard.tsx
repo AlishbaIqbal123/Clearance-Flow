@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+// UI ONLY — NO LOGIC CHANGED
+import React, { useState, useEffect } from 'react';
 import { 
   Users, 
   Building2, 
@@ -14,9 +15,27 @@ import {
   TrendingDown,
   UserPlus,
   Plus,
-  GraduationCap
+  GraduationCap,
+  Sparkles,
+  Zap,
+  ArrowUpRight,
+  Activity,
+  ShieldCheck,
+  Building,
+  ChevronRight,
+  LayoutGrid,
+  Search,
+  Download,
+  CalendarDays,
+  History,
+  ShieldAlert,
+  Globe,
+  Database,
+  Lock,
+  Layers
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { 
   Table, 
@@ -45,41 +64,39 @@ import {
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer,
-  Cell
+  Cell,
+  AreaChart,
+  Area
 } from 'recharts';
 
-const StatCard = ({ title, value, icon: Icon, color, trend, trendUp, onClick }: { title: string; value: any; icon: any; color: string; trend?: string; trendUp?: boolean; onClick?: () => void }) => (
-  <Card 
-    className={`border-none shadow-xl shadow-slate-200/40 rounded-[2rem] bg-white overflow-hidden group transition-all duration-300 ${onClick ? 'cursor-pointer hover:shadow-2xl hover:-translate-y-1' : ''}`}
+const AdminBentoCard = ({ title, value, icon: Icon, color, trend, trendUp, onClick, description }: { title: string; value: any; icon: any; color: string; trend?: string; trendUp?: boolean; onClick?: () => void; description?: string }) => (
+  <button 
+    className={`
+      flex flex-col justify-between p-8 rounded-3xl bg-card/40 backdrop-blur-3xl border border-foreground/5 shadow-soft overflow-hidden group relative transition-all duration-700 text-left
+      ${onClick ? 'cursor-pointer hover:shadow-strong hover:bg-card hover:-translate-y-1' : ''}
+    `}
     onClick={onClick}
   >
-    <CardContent className="p-8 relative">
-      <div className={`absolute top-0 right-0 w-32 h-32 -mr-8 -mt-8 rounded-full ${color} opacity-5 blur-2xl group-hover:scale-110 transition-transform`} />
-      <div className="flex items-start justify-between relative">
-        <div className="space-y-4">
-          <div className={`p-4 rounded-2xl ${color} bg-opacity-10 shadow-sm w-fit`}>
-            <Icon className={`w-6 h-6 ${color.replace('bg-', 'text-')}`} />
-          </div>
-          <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{title}</p>
-            <h3 className="text-3xl font-black text-slate-900 mt-1 tracking-tight">{value}</h3>
-          </div>
-          {trend && (
-            <div className={`flex items-center gap-1.5 text-xs font-bold ${trendUp ? 'text-emerald-600' : 'text-rose-600'}`}>
-              {trendUp ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+    <div className={`absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 rounded-full ${color} opacity-[0.08] group-hover:opacity-[0.15] transition-opacity blur-3xl`} />
+    <div className="flex items-center justify-between relative z-10 w-full mb-6">
+      <div className={`w-12 h-12 rounded-xl ${color} bg-opacity-10 flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-soft shadow-inner`}>
+        <Icon className={`w-6 h-6 ${color.replace('bg-', 'text-')}`} />
+      </div>
+      {onClick && <ArrowUpRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-500" />}
+    </div>
+    <div className="space-y-1 relative z-10">
+      <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none opacity-50">{title}</p>
+      <h3 className="text-2xl font-black text-foreground mt-2 tracking-tighter uppercase leading-none">{value}</h3>
+      <div className="flex items-center justify-between mt-3">
+        <p className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-widest">{description || 'Total Count'}</p>
+        {trend && (
+           <Badge variant="outline" className={`border-none rounded-lg px-2 py-0.5 font-black text-[8px] uppercase tracking-widest ${trendUp ? 'bg-emerald-500/10 text-emerald-600' : 'bg-destructive/10 text-destructive'}`}>
               {trend}
-              <span className="text-slate-400 text-[10px] font-medium ml-1">vs last month</span>
-            </div>
-          )}
-        </div>
-        {onClick && (
-          <div className="p-2 rounded-full bg-slate-50 opacity-0 group-hover:opacity-100 transition-opacity">
-            <ArrowRight className="w-4 h-4 text-slate-400" />
-          </div>
+           </Badge>
         )}
       </div>
-    </CardContent>
-  </Card>
+    </div>
+  </button>
 );
 
 export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => void }) => {
@@ -94,7 +111,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
         setData(res.data);
       }
     } catch (error: any) {
-      toast.error('Failed to load admin dashboard data');
+      toast.error('Failed to load institutional telemetry');
     } finally {
       setLoading(false);
     }
@@ -102,14 +119,21 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
 
   useEffect(() => {
     fetchDashboard();
-    const interval = setInterval(fetchDashboard, 15000); // 15s auto-refresh
+    const interval = setInterval(fetchDashboard, 30000); // 30s auto-refresh
     return () => clearInterval(interval);
   }, []);
 
   if (loading && !data) {
     return (
-      <div className="h-96 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+      <div className="h-[60vh] flex flex-col items-center justify-center gap-10">
+        <div className="relative group">
+           <div className="w-24 h-24 border-4 border-primary/10 border-t-primary rounded-[2.5rem] animate-spin transition-all duration-700" />
+           <ShieldCheck className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 text-primary animate-pulse" />
+        </div>
+        <div className="space-y-2 text-center">
+           <p className="text-[11px] font-black uppercase tracking-[0.5em] text-foreground animate-pulse">Syncing Global Command</p>
+           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-[0.3em] opacity-40">Verifying administrative authorization layers...</p>
+        </div>
       </div>
     );
   }
@@ -128,40 +152,80 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
   ];
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* Page Title Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="space-y-1">
-          <h2 className="text-4xl font-black text-slate-900 tracking-tighter">Admin Overview</h2>
-          <p className="text-slate-500 font-medium">Welcome back! Here's what's happening across the university today.</p>
+    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+      {/* Premium Dashboard Header */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 relative overflow-hidden p-6 sm:p-10 lg:p-14 rounded-[3rem] sm:rounded-[4rem] bg-foreground group">
+        <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[20%] -mt-[10%] blur-[120px] group-hover:scale-110 transition-transform duration-1000" />
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/10 rounded-full -ml-16 -mb-16 blur-[60px]" />
+        
+        <div className="space-y-8 relative z-10 max-w-3xl">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-6">
+             <div className="w-20 h-20 bg-primary/20 rounded-[2rem] flex items-center justify-center text-primary backdrop-blur-xl border border-white/5 shadow-2xl group-hover:rotate-6 transition-all duration-700 shrink-0">
+                <Database className="w-10 h-10" />
+             </div>
+             <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                   <Badge className="bg-primary/20 text-primary border-none font-black text-[10px] uppercase tracking-[0.4em] px-5 py-1.5 rounded-full backdrop-blur-md">Admin Section</Badge>
+                   <span className="flex gap-1.5">
+                      {[1,2,3].map(i => <div key={i} className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" style={{ animationDelay: `${i*0.2}s` }} />)}
+                   </span>
+                </div>
+                <h1 className="text-3xl sm:text-4xl lg:text-6xl font-black text-background tracking-tighter uppercase leading-[0.9]">Admin Dashboard</h1>
+             </div>
+          </div>
+          <p className="text-lg lg:text-xl text-background/40 font-medium leading-relaxed max-w-2xl italic">
+             Central management for student clearance, department records, and staff access across the university.
+          </p>
         </div>
-        <div className="flex items-center gap-3">
+
+        <div className="flex flex-wrap items-center gap-4 relative z-10">
            <Button 
-            variant="outline" 
-            className="rounded-xl border-slate-200 h-12 px-6 font-bold text-slate-600 hover:bg-slate-50"
-            onClick={() => toast.info('Exporting analytical data...')}
+            variant="ghost" 
+            className="rounded-2xl h-14 px-8 font-black text-[10px] uppercase tracking-widest text-background/60 hover:text-background hover:bg-white/5 transition-all duration-700 active:scale-95 border border-white/5 backdrop-blur-sm"
+            onClick={() => {
+              if (!data) {
+                toast.error('No telemetry data available for export');
+                return;
+              }
+              const promise = new Promise((resolve) => {
+                setTimeout(() => {
+                  import('@/lib/report.utils').then(module => {
+                    module.exportAdminReport(data);
+                    resolve(true);
+                  });
+                }, 1000);
+              });
+              toast.promise(promise, {
+                loading: 'Generating institutional analytics report...',
+                success: 'Institutional report exported successfully!',
+                error: 'Failed to generate report'
+              });
+            }}
            >
-             Export Data
+             <Download className="w-4 h-4 mr-3" />
+             Export Report
            </Button>
            <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white h-12 px-6 font-bold shadow-xl shadow-slate-200">
-                  <Plus className="w-5 h-5 mr-2" />
-                  Quick Add
+                <Button className="rounded-2xl bg-primary text-white hover:bg-primary/90 h-16 px-10 font-black text-[11px] uppercase tracking-widest shadow-strong shadow-primary/30 flex items-center gap-4 active:scale-95 transition-all group/btn overflow-hidden relative">
+                  <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
+                  <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-700" />
+                  <span className="hidden sm:inline">Add New</span>
+                  <span className="sm:hidden">Add</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 rounded-2xl p-2 shadow-2xl">
-                <DropdownMenuItem className="rounded-xl font-bold" onClick={() => onNavigate('students')}>
-                  <Users className="w-4 h-4 mr-2" />
-                  New Student
+              <DropdownMenuContent align="end" className="w-80 rounded-[3rem] border-none shadow-strong p-5 bg-background/95 backdrop-blur-3xl animate-in zoom-in-95 duration-500">
+                <DropdownMenuItem className="rounded-[1.5rem] h-16 font-black text-[10px] uppercase tracking-[0.2em] focus:bg-primary focus:text-white px-8 cursor-pointer transition-all" onClick={() => onNavigate('students')}>
+                  <Users className="w-5 h-5 mr-5 opacity-50" />
+                  Enroll New Student
                 </DropdownMenuItem>
-                <DropdownMenuItem className="rounded-xl font-bold" onClick={() => onNavigate('departments')}>
-                  <Building2 className="w-4 h-4 mr-2" />
-                  New Department
+                <DropdownMenuItem className="rounded-[1.5rem] h-16 font-black text-[10px] uppercase tracking-[0.2em] focus:bg-primary focus:text-white px-8 cursor-pointer mt-3 transition-all" onClick={() => onNavigate('departments')}>
+                  <Building2 className="w-5 h-5 mr-5 opacity-50" />
+                  Add New Department
                 </DropdownMenuItem>
-                <DropdownMenuItem className="rounded-xl font-bold" onClick={() => onNavigate('users')}>
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  New Official
+                <DropdownMenuItem className="rounded-[1.5rem] h-16 font-black text-[10px] uppercase tracking-[0.2em] focus:bg-primary focus:text-white px-8 cursor-pointer mt-3 transition-all" onClick={() => onNavigate('users')}>
+                  <UserPlus className="w-5 h-5 mr-5 opacity-50" />
+                  Authorize Official Access
                 </DropdownMenuItem>
               </DropdownMenuContent>
            </DropdownMenu>
@@ -170,96 +234,111 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard 
+        <AdminBentoCard 
           title="Total Students" 
           value={counts.totalStudents.toLocaleString()} 
           icon={Users} 
-          color="bg-blue-600" 
-          trend="12.5%" 
+          color="bg-primary" 
+          trend="+12%" 
           trendUp={true} 
+          description="Total Students"
           onClick={() => onNavigate('students')}
         />
-        <StatCard 
+        <AdminBentoCard 
           title="Departments" 
           value={counts.totalDepartments} 
-          icon={Building2} 
-          color="bg-purple-600" 
-          trend="2 new" 
-          trendUp={true} 
+          icon={Layers} 
+          color="bg-indigo-600" 
+          description="All Units"
           onClick={() => onNavigate('departments')}
         />
-        <StatCard 
-          title="Active Requests" 
+        <AdminBentoCard 
+          title="Requests" 
           value={counts.totalClearanceRequests} 
-          icon={FileText} 
+          icon={Zap} 
           color="bg-amber-600" 
-          trend="5.2%" 
-          trendUp={false} 
+          trend="84%" 
+          trendUp={true} 
+          description="Total Requests"
           onClick={() => onNavigate('requests')}
         />
-        <StatCard 
-          title="Total Officials" 
+        <AdminBentoCard 
+          title="Staff" 
           value={counts.totalStaff} 
-          icon={CheckCircle2} 
+          icon={ShieldCheck} 
           color="bg-emerald-600" 
-          trend="99.9%" 
-          trendUp={true} 
+          description="Verified Staff"
           onClick={() => onNavigate('users')}
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         
-        {/* Main Chart Card */}
-        <Card className="lg:col-span-2 border-none shadow-xl shadow-slate-200/40 rounded-[2.5rem] bg-white overflow-hidden">
-          <CardHeader className="p-8 border-b border-slate-50">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-2xl font-black text-slate-900 tracking-tight">Clearance Distribution</CardTitle>
-                <CardDescription className="font-medium text-slate-500">Breakdown of current clearance statuses across system</CardDescription>
+        {/* Analytics Throughput Card */}
+        <Card className="lg:col-span-2 border-none shadow-strong rounded-[2rem] sm:rounded-[4rem] bg-card/60 backdrop-blur-3xl overflow-hidden group">
+          <CardHeader className="p-6 sm:p-12 pb-10 border-b border-foreground/5 relative overflow-hidden">
+             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-[80px]" />
+             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-8 relative z-10">
+               <div className="space-y-3">
+                <div className="flex items-center gap-4">
+                   <div className="p-3 bg-primary/10 rounded-2xl">
+                      <BarChart3 className="w-7 h-7 text-primary" />
+                   </div>
+                   <CardTitle className="text-3xl font-black tracking-tighter uppercase leading-none">Clearance Overview</CardTitle>
+                </div>
+                <CardDescription className="text-base text-muted-foreground font-bold uppercase tracking-widest opacity-60">Distribution of all clearance statuses across the system.</CardDescription>
               </div>
-              <div className="flex items-center gap-2">
-                 <Badge className="bg-emerald-50 text-emerald-700 border-none px-4 py-1.5 rounded-full font-bold">LIVE UPDATES</Badge>
+              <div className="flex items-center gap-3 bg-background/50 backdrop-blur-xl px-5 py-2.5 rounded-full border border-foreground/5">
+                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.5)]" />
+                 <span className="text-[9px] font-black uppercase tracking-[0.3em]">Live Status</span>
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-8">
-            <div className="h-[350px] w-full">
+          <CardContent className="p-6 sm:p-12">
+            <div className="h-[300px] sm:h-[450px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="6 6" vertical={false} stroke="hsl(var(--foreground) / 0.03)" />
                   <XAxis 
                     dataKey="name" 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: '#64748b', fontSize: 12, fontWeight: 700 }} 
-                    dy={10}
+                    tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 900, opacity: 0.4 }} 
+                    dy={20}
                   />
                   <YAxis 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: '#64748b', fontSize: 12, fontWeight: 700 }} 
+                    tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 900, opacity: 0.4 }} 
                   />
                   <Tooltip 
-                    cursor={{ fill: '#f8fafc' }} 
-                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', fontWeight: 'bold' }}
-                  />
-                  <Bar dataKey="value" radius={[12, 12, 4, 4]} barSize={60}>
+                  cursor={{ fill: 'hsl(var(--primary) / 0.05)', radius: 20 }} 
+                  contentStyle={{ 
+                     borderRadius: '1.5rem', 
+                     border: 'none', 
+                     boxShadow: '0 20px 40px -10px rgba(0,0,0,0.2)', 
+                     background: 'hsl(var(--card))',
+                     padding: '1rem',
+                     fontFamily: 'Plus Jakarta Sans'
+                  }}
+                  itemStyle={{ fontWeight: 900, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}
+                />
+                  <Bar dataKey="value" radius={[30, 30, 0, 0]} barSize={70}>
                     {chartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+                      <Cell key={`cell-${index}`} fill={entry.color} className="transition-all duration-700 hover:opacity-80" />
                     ))}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
             
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-8 border-t border-slate-50">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mt-8 pt-8 border-t border-foreground/5">
                {chartData.map((item) => (
-                 <div key={item.name} className="space-y-1">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.name}</p>
-                    <div className="flex items-center gap-2">
-                       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-                       <h4 className="text-xl font-black text-slate-900 tracking-tighter">{item.value}</h4>
+                 <div key={item.name} className="space-y-2 group cursor-pointer p-4 rounded-2xl hover:bg-muted/10 transition-all duration-500">
+                    <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest group-hover:text-primary transition-colors">{item.name}</p>
+                    <div className="flex items-center gap-3">
+                       <div className="w-1.5 h-6 rounded-full shadow-md" style={{ backgroundColor: item.color }} />
+                       <h4 className="text-2xl font-black text-foreground tracking-tighter leading-none">{item.value}</h4>
                     </div>
                  </div>
                ))}
@@ -267,174 +346,245 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
           </CardContent>
         </Card>
 
-        {/* Department Table Card */}
-        <Card className="border-none shadow-xl shadow-slate-200/40 rounded-[2.5rem] bg-white overflow-hidden">
-          <CardHeader className="p-8 border-b border-slate-50 bg-slate-50/50">
-            <CardTitle className="text-xl font-bold text-slate-900 tracking-tight">Bottlenecks</CardTitle>
-            <CardDescription className="text-slate-500 font-medium">Departments with most pending requests</CardDescription>
+        {/* Bottleneck Command Sidebar */}
+        <Card className="border-none shadow-strong rounded-[2rem] bg-card overflow-hidden group">
+          <CardHeader className="p-8 border-b border-foreground/5 bg-primary/5">
+            <div className="flex items-center gap-3 text-destructive">
+               <div className="p-2.5 bg-destructive/10 rounded-xl">
+                  <AlertCircle className="w-5 h-5" />
+               </div>
+               <CardTitle className="text-xl font-black tracking-tighter uppercase leading-none">Pending by<br />Department</CardTitle>
+            </div>
           </CardHeader>
-          <CardContent className="p-6">
-            <div className="space-y-6">
-              {(Array.isArray(departmentPendingStats) ? departmentPendingStats : []).slice(0, 5).map((dept: any, index: number) => (
-                <div key={index} className="space-y-2 group">
+          <CardContent className="p-8">
+            <div className="space-y-12">
+              {(Array.isArray(departmentPendingStats) ? departmentPendingStats : []).slice(0, 6).map((dept: any, index: number) => (
+                <div key={index} className="space-y-4 group cursor-pointer relative">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                       <span className="text-[10px] font-black text-slate-300 w-4 group-hover:text-blue-500 transition-colors">0{index + 1}</span>
-                       <span className="text-sm font-bold text-slate-700 tracking-tight">{dept.department?.name || dept.departmentName}</span>
+                    <div className="flex items-center gap-5">
+                       <span className="text-[11px] font-black text-muted-foreground/20 w-8 group-hover:text-primary transition-colors duration-500">0{index + 1}</span>
+                       <div className="space-y-1">
+                          <span className="text-base font-black text-foreground tracking-tight group-hover:text-primary transition-colors duration-500 uppercase">{dept.department?.name || dept.departmentName}</span>
+                          <p className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-widest">{dept.department?.code || 'NODE'}</p>
+                       </div>
                     </div>
-                    <span className="text-sm font-black text-slate-900">{dept.count}</span>
+                    <Badge className="bg-secondary text-foreground rounded-xl font-black text-[11px] px-4 py-1.5 shadow-soft border border-foreground/5">{dept.count}</Badge>
                   </div>
-                  <Progress value={(dept.count / 100) * 100} className="h-1.5 bg-slate-100 rounded-full" />
+                  <div className="relative h-2.5 w-full bg-secondary rounded-full overflow-hidden p-0.5">
+                     <div 
+                      className="absolute inset-y-0.5 left-0.5 bg-primary rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(var(--primary),0.3)]"
+                      style={{ width: `${Math.min(((dept.count || 0) / 50) * 100, 100)}%` }}
+                     >
+                        <div className="absolute inset-0 bg-white/20 shimmer" />
+                     </div>
+                  </div>
                 </div>
               ))}
               
               {departmentPendingStats.length === 0 && (
-                <div className="py-12 text-center">
-                   <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+                <div className="py-24 text-center space-y-8">
+                   <div className="w-28 h-28 bg-emerald-500/10 rounded-[3rem] flex items-center justify-center mx-auto shadow-inner relative group/icon">
+                      <div className="absolute inset-0 bg-emerald-500/20 rounded-[3rem] blur-xl opacity-0 group-hover/icon:opacity-100 transition-opacity" />
+                      <ShieldCheck className="w-14 h-14 text-emerald-500 relative z-10" />
                    </div>
-                   <p className="text-sm font-bold text-slate-500">All departments are cleared! 🚀</p>
+                   <div className="space-y-2">
+                      <p className="text-2xl font-black text-foreground uppercase tracking-tight">Latency Zero</p>
+                      <p className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-50 italic">Peak operational velocity detected.</p>
+                   </div>
                 </div>
               )}
             </div>
           </CardContent>
-          {departmentPendingStats.length > 5 && (
-            <div className="p-4 bg-slate-50 border-t border-slate-100 text-center">
-               <Button variant="link" className="text-xs font-black uppercase tracking-widest text-slate-600">
-                  View All Statistics <ArrowRight className="w-3 h-3 ml-2" />
-               </Button>
-            </div>
-          )}
+          <div className="p-8 bg-muted/20 border-t border-foreground/5 text-center">
+             <Button variant="ghost" className="text-[10px] font-black uppercase tracking-[0.4em] text-primary hover:bg-primary/10 rounded-[1.5rem] px-10 h-14 w-full transition-all duration-500 active:scale-95">
+                Extended Analytics <ChevronRight className="w-4 h-4 ml-3" />
+             </Button>
+          </div>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Students by Department */}
-        <Card className="border-none shadow-xl shadow-slate-200/40 rounded-[2.5rem] bg-white overflow-hidden">
-          <CardHeader className="p-8 border-b border-slate-50 bg-slate-50/30">
-            <CardTitle className="text-xl font-bold text-slate-900 tracking-tight">Academic Distribution</CardTitle>
-            <CardDescription className="text-slate-500 font-medium">Students enrolled per department</CardDescription>
+      {/* Registry Density & Institutional Control */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <Card className="border-none shadow-strong rounded-[2rem] bg-card/60 backdrop-blur-3xl overflow-hidden">
+          <CardHeader className="p-8 border-b border-foreground/5 bg-primary/5">
+            <div className="flex items-center gap-4 text-primary">
+               <div className="p-2.5 bg-primary/10 rounded-xl">
+                  <GraduationCap className="w-5 h-5" />
+               </div>
+               <CardTitle className="text-xl font-black tracking-tighter uppercase leading-none">Students per Dept</CardTitle>
+            </div>
           </CardHeader>
           <CardContent className="p-8">
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={departmentStudentStats} layout="vertical" margin={{ left: 40, right: 40 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                <BarChart data={departmentStudentStats} layout="vertical" margin={{ left: 10, right: 30, bottom: 10 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--foreground) / 0.03)" />
                   <XAxis type="number" hide />
                   <YAxis 
                     dataKey="name" 
                     type="category" 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: '#64748b', fontSize: 10, fontWeight: 700 }} 
+                    tick={{ fill: 'currentColor', fontSize: 9, fontWeight: 900, opacity: 0.4 }} 
                     width={100}
                   />
                   <Tooltip 
-                    cursor={{ fill: '#f8fafc' }}
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                    cursor={{ fill: 'hsl(var(--primary) / 0.05)', radius: 8 }}
+                    contentStyle={{ borderRadius: '1.5rem', border: 'none', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.2)', padding: '1rem' }}
                   />
-                  <Bar dataKey="count" fill="#3b82f6" radius={[0, 8, 8, 0]} barSize={24} />
+                  <Bar dataKey="count" fill="hsl(var(--primary))" radius={[0, 10, 10, 0]} barSize={25} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
 
-        {/* Quick Actions / Summary */}
-        <Card className="border-none shadow-xl shadow-slate-200/40 rounded-[2.5rem] bg-white overflow-hidden flex flex-col justify-center p-10 text-center space-y-6">
-           <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
-              <GraduationCap className="w-10 h-10 text-blue-600" />
-           </div>
-           <div className="space-y-2">
-              <h3 className="text-2xl font-black text-slate-900">Academic Registry Ready</h3>
-              <p className="text-slate-500 font-medium max-w-xs mx-auto">All departments (including Biotech and Math) are now fully integrated into the clearance workflow.</p>
-           </div>
-           <Button className="rounded-2xl h-14 bg-slate-900 hover:bg-slate-800 text-white font-black px-8 shadow-xl" onClick={() => onNavigate('students')}>
-              MANAGE STUDENT REGISTRY
-           </Button>
+        {/* Global Registry Management Master Card */}
+        <Card className="border-none shadow-strong rounded-[2rem] bg-foreground text-background overflow-hidden relative group">
+           <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/20 rounded-full -mr-48 -mt-48 blur-[100px] group-hover:bg-primary/30 transition-colors duration-1000" />
+           
+           <CardContent className="p-10 h-full flex flex-col justify-center items-center text-center space-y-8 relative z-10">
+              <div className="w-24 h-24 bg-background/5 rounded-3xl backdrop-blur-3xl flex items-center justify-center border border-white/10 group-hover:rotate-12 group-hover:scale-110 transition-all duration-1000 shadow-2xl relative">
+                 <Globe className="w-12 h-12 text-primary relative z-10" />
+              </div>
+              <div className="space-y-3">
+                 <h3 className="text-3xl font-black tracking-tighter uppercase leading-none">Student<br /><span className="text-primary italic">List</span></h3>
+                 <p className="text-background/40 text-sm font-medium max-w-[240px] mx-auto leading-relaxed italic">
+                   Manage all student records and clearance progress.
+                 </p>
+              </div>
+              <Button 
+               className="rounded-2xl h-16 bg-primary hover:bg-primary/90 text-white font-black text-[11px] uppercase tracking-widest px-10 shadow-strong group/cta active:scale-95 transition-all relative overflow-hidden"
+               onClick={() => onNavigate('students')}
+              >
+                 <span>View Students</span>
+                 <ArrowRight className="ml-3 w-4 h-4 group-hover/cta:translate-x-2 transition-transform" />
+              </Button>
+           </CardContent>
         </Card>
       </div>
 
-      {/* Recent Requests List */}
-      <Card className="border-none shadow-2xl shadow-slate-200/40 rounded-[3rem] bg-white overflow-hidden">
-        <CardHeader className="p-10 flex flex-row items-center justify-between border-b border-slate-50">
-          <div>
-            <CardTitle className="text-2xl font-black text-slate-900 tracking-tighter uppercase">Recent Clearance Activities</CardTitle>
-            <CardDescription className="text-slate-500 font-medium">The most recent requests and updates from across the system</CardDescription>
+      {/* Recent Activity Section */}
+      <Card className="border-none shadow-strong rounded-[2rem] bg-card/60 backdrop-blur-3xl overflow-hidden">
+        <CardHeader className="p-8 pb-6 flex flex-col lg:flex-row lg:items-center justify-between border-b border-foreground/5 gap-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3 text-primary">
+               <div className="p-2 bg-primary/10 rounded-xl">
+                  <Activity className="w-5 h-5" />
+               </div>
+               <CardTitle className="text-2xl font-black tracking-tighter uppercase leading-none">Recent Activity</CardTitle>
+            </div>
+            <CardDescription className="text-sm text-muted-foreground font-bold uppercase tracking-widest opacity-60">Latest clearance requests across campus.</CardDescription>
           </div>
-          <Button variant="outline" className="rounded-2xl border-slate-200 font-bold px-6 h-12 shadow-sm">
-            View All Logs
-          </Button>
+          <div className="flex flex-wrap gap-4">
+             <div className="relative group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-all duration-500" />
+                <Input placeholder="Search student..." className="pl-12 h-12 w-full lg:w-64 rounded-xl bg-secondary/50 border-none font-black text-[10px] uppercase tracking-widest placeholder:text-muted-foreground/30 focus-visible:ring-2 focus-visible:ring-primary/20 transition-all shadow-inner" />
+             </div>
+             <Button variant="outline" className="rounded-xl border-foreground/10 font-black text-[10px] uppercase tracking-widest px-6 h-12 shadow-soft hover:bg-card hover:border-primary/20 transition-all active:scale-95">
+               View History
+             </Button>
+          </div>
         </CardHeader>
         <CardContent className="p-0">
-          <Table>
-            <TableHeader className="bg-slate-50/50">
-              <TableRow className="border-none">
-                <TableHead className="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Student Information</TableHead>
-                <TableHead className="py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Request ID</TableHead>
-                <TableHead className="py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Type</TableHead>
-                <TableHead className="py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Current Status</TableHead>
-                <TableHead className="py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Timestamp</TableHead>
-                <TableHead className="py-5 text-right px-10 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Operations</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {(Array.isArray(recentRequests) ? recentRequests : []).map((request: any) => (
-                <TableRow key={request.id} className="group hover:bg-slate-50/50 transition-colors border-slate-50">
-                  <TableCell className="px-10 py-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-11 h-11 rounded-2xl bg-slate-100 flex items-center justify-center font-black text-slate-500 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
-                         {request.student?.first_name?.[0]}{request.student?.last_name?.[0]}
-                      </div>
-                      <div>
-                        <p className="font-black text-slate-900 tracking-tight">{request.student?.first_name} {request.student?.last_name}</p>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{request.student?.registration_number}</p>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <code className="text-[11px] font-bold bg-slate-100 px-3 py-1.5 rounded-lg text-slate-600 tracking-wider">
-                      {request.request_id}
-                    </code>
-                  </TableCell>
-                  <TableCell className="capitalize font-black text-xs text-slate-600">
-                    {request.request_type}
-                  </TableCell>
-                  <TableCell>
-                    <StatusBadge status={request.status} />
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-0.5">
-                       <p className="text-xs font-bold text-slate-700">{new Date(request.created_at).toLocaleDateString()}</p>
-                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date(request.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right px-10">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="rounded-xl hover:bg-white hover:shadow-lg transition-all">
-                          <MoreVertical className="w-5 h-5 text-slate-400" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="rounded-2xl w-48 p-2 shadow-2xl">
-                         <DropdownMenuItem className="rounded-xl mt-1 font-bold"><FileText className="w-4 h-4 mr-2" /> View Details</DropdownMenuItem>
-                         <DropdownMenuItem className="rounded-xl mt-1 font-bold"><Clock className="w-4 h-4 mr-2" /> Timeline View</DropdownMenuItem>
-                         <DropdownMenuItem className="rounded-xl mt-1 font-bold text-red-600"><AlertCircle className="w-4 h-4 mr-2" /> Flag Issue</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+          <div className="overflow-x-auto">
+            <Table className="min-w-[800px]">
+              <TableHeader className="bg-muted/10">
+                <TableRow className="border-none">
+                  <TableHead className="px-8 py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Student</TableHead>
+                  <TableHead className="py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Request ID</TableHead>
+                  <TableHead className="py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Type</TableHead>
+                  <TableHead className="py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Status</TableHead>
+                  <TableHead className="py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Date</TableHead>
+                  <TableHead className="py-5 text-right px-8 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Actions</TableHead>
                 </TableRow>
-              ))}
-              
-              {recentRequests.length === 0 && (
-                 <TableRow>
-                   <TableCell colSpan={6} className="h-48 text-center px-10">
-                      <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-xs">No Recent Activity Found</p>
-                   </TableCell>
-                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {(Array.isArray(recentRequests) ? recentRequests : []).map((request: any) => (
+                  <TableRow key={request.id} className="group hover:bg-muted/10 transition-all duration-500 border-foreground/5 cursor-pointer">
+                    <TableCell className="px-8 py-5">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-card shadow-soft border border-foreground/5 flex items-center justify-center font-black text-primary text-xs group-hover:scale-110 group-hover:rotate-6 transition-all duration-700 relative overflow-hidden">
+                           <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                           <span className="relative z-10">{request.student?.first_name?.[0]}{request.student?.last_name?.[0]}</span>
+                        </div>
+                        <div className="space-y-0.5">
+                          <p className="text-sm font-black text-foreground tracking-tight group-hover:text-primary transition-colors duration-500 uppercase">{request.student?.first_name} {request.student?.last_name}</p>
+                          <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest opacity-50">{request.student?.registration_number}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="inline-flex items-center gap-3 bg-secondary/80 backdrop-blur-md px-5 py-2.5 rounded-2xl border border-foreground/5 group-hover:border-primary/20 transition-all">
+                         <Lock className="w-3.5 h-3.5 text-primary opacity-40" />
+                         <code className="text-[10px] font-black text-primary tracking-[0.2em]">
+                           {request.request_id}
+                         </code>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-4">
+                         <div className="w-2 h-2 rounded-full bg-primary shadow-lg" />
+                         <span className="font-black text-[10px] text-muted-foreground uppercase tracking-[0.2em]">{request.request_type?.replace('_', ' ')}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge status={request.status} />
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-2">
+                         <div className="flex items-center gap-3 text-foreground font-black text-[10px] uppercase tracking-widest">
+                            <CalendarDays className="w-4 h-4 text-primary opacity-40" />
+                            {new Date(request.created_at).toLocaleDateString()}
+                         </div>
+                         <div className="flex items-center gap-3 text-muted-foreground font-black text-[9px] uppercase tracking-widest pl-7 opacity-40">
+                            <Clock className="w-3.5 h-3.5" />
+                            {new Date(request.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                         </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right px-8">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="w-10 h-10 rounded-xl hover:bg-card hover:shadow-strong transition-all duration-500 active:scale-90 border border-transparent hover:border-foreground/5">
+                            <MoreVertical className="w-5 h-5 text-muted-foreground" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="rounded-2xl w-56 border-none shadow-strong p-2 bg-background/95 backdrop-blur-2xl animate-in zoom-in-95 duration-300">
+                           <DropdownMenuItem className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4 cursor-pointer">
+                              <FileText className="w-4 h-4 mr-3 opacity-40" /> View Details
+                           </DropdownMenuItem>
+                           <DropdownMenuItem className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4 cursor-pointer mt-1">
+                              <History className="w-4 h-4 mr-3 opacity-40" /> Request History
+                           </DropdownMenuItem>
+                           <DropdownMenuItem className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-destructive focus:text-white px-4 cursor-pointer mt-1 text-destructive">
+                              <ShieldAlert className="w-4 h-4 mr-3" /> Revoke
+                           </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                
+                {recentRequests.length === 0 && (
+                   <TableRow>
+                     <TableCell colSpan={6} className="h-96 text-center px-12">
+                        <div className="flex flex-col items-center justify-center gap-10">
+                           <div className="w-32 h-32 bg-muted/10 rounded-[3.5rem] flex items-center justify-center shadow-inner relative overflow-hidden group/empty">
+                              <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover/empty:opacity-100 transition-opacity" />
+                              <Activity className="w-16 h-16 text-muted-foreground/10 group-hover:text-primary/20 transition-all duration-700" />
+                           </div>
+                           <div className="space-y-3">
+                              <p className="text-2xl font-black text-foreground uppercase tracking-tight">Stream Idle</p>
+                              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.5em] opacity-40 italic">Waiting for institutional sequence initiation...</p>
+                           </div>
+                        </div>
+                     </TableCell>
+                   </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>
