@@ -502,6 +502,9 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
                       style={{ width: `${progress.percentage || 0}%` }}
                     >
                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent translate-x-[-100%] animate-[shimmer_3s_infinite]" />
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           )}
