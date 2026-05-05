@@ -293,7 +293,7 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                                  <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest opacity-50">{request.student?.registration_number}</p>
                               </div>
                            </div>
-                        </TableCell>l>
+                        </TableCell>
                         <TableCell>
                            <div className="space-y-1">
                               <p className="text-sm font-black text-foreground flex items-center gap-2 uppercase tracking-tight">
