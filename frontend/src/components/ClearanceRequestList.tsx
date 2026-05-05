@@ -377,8 +377,8 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
 
       {/* Premium Audit Master Console Dialog */}
        <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="sm:max-w-[650px] w-[95vw] max-h-[90vh] rounded-2xl p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500">
-          <div className="bg-foreground p-6 sm:p-8 text-background relative overflow-hidden">
+        <DialogContent className="sm:max-w-[650px] w-[95vw] max-h-[90vh] rounded-2xl p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 overflow-y-auto custom-scrollbar">
+          <div className="bg-card p-6 sm:p-8 text-foreground relative overflow-hidden border-b border-foreground/5">
             <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-primary/20 rounded-full -mr-32 -mt-32 blur-[80px] pointer-events-none" />
             
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
@@ -389,16 +389,16 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
                     </div>
                     <div className="space-y-0.5">
                        <Badge className="bg-primary text-white border-none rounded-full px-3 py-1 text-[8px] font-black uppercase tracking-widest">Protocol ID</Badge>
-                       <p className="text-[8px] font-black text-background/30 uppercase tracking-widest mt-0.5">{selectedRequest?.request_type?.replace('_', ' ')}</p>
+                       <p className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-widest mt-0.5">{selectedRequest?.request_type?.replace('_', ' ')}</p>
                     </div>
                  </div>
                  <DialogTitle className="text-xl sm:text-2xl font-black tracking-tighter uppercase leading-none">{selectedRequest?.request_id}</DialogTitle>
               </div>
               <div className="text-left sm:text-right space-y-1">
-                 <p className="text-[8px] font-black text-background/30 uppercase tracking-widest">Protocol Status</p>
+                 <p className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-widest">Protocol Status</p>
                  {selectedRequest && <StatusBadge status={selectedRequest.status} size="lg" />}
               </div>
-              <Button variant="ghost" size="icon" className="absolute top-0 right-0 -mt-2 -mr-2 text-background/40 hover:text-background hover:bg-white/5 rounded-xl w-10 h-10 transition-all" onClick={() => setIsDetailsOpen(false)}>
+              <Button variant="ghost" size="icon" className="absolute top-0 right-0 -mt-2 -mr-2 text-muted-foreground/40 hover:text-foreground hover:bg-muted rounded-xl w-10 h-10 transition-all" onClick={() => setIsDetailsOpen(false)}>
                  <X className="w-5 h-5" />
               </Button>
             </div>

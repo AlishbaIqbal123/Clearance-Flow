@@ -585,7 +585,7 @@ export const StudentList = () => {
       {/* View Student Details Dialog */}
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
         <DialogContent className="sm:max-w-[550px] w-[95vw] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 max-h-[90vh] overflow-y-auto custom-scrollbar">
-          <div className="bg-foreground p-8 sm:p-10 text-background relative">
+          <div className="bg-card p-8 sm:p-10 text-foreground relative border-b border-foreground/5">
             <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-primary/20 rounded-full -mr-32 -mt-32 blur-[100px]" />
             
             <div className="relative z-10 space-y-6 text-center flex flex-col items-center">

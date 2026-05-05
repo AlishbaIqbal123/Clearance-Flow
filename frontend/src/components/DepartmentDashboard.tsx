@@ -363,35 +363,34 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
 
       {/* Request Action Dialog */}
       <Dialog open={showActionDialog} onOpenChange={setShowActionDialog}>
-        <DialogContent className="sm:max-w-[650px] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500">
+        <DialogContent className="sm:max-w-[650px] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 max-h-[90vh] overflow-y-auto custom-scrollbar">
           {selectedRequest && (
             <>
-              <div className="bg-foreground p-6 sm:p-10 text-background relative">
-                 <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-primary/20 rounded-full -mr-32 -mt-32 blur-[100px]" />
+              <div className="bg-card p-6 sm:p-10 text-foreground relative border-b border-foreground/5">
+                 <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-primary/10 rounded-full -mr-32 -mt-32 blur-[100px]" />
                  
                  <div className="relative z-10 space-y-6">
-                    <div className="flex items-center justify-between">
-                       <div className="flex items-center gap-4">
-                          <Badge className="bg-primary/20 text-primary border-none rounded-full px-4 py-1.5 text-[9px] font-black uppercase tracking-widest backdrop-blur-xl">Request Review</Badge>
-                          <span className="text-[9px] font-black text-background/30 uppercase tracking-widest">ID: {selectedRequest.id.substring(0, 8)}</span>
+                    <div className="flex items-center justify-between">                        <div className="flex items-center gap-4">
+                          <Badge className="bg-primary/10 text-primary border-none rounded-full px-4 py-1.5 text-[9px] font-black uppercase tracking-widest backdrop-blur-xl">Request Review</Badge>
+                          <span className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-widest">ID: {selectedRequest.id.substring(0, 8)}</span>
                        </div>
-                       <Button variant="ghost" size="icon" className="text-background/40 hover:text-background hover:bg-white/5 rounded-xl w-10 h-10 transition-all" onClick={() => setShowActionDialog(false)}>
+                       <Button variant="ghost" size="icon" className="text-muted-foreground/40 hover:text-foreground hover:bg-muted rounded-xl w-10 h-10 transition-all" onClick={() => setShowActionDialog(false)}>
                           <X className="w-5 h-5" />
                        </Button>
                     </div>
                     <div className="space-y-1">
                        <h3 className="text-3xl font-black tracking-tighter uppercase leading-none">{selectedRequest.student.first_name} {selectedRequest.student.last_name}</h3>
-                       <div className="flex items-center gap-3 text-background/40">
+                       <div className="flex items-center gap-3 text-muted-foreground/40">
                           <p className="font-black text-[10px] uppercase tracking-widest">Reg #: {selectedRequest.student.registration_number}</p>
                        </div>
                     </div>
                     <div className="flex flex-wrap gap-4 pt-2">
-                       <div className="px-6 py-4 bg-white/5 rounded-2xl border border-white/5 backdrop-blur-2xl flex flex-col items-start gap-1 min-w-[150px]">
-                          <p className="text-[8px] font-black text-background/30 uppercase tracking-widest leading-none mb-1">Program</p>
+                       <div className="px-6 py-4 bg-secondary/30 rounded-2xl border border-foreground/5 backdrop-blur-2xl flex flex-col items-start gap-1 min-w-[150px]">
+                          <p className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-widest leading-none mb-1">Program</p>
                           <p className="text-base font-black tracking-tight">{selectedRequest.student.program}</p>
                        </div>
-                       <div className="px-6 py-4 bg-white/5 rounded-2xl border border-white/5 backdrop-blur-2xl flex flex-col items-center justify-center gap-1 min-w-[100px]">
-                          <p className="text-[8px] font-black text-background/30 uppercase tracking-widest leading-none mb-1">Dept</p>
+                       <div className="px-6 py-4 bg-secondary/30 rounded-2xl border border-foreground/5 backdrop-blur-2xl flex flex-col items-center justify-center gap-1 min-w-[100px]">
+                          <p className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-widest leading-none mb-1">Dept</p>p>
                           <p className="text-base font-black text-primary uppercase tracking-tighter">{department.code || 'SYS'}</p>
                        </div>
                     </div>
