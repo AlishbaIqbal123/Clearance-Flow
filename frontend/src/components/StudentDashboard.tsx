@@ -465,16 +465,15 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
 
               <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
                 <Button 
-                  variant="outline"
-                  className="h-16 sm:h-20 px-10 rounded-[1.75rem] border-2 border-emerald-500/30 text-white hover:bg-white hover:text-emerald-950 font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 min-w-[240px]"
+                  className="h-16 sm:h-20 px-10 rounded-[1.75rem] bg-white text-emerald-950 hover:bg-emerald-50 font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 min-w-[240px] shadow-lg shadow-emerald-900/20"
                   onClick={() => window.location.href = 'mailto:registrar@university.edu?subject=Clearance Fulfillment Inquiry'}
                 >
-                  <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center">
-                    <MessageSquare className="w-5 h-5 text-emerald-400" />
+                  <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+                    <MessageSquare className="w-5 h-5 text-emerald-600" />
                   </div>
                   <div className="text-left">
-                    <span className="block">Support Center</span>
-                    <span className="block text-[7px] opacity-40 mt-0.5">Contact for Inquiries</span>
+                    <span className="block font-black">Support Center</span>
+                    <span className="block text-[7px] text-emerald-950/40 mt-0.5 font-bold">Contact for Inquiries</span>
                   </div>
                 </Button>
               </div>
