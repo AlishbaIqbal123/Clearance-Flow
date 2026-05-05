@@ -351,7 +351,8 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
       </div>
 
       {/* Degree Fulfillment Section - Appears at 100% Clearance */}
-      {activeRequest?.progress?.percentage === 100 && !activeRequest.degree_fulfillment && (
+      {(activeRequest?.status === 'cleared' || activeRequest?.progress?.percentage === 100) && 
+       (!activeRequest?.degree_fulfillment || Object.keys(activeRequest.degree_fulfillment).length === 0) && (
         <div className="animate-in zoom-in-95 slide-in-from-top-12 duration-1000 ease-out">
           <Card className="border-none shadow-strong rounded-[2.5rem] bg-foreground text-background overflow-hidden relative group">
             <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[15%] -mt-[10%] blur-[120px] animate-pulse" />
