@@ -1,7 +1,21 @@
+// UI ONLY — NO LOGIC CHANGED
 import React, { useState, useEffect } from 'react';
-import { Loader2, User, Mail, Lock, BookOpen, Hash, GraduationCap, Phone, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { 
+  Loader2, User, Mail, Lock, BookOpen, Hash, 
+  GraduationCap, Phone, ArrowLeft, ChevronLeft, 
+  CheckCircle2, Sparkles, Building2, Zap, ArrowRight, 
+  ShieldCheck, Fingerprint, Database, Globe, Layers,
+  Activity, ShieldAlert, X, UserCircle, Search, Filter,
+  ChevronRight,
+  Monitor,
+  Terminal,
+  Cpu
+} from 'lucide-react';
 import { authService } from '@/lib/auth.service';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 
 interface RegisterProps {
   onBackToLogin: () => void;
@@ -94,7 +108,6 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onRegisterSuc
         const res = await fetch('/api/departments');
         const data = await res.json();
         if (data.success) {
-          // Only academic departments should be mapped for students
           setDepartments(data.data.filter((d: any) => d.type === 'academic'));
         }
       } catch (error) {
@@ -106,7 +119,6 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onRegisterSuc
     fetchDepartments();
   }, []);
 
-  // Reset discipline when program changes
   useEffect(() => {
     setFormData(prev => ({ ...prev, discipline: '' }));
   }, [formData.program]);
@@ -118,29 +130,20 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onRegisterSuc
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (formData.password !== formData.confirmPassword) {
       return toast.error('Passwords do not match');
     }
-
-    // Auto-map departmentId based on discipline
     const deptName = DISCIPLINE_DEPT_MAP[formData.discipline];
     const dept = departments.find(d => d.name === deptName);
-    
     if (!dept) {
       return toast.error('Could not map department for selected discipline');
     }
-
-    const submissionData = {
-      ...formData,
-      departmentId: dept.id
-    };
-
+    const submissionData = { ...formData, departmentId: dept.id };
     setLoading(true);
     try {
       const res = await authService.studentSignup(submissionData);
       if (res.success) {
-        toast.success('Registration successful! Welcome to the portal.');
+        toast.success('Registration successful!');
         onRegisterSuccess(res.user);
       } else {
         toast.error(res.message || 'Registration failed');
@@ -153,219 +156,167 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onRegisterSuc
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 sm:p-8">
-      <div className="w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 overflow-hidden flex flex-col md:flex-row">
+    <div className="h-screen w-screen overflow-hidden flex bg-background font-sans selection:bg-primary/20">
+      
+      {/* Editorial Left Architecture (Fixed) */}
+      <div className="hidden lg:flex w-[35%] xl:w-[40%] h-full bg-[#006633] relative overflow-hidden flex-col justify-between p-16 xl:p-24 text-white shrink-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-black/20" />
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-white/5 rounded-full blur-[160px] -mr-96 -mt-96 animate-pulse" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] -ml-64 -mb-64" />
         
-        {/* Left Side - Info */}
-        <div className="md:w-1/3 bg-blue-600 p-8 text-white flex flex-col justify-between">
-          <div>
-            <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-md">
-              <GraduationCap className="w-6 h-6 text-white" />
+        <div className="relative z-10 space-y-12">
+          <button 
+            onClick={onBackToLogin}
+            className="flex items-center gap-4 text-white/60 hover:text-white transition-all font-black text-[11px] uppercase tracking-[0.5em] group w-fit"
+          >
+            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-2 transition-transform duration-500" />
+            Back to Portal
+          </button>
+
+          <div className="space-y-10">
+            <div className="flex items-center gap-5">
+               <div className="w-14 h-14 bg-white/10 backdrop-blur-2xl rounded-2xl flex items-center justify-center border border-white/20 shadow-xl">
+                  <GraduationCap className="w-8 h-8 text-white" />
+               </div>
+               <div className="space-y-0.5">
+                  <h2 className="text-xl font-black tracking-tighter uppercase leading-none">COMSATS</h2>
+                  <p className="text-[9px] font-bold uppercase tracking-[0.3em] opacity-60 italic">University Islamabad, Vehari Campus</p>
+               </div>
             </div>
-            <h2 className="text-2xl font-black leading-tight mb-4">Join the<br />Clearance Flow</h2>
-            <p className="text-blue-100 text-sm leading-relaxed">
-              Register now to start your digital clearance process and track your status in real-time.
-            </p>
-          </div>
-          
-          <div className="space-y-4 mt-8">
-            <div className="flex items-center gap-3 text-xs font-bold text-blue-100">
-              <CheckCircle2 className="w-4 h-4 text-white" />
-              <span>Instant Dashboard Access</span>
-            </div>
-            <div className="flex items-center gap-3 text-xs font-bold text-blue-100">
-              <CheckCircle2 className="w-4 h-4 text-white" />
-              <span>Real-time Notifications</span>
+            <div className="space-y-6">
+              <h2 className="text-7xl xl:text-8xl font-black text-white tracking-tighter leading-[0.8] uppercase opacity-90 select-none">
+                Student<br />
+                <span className="text-white/20 italic">Registry</span>
+              </h2>
+              <p className="text-white/70 text-lg xl:text-xl font-medium leading-relaxed max-w-sm italic border-l-4 border-white/20 pl-8">
+                Official enrollment portal for the University Clearance Management System.
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Right Side - Form */}
-        <div className="md:w-2/3 p-8 md:p-10">
-          <button 
-            onClick={onBackToLogin}
-            className="flex items-center gap-2 text-slate-400 hover:text-blue-600 transition-colors text-xs font-bold mb-6 group"
-          >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            BACK TO LOGIN
-          </button>
+        <div className="relative z-10 pt-16 border-t border-white/5">
+           <div className="flex items-center gap-5 group">
+              <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 transition-all duration-700 group-hover:bg-primary shadow-2xl">
+                 <ShieldCheck className="w-6 h-6 text-white/40 group-hover:text-white" />
+              </div>
+              <div className="space-y-1">
+                 <h4 className="text-white font-bold text-sm uppercase tracking-tight leading-none">Institutional Security</h4>
+                 <p className="text-white/20 text-[9px] font-black uppercase tracking-[0.4em] mt-1">Encrypted Node</p>
+              </div>
+           </div>
+        </div>
+      </div>
 
-          <div className="mb-8">
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight">Student Sign Up</h1>
-            <p className="text-slate-400 text-sm font-medium mt-1">Fill in your academic details to continue</p>
+      {/* Dynamic Right Interface (Scrollable Form) */}
+      <div className="flex-1 h-full overflow-y-auto bg-background custom-scrollbar">
+        <div className="min-h-full w-full flex flex-col p-8 md:p-16 lg:p-24 xl:p-32">
+          <div className="max-w-4xl w-full mx-auto space-y-12 py-16">
+            <div className="space-y-6">
+               <h1 className="text-5xl xl:text-6xl font-black text-foreground tracking-tighter uppercase leading-[1]">Account<br /><span className="text-primary italic">Registration</span></h1>
+               <div className="flex items-center gap-4">
+                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                  <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-[0.3em] opacity-40">Fill in all required fields to proceed.</p>
+               </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-10 animate-in slide-in-from-bottom-10 duration-1000">
+              {/* Form Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+                 
+                 {/* Personal Info */}
+                 <div className="space-y-2 group">
+                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within:text-primary transition-colors">First Name</label>
+                    <Input required name="firstName" value={formData.firstName} onChange={handleChange} className="h-14 bg-secondary/30 border-none rounded-xl font-bold px-6 text-base focus-visible:ring-2 focus-visible:ring-primary/20" />
+                 </div>
+                 <div className="space-y-2 group">
+                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within:text-primary transition-colors">Last Name</label>
+                    <Input required name="lastName" value={formData.lastName} onChange={handleChange} className="h-14 bg-secondary/30 border-none rounded-xl font-bold px-6 text-base focus-visible:ring-2 focus-visible:ring-primary/20" />
+                 </div>
+
+                 {/* Contact Info */}
+                 <div className="space-y-2 group">
+                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within:text-primary transition-colors">Email Address</label>
+                    <Input required type="email" name="email" value={formData.email} onChange={handleChange} placeholder="name@example.com" className="h-14 bg-secondary/30 border-none rounded-xl font-bold px-6 text-base focus-visible:ring-2 focus-visible:ring-primary/20" />
+                 </div>
+                 <div className="space-y-2 group">
+                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within:text-primary transition-colors">Phone Number</label>
+                    <Input required type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="+92 ..." className="h-14 bg-secondary/30 border-none rounded-xl font-bold px-6 text-base focus-visible:ring-2 focus-visible:ring-primary/20" />
+                 </div>
+
+                 {/* Academic Info */}
+                 <div className="space-y-2 group">
+                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within:text-primary transition-colors">Registration ID</label>
+                    <Input required name="registrationNumber" value={formData.registrationNumber} onChange={handleChange} placeholder="FA21-BCS-001" className="h-14 bg-secondary/30 border-none rounded-xl font-bold px-6 text-base focus-visible:ring-2 focus-visible:ring-primary/20 uppercase" />
+                 </div>
+                 <div className="space-y-2 group">
+                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within:text-primary transition-colors">Batch</label>
+                    <Input required name="batch" value={formData.batch} onChange={handleChange} placeholder="FA21" className="h-14 bg-secondary/30 border-none rounded-xl font-bold px-6 text-base focus-visible:ring-2 focus-visible:ring-primary/20 uppercase" />
+                 </div>
+
+                 {/* Program Selection */}
+                 <div className="space-y-2 relative group">
+                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within:text-primary transition-colors">Program Track</label>
+                    <select required name="program" value={formData.program} onChange={handleChange} className="h-14 w-full bg-secondary/30 border-none rounded-xl font-bold px-6 appearance-none text-base focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer">
+                      <option value="" className="bg-background">Select Track</option>
+                      {Object.keys(PROGRAM_DISCIPLINE_MAP).map(prog => (
+                        <option key={prog} value={prog} className="bg-background">{prog}</option>
+                      ))}
+                    </select>
+                 </div>
+                 <div className="space-y-2 relative group">
+                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within:text-primary transition-colors">Discipline</label>
+                    <select required name="discipline" value={formData.discipline} onChange={handleChange} disabled={!formData.program} className="h-14 w-full bg-secondary/30 border-none rounded-xl font-bold px-6 appearance-none text-base focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer disabled:opacity-40">
+                      <option value="" className="bg-background">Select Discipline</option>
+                      {getAvailableDisciplines().map(disc => (
+                        <option key={disc} value={disc} className="bg-background">{disc}</option>
+                      ))}
+                    </select>
+                 </div>
+
+                 {/* Password Stack */}
+                 <div className="space-y-2 group">
+                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within:text-primary transition-colors">Password</label>
+                    <Input required type="password" name="password" value={formData.password} onChange={handleChange} className="h-14 bg-secondary/30 border-none rounded-xl font-bold px-6 text-base focus-visible:ring-2 focus-visible:ring-primary/20" />
+                 </div>
+                 <div className="space-y-2 group">
+                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within:text-primary transition-colors">Confirm Password</label>
+                    <Input required type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} className="h-14 bg-secondary/30 border-none rounded-xl font-bold px-6 text-base focus-visible:ring-2 focus-visible:ring-primary/20" />
+                 </div>
+              </div>
+
+              {/* Action Stack */}
+              <div className="flex flex-col sm:flex-row items-center gap-10 pt-4">
+                <Button 
+                  disabled={loading}
+                  type="submit"
+                  className="w-full sm:w-fit h-20 px-16 bg-primary hover:bg-primary/90 text-white font-black text-[12px] uppercase tracking-[0.5em] rounded-2xl shadow-strong shadow-primary/20 active:scale-95 transition-all group overflow-hidden relative"
+                >
+                  <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
+                  {loading ? (
+                     <div className="flex items-center gap-4">
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span>Processing...</span>
+                     </div>
+                  ) : (
+                     <span className="flex items-center gap-5">
+                        Establish Account
+                        <ArrowRight className="w-5 h-5 group-hover:translate-x-3 transition-transform duration-700" />
+                     </span>
+                  )}
+                </Button>
+                <p className="text-[10px] font-black text-muted-foreground/30 uppercase tracking-[0.3em] italic text-center sm:text-left leading-relaxed">
+                  Institutional data protection protocol active.<br />All transactions are encrypted.
+                </p>
+              </div>
+            </form>
+
+            <div className="pt-10 border-t border-foreground/5 text-center sm:text-left">
+               <p className="text-muted-foreground text-[10px] font-black uppercase tracking-[0.3em]">
+                  Already registered? <button onClick={onBackToLogin} className="text-primary hover:underline ml-2 underline-offset-4">Sign in here</button>
+               </p>
+            </div>
           </div>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Registration Number */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Registration Number</label>
-                <div className="relative group">
-                  <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
-                  <input
-                    required
-                    name="registrationNumber"
-                    value={formData.registrationNumber}
-                    onChange={handleChange}
-                    placeholder="e.g. FA20-BCS-001"
-                    className="w-full bg-slate-50 border-none rounded-2xl py-3.5 pl-11 pr-4 text-sm font-bold text-slate-700 placeholder:text-slate-300 focus:ring-2 focus:ring-blue-500/20 transition-all"
-                  />
-                </div>
-              </div>
-
-              {/* Email */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Active Email</label>
-                <div className="relative group">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
-                  <input
-                    required
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="your-active-email@gmail.com"
-                    className="w-full bg-slate-50 border-none rounded-2xl py-3.5 pl-11 pr-4 text-sm font-bold text-slate-700 placeholder:text-slate-300 focus:ring-2 focus:ring-blue-500/20 transition-all"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">First Name</label>
-                <div className="relative group">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
-                  <input
-                    required
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    className="w-full bg-slate-50 border-none rounded-2xl py-3.5 pl-11 pr-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500/20 transition-all"
-                  />
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Last Name</label>
-                <div className="relative group">
-                  <input
-                    required
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    className="w-full bg-slate-50 border-none rounded-2xl py-3.5 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500/20 transition-all"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Phone Number */}
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Active Phone Number</label>
-              <div className="relative group">
-                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
-                <input
-                  required
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="+92 300 1234567"
-                  className="w-full bg-slate-50 border-none rounded-2xl py-3.5 pl-11 pr-4 text-sm font-bold text-slate-700 placeholder:text-slate-300 focus:ring-2 focus:ring-blue-500/20 transition-all"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Program</label>
-                <select
-                  required
-                  name="program"
-                  value={formData.program}
-                  onChange={handleChange}
-                  className="w-full bg-slate-50 border-none rounded-2xl py-3 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500/20 transition-all appearance-none"
-                >
-                  <option value="">Select Program</option>
-                  {Object.keys(PROGRAM_DISCIPLINE_MAP).map(prog => (
-                    <option key={prog} value={prog}>{prog}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Discipline</label>
-                <select
-                  required
-                  name="discipline"
-                  value={formData.discipline}
-                  onChange={handleChange}
-                  disabled={!formData.program}
-                  className="w-full bg-slate-50 border-none rounded-2xl py-3 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500/20 transition-all appearance-none disabled:opacity-50"
-                >
-                  <option value="">Select Discipline</option>
-                  {getAvailableDisciplines().map(disc => (
-                    <option key={disc} value={disc}>{disc}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Batch</label>
-                <input
-                  required
-                  name="batch"
-                  value={formData.batch}
-                  onChange={handleChange}
-                  placeholder="e.g. FA20"
-                  className="w-full bg-slate-50 border-none rounded-2xl py-3 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500/20 transition-all"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
-                <div className="relative group">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
-                  <input
-                    required
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="w-full bg-slate-50 border-none rounded-2xl py-3.5 pl-11 pr-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500/20 transition-all"
-                  />
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Confirm</label>
-                <div className="relative group">
-                  <input
-                    required
-                    type="password"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    className="w-full bg-slate-50 border-none rounded-2xl py-3.5 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500/20 transition-all"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <button
-              disabled={loading}
-              type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-black py-4 rounded-[1.5rem] shadow-xl shadow-blue-100 flex items-center justify-center gap-3 transition-all active:scale-95 group"
-            >
-              {loading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <>
-                  SIGN UP NOW
-                  <CheckCircle2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                </>
-              )}
-            </button>
-          </form>
         </div>
       </div>
     </div>

@@ -147,7 +147,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
                      </div>
                      <div className="space-y-0.5 text-white">
                         <h2 className="text-2xl font-black tracking-tighter uppercase leading-none">COMSATS</h2>
-                        <p className="text-[10px] font-bold uppercase tracking-[0.4em] opacity-60 italic">University Islamabad</p>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.4em] opacity-60 italic">University Islamabad, Vehari Campus</p>
                      </div>
                   </div>
 
@@ -190,7 +190,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
                         onClick={() => setActivePortal('staff')}
                         className="px-10 py-4 rounded-[1.75rem] text-[11px] font-black uppercase tracking-widest transition-all duration-500 text-muted-foreground hover:text-primary hover:bg-background/80"
                       >
-                        Faculty
+                        Clearance Head
                       </button>
                     </div>
                     
@@ -283,12 +283,12 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
                         onClick={() => setActivePortal('staff')}
                         className="px-10 py-4 rounded-[1.75rem] text-[11px] font-black uppercase tracking-widest transition-all duration-500 bg-foreground text-background shadow-strong"
                       >
-                        Faculty
+                        Clearance Head
                       </button>
                     </div>
                     
                     <div className="space-y-4">
-                       <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase leading-[1]">Faculty<br /><span className="text-primary italic">Login</span></h1>
+                       <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase leading-[1]">Clearance Head<br /><span className="text-primary italic">Login</span></h1>
                        <p className="text-muted-foreground text-xs font-bold uppercase tracking-widest opacity-40">Administrative access required.</p>
                     </div>
                   </div>
@@ -348,7 +348,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
                       <Building2 className="w-9 h-9 text-primary" />
                    </div>
                    <div className="space-y-8">
-                     <h2 className="text-7xl xl:text-8xl font-black tracking-tighter leading-[0.85] uppercase">Faculty<br /><span className="italic opacity-20">Portal</span></h2>
+                     <h2 className="text-7xl xl:text-8xl font-black tracking-tighter leading-[0.85] uppercase">Clearance Head<br /><span className="italic opacity-20">Portal</span></h2>
                      <p className="text-slate-400 text-xl xl:text-2xl font-medium leading-relaxed max-w-sm italic border-l-4 border-primary/20 pl-8">
                        Manage student clearance requests and department records from a central dashboard.
                      </p>
