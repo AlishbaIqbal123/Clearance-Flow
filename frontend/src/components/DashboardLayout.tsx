@@ -1,5 +1,5 @@
 // UI ONLY — NO LOGIC CHANGED
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, 
   Users, 
