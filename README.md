@@ -1,439 +1,140 @@
-# University Clearance Management System
+# 🎓 University Clearance Management System (UCMS)
 
-A comprehensive, production-ready web application for managing student clearance processes across multiple university departments. Built with the MERN stack (MongoDB, Express.js, React.js, Node.js) with optional Supabase integration.
+[![Enterprise Ready](https://img.shields.io/badge/Enterprise-Ready-blue.svg?style=for-the-badge)](https://github.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![Stack: MERN + Supabase](https://img.shields.io/badge/Stack-MERN%20%2B%20Supabase-blueviolet?style=for-the-badge)](https://supabase.com/)
+[![Security: JWT/Bcrypt](https://img.shields.io/badge/Security-JWT%20%2F%20Bcrypt-red?style=for-the-badge)](https://jwt.io/)
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
-![Node](https://img.shields.io/badge/node-v18+-green.svg)
-
----
-
-## Features
-
-### Multi-Role Authentication System
-- **Admin**: Full system control, analytics, user management
-- **Students**: Clearance submission, status tracking, department contact
-- **Department Staff**: Request review, approval/rejection with remarks
-- **HODs**: Department oversight, student management
-
-### Clearance Workflow
-- Step-by-step clearance process across departments
-- Real-time status updates
-- Progress tracking with visual indicators
-- Document upload and management
-- Comment system for communication
-
-### Department Management
-- Configurable departments (Academic, Finance, Library, Transport, Hostel, etc.)
-- Custom clearance requirements per department
-- Contact information with WhatsApp/email integration
-- Office hours and location details
-
-### Communication System
-- Email notifications for status changes
-- WhatsApp click-to-chat integration
-- In-app messaging and comments
-- Bulk notification system
-
-### Analytics & Reporting
-- Dashboard with key metrics
-- Department-wise statistics
-- Processing time analytics
-- Exportable reports (CSV/JSON)
-
-### Security Features
-- JWT-based authentication
-- Role-based access control (RBAC)
-- Password encryption with bcrypt
-- Account lockout after failed attempts
-- Input validation and sanitization
+> **UCMS** is a high-performance, enterprise-grade digital ecosystem designed to orchestrate the complex clearance lifecycle of university students. It bridges the gap between academic departments, administrative offices, and the student body through real-time data synchronization and automated logistics.
 
 ---
 
-## Tech Stack
+## 📺 Video Demonstrations
 
-### Frontend
-- React.js 18+
-- TypeScript
-- Vite (Build tool)
-- Tailwind CSS
-- shadcn/ui components
-- Socket.io-client (Real-time updates)
+For a comprehensive walkthrough of the platform's capabilities, please view the following demonstrations:
 
-### Backend
-- Node.js 18+
-- Express.js
-- MongoDB with Mongoose
-- JWT Authentication
-- Socket.io (Real-time communication)
-- Multer (File uploads)
-
-### Optional Integrations
-- **Supabase**: Authentication, real-time database, storage
-- **Google Apps Script**: Email automation
-- **Cloudinary**: File storage
-- **Nodemailer**: Email notifications
+| Module | Scope | Link |
+| :--- | :--- | :--- |
+| **✨ System Overview** | Core Architecture & Student Experience | [Watch Demo 1](https://drive.google.com/file/d/1bqIceq3zo1OPdeKC3zGSh8yMf00wz2qo/view?usp=sharing) |
+| **⚙️ Admin & Operations** | Departmental Workflows & Dispatch Logistics | [Watch Demo 2](https://drive.google.com/file/d/1WiW1kRFv5XAoSGH5Vc_RZD9J9E4kfjHi/view?usp=sharing) |
 
 ---
 
-## Quick Start
+## 🔄 Professional Workflows
 
-### Prerequisites
-- Node.js v18 or higher
-- MongoDB v6 or higher
-- npm or yarn
+### 1. Student Clearance Lifecycle
+The system enforces a strictly sequenced approval chain to ensure data integrity across all university touchpoints.
 
-### Installation
+```mermaid
+sequenceDiagram
+    participant S as Student
+    participant AP as Auth Portal
+    participant CD as Clearance Dashboard
+    participant DS as Dept. Staff
+    participant AD as Admin (Registrar)
+    participant DL as Dispatch Logistics
 
-1. **Clone the repository**
-```bash
-git clone https://github.com/your-org/university-clearance-system.git
-cd university-clearance-system
+    S->>AP: Authenticate (SSO/JWT)
+    AP->>CD: Initialize Clearance Profile
+    S->>CD: Submit Required Documents
+    loop Sequential Approval
+        CD->>DS: Notification: Pending Request
+        DS->>DS: Audit Documents & Records
+        DS->>CD: Approve/Reject with Remarks
+    end
+    CD->>AD: Final Audit Trigger
+    AD->>AD: Verify Institutional Clearance
+    AD->>DL: Generate Degree Dispatch Order
+    DL->>S: Shipping Confirmation & Tracking
 ```
 
-2. **Setup Backend**
+### 2. Administrative Logistics Workflow
+Managing the "Last Mile" of the student clearance process—degree issuance and shipping.
+
+```mermaid
+graph LR
+    A[Final Clearance] --> B{Dispatch Module}
+    B --> C[Verify Mailing Address]
+    B --> D[Generate Waybill]
+    C --> E[Courier Integration]
+    D --> E[Courier Integration]
+    E --> F[Real-time Tracking]
+    F --> G[Completion Receipt]
+```
+
+---
+
+## 💎 Enterprise Features
+
+### 🏢 Multi-Tenant Departmental Management
+- **Department Isolation**: Each department (Finance, Library, Transport, etc.) operates in its own secure environment.
+- **Role-Based Access Control (RBAC)**: Fine-grained permissions for Staff, HODs, and Administrators.
+- **Customizable Requirements**: Departments can define unique clearance criteria and document types.
+
+### 📊 Operational Intelligence (Telemetry)
+- **Live Bottleneck Analysis**: Identify departments with high latency in request processing.
+- **Student Analytics**: Track clearance velocity and projected completion dates institution-wide.
+- **Audit Logs**: Comprehensive history of every approval, rejection, and comment.
+
+### 📦 Logistics & Degree Fulfillment
+- **Dispatch Management**: Specialized module for tracking degree shipping status.
+- **Automated Communication**: WhatsApp and Email integration for real-time student outreach.
+- **Address Verification**: Ensuring degree delivery to verified student residences.
+
+---
+
+## 🛠 Technical Architecture
+
+| Layer | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Frontend** | React 18 / TypeScript | Type-safe, reactive UI with Vite orchestration. |
+| **Styling** | Tailwind CSS / Shadcn | Premium, responsive component design system. |
+| **Backend** | Node.js / Express | Scalable RESTful API with middleware protection. |
+| **Primary DB** | MongoDB / Mongoose | Flexible document storage for complex clearance data. |
+| **Cloud Engine** | Supabase | Real-time database, Auth, and Secure Storage. |
+| **Security** | JWT / Bcrypt | Industry-standard session management and hashing. |
+
+---
+
+## 🚀 Infrastructure & Deployment
+
+### Local Development Environment
+
 ```bash
-cd backend
-npm install
-cp .env.example .env
-# Edit .env with your configuration
+# 1. Clone Infrastructure
+git clone https://github.com/AlishbaIqbal123/Clearance-Flow.git
+
+# 2. Service Orchestration (Backend)
+cd backend && npm install
+# Configure .env with MONGODB_URI and JWT_SECRET
+npm run dev
+
+# 3. Frontend Hydration
+cd ../frontend && npm install
+# Configure .env with VITE_API_URL
 npm run dev
 ```
 
-3. **Setup Frontend**
-```bash
-cd frontend
-npm install
-cp .env.example .env
-# Edit .env with your API URL
-npm run dev
-```
-
-4. **Seed Database (Optional)**
-```bash
-cd backend
-npm run seed
-```
-
-### Default Login Credentials (Demo/Seeding)
-
-| Role | Username (Email/ID) | Initial Password | Login Pattern |
-|------|----------|----------|---------------|
-| **Admin** | `admin@university.edu.pk` | `Admin@123` | Email + Secret Password |
-| **Staff** | `ahmed.khan@university.edu.pk` | `Staff@123` | Email + Assigned Password |
-| **Student** | `student1@university.edu.pk` | `FA20-BCS-001` | **Email** + **Registration Number** |
-
-> [!NOTE]
-> For students, the default login pattern uses the **assigned university email** as the username and their **Registration Number** (e.g., FA20-BCS-001) as the initial password. Students are prompted to change their password upon first login.
+### Production Readiness
+- **State Management**: Optimized with robust context and hook-based patterns.
+- **Security Headers**: Protected by Helmet.js and custom CORS policies.
+- **Database Hardening**: Supabase RLS (Row Level Security) enabled for data privacy.
+- **CI/CD**: Prepared for Vercel/Render automated deployment pipelines.
 
 ---
 
-## Project Structure
+## 🤝 Contribution & Support
 
-```
-university-clearance-system/
-├── backend/
-│   ├── config/           # Configuration files
-│   ├── controllers/      # Route controllers
-│   ├── middleware/       # Express middleware
-│   ├── models/           # Mongoose models
-│   ├── routes/           # API routes
-│   ├── scripts/          # Utility scripts
-│   ├── utils/            # Helper functions
-│   ├── .env.example      # Environment template
-│   ├── package.json
-│   └── server.js         # Entry point
-│
-├── frontend/
-│   ├── public/           # Static assets
-│   ├── src/
-│   │   ├── components/   # React components
-│   │   ├── hooks/        # Custom hooks
-│   │   ├── lib/          # Utility functions
-│   │   ├── pages/        # Page components
-│   │   ├── sections/     # Page sections
-│   │   ├── store/        # State management
-│   │   ├── types/        # TypeScript types
-│   │   ├── App.tsx
-│   │   └── main.tsx
-│   ├── package.json
-│   └── vite.config.ts
-│
-├── documentation/
-│   ├── API_DOCUMENTATION.md
-│   ├── SUPABASE_INTEGRATION_GUIDE.md
-│   ├── GOOGLE_APPS_SCRIPT_GUIDE.md
-│   └── DEPLOYMENT_GUIDE.md
-│
-└── README.md
-```
+UCMS is an open ecosystem. We follow strict coding standards and PR review processes to maintain system stability.
+
+- **Coding Standard**: ESLint / Prettier
+- **Architecture Style**: Modular Monolith / Component-Driven
+- **Support**: alishba1342@gmail.com
 
 ---
 
-## API Documentation
-
-Comprehensive API documentation is available in [documentation/API_DOCUMENTATION.md](documentation/API_DOCUMENTATION.md).
-
-### Key Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/auth/login` | POST | Staff/Admin login |
-| `/api/auth/student/login` | POST | Student login |
-| `/api/auth/change-password` | POST | Change password |
-| `/api/admin/dashboard` | GET | Admin dashboard stats |
-| `/api/admin/students` | GET/POST | Student management |
-| `/api/admin/departments` | GET/POST | Department management |
-| `/api/students/dashboard` | GET | Student dashboard |
-| `/api/students/clearance-request` | POST | Submit clearance |
-| `/api/departments/requests` | GET | Department requests |
-| `/api/departments/requests/:id/status` | PUT | Update status |
-| `/api/clearance/statistics` | GET | Clearance stats |
-| `/api/analytics/overview` | GET | Analytics overview |
-
----
-
-## Database Schema
-
-### Core Collections
-
-#### Users (Staff/Admin)
-- Personal information
-- Role and department assignment
-- Authentication details
-- Account status
-
-#### Students
-- Academic information
-- Contact details
-- Clearance status
-- Department association
-
-#### Departments
-- Department details
-- Contact information
-- Clearance configuration
-- Staff assignments
-
-#### Clearance Requests
-- Request lifecycle
-- Department-wise status
-- Documents and comments
-- Timeline tracking
-
----
-
-## Configuration
-
-### Environment Variables
-
-#### Backend (.env)
-```env
-NODE_ENV=development
-PORT=5000
-FRONTEND_URL=http://localhost:5173
-MONGODB_URI=mongodb://localhost:27017/university_clearance
-JWT_SECRET=your-secret-key
-JWT_EXPIRES_IN=7d
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASS=your-app-password
-```
-
-#### Frontend (.env)
-```env
-VITE_API_URL=http://localhost:5000/api
-VITE_SOCKET_URL=http://localhost:5000
-```
-
----
-
-## System Handover & Production Setup
-
-To hand over the system to university authorities, follow these transition steps:
-
-### 1. Administrative Account Transfer
-- **Update Admin Email**: Change the default `admin@university.edu.pk` to the official university registrar or IT head's email.
-- **Reset Password**: Generate a new, high-entropy password for the primary admin account.
-- **Role Assignment**: Use the Admin Dashboard to create accounts for specific HODs and Department Officers using their official credentials.
-
-### 2. Student Data Integration
-- **Bulk Import**: Use the `.csv` bulk import feature in the Admin Dashboard to populate the system with actual student records.
-- **Login Pattern**: Ensure all imported students are aware of the login standard:
-    - **Username**: Official University Email
-    - **Default Password**: Student Registration Number
-- **First Login Policy**: The system is configured with `isFirstLogin: true` by default, forcing students to set a private password immediately.
-
-### 3. Production Infrastructure
-- **Supabase Hardening**: Run the `supabase_hardening.sql` script to enable Row Level Security (RLS) and optimize database performance.
-- **Environment Variables**: Update `.env` files with production-grade secrets, official SMTP (email) credentials, and the live domain URL.
-- **SSL/HTTPS**: Ensure the Vercel deployment or custom server has SSL certificates active for secure data transmission.
-
-### 4. Department Configuration
-- Assign official department heads (HODs) to their respective modules (Finance, Library, etc.).
-- Update contact numbers and WhatsApp links for real-time student support.
-
----
-
-## Administrative Setup & Student Onboarding Flow
-
-This system is designed for a seamless transition from administrative setup to student activation.
-
-### 1. Administrative Initialization
-- **Credential Generation**: The Admin prepares a master list of students in the Supabase/PostgreSQL database.
-- **Partitioned Export**: From the Admin Dashboard, the administrator exports student credentials as an **Excel/CSV** file.
-    - *Best Practice*: Partition the export by **Batch** or **Section** (e.g., "Fall 2023 - Section A").
-    - *File Content*: Student Name, University Email, Registration Number, and Initial Password.
-
-### 2. Departmental Handover
-- **Physical/Digital Handoff**: The Admin provides these partitioned lists to the respective **Heads of Departments (HODs)**.
-- **Manual Distribution**: HODs or departmental staff distribute the credentials to students manually (via orientation, official notice boards, or departmental emails).
-
-### 3. Student First-Action Workflow
-Once a student receives their credentials, they follow this strictly enforced security flow:
-1.  **Secure Login**: Sign in using their **University Email** and **Initial Password** (Registration Number).
-2.  **Mandatory Password Change**: The system detects `isFirstLogin: true` and immediately prompts the student to set a private, secure password.
-3.  **Profile Personalization**:
-    - **Identify**: Upload a professional profile picture for visual verification.
-    - **Connect**: Update their **WhatsApp Number** and official contact details.
-    - **Synchronize**: Verify academic details (Section, Batch, Selection).
-
-### 4. Visibility & Safety
-- **Faculty Access**: Departmental staff and HODs can now see the student's updated contact info and profile picture.
-- **Emergency Contact**: In case of clearance issues or emergencies, the university can instantly contact students via the provided WhatsApp/Phone info.
-
----
-
-## Deployment
-
-Detailed deployment instructions are available in [documentation/DEPLOYMENT_GUIDE.md](documentation/DEPLOYMENT_GUIDE.md).
-
-### Quick Deployment Steps
-
-1. **Prepare Server**
-   - Ubuntu 22.04 LTS recommended
-   - Node.js 18+, MongoDB 6+
-   - Nginx reverse proxy
-
-2. **Deploy Backend**
-```bash
-cd backend
-npm install --production
-pm2 start ecosystem.config.js
-```
-
-3. **Deploy Frontend**
-```bash
-cd frontend
-npm install
-npm run build
-# Serve dist/ folder via Nginx
-```
-
-4. **Setup SSL**
-```bash
-sudo certbot --nginx -d your-domain.com
-```
-
----
-
-## Integration Guides
-
-### Supabase Integration
-For authentication, real-time features, and storage: [SUPABASE_INTEGRATION_GUIDE.md](documentation/SUPABASE_INTEGRATION_GUIDE.md)
-
-### Google Apps Script
-For university email automation: [GOOGLE_APPS_SCRIPT_GUIDE.md](documentation/GOOGLE_APPS_SCRIPT_GUIDE.md)
-
----
-
-## Screenshots
-
-### Admin Dashboard
-- Analytics overview
-- User management
-- Department configuration
-- Clearance monitoring
-
-### Student Portal
-- Clearance submission
-- Status tracking
-- Department contact
-- Document upload
-
-### Department Portal
-- Request queue
-- Approval workflow
-- Student verification
-- Communication tools
-
----
-
-## Security
-
-- JWT-based authentication
-- Password hashing with bcrypt (12 rounds)
-- Account lockout after 5 failed attempts
-- Rate limiting on API endpoints
-- Input validation and sanitization
-- CORS configuration
-- Helmet.js security headers
-
----
-
-## Performance
-
-- Database indexing for fast queries
-- Pagination for large datasets
-- Gzip compression
-- Static asset caching
-- PM2 cluster mode for multi-core utilization
-
----
-
-## Testing
-
-```bash
-# Backend tests
-cd backend
-npm test
-
-# Frontend tests
-cd frontend
-npm test
-```
-
----
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## Support
-
-For support, email support@university.edu.pk or join our Slack channel.
-
----
-
-## Acknowledgments
-
-- Built for universities and educational institutions
-- Inspired by modern clearance management needs
-- Designed with scalability and security in mind
-
----
-
-*Last Updated: April 2024*
+<p align="center">
+  <b>Designed for Modern Institutions. Scaled for Excellence.</b>
+  <br>
+  <i>© 2026 University Clearance Management System. All rights reserved.</i>
+</p>
