@@ -80,8 +80,8 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
             <GraduationCap className="w-6 h-6 text-white" />
           </div>
           <div className="hidden sm:block">
-            <h1 className="text-xl font-black tracking-tighter leading-none uppercase text-primary">web CUIvehari Clearance</h1>
-            <p className="text-[8px] font-black uppercase tracking-[0.3em] opacity-40 italic">Institutional Hub</p>
+            <h1 className="text-xl font-black tracking-tighter leading-none uppercase text-primary">CUI Vehari</h1>
+            <p className="text-[8px] font-black uppercase tracking-[0.3em] opacity-40 italic">Clearance System</p>
           </div>
         </div>
 
@@ -305,7 +305,8 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/20">
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
-            <h2 className="text-lg font-black tracking-tighter leading-none uppercase">web CUIvehari Clearance</h2>
+            <h2 className="text-lg font-black tracking-tighter leading-none uppercase">CUI Vehari</h2>
+            <p className="text-[8px] font-black uppercase tracking-[0.2em] opacity-40 italic">Clearance System</p>
             </div>
             <p className="text-muted-foreground text-[10px] font-black uppercase tracking-[0.2em] leading-relaxed max-w-[200px]">
               Institutional digital infrastructure for university administrative excellence.

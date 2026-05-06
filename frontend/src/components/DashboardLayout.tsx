@@ -254,8 +254,8 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
                 <GraduationCap className="text-white w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <div className="space-y-0.5">
-                <span className="font-black text-lg sm:text-xl text-foreground tracking-tighter block uppercase leading-none">web CUIvehari Clearance</span>
-                <span className="text-[7px] sm:text-[8px] font-black text-primary uppercase tracking-[0.3em] block italic">Secure Authority Hub</span>
+                <span className="font-black text-lg sm:text-xl text-foreground tracking-tighter block uppercase leading-none">CUI Vehari</span>
+                <span className="text-[7px] sm:text-[8px] font-black text-primary uppercase tracking-[0.3em] block italic">Clearance System</span>
               </div>
             </div>
             <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-muted-foreground rounded-full hover:bg-muted/50 w-8 h-8">

@@ -187,8 +187,8 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onBackToHome,
                   <GraduationCap className="w-7 h-7 text-white" />
                </div>
                <div className="space-y-0.5">
-                  <h2 className="text-lg font-black tracking-tighter uppercase leading-none">web CUIvehari Clearance</h2>
-                  <p className="text-[8px] font-bold uppercase tracking-[0.3em] opacity-60 italic">Student Registry Node</p>
+                  <h2 className="text-lg font-black tracking-tighter uppercase leading-none">CUI Vehari</h2>
+                  <p className="text-[8px] font-bold uppercase tracking-[0.3em] opacity-60 italic">Clearance System</p>
                </div>
             </div>
             <div className="space-y-4">
