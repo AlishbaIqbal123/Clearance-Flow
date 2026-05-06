@@ -56,7 +56,8 @@ router.get('/overview', asyncHandler(async (req, res) => {
     .select('status, cleared_at, department:department_id(name)');
   
   const deptPerfMap = (deptStatsRaw || []).reduce((acc, curr) => {
-    const name = curr.department.name;
+    const name = curr.department?.name || 'Unknown';
+
     if (!acc[name]) {
       acc[name] = { name, total: 0, cleared: 0, pending: 0, rejected: 0, totalProcessingTime: 0, completedCount: 0 };
     }

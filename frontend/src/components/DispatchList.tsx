@@ -12,7 +12,8 @@ import {
   PackageCheck,
   Package,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Eye
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,13 +27,25 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { adminService } from '@/lib/admin.service';
 import { toast } from 'sonner';
+
 
 export const DispatchList = () => {
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedRequest, setSelectedRequest] = useState<any>(null);
+  const [isViewOpen, setIsViewOpen] = useState(false);
+
 
   const fetchDispatchRequests = async () => {
     try {
@@ -166,10 +179,24 @@ export const DispatchList = () => {
                       </Badge>
                     </TableCell>
                     <TableCell className="py-8 px-10 text-right">
-                      <Button className="h-12 w-12 rounded-xl bg-foreground text-white hover:bg-primary transition-all shadow-soft group/action">
-                        <PackageCheck className="w-5 h-5 group-hover/action:scale-110 transition-transform" />
-                      </Button>
+                      <div className="flex items-center justify-end gap-3">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-12 w-12 rounded-xl hover:bg-primary/10 hover:text-primary transition-all shadow-soft"
+                          onClick={() => {
+                            setSelectedRequest(req);
+                            setIsViewOpen(true);
+                          }}
+                        >
+                          <Eye className="w-5 h-5" />
+                        </Button>
+                        <Button className="h-12 w-12 rounded-xl bg-foreground text-white hover:bg-primary transition-all shadow-soft group/action">
+                          <PackageCheck className="w-5 h-5 group-hover/action:scale-110 transition-transform" />
+                        </Button>
+                      </div>
                     </TableCell>
+
                   </TableRow>
                 ))
               ) : (
@@ -186,6 +213,90 @@ export const DispatchList = () => {
           </Table>
         </div>
       </Card>
+
+      {/* View Details Dialog */}
+      <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
+        <DialogContent className="sm:max-w-[600px] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background">
+          <div className="bg-foreground p-8 text-background relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full -mr-32 -mt-32 blur-[80px]" />
+            <div className="relative z-10 flex items-center gap-6">
+              <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center text-primary backdrop-blur-xl border border-white/5">
+                <Truck className="w-8 h-8" />
+              </div>
+              <div>
+                <Badge className="bg-primary text-white border-none rounded-full px-4 py-1 text-[8px] font-black uppercase tracking-[0.4em] mb-2">Dispatch Detail</Badge>
+                <DialogTitle className="text-2xl font-black tracking-tighter uppercase leading-none">Shipping Information</DialogTitle>
+              </div>
+            </div>
+          </div>
+          
+          <div className="p-8 space-y-8 bg-card/40 backdrop-blur-3xl">
+            {/* Student Info */}
+            <div className="space-y-4">
+              <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Recipient Identity</h4>
+              <div className="flex items-center gap-5 p-6 bg-secondary/50 rounded-[2rem] border border-foreground/5">
+                <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center font-black text-primary text-xl">
+                  {selectedRequest?.student?.full_name?.charAt(0)}
+                </div>
+                <div>
+                  <p className="text-xl font-black text-foreground uppercase tracking-tight">{selectedRequest?.student?.full_name}</p>
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{selectedRequest?.student?.registration_no}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Address Info */}
+            <div className="space-y-4">
+              <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Dispatch Coordinates</h4>
+              <div className="p-8 bg-white rounded-[2.5rem] border border-foreground/5 shadow-soft space-y-4">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+                    <MapPin className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-base font-bold text-foreground leading-relaxed uppercase italic">
+                      {selectedRequest?.degree_fulfillment?.address}
+                    </p>
+                    <div className="flex items-center gap-2 text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">
+                      <Package className="w-3.5 h-3.5" />
+                      Standard Institutional Delivery
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Selection Meta */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-5 bg-secondary/30 rounded-2xl border border-foreground/5 space-y-1">
+                <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">Selection Date</p>
+                <div className="flex items-center gap-2 text-sm font-black uppercase">
+                  <Calendar className="w-4 h-4 text-primary" />
+                  {selectedRequest && new Date(selectedRequest.degree_fulfillment?.selected_at).toLocaleDateString()}
+                </div>
+              </div>
+              <div className="p-5 bg-secondary/30 rounded-2xl border border-foreground/5 space-y-1">
+                <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">Fulfillment Type</p>
+                <div className="flex items-center gap-2 text-sm font-black uppercase">
+                  <PackageCheck className="w-4 h-4 text-primary" />
+                  Courier
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter className="pt-4">
+              <Button 
+                variant="ghost" 
+                className="h-12 rounded-xl px-10 font-black text-[10px] uppercase tracking-[0.4em] text-muted-foreground hover:bg-secondary/80 w-full" 
+                onClick={() => setIsViewOpen(false)}
+              >
+                Close View
+              </Button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 };

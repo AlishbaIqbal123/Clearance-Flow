@@ -40,6 +40,8 @@ const adminPlus = authorize('admin');
  * @access  Admin
  */
 router.get('/dashboard', adminPlus, asyncHandler(async (req, res) => {
+  console.log('Fetching admin dashboard data...');
+
   // Get counts
   const { count: totalStudents } = await supabase.from('student_profiles').select('*', { count: 'exact', head: true }).eq('is_active', true);
   const { count: totalDepartments } = await supabase.from('departments').select('*', { count: 'exact', head: true }).eq('is_active', true);
@@ -162,8 +164,9 @@ router.get('/dashboard', adminPlus, asyncHandler(async (req, res) => {
         rejected: clearanceMap.rejected || 0
       },
       recentRequests,
-      departmentPendingStats,
+      departmentPendingStats: deptPendingStats,
       departmentStudentStats
+
     }
   });
 }));
