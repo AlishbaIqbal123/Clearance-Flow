@@ -19,10 +19,11 @@ import { Badge } from '@/components/ui/badge';
 
 interface RegisterProps {
   onBackToLogin: () => void;
+  onBackToHome: () => void;
   onRegisterSuccess: (userData: any) => void;
 }
 
-export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onRegisterSuccess }) => {
+export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onBackToHome, onRegisterSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [departments, setDepartments] = useState<any[]>([]);
   const [fetchingDepts, setFetchingDepts] = useState(true);
@@ -164,13 +165,21 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onRegisterSuc
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/5 rounded-full blur-[160px] -mr-80 -mt-80 animate-pulse" />
         
         <div className="relative z-10 space-y-8">
-          <button 
-            onClick={onBackToLogin}
-            className="flex items-center gap-3 text-white/60 hover:text-white transition-all font-black text-[9px] uppercase tracking-[0.4em] group w-fit"
-          >
-            <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-1.5 transition-transform duration-500" />
-            Portal
-          </button>
+          <div className="flex items-center gap-6">
+            <button 
+              onClick={onBackToHome}
+              className="flex items-center gap-3 text-white/40 hover:text-white transition-all font-black text-[9px] uppercase tracking-[0.4em] group w-fit"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+              Home
+            </button>
+            <button 
+              onClick={onBackToLogin}
+              className="flex items-center gap-3 text-white/60 hover:text-white transition-all font-black text-[9px] uppercase tracking-[0.4em] group w-fit"
+            >
+              Portal
+            </button>
+          </div>
 
           <div className="space-y-6">
             <div className="flex items-center gap-4">

@@ -105,7 +105,8 @@
 
 @layer components {
   .bento-card {
-    @apply bg-card text-card-foreground rounded-[var(--radius)] shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-strong)] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] hover:-translate-y-1 border border-foreground/5;
+    @apply bg-card text-card-foreground rounded-[var(--radius)] shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-strong)] transition-all duration-500 hover:-translate-y-1 border border-foreground/5;
+    transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
   }
   
   .glass {

@@ -66,8 +66,9 @@ export const DispatchList = () => {
   }, []);
 
   const filteredRequests = requests.filter(req => 
-    req.student?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    req.student?.registration_no?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    req.student?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    req.student?.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    req.student?.registration_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     req.degree_fulfillment?.address?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -148,11 +149,15 @@ export const DispatchList = () => {
                     <TableCell className="py-8 px-10">
                       <div className="flex items-center gap-5">
                         <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center font-black text-primary text-sm shadow-soft group-hover:scale-110 transition-transform">
-                          {req.student?.full_name?.charAt(0) || 'S'}
+                          {req.student?.first_name?.charAt(0) || 'S'}
                         </div>
                         <div>
-                          <p className="font-black text-foreground text-base tracking-tight uppercase leading-none">{req.student?.full_name}</p>
-                          <p className="text-[10px] font-bold text-muted-foreground mt-2 uppercase tracking-widest">{req.student?.registration_no}</p>
+                          <p className="font-black text-foreground text-base tracking-tight uppercase leading-none">
+                            {req.student?.first_name} {req.student?.last_name}
+                          </p>
+                          <p className="text-[10px] font-bold text-muted-foreground mt-2 uppercase tracking-widest">
+                            {req.student?.registration_number}
+                          </p>
                         </div>
                       </div>
                     </TableCell>
@@ -236,11 +241,15 @@ export const DispatchList = () => {
               <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Recipient Identity</h4>
               <div className="flex items-center gap-5 p-6 bg-secondary/50 rounded-[2rem] border border-foreground/5">
                 <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center font-black text-primary text-xl">
-                  {selectedRequest?.student?.full_name?.charAt(0)}
+                  {selectedRequest?.student?.first_name?.charAt(0)}
                 </div>
                 <div>
-                  <p className="text-xl font-black text-foreground uppercase tracking-tight">{selectedRequest?.student?.full_name}</p>
-                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{selectedRequest?.student?.registration_no}</p>
+                  <p className="text-xl font-black text-foreground uppercase tracking-tight">
+                    {selectedRequest?.student?.first_name} {selectedRequest?.student?.last_name}
+                  </p>
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                    {selectedRequest?.student?.registration_number}
+                  </p>
                 </div>
               </div>
             </div>

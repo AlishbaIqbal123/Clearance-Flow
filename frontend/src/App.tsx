@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import * as React from 'react';
 import { Toaster, toast } from 'sonner';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Login } from '@/components/Login';
@@ -15,17 +15,18 @@ import { ClearanceRequestList } from '@/components/ClearanceRequestList';
 import { Analytics } from '@/components/Analytics';
 import { MyClearance } from '@/components/MyClearance';
 import { DispatchList } from '@/components/DispatchList';
+import { Landing } from '@/components/Landing';
 import { authService } from '@/lib/auth.service';
 import { Loader2 } from 'lucide-react';
 import './App.css';
 
-function App() {
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [showRegister, setShowRegister] = useState(false);
+const App: React.FC = () => {
+  const [user, setUser] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [activeTab, setActiveTab] = React.useState('dashboard');
+  const [authView, setAuthView] = React.useState<'landing' | 'login' | 'register'>('landing');
 
-  useEffect(() => {
+  React.useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('token');
       if (token) {
@@ -54,6 +55,7 @@ function App() {
   const handleLogout = () => {
     authService.logout();
     setUser(null);
+    setAuthView('landing'); // Reset to landing on logout
     toast.info('Logged out successfully');
   };
 
@@ -72,15 +74,22 @@ function App() {
   if (!user) {
     return (
       <>
-        {showRegister ? (
+        {authView === 'landing' ? (
+          <Landing 
+            onLoginClick={() => setAuthView('login')} 
+            onRegisterClick={() => setAuthView('register')} 
+          />
+        ) : authView === 'register' ? (
           <Register 
-            onBackToLogin={() => setShowRegister(false)} 
+            onBackToLogin={() => setAuthView('login')} 
+            onBackToHome={() => setAuthView('landing')}
             onRegisterSuccess={handleLoginSuccess}
           />
         ) : (
           <Login 
             onLoginSuccess={handleLoginSuccess} 
-            onRegisterClick={() => setShowRegister(true)}
+            onRegisterClick={() => setAuthView('register')}
+            onBack={() => setAuthView('landing')}
           />
         )}
         <Toaster position="top-right" expand={true} richColors />

@@ -40,9 +40,10 @@ import {
 interface LoginProps {
   onLoginSuccess: (userData: any) => void;
   onRegisterClick: () => void;
+  onBack: () => void;
 }
 
-export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick }) => {
+export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, onBack }) => {
   const [activePortal, setActivePortal] = useState<'student' | 'staff'>('student');
   const [loading, setLoading] = useState(false);
   const [studentId, setStudentId] = useState('');
@@ -166,6 +167,15 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
         className="fixed top-6 right-6 z-[100] w-12 h-12 rounded-xl bg-card/60 backdrop-blur-3xl border border-foreground/5 text-foreground hover:bg-primary hover:text-white transition-all duration-500 active:scale-90 shadow-strong flex items-center justify-center group"
       >
         {isDark ? <Sun className="w-5 h-5 group-hover:rotate-90 transition-transform duration-700" /> : <Moon className="w-5 h-5 group-hover:-rotate-12 transition-transform duration-700" />}
+      </button>
+
+      {/* Back to Landing */}
+      <button 
+        onClick={onBack}
+        className="fixed top-6 left-6 z-[100] px-6 h-12 rounded-xl bg-card/60 backdrop-blur-3xl border border-foreground/5 text-foreground hover:bg-primary hover:text-white transition-all duration-500 active:scale-90 shadow-strong flex items-center justify-center gap-3 group"
+      >
+        <ChevronRight className="w-4 h-4 rotate-180" />
+        <span className="text-[10px] font-black uppercase tracking-[0.2em]">Home</span>
       </button>
 
       <div className="h-full w-full flex">

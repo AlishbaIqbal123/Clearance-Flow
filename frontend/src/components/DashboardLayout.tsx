@@ -245,9 +245,9 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
         fixed inset-y-0 left-0 z-50 w-72 bg-card/80 backdrop-blur-3xl border-r border-foreground/5 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]
         ${isSidebarOpen ? 'translate-x-0 shadow-strong' : '-translate-x-full lg:translate-x-0'}
       `}>
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-screen max-h-screen overflow-hidden">
           {/* COMSATS Branding */}
-          <div className="p-6 sm:p-8 pb-4 flex items-center justify-between">
+          <div className="p-6 sm:p-8 pb-4 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3 group cursor-pointer">
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary rounded-xl sm:rounded-2xl flex items-center justify-center shadow-strong group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 relative overflow-hidden">
                 <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity shimmer" />
@@ -299,7 +299,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
           </ScrollArea>
 
           {/* User Profile Card - Premium Interaction */}
-          <div className="p-6 border-t border-foreground/5 space-y-4 bg-secondary/5">
+          <div className="p-6 border-t border-foreground/5 space-y-4 bg-secondary/5 shrink-0">
             <button 
               onClick={() => setIsProfileOpen(true)}
               className="w-full bg-secondary/40 hover:bg-secondary/70 rounded-2xl p-4 flex items-center gap-3 transition-all duration-700 group border border-foreground/5 shadow-inner"
