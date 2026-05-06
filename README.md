@@ -102,7 +102,7 @@ graph LR
 
 ```bash
 # 1. Clone Infrastructure
-git clone https://github.com/your-org/ucms-platform.git
+git clone https://github.com/AlishbaIqbal123/Clearance-Flow.git
 
 # 2. Service Orchestration (Backend)
 cd backend && npm install
@@ -129,7 +129,7 @@ UCMS is an open ecosystem. We follow strict coding standards and PR review proce
 
 - **Coding Standard**: ESLint / Prettier
 - **Architecture Style**: Modular Monolith / Component-Driven
-- **Support**: registrar-support@university.edu.pk
+- **Support**: alishba1342@gmail.com
 
 ---
 
