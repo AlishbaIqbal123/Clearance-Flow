@@ -189,8 +189,8 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
                
                <div className="relative z-10 space-y-8">
                   <div className="flex items-center gap-3">
-                     <div className="w-12 h-12 bg-white/10 backdrop-blur-2xl rounded-xl flex items-center justify-center border border-white/20">
-                        <GraduationCap className="w-7 h-7 text-white" />
+                     <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-white/20 p-2 shadow-strong">
+                        <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
                      </div>
                      <div className="space-y-0.5 text-white">
                         <h2 className="text-xl font-black tracking-tighter uppercase leading-none">CUI Vehari</h2>

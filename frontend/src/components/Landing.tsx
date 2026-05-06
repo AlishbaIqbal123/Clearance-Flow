@@ -76,8 +76,8 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass h-20 px-6 md:px-12 flex items-center justify-between border-b border-foreground/5 shadow-soft">
         <div className="flex items-center gap-3 group cursor-pointer">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:rotate-3 transition-transform">
-            <GraduationCap className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-strong group-hover:scale-110 transition-all duration-500 p-1.5 border border-foreground/5">
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
           <div className="hidden sm:block">
             <h1 className="text-xl font-black tracking-tighter leading-none uppercase text-primary">CUI Vehari</h1>
@@ -302,8 +302,8 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 relative z-10">
           <div className="space-y-6">
             <div className="flex items-center gap-3 group cursor-pointer">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/20">
-                <GraduationCap className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-lg shadow-primary/5 p-1 border border-foreground/5">
+                <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
               </div>
             <h2 className="text-lg font-black tracking-tighter leading-none uppercase">CUI Vehari</h2>
             <p className="text-[8px] font-black uppercase tracking-[0.2em] opacity-40 italic">Clearance System</p>

@@ -249,9 +249,9 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
           {/* COMSATS Branding */}
           <div className="p-6 sm:p-8 pb-4 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3 group cursor-pointer">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary rounded-xl sm:rounded-2xl flex items-center justify-center shadow-strong group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 relative overflow-hidden">
-                <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity shimmer" />
-                <GraduationCap className="text-white w-5 h-5 sm:w-6 sm:h-6" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center shadow-strong group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 relative overflow-hidden p-1.5 sm:p-2 border border-foreground/5">
+                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity shimmer" />
+                <img src="/logo.png" alt="Logo" className="w-full h-full object-contain relative z-10" />
               </div>
               <div className="space-y-0.5">
                 <span className="font-black text-lg sm:text-xl text-foreground tracking-tighter block uppercase leading-none">CUI Vehari</span>
