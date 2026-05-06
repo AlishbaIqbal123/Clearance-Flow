@@ -299,10 +299,10 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
           </ScrollArea>
 
           {/* User Profile Card - Premium Interaction */}
-          <div className="p-6 border-t border-foreground/5 space-y-4 bg-secondary/5 shrink-0">
+          <div className="p-4 border-t border-foreground/5 space-y-2 bg-secondary/5 shrink-0">
             <button 
               onClick={() => setIsProfileOpen(true)}
-              className="w-full bg-secondary/40 hover:bg-secondary/70 rounded-2xl p-4 flex items-center gap-3 transition-all duration-700 group border border-foreground/5 shadow-inner"
+              className="w-full bg-secondary/40 hover:bg-secondary/70 rounded-xl p-3 flex items-center gap-3 transition-all duration-700 group border border-foreground/5 shadow-inner"
             >
               <div className="relative">
                 <Avatar className="w-10 h-10 border-2 border-background shadow-soft group-hover:scale-110 transition-transform duration-700">
@@ -321,9 +321,9 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
             <Button 
               variant="ghost"
               onClick={onLogout}
-              className="w-full flex items-center justify-center gap-2 h-14 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] text-destructive hover:bg-destructive/10 hover:text-destructive transition-all group border border-transparent hover:border-destructive/10"
+              className="w-full flex items-center justify-center gap-2 h-11 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] text-destructive hover:bg-destructive/10 hover:text-destructive transition-all group border border-transparent hover:border-destructive/10"
             >
-              <LogOut className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
+              <LogOut className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
               Sign Out
             </Button>
           </div>
