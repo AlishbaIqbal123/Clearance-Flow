@@ -193,8 +193,8 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
                         <GraduationCap className="w-7 h-7 text-white" />
                      </div>
                      <div className="space-y-0.5 text-white">
-                        <h2 className="text-xl font-black tracking-tighter uppercase leading-none">COMSATS</h2>
-                        <p className="text-[8px] font-bold uppercase tracking-[0.3em] opacity-60 italic">University Islamabad, Vehari Campus</p>
+                        <h2 className="text-xl font-black tracking-tighter uppercase leading-none">CUIvehari</h2>
+                        <p className="text-[8px] font-bold uppercase tracking-[0.3em] opacity-60 italic">Clearance Terminal</p>
                      </div>
                   </div>
 

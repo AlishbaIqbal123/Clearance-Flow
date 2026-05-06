@@ -80,7 +80,7 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
             <GraduationCap className="w-6 h-6 text-white" />
           </div>
           <div className="hidden sm:block">
-            <h1 className="text-xl font-black tracking-tighter leading-none uppercase">COMSATS</h1>
+            <h1 className="text-xl font-black tracking-tighter leading-none uppercase text-primary">CUIvehari</h1>
             <p className="text-[8px] font-black uppercase tracking-[0.3em] opacity-40">Clearance Ecosystem</p>
           </div>
         </div>
@@ -238,7 +238,7 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
                <div className="flex flex-col items-center text-center space-y-8">
                   <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-primary/20 p-2 group-hover:scale-105 transition-all duration-700 shadow-2xl relative">
                     <img 
-                      src="https://muhammadabdullahwali.vercel.app/profile.png" 
+                      src="/supervisor.png" 
                       alt="Muhammad Abdullah Wali"
                       className="w-full h-full object-cover rounded-full bg-secondary"
                       onError={(e) => {
@@ -305,7 +305,7 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/20">
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
-              <h2 className="text-lg font-black tracking-tighter leading-none uppercase">COMSATS</h2>
+              <h2 className="text-lg font-black tracking-tighter leading-none uppercase">CUIvehari Clearance</h2>
             </div>
             <p className="text-muted-foreground text-[10px] font-black uppercase tracking-[0.2em] leading-relaxed max-w-[200px]">
               Institutional digital infrastructure for university administrative excellence.
@@ -346,7 +346,7 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
 
         <div className="max-w-7xl mx-auto pt-20 flex flex-col md:flex-row items-center justify-between gap-8 opacity-20 border-t border-foreground/5 mt-20">
           <div className="text-[9px] font-black uppercase tracking-[0.4em]">
-            © 2026 COMSATS UNIVERSITY ISLAMABAD • TERMINAL V3.0.0
+            © 2026 CUIvehari Clearance • TERMINAL V3.0.0
           </div>
           <div className="flex gap-12 grayscale">
             <Activity className="w-5 h-5" />
