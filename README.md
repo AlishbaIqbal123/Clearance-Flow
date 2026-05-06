@@ -1,4 +1,4 @@
-# 🎓 web CUIvehari Clearance
+# 🎓 CUI Vehari (Clearance System)
 
 [![Enterprise Ready](https://img.shields.io/badge/Enterprise-Ready-blue.svg?style=for-the-badge)](https://github.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
