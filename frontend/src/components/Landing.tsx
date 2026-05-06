@@ -44,23 +44,26 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
     
     if (savedTheme === 'dark' || (!savedTheme && systemDark)) {
       setIsDark(true);
-      document.documentElement.classList.add('dark');
     } else {
       setIsDark(false);
-      document.documentElement.classList.remove('dark');
     }
   }, []);
 
-  const toggleTheme = () => {
-    const newDark = !isDark;
-    setIsDark(newDark);
-    if (newDark) {
-      document.documentElement.classList.add('dark');
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (isDark) {
+      root.classList.add('dark');
       localStorage.setItem('theme', 'dark');
     } else {
-      document.documentElement.classList.remove('dark');
+      root.classList.remove('dark');
       localStorage.setItem('theme', 'light');
     }
+  }, [isDark]);
+
+  const toggleTheme = () => {
+    React.startTransition(() => {
+      setIsDark(prev => !prev);
+    });
   };
 
   return (

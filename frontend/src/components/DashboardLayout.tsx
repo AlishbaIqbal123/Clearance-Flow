@@ -96,16 +96,21 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
     phone: user.phone || user.phone_number || ''
   });
 
-  const toggleTheme = () => {
-    const newDark = !isDark;
-    setIsDark(newDark);
-    if (newDark) {
-      document.documentElement.classList.add('dark');
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (isDark) {
+      root.classList.add('dark');
       localStorage.setItem('theme', 'dark');
     } else {
-      document.documentElement.classList.remove('dark');
+      root.classList.remove('dark');
       localStorage.setItem('theme', 'light');
     }
+  }, [isDark]);
+
+  const toggleTheme = () => {
+    React.startTransition(() => {
+      setIsDark(prev => !prev);
+    });
   };
 
   useEffect(() => {
@@ -114,10 +119,8 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
     
     if (savedTheme === 'dark' || (!savedTheme && systemDark)) {
       setIsDark(true);
-      document.documentElement.classList.add('dark');
     } else {
       setIsDark(false);
-      document.documentElement.classList.remove('dark');
     }
   }, []);
 
