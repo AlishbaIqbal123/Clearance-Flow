@@ -64,7 +64,7 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-primary/20 overflow-x-hidden transition-colors duration-700">
+    <div className="min-h-screen bg-background text-foreground selection:bg-primary/20 overflow-x-hidden">
       
       {/* Dynamic Background Mesh */}
       <div className="fixed inset-0 pointer-events-none z-0">
@@ -80,8 +80,8 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
             <GraduationCap className="w-6 h-6 text-white" />
           </div>
           <div className="hidden sm:block">
-            <h1 className="text-xl font-black tracking-tighter leading-none uppercase text-primary">CUIvehari</h1>
-            <p className="text-[8px] font-black uppercase tracking-[0.3em] opacity-40">Clearance Ecosystem</p>
+            <h1 className="text-xl font-black tracking-tighter leading-none uppercase text-primary">web CUIvehari Clearance</h1>
+            <p className="text-[8px] font-black uppercase tracking-[0.3em] opacity-40 italic">Institutional Hub</p>
           </div>
         </div>
 
@@ -91,7 +91,7 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
             variant="ghost" 
             size="icon" 
             onClick={toggleTheme}
-            className="rounded-2xl bg-secondary text-foreground w-11 h-11 hover:bg-primary hover:text-white transition-all duration-700 shadow-sm border border-foreground/5 active:scale-95"
+            className="rounded-2xl bg-secondary text-foreground w-11 h-11 hover:bg-primary hover:text-white transition-colors duration-300 shadow-sm border border-foreground/5 active:scale-95"
           >
             {isDark ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
           </Button>
@@ -248,7 +248,7 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
                   </div>
                   <div className="space-y-3">
                     <h4 className="text-4xl font-black uppercase tracking-tighter">Muhammad Abdullah Wali</h4>
-                    <p className="text-[11px] font-black uppercase tracking-[0.4em] text-primary">Technical Supervisor</p>
+                    <p className="text-[11px] font-black uppercase tracking-[0.4em] text-primary">Technical Supervisor & Mentor</p>
                   </div>
                   <p className="text-muted-foreground text-base font-medium leading-relaxed italic max-w-xs">
                     "AI Automation & Software Architect. Architected the institutional framework and systemic logic of the UCMS ecosystem."
@@ -305,7 +305,7 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/20">
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
-              <h2 className="text-lg font-black tracking-tighter leading-none uppercase">CUIvehari Clearance</h2>
+            <h2 className="text-lg font-black tracking-tighter leading-none uppercase">web CUIvehari Clearance</h2>
             </div>
             <p className="text-muted-foreground text-[10px] font-black uppercase tracking-[0.2em] leading-relaxed max-w-[200px]">
               Institutional digital infrastructure for university administrative excellence.
@@ -346,7 +346,7 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
 
         <div className="max-w-7xl mx-auto pt-20 flex flex-col md:flex-row items-center justify-between gap-8 opacity-20 border-t border-foreground/5 mt-20">
           <div className="text-[9px] font-black uppercase tracking-[0.4em]">
-            © 2026 CUIvehari Clearance • TERMINAL V3.0.0
+            © 2026 web CUIvehari Clearance • TERMINAL V3.0.0
           </div>
           <div className="flex gap-12 grayscale">
             <Activity className="w-5 h-5" />

@@ -254,8 +254,8 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
                 <GraduationCap className="text-white w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <div className="space-y-0.5">
-                <span className="font-black text-lg sm:text-xl text-foreground tracking-tighter block uppercase leading-none">CUIvehari</span>
-                <span className="text-[7px] sm:text-[8px] font-black text-primary uppercase tracking-[0.3em] block">Clearance Terminal</span>
+                <span className="font-black text-lg sm:text-xl text-foreground tracking-tighter block uppercase leading-none">web CUIvehari Clearance</span>
+                <span className="text-[7px] sm:text-[8px] font-black text-primary uppercase tracking-[0.3em] block italic">Secure Authority Hub</span>
               </div>
             </div>
             <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-muted-foreground rounded-full hover:bg-muted/50 w-8 h-8">
@@ -370,7 +370,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
               variant="ghost" 
               size="icon" 
               onClick={toggleTheme}
-              className="rounded-2xl bg-secondary text-foreground w-12 h-12 hover:bg-primary hover:text-white transition-all duration-700 shadow-sm border border-foreground/5 active:scale-95"
+              className="rounded-2xl bg-secondary text-foreground w-12 h-12 hover:bg-primary hover:text-white transition-colors duration-300 shadow-sm border border-foreground/5 active:scale-95"
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </Button>
@@ -482,7 +482,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
 
         {/* Footer info for Academic Authority */}
         <footer className="p-10 text-center opacity-30">
-           <p className="text-[9px] font-black uppercase tracking-[0.5em] text-muted-foreground">CUIvehari Clearance • SECURE CLEARANCE TERMINAL • 2026</p>
+           <p className="text-[9px] font-black uppercase tracking-[0.5em] text-muted-foreground">web CUIvehari Clearance • SECURE CLEARANCE TERMINAL • 2026</p>
         </footer>
       </div>
 

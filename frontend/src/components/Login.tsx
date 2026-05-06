@@ -159,14 +159,14 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
   };
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-background transition-colors duration-1000">
+    <div className="h-screen w-screen overflow-hidden bg-background">
       
       {/* Floating Theme Toggle */}
       <button 
         onClick={toggleTheme}
         className="fixed top-6 right-6 z-[100] w-12 h-12 rounded-xl bg-card/60 backdrop-blur-3xl border border-foreground/5 text-foreground hover:bg-primary hover:text-white transition-all duration-500 active:scale-90 shadow-strong flex items-center justify-center group"
       >
-        {isDark ? <Sun className="w-5 h-5 group-hover:rotate-90 transition-transform duration-700" /> : <Moon className="w-5 h-5 group-hover:-rotate-12 transition-transform duration-700" />}
+        {isDark ? <Sun className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" /> : <Moon className="w-5 h-5 group-hover:-rotate-12 transition-transform duration-300" />}
       </button>
 
       {/* Back to Landing */}
@@ -193,8 +193,8 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
                         <GraduationCap className="w-7 h-7 text-white" />
                      </div>
                      <div className="space-y-0.5 text-white">
-                        <h2 className="text-xl font-black tracking-tighter uppercase leading-none">CUIvehari</h2>
-                        <p className="text-[8px] font-bold uppercase tracking-[0.3em] opacity-60 italic">Clearance Terminal</p>
+                        <h2 className="text-xl font-black tracking-tighter uppercase leading-none">web CUIvehari Clearance</h2>
+                        <p className="text-[8px] font-bold uppercase tracking-[0.3em] opacity-60 italic">Clearance Terminal Node</p>
                      </div>
                   </div>
 
