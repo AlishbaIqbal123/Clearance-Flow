@@ -426,25 +426,9 @@ router.get('/students', hodOrAdmin, asyncHandler(async (req, res) => {
     .select('*, department:department_id(name, code)', { count: 'exact' })
     .eq('is_active', true);
 
-  // If not admin, only show students who have a clearance request with the user's department
+  // If not admin, only show students belonging to the user's department
   if (req.user.role !== 'admin' && req.user.department_id) {
-    const { data: requestIds } = await supabase
-      .from('clearance_status')
-      .select('request_id')
-      .eq('department_id', req.user.department_id);
-    
-    if (requestIds && requestIds.length > 0) {
-      const { data: studentIds } = await supabase
-        .from('clearance_requests')
-        .select('student_id')
-        .in('id', requestIds.map(r => r.request_id));
-      
-      const uniqueStudentIds = [...new Set(studentIds?.map(s => s.student_id))];
-      queryBuilder = queryBuilder.in('id', uniqueStudentIds);
-    } else {
-      // No requests for this department yet
-      queryBuilder = queryBuilder.in('id', ['00000000-0000-0000-0000-000000000000']);
-    }
+    queryBuilder = queryBuilder.eq('department_id', req.user.department_id);
   }
   
   if (department) queryBuilder = queryBuilder.eq('department_id', department);
@@ -494,7 +478,14 @@ router.post('/students',
   ],
   asyncHandler(async (req, res) => {
     const { firstName, lastName, registrationNumber, email, password, departmentId, program, discipline, batch } = req.body;
-    const department = departmentId;
+    
+    // Enforce department ownership for non-admins
+    let finalDepartmentId = departmentId;
+    if (req.user.role !== 'admin' && req.user.department_id) {
+      finalDepartmentId = req.user.department_id;
+    }
+    
+    const department = finalDepartmentId;
     const finalDiscipline = discipline || program; // Default to program if discipline is not provided
     
     // Check if registration number exists
@@ -685,6 +676,24 @@ router.put('/students/:id', asyncHandler(async (req, res) => {
   const { id } = req.params;
   const updates = { ...req.body };
   
+  // For non-admins, ensure the student belongs to their department
+  if (req.user.role !== 'admin' && req.user.department_id) {
+    const { data: studentCheck } = await supabase
+      .from('student_profiles')
+      .select('department_id')
+      .eq('id', id)
+      .single();
+    
+    if (!studentCheck || studentCheck.department_id !== req.user.department_id) {
+      throw new AppError('Unauthorized: Student does not belong to your department', 403, 'UNAUTHORIZED');
+    }
+    
+    // Prevent non-admins from changing the department
+    delete updates.department_id;
+    delete updates.department;
+    delete updates.departmentId;
+  }
+
   delete updates.password; // Don't update password through this route
   updates.updated_by = req.user.id;
   

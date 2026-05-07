@@ -120,7 +120,7 @@ const App: React.FC = () => {
     // Role-specific views
     switch (activeTab) {
       case 'students':
-        if (user.role === 'admin' || user.role === 'hod') return <StudentList />;
+        if (user.role === 'admin' || user.role === 'hod') return <StudentList user={user} />;
         return <div className="p-8 text-center text-slate-400 font-bold uppercase tracking-widest">Access Denied</div>;
 
       case 'academic-depts':

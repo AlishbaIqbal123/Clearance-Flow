@@ -82,7 +82,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-export const StudentList = () => {
+export const StudentList = ({ user }: { user: any }) => {
   const [students, setStudents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -112,7 +112,13 @@ export const StudentList = () => {
       
       const deptRes = await adminService.getDepartments();
       if (deptRes.success) {
-        setDepartments(deptRes.data.departments || []);
+        let depts = deptRes.data.departments || [];
+        // If HOD/Staff, restrict departments list
+        if (user?.role !== 'admin' && user?.department_id) {
+          depts = depts.filter((d: any) => d.id === user.department_id);
+          setSelectedDeptFilter(user.department_id);
+        }
+        setDepartments(depts);
       }
     } catch (error) {
       toast.error('Failed to load student list');
@@ -250,7 +256,12 @@ export const StudentList = () => {
            </Button>
             <Button 
                className="rounded-lg bg-primary text-white hover:bg-primary/90 h-10 px-5 font-black text-[9px] uppercase tracking-widest shadow-strong shadow-primary/20 flex items-center gap-2 active:scale-95 transition-all group/btn"
-               onClick={() => setIsAddOpen(true)}
+               onClick={() => {
+                 if (user?.role !== 'admin' && user?.department_id) {
+                   setFormData(prev => ({ ...prev, departmentId: user.department_id }));
+                 }
+                 setIsAddOpen(true);
+               }}
             >
               <UserPlus className="w-4 h-4 group-hover:scale-110 transition-transform duration-500" />
               <span>Add Student</span>
@@ -271,15 +282,21 @@ export const StudentList = () => {
                    onChange={(e) => setSearch(e.target.value)}
                  />
               </div>
-              <Select value={selectedDeptFilter} onValueChange={setSelectedDeptFilter}>
-                <SelectTrigger className="rounded-lg h-10 w-full lg:w-[220px] font-black text-[9px] uppercase tracking-widest px-4 bg-secondary/50 border-none shadow-inner focus:ring-2 focus:ring-primary/10 transition-all">
+              <Select 
+                value={selectedDeptFilter} 
+                onValueChange={setSelectedDeptFilter}
+                disabled={user?.role !== 'admin'}
+              >
+                <SelectTrigger className="rounded-lg h-10 w-full lg:w-[220px] font-black text-[9px] uppercase tracking-widest px-4 bg-secondary/50 border-none shadow-inner focus:ring-2 focus:ring-primary/10 transition-all disabled:opacity-80">
                    <div className="flex items-center gap-2">
                       <Filter className="w-3.5 h-3.5 text-primary opacity-40" />
                       <SelectValue placeholder="All Departments" />
                    </div>
                 </SelectTrigger>
                 <SelectContent className="rounded-xl border-none shadow-strong p-1 bg-background/95 backdrop-blur-2xl">
-                   <SelectItem value="all" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">All Departments</SelectItem>
+                   {user?.role === 'admin' && (
+                     <SelectItem value="all" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">All Departments</SelectItem>
+                   )}
                    {departments.filter(d => d.type === 'academic').map(dept => (
                      <SelectItem key={dept.id} value={dept.id} className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">{dept.name}</SelectItem>
                    ))}
@@ -535,8 +552,9 @@ export const StudentList = () => {
                 <Select 
                   value={formData.departmentId} 
                   onValueChange={(val) => setFormData({...formData, departmentId: val})}
+                  disabled={user?.role !== 'admin'}
                 >
-                  <SelectTrigger className="h-10 rounded-lg bg-secondary/50 border-none font-black text-[9px] uppercase tracking-widest px-4 shadow-inner">
+                  <SelectTrigger className="h-10 rounded-lg bg-secondary/50 border-none font-black text-[9px] uppercase tracking-widest px-4 shadow-inner disabled:opacity-80">
                     <SelectValue placeholder="Select Dept" />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl border-none shadow-strong p-1 bg-background/95 backdrop-blur-2xl">
