@@ -137,7 +137,7 @@ const App: React.FC = () => {
       case 'users':
         return <OfficialList />;
       case 'analytics':
-        return <Analytics />;
+        return <Analytics user={user} />;
       case 'settings':
         return <DepartmentProfile user={user} />;
       case 'admin-clearance':
