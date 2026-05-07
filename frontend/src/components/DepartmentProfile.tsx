@@ -472,6 +472,28 @@ export const DepartmentProfile = ({ user }: { user: any }) => {
           </Card>
         </div>
       </div>
+
+      {/* Persistent Action Bar - Bottom */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-8 bg-card/60 backdrop-blur-3xl rounded-[2.5rem] border border-foreground/5 shadow-strong animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
+            <ShieldCheck className="w-6 h-6" />
+          </div>
+          <div className="space-y-0.5 text-left">
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground">Configuration Ready</p>
+            <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest italic">Review all parameters before persistence.</p>
+          </div>
+        </div>
+        
+        <Button 
+          className="w-full md:w-auto rounded-2xl bg-foreground text-background hover:bg-foreground/90 h-14 px-12 font-black text-[10px] uppercase tracking-[0.4em] shadow-strong flex items-center justify-center gap-3 active:scale-95 transition-all group overflow-hidden relative shrink-0"
+          onClick={handleSave}
+          disabled={saving}
+        >
+          <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
+          {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5 group-hover:scale-125 transition-transform" /> <span>Save All Changes</span></>}
+        </Button>
+      </div>
     </div>
   );
 };
