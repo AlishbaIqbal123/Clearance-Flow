@@ -427,14 +427,14 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
           setMaskedEmail('');
         }
       }}>
-        <DialogContent className="sm:max-w-xl rounded-[3rem] border-none shadow-strong p-0 bg-background text-foreground overflow-hidden max-h-[90vh] overflow-y-auto custom-scrollbar">
-          <div className="bg-primary/5 p-12 space-y-8 relative overflow-hidden">
+        <DialogContent className="sm:max-w-xl rounded-3xl border-none shadow-strong p-0 bg-background text-foreground overflow-hidden max-h-[90vh] overflow-y-auto custom-scrollbar">
+          <div className="bg-primary/5 p-8 space-y-8 relative overflow-hidden">
              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full -mr-32 -mt-32 blur-[100px]" />
              <div className="w-20 h-20 bg-primary/10 rounded-[2rem] flex items-center justify-center relative shadow-inner">
                 {resetSuccess ? <CheckCircle2 className="w-10 h-10 text-emerald-500" /> : <Lock className="w-10 h-10 text-primary" />}
              </div>
              <div className="space-y-2">
-                <DialogTitle className="text-3xl font-black tracking-tighter uppercase leading-none text-foreground">
+                <DialogTitle className="text-2xl font-black tracking-tighter uppercase leading-none text-foreground">
                   {resetSuccess ? "Check Your Email" : "Account Recovery"}
                 </DialogTitle>
                 <DialogDescription className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] leading-relaxed max-w-sm">
@@ -448,7 +448,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
              </div>
           </div>
           
-          <div className="p-12">
+          <div className="p-8">
             {resetSuccess ? (
               <div className="space-y-10 animate-in fade-in slide-in-from-bottom-5 duration-500">
                 <div className="p-8 bg-emerald-500/5 rounded-3xl border border-emerald-500/10 space-y-4">
@@ -485,7 +485,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
                 </div>
 
                 <Button 
-                  className="w-full bg-foreground text-background hover:bg-foreground/90 h-14 rounded-2xl font-black text-[9px] uppercase tracking-[0.4em] shadow-strong active:scale-95 transition-all"
+                  className="w-full bg-foreground text-background hover:bg-foreground/90 h-12 rounded-2xl font-black text-[9px] uppercase tracking-[0.4em] shadow-strong active:scale-95 transition-all"
                   onClick={() => setShowForgotDialog(false)}
                 >
                   Return to Login
@@ -535,7 +535,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
                   <Button 
                     type="submit" 
                     disabled={recoveryLoading}
-                    className="w-full bg-primary hover:bg-primary/90 h-14 rounded-2xl font-black text-[9px] uppercase tracking-[0.4em] shadow-strong shadow-primary/20 active:scale-95 transition-all"
+                    className="w-full bg-primary hover:bg-primary/90 h-12 rounded-2xl font-black text-[9px] uppercase tracking-[0.4em] shadow-strong shadow-primary/20 active:scale-95 transition-all"
                   >
                     {recoveryLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Dispatch Reset Link"}
                   </Button>

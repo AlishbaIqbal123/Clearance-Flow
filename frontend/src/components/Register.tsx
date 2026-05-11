@@ -192,7 +192,7 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onBackToHome,
                </div>
             </div>
             <div className="space-y-4">
-              <h2 className="text-6xl xl:text-7xl font-black text-white tracking-tighter leading-[0.8] uppercase opacity-90">
+              <h2 className="text-5xl xl:text-6xl font-black text-white tracking-tighter leading-[0.8] uppercase opacity-90">
                 Student<br />
                 <span className="text-white/20 italic">Registry</span>
               </h2>
@@ -218,17 +218,17 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onBackToHome,
 
       {/* Dynamic Right Interface (Scrollable Form) */}
       <div className="flex-1 h-full overflow-y-auto bg-background custom-scrollbar">
-        <div className="min-h-full w-full flex flex-col p-8 md:p-12 xl:p-20">
-          <div className="max-w-3xl w-full mx-auto space-y-8 py-8">
+        <div className="min-h-full w-full flex flex-col p-6 md:p-8 xl:p-12">
+          <div className="max-w-3xl w-full mx-auto space-y-6 py-8">
             <div className="space-y-4">
-               <h1 className="text-4xl xl:text-5xl font-black text-foreground tracking-tighter uppercase leading-none">Account<br /><span className="text-primary italic">Registration</span></h1>
+               <h1 className="text-3xl xl:text-4xl font-black text-foreground tracking-tighter uppercase leading-none">Account<br /><span className="text-primary italic">Registration</span></h1>
                <div className="flex items-center gap-3">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                   <p className="text-muted-foreground text-[8px] font-bold uppercase tracking-[0.3em] opacity-40">System Enrollment Protocol Active</p>
                </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-8 animate-in slide-in-from-bottom-5 duration-1000">
+            <form onSubmit={handleSubmit} className="space-y-6 animate-in slide-in-from-bottom-5 duration-1000">
               {/* Form Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                  
@@ -298,7 +298,7 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onBackToHome,
                 <Button 
                   disabled={loading}
                   type="submit"
-                  className="w-full sm:w-fit h-14 px-12 bg-primary hover:bg-primary/90 text-white font-black text-[10px] uppercase tracking-[0.4em] rounded-xl shadow-strong shadow-primary/20 active:scale-95 transition-all group overflow-hidden relative"
+                  className="w-full sm:w-fit h-12 px-10 bg-primary hover:bg-primary/90 text-white font-black text-[10px] uppercase tracking-[0.4em] rounded-xl shadow-strong shadow-primary/20 active:scale-95 transition-all group overflow-hidden relative"
                 >
                   {loading ? (
                      <div className="flex items-center gap-3">

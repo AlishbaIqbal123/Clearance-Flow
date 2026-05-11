@@ -141,7 +141,7 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
                  <div className="flex items-center gap-2">
                     <Badge className="bg-primary/10 text-primary border-none rounded-full px-3 py-0.5 text-[8px] font-black uppercase tracking-widest">Master Audit Stream</Badge>
                  </div>
-                 <h2 className="text-lg font-black text-foreground tracking-tighter uppercase leading-none">Clearance Requests</h2>
+                  <h2 className="text-base font-black text-foreground tracking-tighter uppercase leading-none">Clearance Requests</h2>
               </div>
            </div>
         </div>
@@ -167,7 +167,7 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
           </div>
           <div className="w-px h-6 bg-foreground/10 mx-1" />
           <Button 
-            className="rounded-lg bg-primary text-white hover:bg-primary/90 h-10 px-6 font-black text-[9px] uppercase tracking-widest shadow-strong shadow-primary/20 flex items-center gap-2 active:scale-95 transition-all group shrink-0"
+            className="rounded-lg bg-primary text-white hover:bg-primary/90 h-9 px-6 font-black text-[9px] uppercase tracking-widest shadow-strong shadow-primary/20 flex items-center gap-2 active:scale-95 transition-all group shrink-0"
             onClick={handleExport}
           >
             <Download className="w-4 h-4" />
@@ -206,7 +206,7 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
       </div>
 
       {viewMode === 'table' ? (
-         <Card className="border-none shadow-strong rounded-2xl overflow-hidden bg-card/60 backdrop-blur-3xl group">
+         <Card className="border-none shadow-strong rounded-xl overflow-hidden bg-card/60 backdrop-blur-3xl group">
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               <Table className="min-w-[800px]">
@@ -327,7 +327,7 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
                <div key={i} className="h-64 bg-card/60 rounded-2xl animate-pulse"></div>
              ))
           ) : filteredRequests.map(req => (
-            <Card key={req.id} className="border-none shadow-strong rounded-2xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden bg-card/60 backdrop-blur-3xl border border-foreground/5 cursor-pointer" onClick={() => { setSelectedRequest(req); setIsDetailsOpen(true); }}>
+            <Card key={req.id} className="border-none shadow-strong rounded-xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden bg-card/60 backdrop-blur-3xl border border-foreground/5 cursor-pointer" onClick={() => { setSelectedRequest(req); setIsDetailsOpen(true); }}>
                <CardContent className="p-6 relative flex flex-col h-full">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-[60px] group-hover:bg-primary/10 transition-colors duration-500" />
                   
@@ -378,7 +378,7 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
       {/* Premium Audit Master Console Dialog */}
        <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="sm:max-w-[650px] w-[95vw] max-h-[90vh] rounded-2xl p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 overflow-y-auto custom-scrollbar">
-          <div className="bg-card p-6 sm:p-8 text-foreground relative overflow-hidden border-b border-foreground/5">
+          <div className="bg-card p-4 sm:p-6 text-foreground relative overflow-hidden border-b border-foreground/5">
             <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-primary/20 rounded-full -mr-32 -mt-32 blur-[80px] pointer-events-none" />
             
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
@@ -392,7 +392,7 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
                        <p className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-widest mt-0.5">{selectedRequest?.request_type?.replace('_', ' ')}</p>
                     </div>
                  </div>
-                 <DialogTitle className="text-xl sm:text-2xl font-black tracking-tighter uppercase leading-none">{selectedRequest?.request_id}</DialogTitle>
+                 <DialogTitle className="text-lg sm:text-xl font-black tracking-tighter uppercase leading-none">{selectedRequest?.request_id}</DialogTitle>
               </div>
               <div className="text-left sm:text-right space-y-1">
                  <p className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-widest">Protocol Status</p>
@@ -404,9 +404,9 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
             </div>
           </div>
           
-          <div className="p-6 sm:p-8 space-y-6 sm:space-y-8 bg-card/40 backdrop-blur-3xl overflow-y-auto max-h-[60vh] custom-scrollbar">
+          <div className="p-4 sm:p-6 space-y-6 sm:space-y-8 bg-card/40 backdrop-blur-3xl overflow-y-auto max-h-[60vh] custom-scrollbar">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-3 p-4 sm:p-6 bg-secondary/50 rounded-2xl border border-foreground/5 group hover:bg-secondary transition-all duration-500">
+              <div className="space-y-3 p-3 sm:p-4 bg-secondary/50 rounded-xl border border-foreground/5 group hover:bg-secondary transition-all duration-500">
                 <div className="flex items-center gap-3">
                    <div className="p-2.5 bg-primary/10 rounded-lg group-hover:rotate-6 transition-transform">
                       <UserCircle className="w-5 h-5 text-primary" />
@@ -425,7 +425,7 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
                 </div>
               </div>
               
-              <div className="space-y-4 p-6 bg-secondary/50 rounded-2xl border border-foreground/5 group hover:bg-secondary transition-all">
+              <div className="space-y-4 p-4 bg-secondary/50 rounded-xl border border-foreground/5 group hover:bg-secondary transition-all">
                 <div className="flex items-center gap-3">
                    <div className="p-2.5 bg-primary/10 rounded-lg group-hover:scale-105 transition-transform">
                       <Activity className="w-5 h-5 text-primary" />
@@ -491,13 +491,13 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
             </div>
           </div>
 
-          <div className="p-6 sm:p-8 bg-card border-t border-foreground/5">
+          <div className="p-4 sm:p-6 bg-card border-t border-foreground/5">
              <div className="flex flex-col sm:flex-row gap-3">
-                <Button variant="ghost" className="h-10 rounded-xl px-6 font-black text-[9px] uppercase tracking-widest text-muted-foreground hover:bg-secondary flex-1 transition-all" onClick={() => setIsDetailsOpen(false)}>
+                <Button variant="ghost" className="h-9 rounded-xl px-6 font-black text-[9px] uppercase tracking-widest text-muted-foreground hover:bg-secondary flex-1 transition-all" onClick={() => setIsDetailsOpen(false)}>
                   Close
                 </Button>
                 <Button 
-                  className="h-10 bg-primary text-white hover:bg-primary/90 rounded-xl px-6 font-black text-[9px] uppercase tracking-widest flex-[2] shadow-strong shadow-primary/20 group transition-all relative overflow-hidden"
+                  className="h-9 bg-primary text-white hover:bg-primary/90 rounded-xl px-6 font-black text-[9px] uppercase tracking-widest flex-[2] shadow-strong shadow-primary/20 group transition-all relative overflow-hidden"
                   onClick={() => selectedRequest && handleDownloadSlip(selectedRequest)}
                 >
                   <span>Download Protocol Slip</span>

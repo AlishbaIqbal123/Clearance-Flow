@@ -186,10 +186,10 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
       {/* Premium Hero Section - Bento Hero */}
-      <div className="relative overflow-hidden rounded-[2rem] bg-foreground p-5 sm:p-8 lg:p-10 shadow-strong group">
+      <div className="relative overflow-hidden rounded-2xl bg-foreground p-4 sm:p-6 lg:p-8 shadow-strong group">
         {/* Dynamic Effects */}
-        <div className="absolute top-0 right-0 w-[45%] h-full bg-primary/20 rounded-full -mr-[20%] -mt-[10%] blur-[120px] group-hover:scale-125 transition-transform duration-1000" />
-        <div className="absolute bottom-0 left-0 w-[25%] h-[60%] bg-primary/10 rounded-full -ml-[12%] -mb-[12%] blur-[80px]" />
+        <div className="absolute top-0 right-0 w-[45%] h-full bg-primary/20 rounded-full -mr-[20%] -mt-[10%] blur-[100px] group-hover:scale-125 transition-transform duration-1000" />
+        <div className="absolute bottom-0 left-0 w-[25%] h-[60%] bg-primary/10 rounded-full -ml-[12%] -mb-[12%] blur-[60px]" />
         
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 relative z-10">
           <div className="space-y-5 max-w-2xl">
@@ -202,7 +202,7 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                    {[1,2,3].map(i => <div key={i} className="w-1 h-1 bg-primary rounded-full animate-pulse" style={{ animationDelay: `${i*0.2}s` }} />)}
                 </div>
               </div>
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-background tracking-tighter leading-none uppercase">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-black text-background tracking-tighter leading-none uppercase">
                 Welcome back,<br /><span className="text-primary italic">{student.first_name || 'Scholar'}</span>
               </h2>
             </div>
@@ -231,7 +231,7 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
           {canSubmitNewRequest && (
             <Dialog>
               <DialogTrigger asChild>
-                 <Button className="w-full sm:w-auto bg-primary text-white hover:bg-primary/90 h-12 px-8 rounded-xl font-black text-[9px] uppercase tracking-[0.4em] shadow-strong shadow-primary/20 group shrink-0 active:scale-95 transition-all relative overflow-hidden">
+                  <Button className="w-full sm:w-auto bg-primary text-white hover:bg-primary/90 h-10 px-6 rounded-lg font-black text-[9px] uppercase tracking-[0.4em] shadow-strong shadow-primary/20 group shrink-0 active:scale-95 transition-all relative overflow-hidden">
                   <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
                   <div className="flex items-center gap-3 relative z-10">
                     <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-transform">
@@ -242,46 +242,46 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-xl rounded-3xl p-0 overflow-hidden border-none shadow-strong bg-background">
-                <div className="bg-primary p-10 text-white relative">
-                  <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-24 -mt-24 blur-[100px]" />
-                  <div className="space-y-3 relative z-10">
-                    <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md">
-                       <Zap className="w-7 h-7 text-white" />
+                <div className="bg-primary p-6 text-white relative">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-[80px]" />
+                  <div className="space-y-2 relative z-10">
+                    <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-md">
+                       <Zap className="w-6 h-6 text-white" />
                     </div>
-                    <DialogTitle className="text-3xl font-black tracking-tighter uppercase leading-none">New Clearance Request</DialogTitle>
-                    <DialogDescription className="text-white/60 font-bold uppercase tracking-widest text-[10px] mt-2">
+                    <DialogTitle className="text-xl sm:text-2xl font-black tracking-tighter uppercase leading-none">New Clearance Request</DialogTitle>
+                    <DialogDescription className="text-white/60 font-bold uppercase tracking-widest text-[9px] mt-1">
                        Start your clearance process across all departments.
                     </DialogDescription>
                   </div>
                 </div>
-                <div className="p-10 space-y-8">
-                  <div className="space-y-3">
-                    <label className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2">Clearance Type</label>
-                    <Select value={requestType} onValueChange={setRequestType}>
-                      <SelectTrigger className="h-14 border-none rounded-2xl bg-secondary/50 font-black text-foreground px-6 focus:ring-2 focus:ring-primary/20 text-xs uppercase tracking-widest">
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-[2rem] border-none shadow-strong p-3">
-                        {[
-                          { val: 'graduation', label: 'Academic Graduation Clearance' },
-                          { val: 'withdrawal', label: 'University Withdrawal' },
-                          { val: 'transfer', label: 'Campus Transfer' },
-                          { val: 'semester_end', label: 'Semester End Clearance' }
-                        ].map(opt => (
-                          <SelectItem key={opt.val} value={opt.val} className="rounded-2xl h-14 font-black text-[10px] uppercase tracking-widest focus:bg-primary focus:text-white px-6">{opt.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-4">
-                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2">Reason for Request</label>
-                    <Textarea 
-                      placeholder="Enter reason for starting clearance..." 
-                      className="min-h-[160px] rounded-[2rem] border-none bg-secondary/50 font-bold text-foreground px-8 py-6 focus-visible:ring-2 focus-visible:ring-primary/20 resize-none text-base"
-                      value={reason}
-                      onChange={(e) => setReason(e.target.value)}
-                    />
-                  </div>
+                  <div className="p-6 sm:p-8 space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2">Clearance Type</label>
+                      <Select value={requestType} onValueChange={setRequestType}>
+                        <SelectTrigger className="h-12 border-none rounded-xl bg-secondary/50 font-black text-foreground px-5 focus:ring-2 focus:ring-primary/20 text-xs uppercase tracking-widest">
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-2xl border-none shadow-strong p-2">
+                          {[
+                            { val: 'graduation', label: 'Academic Graduation Clearance' },
+                            { val: 'withdrawal', label: 'University Withdrawal' },
+                            { val: 'transfer', label: 'Campus Transfer' },
+                            { val: 'semester_end', label: 'Semester End Clearance' }
+                          ].map(opt => (
+                            <SelectItem key={opt.val} value={opt.val} className="rounded-xl h-12 font-black text-[10px] uppercase tracking-widest focus:bg-primary focus:text-white px-5">{opt.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2">Reason for Request</label>
+                      <Textarea 
+                        placeholder="Enter reason for starting clearance..." 
+                        className="min-h-[120px] rounded-xl border-none bg-secondary/50 font-bold text-foreground px-6 py-4 focus-visible:ring-2 focus-visible:ring-primary/20 resize-none text-sm"
+                        value={reason}
+                        onChange={(e) => setReason(e.target.value)}
+                      />
+                    </div>
                   <div className="space-y-4">
                     <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2">Supporting Artifacts</label>
                     <div className="flex flex-col gap-6">
@@ -295,16 +295,16 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                           setSelectedFiles(prev => [...prev, ...files]);
                         }}
                       />
-                      <Button 
-                        variant="ghost" 
-                        className="w-full border-2 border-dashed border-foreground/10 rounded-[2.5rem] h-36 flex flex-col gap-3 hover:border-primary hover:bg-primary/5 transition-all group shadow-inner"
-                        onClick={() => document.getElementById('file-upload')?.click()}
-                      >
-                        <div className="w-14 h-14 bg-secondary rounded-2xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-transform">
-                          <FileText className="w-7 h-7 text-muted-foreground/40 group-hover:text-primary transition-colors" />
-                        </div>
-                        <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.3em]">Drop PDF/JPG Artifacts</span>
-                      </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full border-2 border-dashed border-foreground/10 rounded-2xl h-24 flex flex-col gap-2 hover:border-primary hover:bg-primary/5 transition-all group shadow-inner"
+                          onClick={() => document.getElementById('file-upload')?.click()}
+                        >
+                          <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-transform">
+                            <FileText className="w-5 h-5 text-muted-foreground/40 group-hover:text-primary transition-colors" />
+                          </div>
+                          <span className="text-[9px] font-black text-muted-foreground/60 uppercase tracking-[0.3em]">Drop PDF/JPG Artifacts</span>
+                        </Button>
                       
                       {selectedFiles.length > 0 && (
                         <div className="flex flex-wrap gap-3">
@@ -334,10 +334,10 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                     </p>
                   </div>
                 </div>
-                <DialogFooter className="p-6 sm:p-12 pt-0 flex flex-col sm:flex-row gap-4 sm:gap-6">
-                  <Button variant="ghost" className="h-16 rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest text-muted-foreground px-10 hover:bg-secondary w-full sm:w-auto" onClick={() => {}}>Abort</Button>
+                <DialogFooter className="p-4 sm:p-8 pt-0 flex flex-col sm:flex-row gap-3 sm:gap-4">
+                  <Button variant="ghost" className="h-12 rounded-xl font-black text-[10px] uppercase tracking-widest text-muted-foreground px-6 hover:bg-secondary w-full sm:w-auto" onClick={() => {}}>Abort</Button>
                   <Button 
-                    className="flex-1 bg-primary hover:bg-primary/90 h-16 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.4em] shadow-strong shadow-primary/20 active:scale-95 transition-all"
+                    className="flex-1 bg-primary hover:bg-primary/90 h-12 rounded-xl font-black text-[10px] uppercase tracking-[0.4em] shadow-strong shadow-primary/20 active:scale-95 transition-all"
                     onClick={handleSubmitRequest}
                     disabled={submitting}
                   >
@@ -354,14 +354,11 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
       {(activeRequest?.status === 'cleared' || activeRequest?.progress?.percentage === 100) && 
        (!activeRequest?.degree_fulfillment || Object.keys(activeRequest.degree_fulfillment).length === 0) && (
         <div className="animate-in zoom-in-95 slide-in-from-top-12 duration-1000 ease-out">
-          {/* ... existing selection card content ... */}
-          <Card className="border-none shadow-strong rounded-[2.5rem] bg-foreground text-background overflow-hidden relative group">
-            <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[15%] -mt-[10%] blur-[120px] animate-pulse" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 rounded-full -ml-32 -mb-32 blur-[80px]" />
-            
-            <div className="flex flex-col lg:flex-row items-center gap-10 p-8 sm:p-12 relative z-10">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/10 rounded-[2rem] flex items-center justify-center backdrop-blur-xl shadow-soft shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-700">
-                <Sparkles className="w-10 h-10 sm:w-12 sm:h-12 text-primary animate-pulse" />
+          <Card className="border-none shadow-strong rounded-[2.5rem] bg-foreground text-white overflow-hidden relative group">
+            <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[15%] -mt-[10%] blur-[120px]" />
+            <div className="flex flex-col lg:flex-row items-center gap-8 p-6 sm:p-8 relative z-10">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-xl shadow-soft shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-700">
+                <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-primary animate-pulse" />
               </div>
               
               <div className="flex-1 text-center lg:text-left space-y-4">
@@ -377,9 +374,9 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
               <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button className="h-16 sm:h-20 px-10 rounded-[1.75rem] bg-white text-foreground hover:bg-white/90 font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 group/btn min-w-[240px]">
-                      <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center group-hover/btn:scale-110 transition-transform">
-                        <Truck className="w-5 h-5 text-primary" />
+                    <Button className="h-14 sm:h-16 px-8 rounded-2xl bg-white text-foreground hover:bg-white/90 font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 group/btn min-w-[220px]">
+                      <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center group-hover/btn:scale-110 transition-transform">
+                        <Truck className="w-4 h-4 text-primary" />
                       </div>
                       <div className="text-left">
                         <span className="block">Dispatch Degree</span>
@@ -420,12 +417,12 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                 </Dialog>
 
                 <Button 
-                  className="h-16 sm:h-20 px-10 rounded-[1.75rem] bg-white/10 border border-white/20 text-white hover:bg-white hover:text-foreground font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 min-w-[240px]"
+                  className="h-14 sm:h-16 px-8 rounded-2xl bg-white/10 border border-white/20 text-white hover:bg-white hover:text-foreground font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 min-w-[220px]"
                   disabled={prefSubmitting}
                   onClick={() => handleUpdatePreference('manual')}
                 >
-                  <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
-                    <History className="w-5 h-5 text-primary" />
+                  <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center">
+                    <History className="w-4 h-4 text-primary" />
                   </div>
                   <div className="text-left">
                     <span className="block text-white group-hover:text-inherit">Manual Pickup</span>

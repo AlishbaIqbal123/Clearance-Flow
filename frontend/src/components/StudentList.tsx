@@ -255,7 +255,7 @@ export const StudentList = ({ user }: { user: any }) => {
               Export
            </Button>
             <Button 
-               className="rounded-lg bg-primary text-white hover:bg-primary/90 h-10 px-5 font-black text-[9px] uppercase tracking-widest shadow-strong shadow-primary/20 flex items-center gap-2 active:scale-95 transition-all group/btn"
+               className="rounded-lg bg-primary text-white hover:bg-primary/90 h-9 px-5 font-black text-[9px] uppercase tracking-widest shadow-strong shadow-primary/20 flex items-center gap-2 active:scale-95 transition-all group/btn"
                onClick={() => {
                  if (user?.role !== 'admin' && user?.department_id) {
                    setFormData(prev => ({ ...prev, departmentId: user.department_id }));
@@ -270,7 +270,7 @@ export const StudentList = ({ user }: { user: any }) => {
       </div>
 
       {/* Student List Section */}
-       <Card className="border-none shadow-strong rounded-2xl bg-card/60 backdrop-blur-3xl overflow-hidden group">
+       <Card className="border-none shadow-strong rounded-xl bg-card/60 backdrop-blur-3xl overflow-hidden group">
         <CardHeader className="p-4 border-b border-foreground/5 relative overflow-hidden">
            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 relative z-10">
               <div className="relative group flex-1">
@@ -468,7 +468,7 @@ export const StudentList = ({ user }: { user: any }) => {
                             </div>
                             <Button 
                               variant="outline" 
-                              className="rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.3em] px-12 h-16 border-foreground/10 hover:border-primary/40 hover:text-primary transition-all active:scale-95" 
+                              className="rounded-xl font-black text-[10px] uppercase tracking-[0.3em] px-12 h-12 border-foreground/10 hover:border-primary/40 hover:text-primary transition-all active:scale-95" 
                               onClick={() => { setSearch(''); setSelectedDeptFilter('all'); }}
                             >
                               Reset Registry Filter
@@ -487,15 +487,15 @@ export const StudentList = ({ user }: { user: any }) => {
 
       {/* Enroll/Edit Identity Dialog */}
       <Dialog open={isAddOpen || isEditOpen} onOpenChange={(open) => { if(!open) { setIsAddOpen(false); setIsEditOpen(false); } }}>
-        <DialogContent className="sm:max-w-[550px] w-[95vw] rounded-[2rem] p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 max-h-[90vh] overflow-y-auto custom-scrollbar">
-          <div className={`${isEditOpen ? 'bg-amber-600' : 'bg-primary'} p-6 sm:p-10 text-white relative`}>
+        <DialogContent className="sm:max-w-[550px] w-[95vw] rounded-3xl p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 max-h-[90vh] overflow-y-auto custom-scrollbar">
+          <div className={`${isEditOpen ? 'bg-amber-600' : 'bg-primary'} p-4 sm:p-6 text-white relative`}>
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-24 -mt-24 blur-[80px]" />
             <div className="relative z-10 space-y-4">
                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-md">
                   {isEditOpen ? <Edit className="w-5 h-5 sm:w-6 sm:h-6" /> : <UserPlus className="w-5 h-5 sm:w-6 sm:h-6" />}
                </div>
                <div className="space-y-1">
-                  <DialogTitle className="text-xl sm:text-2xl font-black tracking-tighter uppercase leading-none">
+                  <DialogTitle className="text-lg sm:text-xl font-black tracking-tighter uppercase leading-none">
                     {isEditOpen ? 'Update Student' : 'Add New Student'}
                   </DialogTitle>
                   <DialogDescription className="text-white/60 font-black text-[8px] sm:text-[9px] uppercase tracking-widest mt-1 italic">
@@ -504,7 +504,7 @@ export const StudentList = ({ user }: { user: any }) => {
                </div>
             </div>
           </div>
-          <form onSubmit={isEditOpen ? handleUpdate : handleCreate} className="p-6 space-y-4">
+          <form onSubmit={isEditOpen ? handleUpdate : handleCreate} className="p-4 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <Label className="text-[8px] font-black uppercase tracking-widest text-muted-foreground ml-1">First Name</Label>
@@ -589,10 +589,10 @@ export const StudentList = ({ user }: { user: any }) => {
             </div>
             
             <DialogFooter className="pt-4 gap-3">
-              <Button type="button" variant="ghost" className="h-10 rounded-lg font-black text-[9px] uppercase tracking-widest text-muted-foreground px-6 hover:bg-secondary transition-all" onClick={() => { setIsAddOpen(false); setIsEditOpen(false); }}>
+              <Button type="button" variant="ghost" className="h-9 rounded-lg font-black text-[9px] uppercase tracking-widest text-muted-foreground px-6 hover:bg-secondary transition-all" onClick={() => { setIsAddOpen(false); setIsEditOpen(false); }}>
                 Cancel
               </Button>
-              <Button type="submit" className={`flex-1 rounded-xl h-11 font-black text-[9px] uppercase tracking-widest shadow-strong transition-all active:scale-95 ${isEditOpen ? 'bg-amber-600 shadow-amber-500/20' : 'bg-primary shadow-primary/20'}`}>
+              <Button type="submit" className={`flex-1 rounded-xl h-10 font-black text-[9px] uppercase tracking-widest shadow-strong transition-all active:scale-95 ${isEditOpen ? 'bg-amber-600 shadow-amber-500/20' : 'bg-primary shadow-primary/20'}`}>
                 {isEditOpen ? 'Update Student' : 'Add Student'}
               </Button>
             </DialogFooter>
@@ -602,16 +602,16 @@ export const StudentList = ({ user }: { user: any }) => {
 
       {/* View Student Details Dialog */}
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <DialogContent className="sm:max-w-[550px] w-[95vw] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 max-h-[90vh] overflow-y-auto custom-scrollbar">
-          <div className="bg-card p-8 sm:p-10 text-foreground relative border-b border-foreground/5">
+        <DialogContent className="sm:max-w-[550px] w-[95vw] rounded-3xl p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 max-h-[90vh] overflow-y-auto custom-scrollbar">
+          <div className="bg-card p-5 sm:p-7 text-foreground relative border-b border-foreground/5">
             <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-primary/20 rounded-full -mr-32 -mt-32 blur-[100px]" />
             
             <div className="relative z-10 space-y-6 text-center flex flex-col items-center">
-               <div className="w-24 h-24 bg-white/5 rounded-[2rem] backdrop-blur-3xl flex items-center justify-center border border-white/10 shadow-2xl relative">
+               <div className="w-20 h-20 bg-white/5 rounded-2xl backdrop-blur-3xl flex items-center justify-center border border-white/10 shadow-2xl relative">
                   <span className="text-4xl font-black text-primary relative z-10 tracking-tighter">{selectedStudent?.first_name?.[0]}{selectedStudent?.last_name?.[0]}</span>
                </div>
                <div className="space-y-2">
-                  <DialogTitle className="text-2xl font-black tracking-tighter uppercase leading-none">{selectedStudent?.first_name} {selectedStudent?.last_name}</DialogTitle>
+                  <DialogTitle className="text-xl font-black tracking-tighter uppercase leading-none">{selectedStudent?.first_name} {selectedStudent?.last_name}</DialogTitle>
                   <p className="text-background/40 font-black text-[10px] uppercase tracking-widest">ID: {selectedStudent?.registration_number}</p>
                </div>
                <div className="flex items-center gap-3">
@@ -620,7 +620,7 @@ export const StudentList = ({ user }: { user: any }) => {
             </div>
           </div>
           {selectedStudent && (
-             <div className="p-6 sm:p-10 space-y-8 bg-card/40 backdrop-blur-3xl">
+             <div className="p-4 sm:p-6 space-y-8 bg-card/40 backdrop-blur-3xl">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
                   { label: 'Email Address', value: selectedStudent.email, icon: Mail },
@@ -638,9 +638,9 @@ export const StudentList = ({ user }: { user: any }) => {
                   </div>
                 ))}
               </div>
-              <div className="flex gap-4 pt-4">
+               <div className="flex gap-4 pt-4">
                 <Button
-                  className="flex-1 bg-primary text-white hover:bg-primary/90 rounded-xl h-14 font-black text-[10px] uppercase tracking-widest shadow-strong shadow-primary/20 transition-all active:scale-95 gap-3 group/btn overflow-hidden relative"
+                  className="flex-1 bg-primary text-white hover:bg-primary/90 rounded-xl h-11 font-black text-[10px] uppercase tracking-widest shadow-strong shadow-primary/20 transition-all active:scale-95 gap-3 group/btn overflow-hidden relative"
                   onClick={() => selectedStudent.email && window.open(`mailto:${selectedStudent.email}`)}
                 >
                   <Mail className="w-4 h-4" /> 
@@ -648,7 +648,7 @@ export const StudentList = ({ user }: { user: any }) => {
                 </Button>
                 <Button
                   variant="outline"
-                  className="flex-1 rounded-xl h-14 font-black text-[10px] uppercase tracking-widest border-foreground/10 hover:border-emerald-500 hover:text-emerald-500 hover:bg-emerald-500/5 transition-all active:scale-95 gap-3 group/btn"
+                  className="flex-1 rounded-xl h-11 font-black text-[10px] uppercase tracking-widest border-foreground/10 hover:border-emerald-500 hover:text-emerald-500 hover:bg-emerald-500/5 transition-all active:scale-95 gap-3 group/btn"
                   onClick={() => {
                     if (selectedStudent.phone) {
                       const clean = selectedStudent.phone.replace(/\D/g, '');
