@@ -124,6 +124,18 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onBackToHome,
     setFormData(prev => ({ ...prev, discipline: '' }));
   }, [formData.program]);
 
+  // Auto-detect batch from registration number prefix
+  useEffect(() => {
+    const trimmedReg = formData.registrationNumber.trim();
+    const match = trimmedReg.match(/^([a-zA-Z]{2})\s*(\d{2})/);
+    if (match) {
+      const autoBatch = `${match[1].toUpperCase()}${match[2]}`;
+      setFormData(prev => ({ ...prev, batch: autoBatch }));
+    } else if (!trimmedReg) {
+      setFormData(prev => ({ ...prev, batch: '' }));
+    }
+  }, [formData.registrationNumber]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -259,7 +271,7 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onBackToHome,
                  </div>
                  <div className="space-y-1.5 group">
                     <label className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within:text-primary transition-colors">Batch</label>
-                    <Input required name="batch" value={formData.batch} onChange={handleChange} placeholder="FA21" className="h-11 bg-secondary/30 border-none rounded-lg font-bold px-5 text-sm focus-visible:ring-2 focus-visible:ring-primary/20 uppercase" />
+                    <Input required readOnly name="batch" value={formData.batch} placeholder="Auto-detected" className="h-11 bg-secondary/30 border-none rounded-lg font-bold px-5 text-sm focus-visible:ring-2 focus-visible:ring-primary/20 uppercase cursor-not-allowed opacity-70" />
                  </div>
 
                  {/* Program Selection */}

@@ -660,7 +660,10 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
                <Button 
                 className="rounded-2xl h-16 bg-foreground text-background hover:bg-foreground/90 font-black text-xs uppercase tracking-[0.4em] px-12 shadow-strong group/cta active:scale-95 transition-all relative overflow-hidden"
                 onClick={async () => {
-                  const promise = studentService.submitRequest({ type: 'graduation' });
+                  const promise = studentService.submitRequest({ 
+                    requestType: 'graduation', 
+                    reason: 'Initiated by student' 
+                  });
                   toast.promise(promise, {
                     loading: 'Initializing clearance protocol...',
                     success: () => {
@@ -672,7 +675,7 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
                 }}
                >
                   <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover/cta:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
-                  Initialize Workflow
+                  Start Clearance
                   <ArrowRight className="ml-4 w-6 h-6 group-hover/cta:translate-x-4 transition-transform duration-700" />
                </Button>
                <div className="flex items-center justify-center gap-4 text-muted-foreground/30 font-black text-[9px] uppercase tracking-[0.3em] pt-8 border-t border-foreground/5 w-full max-w-sm mx-auto">

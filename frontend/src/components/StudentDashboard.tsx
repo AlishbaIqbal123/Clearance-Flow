@@ -107,23 +107,14 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
   }, []);
 
   const handleSubmitRequest = async () => {
-    if (!reason) {
-      toast.error('Reason for clearance protocol initiation is required');
-      return;
-    }
     setSubmitting(true);
     try {
-      const res = await studentService.submitRequest({ requestType, reason });
+      const res = await studentService.submitRequest({ 
+        requestType: 'graduation', 
+        reason: 'Initiated by student' 
+      });
       if (res.success) {
-        if (selectedFiles.length > 0) {
-          const formData = new FormData();
-          selectedFiles.forEach(file => formData.append('files', file));
-          await studentService.uploadDocuments(res.data.request.id, formData);
-        }
-        
         toast.success('Clearance protocol successfully initiated across all nodes');
-        setReason('');
-        setSelectedFiles([]);
         fetchDashboard();
       }
     } catch (error: any) {
@@ -229,123 +220,23 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
           </div>
           
           {canSubmitNewRequest && (
-            <Dialog>
-              <DialogTrigger asChild>
-                  <Button className="w-full sm:w-auto bg-primary text-white hover:bg-primary/90 h-10 px-6 rounded-lg font-black text-[9px] uppercase tracking-[0.4em] shadow-strong shadow-primary/20 group shrink-0 active:scale-95 transition-all relative overflow-hidden">
-                  <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
-                  <div className="flex items-center gap-3 relative z-10">
-                    <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-transform">
-                      <Plus className="w-5 h-5" />
-                    </div>
-                    <span>Start Clearance</span>
+            <Button 
+              onClick={handleSubmitRequest}
+              disabled={submitting}
+              className="w-full sm:w-auto bg-primary text-white hover:bg-primary/90 h-10 px-6 rounded-lg font-black text-[9px] uppercase tracking-[0.4em] shadow-strong shadow-primary/20 group shrink-0 active:scale-95 transition-all relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
+              <div className="flex items-center gap-3 relative z-10">
+                {submitting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-transform">
+                    <Plus className="w-5 h-5" />
                   </div>
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-xl rounded-3xl p-0 overflow-hidden border-none shadow-strong bg-background">
-                <div className="bg-primary p-6 text-white relative">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-[80px]" />
-                  <div className="space-y-2 relative z-10">
-                    <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-md">
-                       <Zap className="w-6 h-6 text-white" />
-                    </div>
-                    <DialogTitle className="text-xl sm:text-2xl font-black tracking-tighter uppercase leading-none">New Clearance Request</DialogTitle>
-                    <DialogDescription className="text-white/60 font-bold uppercase tracking-widest text-[9px] mt-1">
-                       Start your clearance process across all departments.
-                    </DialogDescription>
-                  </div>
-                </div>
-                  <div className="p-6 sm:p-8 space-y-6">
-                    <div className="space-y-2">
-                      <label className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2">Clearance Type</label>
-                      <Select value={requestType} onValueChange={setRequestType}>
-                        <SelectTrigger className="h-12 border-none rounded-xl bg-secondary/50 font-black text-foreground px-5 focus:ring-2 focus:ring-primary/20 text-xs uppercase tracking-widest">
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-2xl border-none shadow-strong p-2">
-                          {[
-                            { val: 'graduation', label: 'Academic Graduation Clearance' },
-                            { val: 'withdrawal', label: 'University Withdrawal' },
-                            { val: 'transfer', label: 'Campus Transfer' },
-                            { val: 'semester_end', label: 'Semester End Clearance' }
-                          ].map(opt => (
-                            <SelectItem key={opt.val} value={opt.val} className="rounded-xl h-12 font-black text-[10px] uppercase tracking-widest focus:bg-primary focus:text-white px-5">{opt.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-3">
-                      <label className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2">Reason for Request</label>
-                      <Textarea 
-                        placeholder="Enter reason for starting clearance..." 
-                        className="min-h-[120px] rounded-xl border-none bg-secondary/50 font-bold text-foreground px-6 py-4 focus-visible:ring-2 focus-visible:ring-primary/20 resize-none text-sm"
-                        value={reason}
-                        onChange={(e) => setReason(e.target.value)}
-                      />
-                    </div>
-                  <div className="space-y-4">
-                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2">Supporting Artifacts</label>
-                    <div className="flex flex-col gap-6">
-                      <input 
-                        type="file" 
-                        id="file-upload" 
-                        multiple 
-                        className="hidden" 
-                        onChange={(e) => {
-                          const files = Array.from(e.target.files || []);
-                          setSelectedFiles(prev => [...prev, ...files]);
-                        }}
-                      />
-                        <Button 
-                          variant="ghost" 
-                          className="w-full border-2 border-dashed border-foreground/10 rounded-2xl h-24 flex flex-col gap-2 hover:border-primary hover:bg-primary/5 transition-all group shadow-inner"
-                          onClick={() => document.getElementById('file-upload')?.click()}
-                        >
-                          <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-transform">
-                            <FileText className="w-5 h-5 text-muted-foreground/40 group-hover:text-primary transition-colors" />
-                          </div>
-                          <span className="text-[9px] font-black text-muted-foreground/60 uppercase tracking-[0.3em]">Drop PDF/JPG Artifacts</span>
-                        </Button>
-                      
-                      {selectedFiles.length > 0 && (
-                        <div className="flex flex-wrap gap-3">
-                          {selectedFiles.map((file, idx) => (
-                            <Badge key={idx} className="pl-6 pr-3 py-3 rounded-2xl bg-primary/5 text-primary border border-primary/10 flex items-center gap-4 font-black text-[10px] uppercase tracking-widest">
-                              <span className="max-w-[180px] truncate">{file.name}</span>
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                className="w-7 h-7 rounded-xl hover:bg-destructive hover:text-white transition-all active:scale-90"
-                                onClick={() => setSelectedFiles(prev => prev.filter((_, i) => i !== idx))}
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </Button>
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="p-6 bg-amber-500/5 rounded-[2rem] flex gap-5 items-start border border-amber-500/10">
-                    <div className="p-3 bg-amber-500/10 rounded-2xl">
-                      <Info className="w-6 h-6 text-amber-500" />
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed font-bold uppercase tracking-tight">
-                      Note: This action will notify all departments. Please make sure your information is correct before starting.
-                    </p>
-                  </div>
-                </div>
-                <DialogFooter className="p-4 sm:p-8 pt-0 flex flex-col sm:flex-row gap-3 sm:gap-4">
-                  <Button variant="ghost" className="h-12 rounded-xl font-black text-[10px] uppercase tracking-widest text-muted-foreground px-6 hover:bg-secondary w-full sm:w-auto" onClick={() => {}}>Abort</Button>
-                  <Button 
-                    className="flex-1 bg-primary hover:bg-primary/90 h-12 rounded-xl font-black text-[10px] uppercase tracking-[0.4em] shadow-strong shadow-primary/20 active:scale-95 transition-all"
-                    onClick={handleSubmitRequest}
-                    disabled={submitting}
-                  >
-                    {submitting ? 'Processing Request...' : 'Start Clearance'}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                )}
+                <span>{submitting ? 'Initiating...' : 'Start Clearance'}</span>
+              </div>
+            </Button>
           )}
         </div>
       </div>
@@ -660,12 +551,11 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                 </p>
                 {canSubmitNewRequest && (
                   <Button 
+                    disabled={submitting}
                     className="mt-10 bg-primary text-white rounded-2xl px-12 h-16 font-black uppercase tracking-[0.4em] text-[10px] shadow-strong shadow-primary/20 hover:scale-105 transition-all active:scale-95"
-                    onClick={() => {
-                       (document.querySelector('button.shrink-0') as HTMLButtonElement)?.click();
-                    }}
+                    onClick={handleSubmitRequest}
                   >
-                    Start Clearance
+                    {submitting ? 'Initiating...' : 'Start Clearance'}
                   </Button>
                 )}
               </Card>
