@@ -498,14 +498,17 @@ export const OfficialList = () => {
                   <SelectTrigger className="h-10 rounded-lg bg-secondary/50 border-none font-black text-[9px] uppercase tracking-widest px-4 shadow-inner">
                     <SelectValue placeholder="Select Role" />
                   </SelectTrigger>
-                  <SelectContent className="rounded-xl border-none shadow-strong p-1 bg-background/95 backdrop-blur-2xl">
-                    <SelectItem value="hod" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">HOD</SelectItem>
-                    <SelectItem value="exam_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Exam Officer</SelectItem>
-                    <SelectItem value="department_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Dept Staff</SelectItem>
-                    <SelectItem value="finance_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Finance</SelectItem>
-                    <SelectItem value="library_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Library</SelectItem>
-                    <SelectItem value="transport_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Transport</SelectItem>
-                    <SelectItem value="admin" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Admin</SelectItem>
+                  <SelectContent className="rounded-xl border-none shadow-strong p-1 bg-background/95 backdrop-blur-2xl max-h-[250px]">
+                    <div className="px-3 py-1.5 text-[7px] font-black uppercase tracking-widest text-primary/40 bg-primary/5 rounded-lg mb-1">Academic Leadership</div>
+                    <SelectItem value="hod" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">HOD / Dean</SelectItem>
+                    <SelectItem value="department_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Faculty Staff</SelectItem>
+                    <div className="px-3 py-1.5 text-[7px] font-black uppercase tracking-widest text-primary/40 bg-primary/5 rounded-lg my-1">Admin / Operational Roles</div>
+                    <SelectItem value="finance_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Finance Officer</SelectItem>
+                    <SelectItem value="library_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Library Officer</SelectItem>
+                    <SelectItem value="transport_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Transport Officer</SelectItem>
+                    <SelectItem value="admin" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">System Admin</SelectItem>
+                    <div className="px-3 py-1.5 text-[7px] font-black uppercase tracking-widest text-amber-500/40 bg-amber-500/5 rounded-lg my-1">Degree Logistics</div>
+                    <SelectItem value="exam_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-amber-600 focus:text-white px-3">Exam Officer</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -519,13 +522,19 @@ export const OfficialList = () => {
                     <SelectValue placeholder="Select Unit" />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl border-none shadow-strong p-1 bg-background/95 backdrop-blur-2xl max-h-[250px]">
-                    <div className="px-3 py-1.5 text-[7px] font-black uppercase tracking-widest text-primary/40 bg-primary/5 rounded-lg mb-1">Academic</div>
+                    <div className="px-3 py-1.5 text-[7px] font-black uppercase tracking-widest text-primary/40 bg-primary/5 rounded-lg mb-1">Academic Departments</div>
                     {departments.filter(d => d.type === 'academic').map((d: any) => (
                       <SelectItem key={d.id} value={d.id} className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">{d.name}</SelectItem>
                     ))}
-                    <div className="px-3 py-1.5 text-[7px] font-black uppercase tracking-widest text-primary/40 bg-primary/5 rounded-lg my-1">Operational</div>
-                    {departments.filter(d => d.type !== 'academic').map((d: any) => (
-                      <SelectItem key={d.id} value={d.id} className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">{d.name}</SelectItem>
+                    <div className="px-3 py-1.5 text-[7px] font-black uppercase tracking-widest text-primary/40 bg-primary/5 rounded-lg my-1">Admin / Operational Units</div>
+                    {departments.filter(d => d.type !== 'academic' && d.type !== 'exam').map((d: any) => (
+                      <SelectItem key={d.id} value={d.id} className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">
+                        {d.name} {d.type && !['administrative', 'finance', 'library', 'transport', 'hostel', 'sports', 'medical', 'security'].includes(d.type) ? `(${d.type.toUpperCase()})` : ''}
+                      </SelectItem>
+                    ))}
+                    <div className="px-3 py-1.5 text-[7px] font-black uppercase tracking-widest text-amber-500/40 bg-amber-500/5 rounded-lg my-1">Exam Department</div>
+                    {departments.filter(d => d.type === 'exam').map((d: any) => (
+                      <SelectItem key={d.id} value={d.id} className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-amber-600 focus:text-white px-3">{d.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
