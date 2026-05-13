@@ -895,14 +895,23 @@ router.post('/departments',
       throw new AppError('Department code already exists', 409, 'CODE_EXISTS');
     }
     
+    const allowedTypes = ['academic', 'administrative', 'finance', 'library', 'transport', 'hostel', 'other'];
+    let dbType = type;
+    let finalContactInfo = contactInfo || {};
+    
+    if (!allowedTypes.includes(dbType)) {
+      dbType = 'other';
+      finalContactInfo.custom_type = type;
+    }
+
     const { data: department, error } = await supabase
       .from('departments')
       .insert({
         name,
         code: code.toUpperCase(),
-        type,
+        type: dbType,
         description,
-        contact_info: contactInfo,
+        contact_info: finalContactInfo,
         clearance_config: clearanceConfig
       })
       .select()
@@ -934,6 +943,13 @@ router.put('/departments/:id', asyncHandler(async (req, res) => {
   if (updates.clearanceConfig) {
     updates.clearance_config = updates.clearanceConfig;
     delete updates.clearanceConfig;
+  }
+
+  const allowedTypes = ['academic', 'administrative', 'finance', 'library', 'transport', 'hostel', 'other'];
+  if (updates.type && !allowedTypes.includes(updates.type)) {
+    if (!updates.contact_info) updates.contact_info = {};
+    updates.contact_info.custom_type = updates.type;
+    updates.type = 'other';
   }
 
   const { data: department, error } = await supabase

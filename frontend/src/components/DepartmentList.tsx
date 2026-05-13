@@ -111,11 +111,10 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
       const data = {
         name: formData.name,
         code: formData.code,
-        type: formData.type === 'custom' ? 'administrative' : formData.type,
+        type: formData.type === 'custom' ? (formData.customType || 'custom') : formData.type,
         contactInfo: {
           email: formData.email,
-          phone: formData.phone,
-          ...(formData.type === 'custom' && { custom_type: formData.customType })
+          phone: formData.phone
         }
       };
       const res = await adminService.updateDepartment(selectedDept.id, data);
@@ -314,11 +313,10 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
               const data = {
                 name: formData.name,
                 code: formData.code,
-                type: formData.type === 'custom' ? 'administrative' : formData.type,
+                type: formData.type === 'custom' ? (formData.customType || 'custom') : formData.type,
                 contactInfo: {
                   email: formData.email,
-                  phone: formData.phone,
-                  ...(formData.type === 'custom' && { custom_type: formData.customType })
+                  phone: formData.phone
                 },
                 clearanceConfig: {
                   isRequired: true,
