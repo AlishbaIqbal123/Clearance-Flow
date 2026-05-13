@@ -720,6 +720,114 @@ router.post('/requests/:id/comments',
 );
 
 /**
+ * @route   POST /api/departments/requests/:id/department-chat
+ * @desc    Send a chat reply to a student from department
+ * @access  Department Staff
+ */
+router.post('/requests/:id/department-chat',
+  [
+    param('id').isUUID().withMessage('Valid request ID required'),
+    body('message').trim().notEmpty().isLength({ max: 2000 }).withMessage('Message is required'),
+    validate
+  ],
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { message } = req.body;
+    const staffId = req.user.id;
+    const departmentId = req.user.department_id;
+    
+    if (!departmentId && req.user.role !== 'admin') {
+      throw new AppError('No department assigned', 403, 'NO_DEPARTMENT');
+    }
+    
+    const { data: request } = await supabase
+      .from('clearance_requests')
+      .select('student_id, comments')
+      .eq('id', id)
+      .single();
+      
+    if (!request) {
+      throw new AppError('Clearance request not found', 404, 'REQUEST_NOT_FOUND');
+    }
+    
+    const comments = request.comments || [];
+    const newMsg = {
+      id: Date.now().toString(),
+      department_id: departmentId || req.body.departmentId,
+      author: staffId,
+      author_model: 'Staff',
+      authorName: req.user.fullName || 'Department Officer',
+      message,
+      is_internal: false,
+      read_by_student: false,
+      created_at: new Date().toISOString()
+    };
+    comments.push(newMsg);
+    
+    await supabase.from('clearance_requests').update({ comments }).eq('id', id);
+    
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`user:${request.student_id}`).emit('department-chat-msg', {
+        requestId: id,
+        message: newMsg
+      });
+    }
+    
+    res.status(201).json({
+      success: true,
+      message: 'Reply sent successfully',
+      data: { comments }
+    });
+  })
+);
+
+/**
+ * @route   POST /api/departments/requests/:id/mark-chat-read
+ * @desc    Mark student chat messages as read by department staff
+ * @access  Department Staff
+ */
+router.post('/requests/:id/mark-chat-read',
+  [
+    param('id').isUUID().withMessage('Valid request ID required'),
+    validate
+  ],
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const departmentId = req.user.department_id || req.body.departmentId;
+    
+    const { data: request } = await supabase
+      .from('clearance_requests')
+      .select('id, comments')
+      .eq('id', id)
+      .single();
+      
+    if (!request) {
+      throw new AppError('Clearance request not found', 404, 'REQUEST_NOT_FOUND');
+    }
+    
+    let updated = false;
+    const comments = (request.comments || []).map(c => {
+      if (c.department_id === departmentId && c.author_model === 'Student' && !c.read_by_dept) {
+        updated = true;
+        return { ...c, read_by_dept: true };
+      }
+      return c;
+    });
+    
+    if (updated) {
+      await supabase.from('clearance_requests').update({ comments }).eq('id', id);
+    }
+    
+    res.status(200).json({
+      success: true,
+      message: 'Chat marked as read',
+      data: { comments }
+    });
+  })
+);
+
+/**
  * @route   GET /api/departments/students
  * @desc    Get students in department (for academic departments)
  * @access  Department Staff (HOD)

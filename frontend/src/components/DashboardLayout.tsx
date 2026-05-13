@@ -28,7 +28,8 @@ import {
   ShieldCheck,
   Activity,
   Globe,
-  Truck
+  Truck,
+  MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -59,6 +60,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { authService } from '@/lib/auth.service';
 import { studentService } from '@/lib/student.service';
+import { departmentService } from '@/lib/department.service';
 import api from '@/lib/api';
 
 interface DashboardLayoutProps {
@@ -73,6 +75,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
@@ -155,6 +158,29 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
         setNotifications(res.data.data.notifications);
         setUnreadCount(res.data.data.unreadCount);
       }
+
+      // Sync live departmental chat gateways if staff
+      if (user?.role && ['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'].includes(user.role)) {
+        try {
+          const chatRes = await departmentService.getRequests({ limit: 100 });
+          if (chatRes?.success) {
+            const reqs = chatRes.data?.requests || chatRes.data || [];
+            let count = 0;
+            const deptId = user.department_id;
+            reqs.forEach((r: any) => {
+              const comments = r.comments || [];
+              comments.forEach((c: any) => {
+                if (c.author_model === 'Student' && (!c.department_id || c.department_id === deptId) && !c.read_by_dept) {
+                  count++;
+                }
+              });
+            });
+            setUnreadChatCount(count);
+          }
+        } catch (err) {
+          // Silent catch for live status updates
+        }
+      }
     } catch (e) {
       console.error('Failed to fetch notifications');
     }
@@ -231,6 +257,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
     { id: 'academic-depts', label: 'Faculties', icon: Building2, roles: ['admin'] },
     { id: 'admin-depts', label: 'Admin Units', icon: Shield, roles: ['admin'] },
     { id: 'requests', label: 'Requests', icon: FileText, roles: ['admin', 'hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'] },
+    { id: 'dept-chats', label: 'Live Chats', icon: MessageSquare, roles: ['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'] },
     { id: 'settings', label: 'Settings', icon: Settings, roles: ['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'] },
     { id: 'admin-clearance', label: 'Phase 1: Admin', icon: Shield, roles: ['student'] },
     { id: 'academic-clearance', label: 'Phase 2: Academic', icon: Trophy, roles: ['student'] },
@@ -286,8 +313,13 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
                     `}
                   >
                     <Icon className={`w-4 h-4 transition-all duration-500 ${active ? 'text-white' : 'text-muted-foreground group-hover:text-primary group-hover:scale-110'}`} />
-                    <span className="tracking-tight">{item.label}</span>
-                    {active && (
+                    <span className="tracking-tight flex-1 text-left">{item.label}</span>
+                    {item.id === 'dept-chats' && unreadChatCount > 0 && (
+                      <span className="px-2 py-0.5 rounded-full bg-destructive text-white text-[9px] font-black animate-pulse shadow-sm">
+                        {unreadChatCount}
+                      </span>
+                    )}
+                    {active && item.id !== 'dept-chats' && (
                       <div className="absolute right-4 w-1 h-1 bg-white rounded-full animate-pulse shadow-[0_0_10px_white]" />
                     )}
                     {!active && (

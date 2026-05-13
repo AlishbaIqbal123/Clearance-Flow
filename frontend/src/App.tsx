@@ -11,6 +11,7 @@ import { StudentList } from '@/components/StudentList';
 import { DepartmentList } from '@/components/DepartmentList';
 import { OfficialList } from '@/components/OfficialList';
 import { DepartmentProfile } from '@/components/DepartmentProfile';
+import { DepartmentChats } from '@/components/DepartmentChats';
 import { ClearanceRequestList } from '@/components/ClearanceRequestList';
 import { Analytics } from '@/components/Analytics';
 import { MyClearance } from '@/components/MyClearance';
@@ -134,6 +135,8 @@ const App: React.FC = () => {
         return <div className="p-8 text-center text-slate-400 font-bold">ACCESS DENIED</div>;
       case 'requests':
         return <ClearanceRequestList user={user} />;
+      case 'dept-chats':
+        return <DepartmentChats user={user} />;
       case 'users':
         return <OfficialList />;
       case 'analytics':

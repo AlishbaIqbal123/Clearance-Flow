@@ -676,6 +676,118 @@ router.post('/clearance-request/:id/comments',
 );
 
 /**
+ * @route   POST /api/students/clearance-request/:id/department-chat
+ * @desc    Send a chat message to a specific department
+ * @access  Student
+ */
+router.post('/clearance-request/:id/department-chat',
+  studentOnly,
+  [
+    body('departmentId').notEmpty().withMessage('Department ID is required'),
+    body('message').trim().notEmpty().isLength({ max: 2000 }).withMessage('Message is required'),
+    validate
+  ],
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const studentId = req.user.id;
+    const { departmentId, message } = req.body;
+    
+    const { data: request } = await supabase
+      .from('clearance_requests')
+      .select('*')
+      .eq('id', id)
+      .eq('student_id', studentId)
+      .single();
+    
+    if (!request) {
+      throw new AppError('Clearance request not found', 404, 'REQUEST_NOT_FOUND');
+    }
+    
+    const comments = request.comments || [];
+    const newMsg = {
+      id: Date.now().toString(),
+      department_id: departmentId,
+      author: studentId,
+      author_model: 'Student',
+      authorName: req.user.fullName || 'Student',
+      message,
+      is_internal: false,
+      read_by_dept: false,
+      created_at: new Date().toISOString()
+    };
+    comments.push(newMsg);
+    
+    await supabase.from('clearance_requests')
+      .update({ comments })
+      .eq('id', id);
+      
+    // Emit real-time event if configured
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`dept:${departmentId}`).emit('department-chat-msg', {
+        requestId: id,
+        message: newMsg
+      });
+    }
+    
+    res.status(201).json({
+      success: true,
+      message: 'Message sent successfully',
+      data: { comments: comments.filter(c => !c.is_internal) }
+    });
+  })
+);
+
+/**
+ * @route   POST /api/students/clearance-request/:id/mark-chat-read
+ * @desc    Mark department chat messages as read by student
+ * @access  Student
+ */
+router.post('/clearance-request/:id/mark-chat-read',
+  studentOnly,
+  [
+    body('departmentId').notEmpty().withMessage('Department ID is required'),
+    validate
+  ],
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const studentId = req.user.id;
+    const { departmentId } = req.body;
+    
+    const { data: request } = await supabase
+      .from('clearance_requests')
+      .select('id, comments')
+      .eq('id', id)
+      .eq('student_id', studentId)
+      .single();
+      
+    if (!request) {
+      throw new AppError('Clearance request not found', 404, 'REQUEST_NOT_FOUND');
+    }
+    
+    let updated = false;
+    const comments = (request.comments || []).map(c => {
+      if (c.department_id === departmentId && c.author_model === 'Staff' && !c.read_by_student) {
+        updated = true;
+        return { ...c, read_by_student: true };
+      }
+      return c;
+    });
+    
+    if (updated) {
+      await supabase.from('clearance_requests').update({ comments }).eq('id', id);
+    }
+    
+    res.status(200).json({
+      success: true,
+      message: 'Messages marked as read',
+      data: { comments: comments.filter(c => !c.is_internal) }
+    });
+  })
+);
+
+
+/**
  * @route   GET /api/students/departments
  * @desc    Get all departments with contact info
  * @access  Student

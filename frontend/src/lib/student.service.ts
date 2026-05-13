@@ -68,5 +68,15 @@ export const studentService = {
   notifyFormSubmission: async (id: string, submissionData: { departmentId: string, formLabel: string }) => {
     const response = await api.post(`/students/clearance-request/${id}/submit-form`, submissionData);
     return response.data;
+  },
+
+  sendDepartmentChat: async (id: string, chatData: { departmentId: string, message: string }) => {
+    const response = await api.post(`/students/clearance-request/${id}/department-chat`, chatData);
+    return response.data;
+  },
+
+  markDepartmentChatRead: async (id: string, departmentId: string) => {
+    const response = await api.post(`/students/clearance-request/${id}/mark-chat-read`, { departmentId });
+    return response.data;
   }
 };
