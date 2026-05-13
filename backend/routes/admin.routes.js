@@ -200,13 +200,21 @@ router.get('/users', adminPlus, asyncHandler(async (req, res) => {
   const deptIds = [...new Set((usersRaw || []).map(u => u.department_id).filter(id => id))];
   const { data: depts } = await supabase
     .from('departments')
-    .select('id, name, code')
+    .select('id, name, code, contact_info')
     .in('id', deptIds);
 
-  const users = (usersRaw || []).map(u => ({
-    ...u,
-    department: depts?.find(d => d.id === u.department_id)
-  }));
+  const users = (usersRaw || []).map(u => {
+    const dept = depts?.find(d => d.id === u.department_id);
+    let mappedRole = u.role;
+    if (u.role === 'department_officer' && dept?.contact_info?.custom_type === 'exam') {
+      mappedRole = 'exam_officer';
+    }
+    return {
+      ...u,
+      role: mappedRole,
+      department: dept
+    };
+  });
 
   res.status(200).json({
     success: true,
@@ -253,6 +261,8 @@ router.post('/users',
     
     const hashedPassword = await bcrypt.hash(password, 12);
 
+    const dbRole = role === 'exam_officer' ? 'department_officer' : role;
+
     // Create user
     const { data: user, error } = await supabase
       .from('profiles')
@@ -261,7 +271,7 @@ router.post('/users',
         last_name: lastName,
         email: email.toLowerCase(),
         password: hashedPassword,
-        role,
+        role: dbRole,
         department_id: departmentId || department,
         phone,
         is_first_login: true
@@ -329,6 +339,10 @@ router.put('/users/:id',
     // Don't allow password update through this route
     delete updates.password;
     delete updates.id;
+
+    if (updates.role === 'exam_officer') {
+      updates.role = 'department_officer';
+    }
     
     // Sync email with Supabase Auth if it changed
     if (updates.email) {
