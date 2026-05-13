@@ -232,7 +232,7 @@ router.post('/users',
     body('lastName').trim().notEmpty().withMessage('Last name is required'),
     body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
     body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
-    body('role').isIn(['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'])
+    body('role').isIn(['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer', 'exam_officer'])
       .withMessage('Invalid role'),
     body('department').optional().notEmpty().withMessage('Valid department ID required'),
     validate
@@ -299,7 +299,7 @@ router.put('/users/:id',
     body('firstName').optional().trim().notEmpty().withMessage('First name cannot be empty'),
     body('lastName').optional().trim().notEmpty().withMessage('Last name cannot be empty'),
     body('email').optional().isEmail().normalizeEmail().withMessage('Valid email is required'),
-    body('role').optional().isIn(['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer', 'admin'])
+    body('role').optional().isIn(['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer', 'exam_officer', 'admin'])
       .withMessage('Invalid role'),
     body('departmentId').optional().notEmpty().withMessage('Valid department ID required'),
     validate
@@ -878,8 +878,7 @@ router.post('/departments',
   [
     body('name').trim().notEmpty().withMessage('Department name is required'),
     body('code').trim().notEmpty().withMessage('Department code is required'),
-    body('type').isIn(['academic', 'administrative', 'finance', 'library', 'transport', 'hostel', 'sports', 'medical', 'security', 'custom'])
-      .withMessage('Invalid department type'),
+    body('type').notEmpty().withMessage('Department type is required'),
     validate
   ],
   asyncHandler(async (req, res) => {
@@ -1139,7 +1138,7 @@ router.post('/reset-official-password/:id', adminPlus, asyncHandler(async (req, 
  * @access  Admin Only
  */
 router.get('/dispatch-requests',
-  adminOnly,
+  authorize('admin', 'exam_officer'),
   asyncHandler(async (req, res) => {
     // Fetch requests where degree_fulfillment.method is 'dispatch'
     const { data, error } = await supabase
@@ -1152,7 +1151,7 @@ router.get('/dispatch-requests',
 
     // Filter in JS because Supabase JSONB filtering can be tricky for nested values
     const dispatchRequests = data.filter(req => 
-      req.degree_fulfillment && req.degree_fulfillment.method === 'dispatch'
+      req.status === 'cleared' && req.degree_fulfillment && (req.degree_fulfillment.method === 'dispatch' || req.degree_fulfillment.method === 'manual')
     );
 
     res.status(200).json({

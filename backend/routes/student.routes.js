@@ -1050,6 +1050,18 @@ router.post('/clearance-request/:id/degree-preference',
 
     if (updateError) throw updateError;
 
+    // Notify the Exam Department via live sockets
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('exam-department-notification', {
+        title: 'New Degree Fulfillment Request',
+        message: `Student ${request.student?.first_name || ''} requested ${method === 'dispatch' ? 'Degree Dispatch' : 'Manual Pickup'}.`,
+        requestId: id,
+        method,
+        timestamp: new Date().toISOString()
+      });
+    }
+
     res.status(200).json({
       success: true,
       message: 'Fulfillment preference updated successfully',

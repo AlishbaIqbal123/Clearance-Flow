@@ -165,7 +165,7 @@ export const DispatchList = () => {
                       <div className="flex items-start gap-4 max-w-md">
                         <MapPin className="w-5 h-5 text-primary shrink-0 mt-1" />
                         <p className="font-bold text-sm text-foreground/80 leading-relaxed uppercase italic">
-                          {req.degree_fulfillment?.address || 'N/A'}
+                          {req.degree_fulfillment?.method === 'manual' ? 'Manual Collection (In-Person Pickup)' : (req.degree_fulfillment?.address || 'N/A')}
                         </p>
                       </div>
                     </TableCell>
@@ -180,7 +180,7 @@ export const DispatchList = () => {
                     <TableCell className="py-8 px-6">
                       <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[9px] uppercase tracking-[0.2em] px-4 py-2 rounded-full flex items-center gap-2 w-fit">
                         <CheckCircle2 className="w-3 h-3" />
-                        Ready for Dispatch
+                        {req.degree_fulfillment?.method === 'manual' ? 'Ready for Pickup' : 'Ready for Dispatch'}
                       </Badge>
                     </TableCell>
                     <TableCell className="py-8 px-10 text-right">
@@ -264,11 +264,11 @@ export const DispatchList = () => {
                   </div>
                   <div className="space-y-2">
                     <p className="text-base font-bold text-foreground leading-relaxed uppercase italic">
-                      {selectedRequest?.degree_fulfillment?.address}
+                      {selectedRequest?.degree_fulfillment?.method === 'manual' ? 'Manual Collection (Registrar Pickup)' : (selectedRequest?.degree_fulfillment?.address || 'N/A')}
                     </p>
                     <div className="flex items-center gap-2 text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">
                       <Package className="w-3.5 h-3.5" />
-                      Standard Institutional Delivery
+                      {selectedRequest?.degree_fulfillment?.method === 'manual' ? 'In-Person Authentication Required' : 'Standard Institutional Delivery'}
                     </div>
                   </div>
                 </div>
@@ -288,7 +288,7 @@ export const DispatchList = () => {
                 <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">Fulfillment Type</p>
                 <div className="flex items-center gap-2 text-sm font-black uppercase">
                   <PackageCheck className="w-4 h-4 text-primary" />
-                  Courier
+                  {selectedRequest?.degree_fulfillment?.method === 'manual' ? 'Manual Pickup' : 'Courier Dispatch'}
                 </div>
               </div>
             </div>

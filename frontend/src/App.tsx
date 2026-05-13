@@ -130,6 +130,9 @@ const App: React.FC = () => {
       case 'admin-depts':
         if (user.role === 'admin') return <DepartmentList filterType="administrative" />;
         return <div className="p-8 text-center text-slate-400 font-bold">ACCESS DENIED</div>;
+      case 'exam-dept':
+        if (user.role === 'admin') return <DepartmentList filterType="exam" />;
+        return <div className="p-8 text-center text-slate-400 font-bold">ACCESS DENIED</div>;
       case 'departments':
         if (user.role === 'admin') return <DepartmentList />;
         return <div className="p-8 text-center text-slate-400 font-bold">ACCESS DENIED</div>;
@@ -150,7 +153,7 @@ const App: React.FC = () => {
       case 'my-clearance':
         return <MyClearance />;
       case 'dispatch':
-        if (user.role === 'admin') return <DispatchList />;
+        if (user.role === 'admin' || user.role === 'exam_officer') return <DispatchList />;
         return <div className="p-8 text-center text-slate-400 font-bold">ACCESS DENIED</div>;
       default:
         return <div className="p-8 text-center text-slate-400 font-bold">VIEW NOT FOUND</div>;

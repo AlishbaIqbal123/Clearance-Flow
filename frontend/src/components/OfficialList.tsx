@@ -220,6 +220,7 @@ export const OfficialList = () => {
             <SelectContent className="rounded-xl border-none shadow-strong p-1 bg-background/95 backdrop-blur-2xl">
               <SelectItem value="all" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">All Roles</SelectItem>
               <SelectItem value="hod" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">HOD</SelectItem>
+              <SelectItem value="exam_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Exam Officer</SelectItem>
               <SelectItem value="finance_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Finance</SelectItem>
               <SelectItem value="library_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Library</SelectItem>
               <SelectItem value="transport_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Transport</SelectItem>
@@ -499,6 +500,7 @@ export const OfficialList = () => {
                   </SelectTrigger>
                   <SelectContent className="rounded-xl border-none shadow-strong p-1 bg-background/95 backdrop-blur-2xl">
                     <SelectItem value="hod" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">HOD</SelectItem>
+                    <SelectItem value="exam_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Exam Officer</SelectItem>
                     <SelectItem value="department_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Dept Staff</SelectItem>
                     <SelectItem value="finance_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Finance</SelectItem>
                     <SelectItem value="library_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Library</SelectItem>
