@@ -22,7 +22,9 @@ import {
   Activity,
   ChevronRight,
   ShieldAlert,
-  CheckCircle2
+  CheckCircle2,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { authService } from '@/lib/auth.service';
 import { toast } from 'sonner';
@@ -50,6 +52,8 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
   const [studentPassword, setStudentPassword] = useState('');
   const [staffEmail, setStaffEmail] = useState('');
   const [staffPassword, setStaffPassword] = useState('');
+  const [showStudentPassword, setShowStudentPassword] = useState(false);
+  const [showStaffPassword, setShowStaffPassword] = useState(false);
   const [showForgotDialog, setShowForgotDialog] = useState(false);
   const [recoveryEmail, setRecoveryEmail] = useState('');
   const [recoveryReg, setRecoveryReg] = useState('');
@@ -274,12 +278,19 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
                       <div className="relative">
                         <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-all duration-500" />
                         <Input 
-                          type="password"
+                          type={showStudentPassword ? "text" : "password"}
                           value={studentPassword}
                           onChange={(e) => setStudentPassword(e.target.value)}
                           placeholder="••••••••" 
-                          className="h-14 pl-14 bg-secondary/30 border-none rounded-xl font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm"
+                          className="h-14 pl-14 pr-12 bg-secondary/30 border-none rounded-xl font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm"
                         />
+                        <button
+                          type="button"
+                          onClick={() => setShowStudentPassword(!showStudentPassword)}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors p-1"
+                        >
+                          {showStudentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
                       </div>
                     </div>
                     
@@ -364,12 +375,19 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
                       <div className="relative">
                         <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-all duration-500" />
                         <Input 
-                          type="password" 
+                          type={showStaffPassword ? "text" : "password"} 
                           placeholder="••••••••" 
                           value={staffPassword}
                           onChange={(e) => setStaffPassword(e.target.value)}
-                          className="h-14 pl-14 bg-secondary/30 border-none rounded-xl font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm"
+                          className="h-14 pl-14 pr-12 bg-secondary/30 border-none rounded-xl font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm"
                         />
+                        <button
+                          type="button"
+                          onClick={() => setShowStaffPassword(!showStaffPassword)}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors p-1"
+                        >
+                          {showStaffPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
                       </div>
                     </div>
                     <Button disabled={loading} className="w-full h-14 bg-foreground hover:opacity-90 text-background rounded-xl font-black text-[11px] uppercase tracking-[0.5em] shadow-strong transition-all active:scale-95 group/btn overflow-hidden relative">

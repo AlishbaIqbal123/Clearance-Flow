@@ -9,7 +9,9 @@ import {
   ChevronRight,
   Monitor,
   Terminal,
-  Cpu
+  Cpu,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { authService } from '@/lib/auth.service';
 import { toast } from 'sonner';
@@ -27,6 +29,8 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onBackToHome,
   const [loading, setLoading] = useState(false);
   const [departments, setDepartments] = useState<any[]>([]);
   const [fetchingDepts, setFetchingDepts] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const PROGRAM_DISCIPLINE_MAP = {
     'Undergraduate Programs (BS)': [
@@ -297,11 +301,29 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onBackToHome,
                  {/* Password Stack */}
                  <div className="space-y-1.5 group">
                     <label className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within:text-primary transition-colors">Password</label>
-                    <Input required type="password" name="password" value={formData.password} onChange={handleChange} className="h-11 bg-secondary/30 border-none rounded-lg font-bold px-5 text-sm focus-visible:ring-2 focus-visible:ring-primary/20" />
+                    <div className="relative">
+                      <Input required type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleChange} className="h-11 pr-10 bg-secondary/30 border-none rounded-lg font-bold px-5 text-sm focus-visible:ring-2 focus-visible:ring-primary/20" />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors p-1"
+                      >
+                        {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
                  </div>
                  <div className="space-y-1.5 group">
                     <label className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within:text-primary transition-colors">Verify</label>
-                    <Input required type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} className="h-11 bg-secondary/30 border-none rounded-lg font-bold px-5 text-sm focus-visible:ring-2 focus-visible:ring-primary/20" />
+                    <div className="relative">
+                      <Input required type={showConfirmPassword ? "text" : "password"} name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} className="h-11 pr-10 bg-secondary/30 border-none rounded-lg font-bold px-5 text-sm focus-visible:ring-2 focus-visible:ring-primary/20" />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors p-1"
+                      >
+                        {showConfirmPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
                  </div>
               </div>
 
