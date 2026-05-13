@@ -127,11 +127,11 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onBackToHome,
   // Auto-detect batch from registration number prefix
   useEffect(() => {
     const trimmedReg = formData.registrationNumber.trim();
-    const match = trimmedReg.match(/^([a-zA-Z]{2})\s*(\d{2})/);
+    const match = trimmedReg.match(/^([a-zA-Z]{2})[-_\s]*(\d{2})/);
     if (match) {
       const autoBatch = `${match[1].toUpperCase()}${match[2]}`;
       setFormData(prev => ({ ...prev, batch: autoBatch }));
-    } else if (!trimmedReg) {
+    } else {
       setFormData(prev => ({ ...prev, batch: '' }));
     }
   }, [formData.registrationNumber]);
