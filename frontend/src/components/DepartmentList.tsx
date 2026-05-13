@@ -111,10 +111,11 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
       const data = {
         name: formData.name,
         code: formData.code,
-        type: formData.type === 'custom' ? (formData.customType || 'custom') : formData.type,
+        type: formData.type === 'custom' ? 'administrative' : formData.type,
         contactInfo: {
           email: formData.email,
-          phone: formData.phone
+          phone: formData.phone,
+          ...(formData.type === 'custom' && { custom_type: formData.customType })
         }
       };
       const res = await adminService.updateDepartment(selectedDept.id, data);
@@ -198,14 +199,13 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
                             <DropdownMenuItem 
                              className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3 cursor-pointer"
                              onClick={() => {
-                               const known = ['academic', 'exam', 'administrative', 'finance', 'library', 'transport', 'hostel', 'sports', 'medical', 'security', 'custom'];
-                               const isCustomType = dept.type && !known.includes(dept.type);
+                               const isCustomType = !!dept.contact_info?.custom_type;
                                setSelectedDept(dept);
                                setFormData({
                                  name: dept.name,
                                  code: dept.code,
                                  type: isCustomType ? 'custom' : (dept.type || 'academic'),
-                                 customType: isCustomType ? dept.type : '',
+                                 customType: dept.contact_info?.custom_type || '',
                                  email: dept.contact_info?.email || '',
                                  phone: dept.contact_info?.phone || ''
                                });
@@ -229,7 +229,7 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
                  <div className="space-y-0.5 relative z-10">
                     <h3 className="text-sm font-black text-foreground tracking-tight uppercase leading-none group-hover:text-primary transition-colors duration-500">{dept.name}</h3>
                     <Badge variant="outline" className="border-foreground/5 bg-secondary/30 text-[7px] font-black uppercase tracking-widest text-muted-foreground py-0.5 px-2 rounded-full italic">
-                       {dept.type?.replace('_', ' ')}
+                       {dept.contact_info?.custom_type || dept.type?.replace('_', ' ')}
                     </Badge>
                  </div>
               </CardHeader>
@@ -269,14 +269,13 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
                     variant="ghost" 
                     className="w-full h-10 rounded-lg bg-secondary/30 hover:bg-primary hover:text-white font-black text-[8px] uppercase tracking-widest transition-all duration-500 group/cta"
                     onClick={() => {
-                      const known = ['academic', 'exam', 'administrative', 'finance', 'library', 'transport', 'hostel', 'sports', 'medical', 'security', 'custom'];
-                      const isCustomType = dept.type && !known.includes(dept.type);
+                      const isCustomType = !!dept.contact_info?.custom_type;
                       setSelectedDept(dept);
                       setFormData({
                         name: dept.name,
                         code: dept.code,
                         type: isCustomType ? 'custom' : (dept.type || 'academic'),
-                        customType: isCustomType ? dept.type : '',
+                        customType: dept.contact_info?.custom_type || '',
                         email: dept.contact_info?.email || '',
                         phone: dept.contact_info?.phone || ''
                       });
@@ -315,10 +314,11 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
               const data = {
                 name: formData.name,
                 code: formData.code,
-                type: formData.type === 'custom' ? (formData.customType || 'custom') : formData.type,
+                type: formData.type === 'custom' ? 'administrative' : formData.type,
                 contactInfo: {
                   email: formData.email,
-                  phone: formData.phone
+                  phone: formData.phone,
+                  ...(formData.type === 'custom' && { custom_type: formData.customType })
                 },
                 clearanceConfig: {
                   isRequired: true,
