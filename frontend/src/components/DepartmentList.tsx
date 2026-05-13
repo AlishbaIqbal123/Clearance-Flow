@@ -88,9 +88,10 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
 
   const departments = allDepartments.filter(dept => {
     if (!filterType) return true;
+    const isExam = dept.type === 'exam' || dept.contact_info?.custom_type === 'exam';
     if (filterType === 'academic') return dept.type === 'academic';
-    if (filterType === 'exam') return dept.type === 'exam';
-    return dept.type !== 'academic' && dept.type !== 'exam';
+    if (filterType === 'exam') return isExam;
+    return dept.type !== 'academic' && !isExam;
   });
 
   const handleDelete = async (id: string) => {
