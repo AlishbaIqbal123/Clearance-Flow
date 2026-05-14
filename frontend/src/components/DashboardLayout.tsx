@@ -509,14 +509,14 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
         </header>
 
         {/* Dynamic Main Content Area - Bento Grid Ready */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 relative z-10">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-0 sm:pb-0 lg:pb-0 relative z-10">
           <div className="max-w-[1400px] mx-auto animate-fade-in-up">
             {children}
           </div>
         </main>
 
         {/* Footer info for Academic Authority */}
-        <footer className="py-6 text-center opacity-30 shrink-0">
+        <footer className="pt-2 pb-4 text-center opacity-30 shrink-0">
            <p className="text-[9px] font-black uppercase tracking-[0.5em] text-muted-foreground">web CUIvehari Clearance • SECURE CLEARANCE TERMINAL • 2026</p>
         </footer>
       </div>
