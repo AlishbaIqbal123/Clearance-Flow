@@ -126,10 +126,16 @@ router.post('/contact-department',
       
       const comments = request.comments || [];
       comments.push({
+        id: Date.now().toString(),
+        department_id: departmentId,
+        author: studentId,
         author_id: studentId,
-        author_name: req.user.fullName,
+        author_model: 'Student',
+        authorName: req.user.fullName || 'Student',
+        author_name: req.user.fullName || 'Student',
         message: `[${subject || 'General Inquiry'}] ${message}`,
         is_internal: false,
+        read_by_dept: false,
         created_at: new Date().toISOString()
       });
 

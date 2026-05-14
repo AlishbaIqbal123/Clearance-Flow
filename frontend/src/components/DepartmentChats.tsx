@@ -80,7 +80,7 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
     const deptId = user?.department_id;
     const hasUnread = comments.some((c: any) => 
       c.author_model === 'Student' && 
-      (!c.department_id || c.department_id === deptId) && 
+      (c.department_id === deptId) && 
       !c.read_by_dept
     );
 
@@ -110,8 +110,8 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
   const threads = requests.map(req => {
     const comments = req.comments || [];
     const deptId = user?.department_id;
-    // Filter comments strictly addressed to this department or legacy generic
-    const deptComments = comments.filter((c: any) => !c.department_id || c.department_id === deptId);
+    // Filter comments strictly addressed to this department
+    const deptComments = comments.filter((c: any) => c.department_id === deptId);
     
     const unreadCount = deptComments.filter((c: any) => 
       c.author_model === 'Student' && !c.read_by_dept
