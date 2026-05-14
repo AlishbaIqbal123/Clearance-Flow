@@ -747,7 +747,7 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
       }}>
         <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border border-primary/20 bg-background shadow-strong">
           {chatOpenDept && (() => {
-            const currentComments = (data?.activeRequest?.comments || []).filter((c: any) => c.department_id === chatOpenDept.department_id);
+            const currentComments = (data?.activeRequest?.comments || []).filter((c: any) => c.department_id === chatOpenDept.department_id || !c.department_id);
             return (
               <div className="flex flex-col h-[500px]">
                 {/* Header */}

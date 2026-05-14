@@ -59,7 +59,7 @@ const DepartmentCard = ({
   );
 
   const deptComments = [
-    ...comments.filter((c: any) => c.department_id === dept.department_id),
+    ...comments.filter((c: any) => c.department_id === dept.department_id || !c.department_id),
     ...optimisticMessages
   ];
   const unreadCount = deptComments.filter((c: any) => c.author_model === 'Staff' && !c.read_by_student).length;

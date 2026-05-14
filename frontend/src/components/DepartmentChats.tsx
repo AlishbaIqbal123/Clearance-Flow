@@ -35,6 +35,7 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
   const [messageInput, setMessageInput] = useState('');
   const [sending, setSending] = useState(false);
+  const [optimisticMessages, setOptimisticMessages] = useState<any[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const fetchChatsData = async (silent = false) => {
@@ -46,6 +47,7 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
       if (res?.success) {
         const rawRequests = res.data?.requests || res.data || [];
         setRequests(Array.isArray(rawRequests) ? rawRequests : []);
+        setOptimisticMessages([]); // Clear optimistic state after successful fetch
       }
     } catch (err) {
       console.error('Failed to sync live chat feeds', err);
@@ -77,10 +79,10 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
   const handleSelectThread = async (req: any) => {
     setSelectedRequestId(req.id);
     const comments = req.comments || [];
-    const deptId = user?.department_id;
+    const deptId = user?.department_id || user?.department?.id;
     const hasUnread = comments.some((c: any) => 
       c.author_model === 'Student' && 
-      (c.department_id === deptId) && 
+      (c.department_id === deptId || !c.department_id) && 
       !c.read_by_dept
     );
 
@@ -109,9 +111,11 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
   // Compute threads list with metadata
   const threads = requests.map(req => {
     const comments = req.comments || [];
-    const deptId = user?.department_id;
-    // Filter comments strictly addressed to this department
-    const deptComments = comments.filter((c: any) => c.department_id === deptId);
+    const deptId = user?.department_id || user?.department?.id;
+    // Filter comments addressed to this department or legacy messages with no dept ID
+    const deptComments = comments.filter((c: any) => 
+      c.department_id === deptId || !c.department_id
+    );
     
     const unreadCount = deptComments.filter((c: any) => 
       c.author_model === 'Student' && !c.read_by_dept
@@ -144,22 +148,38 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
 
   const handleSendMessage = async () => {
     if (!messageInput.trim() || !selectedRequestId) return;
-    setSending(true);
+    
+    const textToSend = messageInput.trim();
+    const deptId = user?.department_id || user?.department?.id;
+    
+    // Inject optimistic message
+    const tempMessage = {
+      id: `temp-${Date.now()}`,
+      message: textToSend,
+      author_model: 'Staff',
+      department_id: deptId,
+      created_at: new Date().toISOString(),
+      authorName: 'You (Dept Staff)'
+    };
+
+    setOptimisticMessages(prev => [...prev, tempMessage]);
+    setMessageInput('');
+    scrollToBottom();
+
     try {
       const res = await departmentService.sendDepartmentChat(selectedRequestId, {
-        departmentId: user?.department_id,
-        message: messageInput.trim()
+        departmentId: deptId,
+        message: textToSend
       });
       if (res?.success) {
-        setMessageInput('');
-        // Optimistically reload or sync
+        // We could fetch here, but the optimistic message is already there.
+        // The next sync loop will replace it with the real one.
         await fetchChatsData(true);
-        scrollToBottom();
       }
     } catch (err: any) {
+      // Remove optimistic message on failure
+      setOptimisticMessages(prev => prev.filter(m => m.id !== tempMessage.id));
       toast.error(err.response?.data?.message || 'Failed to dispatch message');
-    } finally {
-      setSending(false);
     }
   };
 
@@ -340,7 +360,7 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
               {/* Chat Stream Area */}
               <ScrollArea className="flex-1 p-6 bg-gradient-to-b from-background/10 via-background/30 to-background/50">
                 <div className="max-w-3xl mx-auto space-y-4">
-                  {selectedThread.deptComments?.length === 0 ? (
+                  {selectedThread.deptComments?.length === 0 && optimisticMessages.length === 0 ? (
                     <div className="text-center py-12 space-y-3">
                       <Badge variant="outline" className="border-foreground/10 rounded-full px-4 py-1.5 text-[9px] font-black uppercase tracking-widest opacity-40">
                         Thread Established
@@ -350,7 +370,7 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
                       </p>
                     </div>
                   ) : (
-                    selectedThread.deptComments.map((msg: any, idx: number) => {
+                    [...selectedThread.deptComments, ...optimisticMessages.filter(om => om.department_id === (user?.department_id || user?.department?.id))].map((msg: any, idx: number) => {
                       const isStudent = msg.author_model === 'Student';
                       return (
                         <div 
