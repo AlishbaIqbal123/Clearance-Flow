@@ -516,7 +516,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
         </main>
 
         {/* Footer info for Academic Authority */}
-        <footer className="p-10 text-center opacity-30">
+        <footer className="py-6 text-center opacity-30 shrink-0">
            <p className="text-[9px] font-black uppercase tracking-[0.5em] text-muted-foreground">web CUIvehari Clearance • SECURE CLEARANCE TERMINAL • 2026</p>
         </footer>
       </div>

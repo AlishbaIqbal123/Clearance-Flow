@@ -184,9 +184,9 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-1000 flex flex-col h-[calc(100vh-140px)]">
       {/* Premium Integrated Header section */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
         <div className="space-y-1">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary shadow-soft">
@@ -213,7 +213,7 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
       </div>
 
       {/* Main WhatsApp layout window */}
-      <div className="h-[700px] max-h-[calc(100vh-180px)] rounded-3xl border border-foreground/5 bg-card/60 backdrop-blur-3xl shadow-strong overflow-hidden flex flex-col md:flex-row relative">
+      <div className="flex-1 min-h-0 rounded-3xl border border-foreground/5 bg-card/60 backdrop-blur-3xl shadow-strong overflow-hidden flex flex-col md:flex-row relative">
         
         {/* Left Sidebar Pane */}
         <div className="w-full md:w-[360px] border-b md:border-b-0 md:border-r border-foreground/5 flex flex-col bg-secondary/10 shrink-0 h-[40%] md:h-full">
