@@ -69,6 +69,8 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [receivedToken, setReceivedToken] = useState<string | null>(null);
   const [beautifiedEmailData, setBeautifiedEmailData] = useState<any>(null);
+  const [showSimulatedInbox, setShowSimulatedInbox] = useState(false);
+  const [revealToken, setRevealToken] = useState(false);
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -189,6 +191,8 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
         setPreviewUrl(null);
         setReceivedToken(null);
         setBeautifiedEmailData(null);
+        setShowSimulatedInbox(false);
+        setRevealToken(false);
       } else {
         toast.error(response.message || 'Failed to reset password');
       }
@@ -488,6 +492,8 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
           setResetSuccess(false);
           setMaskedEmail('');
           setBeautifiedEmailData(null);
+          setShowSimulatedInbox(false);
+          setRevealToken(false);
         }
       }}>
         <DialogContent className="sm:max-w-xl rounded-3xl border-none shadow-strong p-0 bg-background text-foreground overflow-hidden max-h-[90vh] overflow-y-auto custom-scrollbar">
@@ -535,52 +541,83 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
                       </a>
                     )}
                   </div>
-                  {receivedToken && (
-                    <div className="pt-2 flex items-center justify-between text-[10px] text-muted-foreground border-t border-foreground/5 mt-2">
-                      <span>Dev Token: <strong className="text-foreground tracking-widest">{receivedToken}</strong></span>
-                      <button 
-                        type="button" 
-                        onClick={() => {
-                          setResetToken(receivedToken);
-                          toast.success('Token auto-filled');
-                        }}
-                        className="text-primary hover:underline font-bold"
-                      >
-                        Auto-fill
-                      </button>
-                    </div>
-                  )}
-
                   {beautifiedEmailData && (
-                    <div className="mt-4 border border-foreground/10 rounded-2xl bg-background overflow-hidden shadow-strong animate-in fade-in duration-700">
-                      <div className="bg-secondary/50 px-4 py-2 border-b border-foreground/5 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
-                          <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
-                          <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
-                          <span className="text-[9px] font-bold text-muted-foreground ml-2">Live Email Dispatch Preview (Simulated Inbox)</span>
+                    <div className="pt-2 border-t border-foreground/5 mt-2 space-y-3">
+                      <button
+                        type="button"
+                        onClick={() => setShowSimulatedInbox(!showSimulatedInbox)}
+                        className="w-full py-2.5 px-4 rounded-xl bg-secondary/60 hover:bg-secondary/90 text-foreground font-black text-[9px] uppercase tracking-wider transition-all flex items-center justify-between border border-foreground/5 shadow-sm"
+                      >
+                        <span className="flex items-center gap-2 text-left">
+                          <Lock className="w-3.5 h-3.5 text-primary shrink-0" />
+                          <span>{showSimulatedInbox ? "Hide Simulated Email Inbox" : "Simulate User Inbox (Demonstration / Testing)"}</span>
+                        </span>
+                        <span className="text-[8px] bg-primary/10 text-primary px-2 py-0.5 rounded font-black shrink-0">
+                          {showSimulatedInbox ? "Close" : "Open"}
+                        </span>
+                      </button>
+
+                      {showSimulatedInbox && (
+                        <div className="border border-foreground/10 rounded-2xl bg-background overflow-hidden shadow-strong animate-in fade-in duration-500">
+                          <div className="bg-secondary/50 px-4 py-2 border-b border-foreground/5 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
+                              <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
+                              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
+                              <span className="text-[9px] font-bold text-muted-foreground ml-2">Secure Mailbox Sandbox</span>
+                            </div>
+                            <span className="text-[8px] font-black uppercase text-emerald-600 tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded">Encrypted Delivery</span>
+                          </div>
+                          <div className="p-5 space-y-4 text-left">
+                            <div className="text-center pb-3 border-b border-foreground/5">
+                              <h4 className="text-primary font-black text-base uppercase tracking-tight">CUI Vehari</h4>
+                              <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Clearance System Protocol</p>
+                            </div>
+                            <p className="text-xs text-foreground font-medium">Dear <strong>{beautifiedEmailData.recipientName}</strong>,</p>
+                            <p className="text-[11px] text-muted-foreground leading-relaxed">
+                              A password reset request has been initiated for your <strong>{beautifiedEmailData.userType}</strong> access credential. To verify your identity and define a new access secret, use the authorization token below:
+                            </p>
+                            
+                            <div className="bg-secondary/30 border-2 border-dashed border-primary/30 p-4 rounded-xl text-center space-y-2 shadow-inner">
+                              <div className="font-black text-xl tracking-[0.4em] text-foreground flex items-center justify-center gap-2">
+                                {revealToken ? beautifiedEmailData.token : '••••••'}
+                              </div>
+                              <div className="flex items-center justify-center gap-3 pt-1">
+                                <button
+                                  type="button"
+                                  onClick={() => setRevealToken(!revealToken)}
+                                  className="text-[9px] font-bold text-primary hover:underline uppercase tracking-wider flex items-center gap-1"
+                                >
+                                  {revealToken ? "Hide Secret" : "Reveal Secret"}
+                                </button>
+                                {revealToken && (
+                                  <>
+                                    <span className="text-muted-foreground/30">•</span>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setResetToken(beautifiedEmailData.token);
+                                        toast.success('Secret token copied & auto-filled');
+                                      }}
+                                      className="text-[9px] font-bold text-emerald-600 hover:underline uppercase tracking-wider flex items-center gap-1"
+                                    >
+                                      Auto-fill Form
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                            
+                            <p className="text-[10px] text-amber-600 dark:text-amber-500 bg-amber-500/5 p-2.5 rounded-lg border border-amber-500/10 leading-relaxed italic">
+                              🛡️ <strong>Privacy Notice:</strong> In actual production deployments, this secret token is transmitted exclusively over secure SMTP directly to the recipient's personal inbox and is never exposed on the public web interface.
+                            </p>
+                            
+                            <div className="pt-3 border-t border-foreground/5 text-center text-[9px] text-muted-foreground/60">
+                              Institutional Matrix Node &copy; {beautifiedEmailData.dateYear}
+                            </div>
+                          </div>
                         </div>
-                        <span className="text-[8px] font-black uppercase text-primary tracking-widest bg-primary/10 px-2 py-0.5 rounded">Delivered</span>
-                      </div>
-                      <div className="p-5 space-y-4 text-left">
-                        <div className="text-center pb-3 border-b border-foreground/5">
-                          <h4 className="text-primary font-black text-base uppercase tracking-tight">CUI Vehari</h4>
-                          <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Clearance System Protocol</p>
-                        </div>
-                        <p className="text-xs text-foreground font-medium">Dear <strong>{beautifiedEmailData.recipientName}</strong>,</p>
-                        <p className="text-[11px] text-muted-foreground leading-relaxed">
-                          A password reset request has been initiated for your <strong>{beautifiedEmailData.userType}</strong> access credential. To verify your identity and define a new access secret, use the authorization token below:
-                        </p>
-                        <div className="bg-secondary/30 border-2 border-dashed border-primary/30 p-4 rounded-xl text-center font-black text-xl tracking-[0.4em] text-foreground shadow-inner">
-                          {beautifiedEmailData.token}
-                        </div>
-                        <p className="text-[11px] text-muted-foreground leading-relaxed">
-                          Please return to the login interface, input this secret token along with your new password to successfully regain terminal control.
-                        </p>
-                        <div className="pt-3 border-t border-foreground/5 text-center text-[9px] text-muted-foreground/60">
-                          Institutional Matrix Node &copy; {beautifiedEmailData.dateYear}
-                        </div>
-                      </div>
+                      )}
                     </div>
                   )}
                 </div>
