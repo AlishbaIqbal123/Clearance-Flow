@@ -94,18 +94,40 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
 
   const handleSendChat = async () => {
     if (!messageInput.trim() || !data?.activeRequest?.id || !chatOpenDept) return;
+    
+    const textToSend = messageInput.trim();
+    const tempMessage = {
+      id: `temp-${Date.now()}`,
+      message: textToSend,
+      author_model: 'Student',
+      department_id: chatOpenDept.department_id,
+      created_at: new Date().toISOString(),
+      authorName: 'You'
+    };
+
+    // Optimistic Update: Add message immediately
+    setData((prev: any) => ({
+      ...prev,
+      activeRequest: {
+        ...prev.activeRequest,
+        comments: [...(prev.activeRequest.comments || []), tempMessage]
+      }
+    }));
+
+    setMessageInput('');
     setSendingChat(true);
+
     try {
       const res = await studentService.sendDepartmentChat(data.activeRequest.id, {
         departmentId: chatOpenDept.department_id,
-        message: messageInput.trim()
+        message: textToSend
       });
       if (res.success) {
-        setMessageInput('');
         fetchDashboard();
       }
     } catch {
       toast.error('Failed to send message');
+      fetchDashboard(); // Revert/Sync on error
     } finally {
       setSendingChat(false);
     }

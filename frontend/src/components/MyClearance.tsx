@@ -47,13 +47,21 @@ const DepartmentCard = ({
   const [showChat, setShowChat] = useState(false);
   const [messageInput, setMessageInput] = useState('');
   const [sendingChat, setSendingChat] = useState(false);
+  const [optimisticMessages, setOptimisticMessages] = useState<any[]>([]);
+
+  useEffect(() => {
+    setOptimisticMessages([]);
+  }, [comments]);
 
   const isAcademic = dept.department?.type === 'academic';
   const phase1Cleared = (allStatuses || []).every((s: any) => 
     s.department?.type === 'academic' || s.status === 'cleared'
   );
 
-  const deptComments = comments.filter((c: any) => c.department_id === dept.department_id);
+  const deptComments = [
+    ...comments.filter((c: any) => c.department_id === dept.department_id),
+    ...optimisticMessages
+  ];
   const unreadCount = deptComments.filter((c: any) => c.author_model === 'Staff' && !c.read_by_student).length;
 
   const handleWhatsApp = () => {
@@ -102,18 +110,32 @@ const DepartmentCard = ({
 
   const handleSendChat = async () => {
     if (!messageInput.trim() || !requestId) return;
+    
+    const textToSend = messageInput.trim();
+    const tempMessage = {
+      id: `temp-${Date.now()}`,
+      message: textToSend,
+      author_model: 'Student',
+      department_id: dept.department_id,
+      created_at: new Date().toISOString(),
+      authorName: 'You'
+    };
+
+    setOptimisticMessages(prev => [...prev, tempMessage]);
+    setMessageInput('');
     setSendingChat(true);
+
     try {
       const res = await studentService.sendDepartmentChat(requestId, {
         departmentId: dept.department_id,
-        message: messageInput.trim()
+        message: textToSend
       });
       if (res.success) {
-        setMessageInput('');
         onRefresh();
       }
     } catch {
       toast.error('Failed to send message');
+      onRefresh();
     } finally {
       setSendingChat(false);
     }
