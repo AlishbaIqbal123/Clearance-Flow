@@ -445,7 +445,8 @@ router.post('/forgot-password',
     const table = type === 'student' ? 'student_profiles' : 'profiles';
 
     // Find user
-    let query = supabase.from(table).select('id, first_name, email, role');
+    const selectFields = type === 'student' ? 'id, first_name, email' : 'id, first_name, email, role';
+    let query = supabase.from(table).select(selectFields);
     
     if (type === 'student' && registrationNumber) {
       query = query.eq('registration_number', registrationNumber.toUpperCase());
