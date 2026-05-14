@@ -525,19 +525,10 @@ router.post('/forgot-password',
       // We don't throw here to avoid revealing user existence if it failed later
     }
 
-    // Prepare beautified email preview data so it renders exactly on the portal if no email received
-    const beautifiedEmail = {
-      recipientName: targetUser.first_name || 'User',
-      recipientEmail: targetUser.email,
-      userType: type,
-      token: resetToken,
-      dateYear: new Date().getFullYear()
-    };
-
     res.status(200).json({
       success: true,
       message: `Password reset instructions have been sent to ${maskedEmail}`,
-      data: { maskedEmail, resetToken, previewUrl, beautifiedEmail, isSimulated: targetUser.id === 'simulated-id' }
+      data: { maskedEmail, previewUrl, isSimulated: targetUser.id === 'simulated-id' }
     });
   })
 );
