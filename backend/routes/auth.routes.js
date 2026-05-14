@@ -460,24 +460,17 @@ router.post('/forgot-password',
 
     const { data: user } = await query.single();
 
-    let targetUser = user;
-    if (!targetUser) {
-      let fallbackEmail = email || '';
-      if (!fallbackEmail && type === 'student' && registrationNumber) {
-        fallbackEmail = `${registrationNumber.toLowerCase().replace(/[^a-z0-9]/g, '')}@cuivehari.edu.pk`;
-      } else if (!fallbackEmail) {
-        fallbackEmail = 'user@cuivehari.edu.pk';
-      }
-      targetUser = {
-        id: 'simulated-id',
-        first_name: type === 'student' ? 'Student' : 'Official',
-        email: fallbackEmail,
-        role: type
-      };
+    if (!user || !user.email) {
+      return res.status(404).json({
+        success: false,
+        message: type === 'student' 
+          ? 'No student account found associated with this registration number.' 
+          : 'No official account found associated with this email address.'
+      });
     }
 
     // Mask the email for display (e.g. abc......@gmail.com)
-    const userEmail = targetUser.email || '';
+    const userEmail = user.email;
     const [name, domain] = userEmail.split('@');
     const maskedEmail = name && domain ? (name.length > 3 
       ? name.substring(0, 3) + '......@' + domain 
@@ -487,23 +480,21 @@ router.post('/forgot-password',
     const resetToken = require('crypto').randomBytes(3).toString('hex').toUpperCase();
     const resetExpires = new Date(Date.now() + 3600000); // 1 hour
 
-    // Save token if real user
-    if (targetUser.id !== 'simulated-id') {
-      await supabase
-        .from(table)
-        .update({
-          password_reset_token: resetToken,
-          password_reset_expires: resetExpires.toISOString()
-        })
-        .eq('id', targetUser.id);
-    }
+    // Save token
+    await supabase
+      .from(table)
+      .update({
+        password_reset_token: resetToken,
+        password_reset_expires: resetExpires.toISOString()
+      })
+      .eq('id', user.id);
 
     // Dispatch email with reset token using reliable EmailService (with Ethereal preview fallback)
     let previewUrl = null;
     try {
       const emailResult = await emailService.sendPasswordResetEmail(
-        targetUser.email,
-        targetUser.first_name || 'User',
+        user.email,
+        user.first_name || 'User',
         resetToken,
         type
       );
@@ -511,15 +502,13 @@ router.post('/forgot-password',
         previewUrl = emailResult.previewUrl;
       }
 
-      if (targetUser.id !== 'simulated-id') {
-        await appsScript.sendPasswordResetLink({
-          email: targetUser.email,
-          firstName: targetUser.first_name || 'User',
-          resetToken: resetToken,
-          type: type // 'student' or 'staff'
-        });
-        console.log(`Password reset email dispatched to ${targetUser.email} via Apps Script`);
-      }
+      await appsScript.sendPasswordResetLink({
+        email: user.email,
+        firstName: user.first_name || 'User',
+        resetToken: resetToken,
+        type: type // 'student' or 'staff'
+      });
+      console.log(`Password reset email dispatched to ${user.email} via Apps Script`);
     } catch (emailError) {
       console.error('Failed to dispatch reset email:', emailError);
       // We don't throw here to avoid revealing user existence if it failed later
@@ -528,7 +517,7 @@ router.post('/forgot-password',
     res.status(200).json({
       success: true,
       message: `Password reset instructions have been sent to ${maskedEmail}`,
-      data: { maskedEmail, previewUrl, isSimulated: targetUser.id === 'simulated-id' }
+      data: { maskedEmail, previewUrl }
     });
   })
 );
@@ -557,13 +546,6 @@ router.post('/reset-password',
       .single();
 
     if (error || !user) {
-      // Allow simulated token reset to succeed so that UI demonstrations flow flawlessly
-      if (token && token.length === 6) {
-        return res.status(200).json({
-          success: true,
-          message: 'Password has been successfully reset. You can now login.'
-        });
-      }
       throw new AppError('Invalid or expired password reset token', 400);
     }
 
