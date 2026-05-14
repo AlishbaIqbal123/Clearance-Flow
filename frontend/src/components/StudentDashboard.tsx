@@ -727,6 +727,21 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                     >
                       <Phone className="w-3.5 h-3.5" />
                     </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="w-7 h-7 rounded-lg text-primary hover:bg-primary/10 opacity-0 group-hover:opacity-100 transition-all duration-500 scale-90 group-hover:scale-100"
+                      onClick={() => {
+                        const activeDept = data?.activeRequest?.clearance_status?.find((s: any) => s.department_id === dept.id);
+                        if (activeDept) {
+                          setChatOpenDept(activeDept);
+                        } else {
+                          toast.error('This department is not part of your current clearance sequence.');
+                        }
+                      }}
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                    </Button>
                   </div>
                 </div>
               ))}
