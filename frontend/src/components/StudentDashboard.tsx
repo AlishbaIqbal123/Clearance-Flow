@@ -88,6 +88,29 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
   const [degreePref, setDegreePref] = useState<{ method: 'dispatch' | 'manual' | '', address: string }>({ method: '', address: '' });
   const [prefSubmitting, setPrefSubmitting] = useState(false);
 
+  const [chatOpenDept, setChatOpenDept] = useState<any>(null);
+  const [messageInput, setMessageInput] = useState('');
+  const [sendingChat, setSendingChat] = useState(false);
+
+  const handleSendChat = async () => {
+    if (!messageInput.trim() || !data?.activeRequest?.id || !chatOpenDept) return;
+    setSendingChat(true);
+    try {
+      const res = await studentService.sendDepartmentChat(data.activeRequest.id, {
+        departmentId: chatOpenDept.department_id,
+        message: messageInput.trim()
+      });
+      if (res.success) {
+        setMessageInput('');
+        fetchDashboard();
+      }
+    } catch {
+      toast.error('Failed to send message');
+    } finally {
+      setSendingChat(false);
+    }
+  };
+
   const fetchDashboard = async () => {
     try {
       setLoading(true);
@@ -452,6 +475,9 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                         s.department?.type === 'academic' || s.status === 'cleared'
                       );
                       const isLocked = isAcademic && !phase1Cleared && ds.status === 'pending';
+                      
+                      const deptComments = (activeRequest.comments || []).filter((c: any) => c.department_id === ds.department_id);
+                      const unreadCount = deptComments.filter((c: any) => c.author_model === 'Staff' && !c.read_by_student).length;
 
                       return (
                         <div key={ds.id} className={`group relative p-5 rounded-2xl border-2 transition-all duration-700 flex flex-col min-h-[180px] ${isLocked ? 'bg-muted/5 border-muted/50 grayscale opacity-40' : 'bg-background/40 border-foreground/5 hover:bg-background hover:shadow-strong hover:border-primary/20'}`}>
@@ -523,6 +549,24 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                                       }}
                                     >
                                       <Mail className="w-4.5 h-4.5" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="w-10 h-10 rounded-2xl text-indigo-500 hover:bg-indigo-500/10 transition-all active:scale-90 relative"
+                                      onClick={() => {
+                                        setChatOpenDept(ds);
+                                        if (unreadCount > 0 && activeRequest.id) {
+                                          studentService.markDepartmentChatRead(activeRequest.id, ds.department_id).then(() => fetchDashboard());
+                                        }
+                                      }}
+                                    >
+                                      <MessageSquare className="w-4.5 h-4.5" />
+                                      {unreadCount > 0 && (
+                                        <Badge className="absolute -top-2 -right-2 bg-destructive text-white border-none rounded-full px-1.5 py-0 text-[8px] font-black animate-pulse shadow-strong min-w-[16px] flex items-center justify-center">
+                                          {unreadCount}
+                                        </Badge>
+                                      )}
                                     </Button>
                                  </div>
                                  <span className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.3em]">
@@ -671,6 +715,83 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
           </Card>
         </div>
       </div>
+
+      {/* Chat Dialog */}
+      <Dialog open={!!chatOpenDept} onOpenChange={(open) => {
+        if (!open) {
+          setChatOpenDept(null);
+          setMessageInput('');
+        }
+      }}>
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border border-primary/20 bg-background shadow-strong">
+          {chatOpenDept && (() => {
+            const currentComments = (data?.activeRequest?.comments || []).filter((c: any) => c.department_id === chatOpenDept.department_id);
+            return (
+              <div className="flex flex-col h-[500px]">
+                {/* Header */}
+                <div className="px-6 py-4 bg-primary/5 border-b border-primary/10 flex items-center justify-between shrink-0">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-primary animate-ping" />
+                    <span className="text-xs font-black uppercase tracking-widest text-foreground">
+                      {chatOpenDept.department?.name || 'Department'}
+                    </span>
+                  </div>
+                  <span className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic">
+                    Encrypted Relay
+                  </span>
+                </div>
+
+                {/* Messages Stream */}
+                <div className="p-6 flex-1 overflow-y-auto space-y-4 custom-scrollbar bg-background/30">
+                  {currentComments.length === 0 ? (
+                    <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest italic text-center py-8">
+                      No previous dialogue recorded. Initiate correspondence below.
+                    </p>
+                  ) : (
+                    currentComments.map((msg: any, idx: number) => {
+                      const isStudent = msg.author_model === 'Student';
+                      return (
+                        <div key={msg.id || idx} className={`flex flex-col ${isStudent ? 'items-end' : 'items-start'}`}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/60">
+                              {msg.authorName || (isStudent ? 'You' : 'Officer')}
+                            </span>
+                          </div>
+                          <div className={`px-4 py-3 rounded-2xl max-w-[85%] text-xs font-medium leading-relaxed ${isStudent ? 'bg-primary text-white rounded-br-sm shadow-soft shadow-primary/20' : 'bg-secondary text-foreground rounded-bl-sm border border-foreground/5'}`}>
+                            {msg.message}
+                          </div>
+                          <span className="text-[7px] font-bold text-muted-foreground/40 mt-1 uppercase tracking-widest">
+                            {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                {/* Message Form */}
+                <div className="p-4 bg-card border-t border-foreground/5 flex gap-3 shrink-0">
+                  <input
+                    type="text"
+                    placeholder="Transmit inquiry to department..."
+                    value={messageInput}
+                    onChange={(e) => setMessageInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleSendChat(); }}
+                    className="flex-1 h-12 bg-secondary/40 border-none rounded-xl px-4 text-xs font-bold outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                  <Button
+                    disabled={sendingChat || !messageInput.trim()}
+                    onClick={handleSendChat}
+                    className="h-12 w-12 rounded-xl bg-primary text-white shadow-strong shadow-primary/20 shrink-0 hover:scale-105 active:scale-95 transition-all p-0 flex items-center justify-center"
+                  >
+                    {sendingChat ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  </Button>
+                </div>
+              </div>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
