@@ -168,7 +168,25 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
       setSubmitting(false);
     }
   };
+  const handleUpdatePreference = async (method: 'dispatch' | 'manual') => {
+    if (method === 'dispatch' && !degreePref.address.trim()) {
+      toast.error('Shipping address required for dispatch');
+      return;
+    }
 
+    try {
+      setPrefSubmitting(true);
+      const res = await studentService.updateDegreePreference(activeRequest.id, {
+        method,
+        address: method === 'dispatch' ? degreePref.address : undefined
+      });
+
+      if (res.success) {
+        toast.success('Fulfillment strategy recorded');
+        fetchDashboard();
+      }
+    } catch (error) {
+      toast.error('Sync failed with fulfillment server');
     } finally {
       setPrefSubmitting(false);
     }
