@@ -102,7 +102,10 @@ router.get('/dashboard', adminPlus, asyncHandler(async (req, res) => {
     count
   }));
 
-  const { count: pendingClearance } = await supabase.from('clearance_requests').select('*', { count: 'exact', head: true }).eq('status', 'submitted');
+  const { count: pendingClearance } = await supabase
+    .from('clearance_requests')
+    .select('*', { count: 'exact', head: true })
+    .in('status', ['submitted', 'in_progress']);
   
   // Calculate dispatchPendingCount from clearance_requests where degree_fulfillment exists and status is not 'completed'
   const { data: allRequestsForDispatchCount } = await supabase.from('clearance_requests').select('status, degree_fulfillment');

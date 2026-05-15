@@ -157,10 +157,26 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
   const departmentStudentStats = data?.departmentStudentStats || [];
 
   const chartData = [
-    { name: 'Cleared', value: clearanceStats?.cleared || 0, color: '#10b981' },
-    { name: 'Pending', value: clearanceStats?.pending || 0, color: '#f59e0b' },
-    { name: 'In Review', value: clearanceStats?.in_review || 0, color: '#3b82f6' },
-    { name: 'Rejected', value: clearanceStats?.rejected || 0, color: '#ef4444' },
+    { 
+      name: 'Cleared', 
+      value: (clearanceStats?.cleared || 0) + (clearanceStats?.fully_cleared || 0) + (clearanceStats?.completed || 0), 
+      color: '#10b981' 
+    },
+    { 
+      name: 'Pending', 
+      value: (clearanceStats?.pending || 0) + (clearanceStats?.in_progress || 0) + (clearanceStats?.submitted || 0), 
+      color: '#f59e0b' 
+    },
+    { 
+      name: 'In Review', 
+      value: clearanceStats?.in_review || 0, 
+      color: '#3b82f6' 
+    },
+    { 
+      name: 'Rejected', 
+      value: clearanceStats?.rejected || 0, 
+      color: '#ef4444' 
+    },
   ];
 
   return (
