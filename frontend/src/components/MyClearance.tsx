@@ -59,9 +59,12 @@ const DepartmentCard = ({
   );
 
   // Synthesize comments to include the latest official remark if it's not already in the stream
-  const baseComments = (comments || []).filter((c: any) => c.department_id === dept.department_id || !c.department_id);
+  const baseComments = (comments || []).filter((c: any) => 
+    (c.department_id && (String(c.department_id) === String(dept.department_id) || String(c.department_id) === String(dept.department?.id))) || 
+    !c.department_id
+  );
   const remarkInComments = baseComments.some((c: any) => 
-    c.message?.trim() === dept.remarks?.trim() && (c.is_notification || c.author_model === 'Staff')
+    c.message?.trim() === dept.remarks?.trim()
   );
   
   const deptComments = [
