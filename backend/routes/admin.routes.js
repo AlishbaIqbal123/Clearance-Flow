@@ -1351,7 +1351,7 @@ router.post('/dispatch-requests/:id/complete',
       .update({ 
         degree_fulfillment,
         timeline,
-        status: 'completed' // Final terminal status
+        status: 'fully_cleared' // Final terminal status
       })
       .eq('id', id);
 
@@ -1359,7 +1359,7 @@ router.post('/dispatch-requests/:id/complete',
 
     // Update student profile to final completed state
     await supabase.from('student_profiles')
-      .update({ clearance_status: 'completed' })
+      .update({ clearance_status: 'fully_cleared' })
       .eq('id', request.student_id);
 
     // Notify student

@@ -78,5 +78,10 @@ export const studentService = {
   markDepartmentChatRead: async (id: string, departmentId: string) => {
     const response = await api.post(`/students/clearance-request/${id}/mark-chat-read`, { departmentId });
     return response.data;
+  },
+  
+  confirmDegreeReceipt: async (requestId: string) => {
+    const response = await api.post(`/students/clearance-request/${requestId}/confirm-receipt`);
+    return response.data;
   }
 };

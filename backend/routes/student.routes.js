@@ -1070,4 +1070,71 @@ router.post('/clearance-request/:id/degree-preference',
   })
 );
 
+/**
+ * @route   POST /api/students/clearance-request/:id/confirm-receipt
+ * @desc    Confirm degree receipt by student
+ * @access  Student
+ */
+router.post('/clearance-request/:id/confirm-receipt',
+  studentOnly,
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const studentId = req.user.id;
+
+    const { data: request, error: fetchError } = await supabase
+      .from('clearance_requests')
+      .select('*, student:student_id(*)')
+      .eq('id', id)
+      .eq('student_id', studentId)
+      .single();
+
+    if (fetchError || !request) {
+      throw new AppError('Clearance request not found', 404, 'REQUEST_NOT_FOUND');
+    }
+
+    const degree_fulfillment = request.degree_fulfillment || {};
+    degree_fulfillment.received_by_student = true;
+    degree_fulfillment.received_at = new Date().toISOString();
+
+    const timeline = request.timeline || [];
+    timeline.push({
+      action: 'degree_received',
+      performedBy: studentId,
+      performedByModel: 'Student',
+      description: `Student confirmed receipt of the degree.`,
+      timestamp: new Date().toISOString()
+    });
+
+    const comments = request.comments || [];
+    comments.push({
+      author: studentId,
+      authorName: req.user.fullName,
+      author_model: 'Student',
+      message: `I have successfully received my degree. The clearance process is now complete.`,
+      is_internal: false,
+      is_fulfillment_update: true,
+      created_at: new Date().toISOString()
+    });
+
+    // Mark as fully cleared
+    const { error: updateError } = await supabase
+      .from('clearance_requests')
+      .update({ 
+        degree_fulfillment,
+        timeline,
+        comments,
+        status: 'fully_cleared' // New final state
+      })
+      .eq('id', id);
+
+    if (updateError) throw updateError;
+
+    res.status(200).json({
+      success: true,
+      message: 'Degree receipt confirmed. Clearance complete.',
+      data: { degree_fulfillment }
+    });
+  })
+);
+
 module.exports = router;

@@ -169,27 +169,26 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
     }
   };
 
-  const handleUpdatePreference = async (method: 'dispatch' | 'manual') => {
-    if (method === 'dispatch' && !degreePref.address.trim()) {
-      toast.error('Shipping address required for dispatch');
-      return;
-    }
-
-    try {
-      setPrefSubmitting(true);
-      const res = await studentService.updateDegreePreference(activeRequest.id, {
-        method,
-        address: method === 'dispatch' ? degreePref.address : undefined
-      });
-
-      if (res.success) {
-        toast.success('Fulfillment strategy recorded');
-        fetchDashboard();
-      }
-    } catch (error) {
-      toast.error('Sync failed with fulfillment server');
     } finally {
       setPrefSubmitting(false);
+    }
+  };
+
+  const handleConfirmReceipt = async () => {
+    if (!activeRequest?.id) return;
+    if (!window.confirm('By confirming receipt, you acknowledge that you have physically received your degree and your clearance protocol will be finalized. Continue?')) return;
+
+    try {
+      setSubmitting(true);
+      const res = await studentService.confirmDegreeReceipt(activeRequest.id);
+      if (res.success) {
+        toast.success('Congratulations! Your clearance is fully finalized.');
+        fetchDashboard();
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Confirmation failed');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -371,42 +370,64 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
         </div>
       )}
 
-      {/* Fulfillment Status Section - Appears after Selection */}
+      {/* Fulfillment Status Section - Phase 3 */}
       {activeRequest?.degree_fulfillment && Object.keys(activeRequest.degree_fulfillment).length > 0 && (
         <div className="animate-in zoom-in-95 slide-in-from-top-12 duration-1000 ease-out">
-          <Card className="border-none shadow-strong rounded-[2.5rem] bg-emerald-950 text-white overflow-hidden relative group">
+          <Card className={`border-none shadow-strong rounded-[2.5rem] ${activeRequest.status === 'fully_cleared' ? 'bg-foreground' : 'bg-emerald-950'} text-white overflow-hidden relative group transition-colors duration-700`}>
             <div className="absolute top-0 right-0 w-[40%] h-full bg-emerald-500/20 rounded-full -mr-[15%] -mt-[10%] blur-[120px]" />
             
             <div className="flex flex-col lg:flex-row items-center gap-10 p-8 sm:p-12 relative z-10">
               <div className="w-20 h-20 sm:w-24 sm:h-24 bg-emerald-500/20 rounded-[2rem] flex items-center justify-center backdrop-blur-xl border border-emerald-500/30">
-                <Truck className="w-10 h-10 sm:w-12 sm:h-12 text-emerald-400" />
+                {activeRequest.status === 'fully_cleared' ? <ShieldCheck className="w-10 h-10 sm:w-12 sm:h-12 text-primary" /> : <Truck className="w-10 h-10 sm:w-12 sm:h-12 text-emerald-400" />}
               </div>
               
               <div className="flex-1 text-center lg:text-left space-y-4">
                 <div className="space-y-1">
-                  <Badge className="bg-emerald-500 text-white border-none font-black text-[9px] uppercase tracking-[0.4em] px-4 py-1.5 rounded-full shadow-lg mb-2">Fulfillment in Progress</Badge>
+                  <Badge className={`${activeRequest.status === 'fully_cleared' ? 'bg-primary' : 'bg-emerald-500'} text-white border-none font-black text-[9px] uppercase tracking-[0.4em] px-4 py-1.5 rounded-full shadow-lg mb-2`}>
+                    {activeRequest.status === 'fully_cleared' ? 'PROTOCOL COMPLETE' : 'Phase 3: Degree Fulfillment'}
+                  </Badge>
                   <h3 className="text-3xl font-black tracking-tighter uppercase leading-none">
-                    {activeRequest.degree_fulfillment.method === 'dispatch' ? 'Dispatch Request Sent' : 'Manual Pickup Scheduled'}
+                    {activeRequest.status === 'fully_cleared' 
+                      ? 'Clearance Fully Finalized' 
+                      : activeRequest.degree_fulfillment.method === 'dispatch' ? 'Dispatch Process Active' : 'Manual Pickup Available'}
                   </h3>
                 </div>
                 <p className="text-sm font-bold text-emerald-100/60 uppercase tracking-widest max-w-xl">
-                  {activeRequest.degree_fulfillment.method === 'dispatch' 
-                    ? `Your degree is being prepared for dispatch to: ${activeRequest.degree_fulfillment.address}`
-                    : 'Your degree is available for pickup at the Registrar Office during official hours.'}
+                  {activeRequest.status === 'fully_cleared'
+                    ? `Institutional protocol closed. Degree successfully allotted and received on ${new Date(activeRequest.degree_fulfillment.received_at || Date.now()).toLocaleDateString()}.`
+                    : activeRequest.degree_fulfillment.method === 'dispatch' 
+                      ? `Your degree is being prepared for dispatch to: ${activeRequest.degree_fulfillment.address}`
+                      : 'Your degree is available for pickup at the Registrar Office. Please confirm once you receive it.'}
                 </p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+                {activeRequest.degree_fulfillment.notification_sent && !activeRequest.degree_fulfillment.received_by_student && (
+                  <Button 
+                    className="h-16 sm:h-20 px-10 rounded-[1.75rem] bg-primary text-white hover:bg-primary/90 font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 min-w-[240px] shadow-lg shadow-primary/20 animate-pulse"
+                    onClick={handleConfirmReceipt}
+                    disabled={submitting}
+                  >
+                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                      <CheckCircle2 className="w-5 h-5" />
+                    </div>
+                    <div className="text-left">
+                      <span className="block font-black">Yes, I've Received It</span>
+                      <span className="block text-[7px] text-white/60 mt-0.5 font-bold">Finalize Protocol Now</span>
+                    </div>
+                  </Button>
+                )}
+                
                 <Button 
-                  className="h-16 sm:h-20 px-10 rounded-[1.75rem] bg-white text-emerald-950 hover:bg-emerald-50 font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 min-w-[240px] shadow-lg shadow-emerald-900/20"
+                  className={`h-16 sm:h-20 px-10 rounded-[1.75rem] ${activeRequest.status === 'fully_cleared' ? 'bg-primary/10 text-primary' : 'bg-white text-emerald-950'} hover:opacity-90 font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 min-w-[240px] shadow-lg`}
                   onClick={() => window.location.href = 'mailto:registrar@university.edu?subject=Clearance Fulfillment Inquiry'}
                 >
-                  <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-                    <MessageSquare className="w-5 h-5 text-emerald-600" />
+                  <div className={`w-10 h-10 ${activeRequest.status === 'fully_cleared' ? 'bg-primary/20' : 'bg-emerald-100'} rounded-xl flex items-center justify-center`}>
+                    <MessageSquare className={`w-5 h-5 ${activeRequest.status === 'fully_cleared' ? 'text-primary' : 'text-emerald-600'}`} />
                   </div>
                   <div className="text-left">
-                    <span className="block font-black">Support Center</span>
-                    <span className="block text-[7px] text-emerald-950/40 mt-0.5 font-bold">Contact for Inquiries</span>
+                    <span className="block font-black">Institutional Support</span>
+                    <span className="block text-[7px] opacity-40 mt-0.5 font-bold">Support ID: {activeRequest.id.slice(0, 8)}</span>
                   </div>
                 </Button>
               </div>

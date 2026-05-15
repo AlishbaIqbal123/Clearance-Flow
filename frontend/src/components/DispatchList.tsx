@@ -528,8 +528,8 @@ export const DispatchList = () => {
 
       {/* View Details Dialog */}
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <DialogContent className="sm:max-w-[600px] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background">
-          <div className="bg-foreground p-8 text-background relative overflow-hidden">
+        <DialogContent className="sm:max-w-[600px] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background max-h-[90vh] flex flex-col">
+          <div className="bg-foreground p-8 text-background relative overflow-hidden shrink-0">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full -mr-32 -mt-32 blur-[80px]" />
             <div className="relative z-10 flex items-center gap-6">
               <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center text-primary backdrop-blur-xl border border-white/5">
@@ -542,7 +542,8 @@ export const DispatchList = () => {
             </div>
           </div>
           
-          <div className="p-8 space-y-8 bg-card/40 backdrop-blur-3xl">
+          <ScrollArea className="flex-1">
+            <div className="p-8 space-y-8 bg-card/40 backdrop-blur-3xl">
             {/* Student Info */}
             <div className="space-y-4">
               <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Recipient Identity</h4>
@@ -648,16 +649,33 @@ export const DispatchList = () => {
               </div>
             </div>
 
+            {/* Protocol Controls */}
+            <div className="space-y-4 pt-4">
+              <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Protocol Controls</h4>
+              <div className="grid grid-cols-1 gap-4">
+                 <Button 
+                   className="h-16 rounded-2xl bg-foreground text-background hover:bg-primary hover:text-white transition-all font-black text-[11px] uppercase tracking-[0.3em] flex items-center gap-4 group"
+                   onClick={() => handleCompleteDispatch(selectedRequest)}
+                   disabled={!selectedRequest?.degree_fulfillment || selectedRequest?.status === 'completed'}
+                 >
+                   <div className="w-8 h-8 bg-background/10 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <PackageCheck className="w-4 h-4" />
+                   </div>
+                   {selectedRequest?.status === 'completed' ? 'Protocol Finalized' : 'Confirm Institutional Handover'}
+                 </Button>
+              </div>
+            </div>
+
             <div className="flex gap-4">
               <Button 
                 variant="ghost" 
                 className="h-14 flex-1 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:bg-secondary/80" 
                 onClick={() => setIsViewOpen(false)}
               >
-                Close
+                Close View
               </Button>
               <Button 
-                className="h-14 flex-1 rounded-2xl bg-foreground text-white hover:bg-primary transition-all font-black text-[10px] uppercase tracking-[0.2em]"
+                className="h-14 flex-1 rounded-2xl bg-secondary/50 hover:bg-primary hover:text-white transition-all text-foreground font-black text-[10px] uppercase tracking-[0.2em]"
                 onClick={() => {
                   setEditForm({
                     method: selectedRequest?.degree_fulfillment?.method || 'manual',
@@ -669,10 +687,11 @@ export const DispatchList = () => {
                   setIsEditOpen(true);
                 }}
               >
-                Manage Logistics
+                Modify Data
               </Button>
             </div>
           </div>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </div>
