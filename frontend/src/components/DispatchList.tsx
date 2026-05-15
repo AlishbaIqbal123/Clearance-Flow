@@ -543,7 +543,7 @@ export const DispatchList = () => {
 
       {/* View Details Dialog */}
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <DialogContent className="sm:max-w-[700px] w-[95vw] h-[85vh] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background flex flex-col">
+        <DialogContent className="sm:max-w-[700px] w-[95vw] max-h-[90vh] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background flex flex-col">
           <div className="bg-foreground p-8 text-background relative overflow-hidden shrink-0">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full -mr-32 -mt-32 blur-[80px]" />
             <div className="relative z-10 flex items-center gap-6">
@@ -557,12 +557,12 @@ export const DispatchList = () => {
             </div>
           </div>
           
-          <ScrollArea className="flex-1">
-            <div className="p-8 space-y-8 bg-card/40 backdrop-blur-3xl">
+          <ScrollArea className="flex-1 overflow-y-auto">
+            <div className="p-6 space-y-6 bg-card/40 backdrop-blur-3xl">
             {/* Student Info */}
-            <div className="space-y-4">
+            <div className="space-y-3">
               <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Recipient Identity</h4>
-              <div className="flex items-center gap-5 p-6 bg-secondary/50 rounded-[2rem] border border-foreground/5">
+              <div className="flex items-center gap-4 p-5 bg-secondary/50 rounded-[2rem] border border-foreground/5">
                 <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center font-black text-primary text-xl">
                   {selectedRequest?.student?.first_name?.charAt(0)}
                 </div>
@@ -578,9 +578,9 @@ export const DispatchList = () => {
             </div>
 
             {/* Address & Tracking Info */}
-            <div className="space-y-4">
+            <div className="space-y-3">
               <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Fulfillment Status</h4>
-              <div className="p-8 bg-white rounded-[2.5rem] border border-foreground/5 shadow-soft space-y-6">
+              <div className="p-6 bg-white rounded-[2.5rem] border border-foreground/5 shadow-soft space-y-4">
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
                     <MapPin className="w-5 h-5 text-primary" />
@@ -631,7 +631,7 @@ export const DispatchList = () => {
             </div>
 
             {/* Notification Actions */}
-            <div className="p-8 bg-primary/5 rounded-[2.5rem] border border-primary/10 space-y-6">
+            <div className="p-6 bg-primary/5 rounded-[2.5rem] border border-primary/10 space-y-4">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
                   <BellRing className="w-5 h-5 text-primary" />
@@ -665,7 +665,7 @@ export const DispatchList = () => {
             </div>
 
             {/* Protocol Controls */}
-            <div className="space-y-4 pt-4">
+            <div className="space-y-3 pt-2">
               <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Protocol Controls</h4>
               <div className="grid grid-cols-1 gap-4">
                   <Button 
