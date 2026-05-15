@@ -1099,7 +1099,8 @@ router.post('/reset-student-password/:id', asyncHandler(async (req, res) => {
     throw new AppError('Student not found', 404, 'STUDENT_NOT_FOUND');
   }
   
-  const hashedPassword = await bcrypt.hash(student.registration_number, 12);
+  const defaultPassword = 'university123';
+  const hashedPassword = await bcrypt.hash(defaultPassword, 12);
 
   await supabase.from('student_profiles')
     .update({

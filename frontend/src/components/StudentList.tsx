@@ -100,6 +100,7 @@ export const StudentList = ({ user }: { user: any }) => {
     departmentId: ''
   });
   const [selectedDeptFilter, setSelectedDeptFilter] = useState('all');
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState('all');
   const [departments, setDepartments] = useState<any[]>([]);
 
   const fetchStudents = async () => {
@@ -142,8 +143,9 @@ export const StudentList = ({ user }: { user: any }) => {
       (s.batch?.toString() || '').includes(searchLower);
     
     const matchesDept = selectedDeptFilter === 'all' || s.department_id === selectedDeptFilter;
+    const matchesStatus = selectedStatusFilter === 'all' || s.clearance_status === selectedStatusFilter;
     
-    return matchesSearch && matchesDept;
+    return matchesSearch && matchesDept && matchesStatus;
   });
 
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -300,6 +302,25 @@ export const StudentList = ({ user }: { user: any }) => {
                    {departments.filter(d => d.type === 'academic').map(dept => (
                      <SelectItem key={dept.id} value={dept.id} className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">{dept.name}</SelectItem>
                    ))}
+                </SelectContent>
+              </Select>
+
+              <Select 
+                value={selectedStatusFilter} 
+                onValueChange={setSelectedStatusFilter}
+              >
+                <SelectTrigger className="rounded-lg h-10 w-full lg:w-[180px] font-black text-[9px] uppercase tracking-widest px-4 bg-secondary/50 border-none shadow-inner focus:ring-2 focus:ring-primary/10 transition-all">
+                   <div className="flex items-center gap-2">
+                      <Activity className="w-3.5 h-3.5 text-primary opacity-40" />
+                      <SelectValue placeholder="All Status" />
+                   </div>
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border-none shadow-strong p-1 bg-background/95 backdrop-blur-2xl">
+                  <SelectItem value="all" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">All Status</SelectItem>
+                  <SelectItem value="not_started" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Not Started</SelectItem>
+                  <SelectItem value="pending" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">In Progress</SelectItem>
+                  <SelectItem value="cleared" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Cleared</SelectItem>
+                  <SelectItem value="rejected" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">On Hold</SelectItem>
                 </SelectContent>
               </Select>
            </div>
@@ -469,7 +490,7 @@ export const StudentList = ({ user }: { user: any }) => {
                             <Button 
                               variant="outline" 
                               className="rounded-xl font-black text-[10px] uppercase tracking-[0.3em] px-12 h-12 border-foreground/10 hover:border-primary/40 hover:text-primary transition-all active:scale-95" 
-                              onClick={() => { setSearch(''); setSelectedDeptFilter('all'); }}
+                              onClick={() => { setSearch(''); setSelectedDeptFilter('all'); setSelectedStatusFilter('all'); }}
                             >
                               Reset Registry Filter
                             </Button>
