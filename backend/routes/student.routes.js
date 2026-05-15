@@ -406,9 +406,7 @@ router.post('/clearance-request',
       .eq('is_active', true);
 
     const departments = (allDepts || []).filter(d =>
-      (d.type !== 'academic' || d.id === studentProfile?.department_id) &&
-      d.type !== 'exam' &&
-      d.contact_info?.custom_type !== 'exam'
+      (d.type !== 'academic' || d.id === studentProfile?.department_id)
     );
     
     // Generate request ID using Registration Number
