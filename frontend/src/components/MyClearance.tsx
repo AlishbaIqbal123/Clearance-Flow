@@ -10,7 +10,7 @@ import {
   Layers, Globe, Lock, History, ShieldAlert,
   X, UserCircle, Search, Filter, LayoutGrid, List,
   Download, MoreHorizontal, Database, ArrowUp,
-  CreditCard, Wallet, Fingerprint, Check, MessageSquare, Send
+  CreditCard, Wallet, Fingerprint, Check, MessageSquare, Send, Award
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
