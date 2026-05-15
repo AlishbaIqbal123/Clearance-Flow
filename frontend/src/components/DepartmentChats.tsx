@@ -117,7 +117,7 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
     const deptId = user?.department_id || user?.department?.id;
     // Filter comments addressed to this department or legacy messages with no dept ID
     const deptComments = comments.filter((c: any) => 
-      c.department_id === deptId || !c.department_id
+      (c.department_id && String(c.department_id) === String(deptId)) || !c.department_id
     );
     
     const unreadCount = deptComments.filter((c: any) => 
@@ -134,7 +134,7 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
     
     const combinedComments = [
       ...(deptStatus?.remarks && deptStatus.remarks.trim() && !remarkInComments ? [{
-        id: `remark-${deptStatus.id}-${Date.now()}`,
+        id: `remark-${deptStatus.id || 'initial'}-${Date.now()}`,
         message: deptStatus.remarks,
         author_model: 'Staff',
         authorName: 'System Record',
