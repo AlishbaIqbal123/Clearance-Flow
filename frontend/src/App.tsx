@@ -26,6 +26,18 @@ const App: React.FC = () => {
   const [loading, setLoading] = React.useState(true);
   const [activeTab, setActiveTab] = React.useState('dashboard');
   const [authView, setAuthView] = React.useState<'landing' | 'login' | 'register'>('landing');
+  const [activeRequest, setActiveRequest] = React.useState<any>(null);
+
+  const fetchClearanceStatus = async () => {
+    try {
+      const res = await studentService.getDashboard();
+      if (res.success) {
+        setActiveRequest(res.data.activeRequest);
+      }
+    } catch (err) {
+      console.error('Failed to sync clearance status');
+    }
+  };
 
   React.useEffect(() => {
     const checkAuth = async () => {
@@ -35,6 +47,9 @@ const App: React.FC = () => {
           const res = await authService.getMe();
           if (res.success) {
             setUser(res.data.user);
+            if (res.data.user.role === 'student') {
+              fetchClearanceStatus();
+            }
           } else {
             authService.logout();
           }
@@ -153,6 +168,8 @@ const App: React.FC = () => {
         return <MyClearance filterType="academic" />;
       case 'my-clearance':
         return <MyClearance />;
+      case 'degree-allotment':
+        return <StudentDashboard mode="fulfillment" />;
       case 'dispatch':
         if (user.role === 'admin' || user.role === 'exam_officer') return <DispatchList />;
         return <div className="p-8 text-center text-slate-400 font-bold">ACCESS DENIED</div>;
@@ -168,6 +185,7 @@ const App: React.FC = () => {
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
         onLogout={handleLogout}
+        isPhase3Unlocked={activeRequest?.status === 'cleared' || activeRequest?.status === 'fully_cleared'}
       >
         {renderView()}
       </DashboardLayout>

@@ -30,7 +30,8 @@ import {
   Globe,
   Truck,
   MessageSquare,
-  Award
+  Award,
+  Lock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -70,9 +71,10 @@ interface DashboardLayoutProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   onLogout: () => void;
+  isPhase3Unlocked?: boolean;
 }
 
-export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLogout }: DashboardLayoutProps) => {
+export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLogout, isPhase3Unlocked = false }: DashboardLayoutProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -262,6 +264,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
     { id: 'settings', label: 'Settings', icon: Settings, roles: ['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer', 'exam_officer'] },
     { id: 'admin-clearance', label: 'Phase 1: Admin', icon: Shield, roles: ['student'] },
     { id: 'academic-clearance', label: 'Phase 2: Academic', icon: Trophy, roles: ['student'] },
+    { id: 'degree-allotment', label: 'Phase 3: Degree', icon: Award, roles: ['student'], isLocked: !isPhase3Unlocked },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, roles: ['admin', 'hod'] },
     { id: 'users', label: 'Staff List', icon: Users, roles: ['admin'] }
   ];
@@ -297,29 +300,29 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
               {filteredItems.map((item) => {
                 const Icon = item.icon;
                 const active = activeTab === item.id;
+                const isLocked = (item as any).isLocked;
+                
                 return (
                   <button
                     key={item.id}
-                    onClick={() => {
-                      setActiveTab(item.id);
-                      setIsSidebarOpen(false);
-                    }}
+                    onClick={() => !isLocked && setActiveTab(item.id)}
+                    disabled={isLocked}
                     className={`
-                      w-full flex items-center gap-3 px-5 py-3 rounded-2xl text-[12px] font-bold transition-all duration-500 group relative
-                      ${active 
-                        ? 'bg-primary text-white shadow-strong shadow-primary/30 scale-[1.02]' 
-                        : 'text-muted-foreground hover:bg-secondary hover:text-primary'
-                      }
+                      w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-500 group relative overflow-hidden
+                      ${active ? 'bg-primary text-white shadow-strong shadow-primary/20 scale-[1.02]' : 'text-muted-foreground hover:bg-card hover:text-foreground'}
+                      ${isLocked ? 'opacity-30 grayscale cursor-not-allowed' : 'cursor-pointer active:scale-95'}
                     `}
                   >
-                    <Icon className={`w-4 h-4 transition-all duration-500 ${active ? 'text-white' : 'text-muted-foreground group-hover:text-primary group-hover:scale-110'}`} />
-                    <span className="tracking-tight flex-1 text-left">{item.label}</span>
-                    {item.id === 'dept-chats' && unreadChatCount > 0 && (
+                    {active && <div className="absolute inset-0 bg-white/10 shimmer" />}
+                    <Icon className={`w-5 h-5 transition-all duration-700 ${active ? 'scale-110 rotate-3' : 'group-hover:scale-110 group-hover:-rotate-3'} ${isLocked ? 'opacity-50' : ''}`} />
+                    <span className="font-black text-[10px] uppercase tracking-[0.2em] relative z-10">{item.label}</span>
+                    {isLocked && <Lock className="w-3 h-3 ml-auto opacity-50" />}
+                    {item.id === 'dept-chats' && unreadChatCount > 0 && !isLocked && (
                       <span className="px-2 py-0.5 rounded-full bg-destructive text-white text-[9px] font-black animate-pulse shadow-sm">
                         {unreadChatCount}
                       </span>
                     )}
-                    {active && item.id !== 'dept-chats' && (
+                    {active && (
                       <div className="absolute right-4 w-1 h-1 bg-white rounded-full animate-pulse shadow-[0_0_10px_white]" />
                     )}
                     {!active && (

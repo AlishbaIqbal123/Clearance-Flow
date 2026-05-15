@@ -544,6 +544,9 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
   const activeRequest = data?.activeRequest;
   const allDepartments: any[] = activeRequest?.clearance_status || [];
   const departments = allDepartments.filter(dept => {
+    // EXCLUDE EXAM FROM P1/P2 - It is for Phase 3 only
+    if (dept.department?.code === 'EXD') return false;
+    
     if (!filterType) return true;
     const isAcademic = dept.department?.type === 'academic';
     return filterType === 'academic' ? isAcademic : !isAcademic;
