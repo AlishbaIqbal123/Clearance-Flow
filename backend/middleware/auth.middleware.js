@@ -86,11 +86,18 @@ const authenticate = async (req, res, next) => {
       });
     }
     
-    // Attach user info to request — include department_id for dept-scoped queries
+    // Attach user info to request
+    let role = decoded.userType === 'student' ? 'student' : user.role;
+    
+    // Map Exam Department staff to exam_officer role for granular authorization
+    if (role === 'department_officer' && user.department?.contact_info?.custom_type === 'exam') {
+      role = 'exam_officer';
+    }
+
     req.user = {
       id: user.id,
       email: user.email,
-      role: decoded.userType === 'student' ? 'student' : user.role,
+      role: role,
       userType: decoded.userType,
       department: user.department || null,
       department_id: user.department_id || user.department?.id || null,
