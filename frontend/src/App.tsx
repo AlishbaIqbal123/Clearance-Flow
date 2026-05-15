@@ -180,6 +180,25 @@ const App: React.FC = () => {
     }
   };
 
+  const clearanceStatuses = activeRequest?.clearance_status || [];
+  
+  // Phase 1 (Admin/Non-Academic): Unlocked if there is an active request
+  const isPhase1Unlocked = !!activeRequest;
+  
+  // Phase 2 (Academic): Unlocked if ALL Phase 1 departments (non-academic) are 'cleared'
+  const isPhase2Unlocked = isPhase1Unlocked && 
+    clearanceStatuses.length > 0 && 
+    clearanceStatuses
+      .filter((s: any) => s.department?.type !== 'academic' && s.department?.code !== 'EXD')
+      .every((s: any) => s.status === 'cleared');
+
+  // Phase 3 (Degree): Unlocked if ALL departments (including Phase 2 Academic) are 'cleared'
+  // (EXD/Exam department is excluded from this check as it is the terminal node for Phase 3)
+  const isPhase3Unlocked = isPhase2Unlocked && 
+    clearanceStatuses
+      .filter((s: any) => s.department?.type === 'academic')
+      .every((s: any) => s.status === 'cleared');
+
   return (
     <>
       <DashboardLayout 
@@ -187,12 +206,9 @@ const App: React.FC = () => {
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
         onLogout={handleLogout}
-        isPhase3Unlocked={
-          activeRequest?.status === 'cleared' || 
-          activeRequest?.status === 'fully_cleared' || 
-          (activeRequest?.clearance_status && activeRequest.clearance_status.length > 0 && 
-           activeRequest.clearance_status.every((s: any) => s.department?.code === 'EXD' || s.status === 'cleared'))
-        }
+        isPhase1Unlocked={isPhase1Unlocked}
+        isPhase2Unlocked={isPhase2Unlocked}
+        isPhase3Unlocked={isPhase3Unlocked}
       >
         {renderView()}
       </DashboardLayout>
