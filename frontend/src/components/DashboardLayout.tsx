@@ -274,7 +274,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
   return (
     <div className="min-h-screen bg-background flex flex-col lg:flex-row font-sans selection:bg-primary/10">
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-56 bg-card/80 backdrop-blur-3xl border-r border-foreground/5 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]
+        fixed inset-y-0 left-0 z-50 w-56 bg-card/80 backdrop-blur-3xl border-r border-foreground/5 transition-all duration-700 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)]
         ${isSidebarOpen ? 'translate-x-0 shadow-strong' : '-translate-x-full lg:translate-x-0'}
       `}>
         <div className="flex flex-col h-screen max-h-screen overflow-hidden">
