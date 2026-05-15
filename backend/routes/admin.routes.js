@@ -1175,14 +1175,13 @@ router.get('/dispatch-requests',
     const { data, error } = await supabase
       .from('clearance_requests')
       .select('*, student:student_id(*)')
-      .not('degree_fulfillment', 'is', null)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
 
     // Filter in JS because Supabase JSONB filtering can be tricky for nested values
-    const dispatchRequests = data.filter(req => 
-      req.status === 'cleared'
+    const dispatchRequests = (data || []).filter(req => 
+      req.status === 'cleared' || req.status === 'completed'
     );
 
     res.status(200).json({
