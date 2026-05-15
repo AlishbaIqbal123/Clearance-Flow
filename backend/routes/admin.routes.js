@@ -404,7 +404,8 @@ router.delete('/users/:id',
  * @access  Admin
  */
 router.get('/students', hodOrAdmin, asyncHandler(async (req, res) => {
-  const { 
+  const emailService = require('../services/email.service');
+const { 
     department, 
     batch, 
     clearanceStatus, 
@@ -1354,6 +1355,15 @@ router.post('/dispatch-requests/:id/complete',
         status: 'fully_cleared' // Final terminal status
       })
       .eq('id', id);
+
+    // Fire-and-forget email notification
+    if (request.student?.email) {
+      emailService.sendDegreeReceiptEmail(
+        request.student.email, 
+        request.student.first_name, 
+        degree_fulfillment.method
+      ).catch(err => console.error('Degree receipt email failed:', err));
+    }
 
     if (updateError) throw updateError;
 

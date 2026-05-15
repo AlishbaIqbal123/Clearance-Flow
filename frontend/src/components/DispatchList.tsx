@@ -51,6 +51,7 @@ export const DispatchList = () => {
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('all');
   const [editForm, setEditForm] = useState({
     method: 'manual',
     address: '',
@@ -133,12 +134,18 @@ export const DispatchList = () => {
     }
   };
 
-  const filteredRequests = requests.filter(req => 
-    req.student?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    req.student?.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    req.student?.registration_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    req.degree_fulfillment?.address?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredRequests = requests.filter(req => {
+    const matchesSearch = 
+      req.student?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      req.student?.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      req.student?.registration_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      req.degree_fulfillment?.address?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    if (statusFilter === 'all') return matchesSearch;
+    
+    const status = req.status === 'fully_cleared' || req.status === 'completed' ? 'done' : (!req.degree_fulfillment ? 'pending' : 'ready');
+    return matchesSearch && status === statusFilter;
+  });
 
   if (loading) {
     return (
@@ -173,19 +180,30 @@ export const DispatchList = () => {
         </div>
 
         <div className="relative z-10 flex flex-wrap gap-4">
+          <div className="flex bg-white/10 p-1.5 rounded-2xl backdrop-blur-md shadow-inner border border-white/5">
+            {['all', 'pending', 'ready', 'done'].map((status) => (
+              <button
+                key={status}
+                onClick={() => setStatusFilter(status)}
+                className={`px-6 py-3 rounded-xl font-black text-[9px] uppercase tracking-[0.2em] transition-all ${
+                  statusFilter === status 
+                    ? 'bg-primary text-white shadow-lg' 
+                    : 'text-white/40 hover:text-white/60'
+                }`}
+              >
+                {status}
+              </button>
+            ))}
+          </div>
           <div className="relative group/search">
             <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within/search:text-primary transition-colors" />
             <Input 
-              placeholder="Search address or student..." 
-              className="h-16 w-[320px] pl-16 rounded-2xl border-none bg-white/10 text-white font-bold placeholder:text-white/20 focus-visible:ring-2 focus-visible:ring-primary/40 backdrop-blur-md shadow-inner"
+              placeholder="Search logistics..." 
+              className="h-16 w-[280px] pl-16 rounded-2xl border-none bg-white/10 text-white font-bold placeholder:text-white/20 focus-visible:ring-2 focus-visible:ring-primary/40 backdrop-blur-md shadow-inner"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button className="h-16 px-8 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-[11px] uppercase tracking-[0.4em] shadow-strong shadow-primary/20 transition-all active:scale-95 flex items-center gap-4">
-            <Download className="w-5 h-5" />
-            Export Labels
-          </Button>
         </div>
       </div>
 
@@ -206,12 +224,11 @@ export const DispatchList = () => {
           <Table>
             <TableHeader className="bg-secondary/30">
               <TableRow className="hover:bg-transparent border-none">
-                <TableHead className="py-6 px-10 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Student & ID</TableHead>
-                <TableHead className="py-6 px-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Method</TableHead>
-                <TableHead className="py-6 px-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Logistics Info</TableHead>
-                <TableHead className="py-6 px-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Alert Status</TableHead>
-                <TableHead className="py-6 px-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Fulfillment</TableHead>
-                <TableHead className="py-6 px-10 text-right text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Logistics Control</TableHead>
+                <TableHead className="py-6 px-10 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground w-[28%]">Student Identity</TableHead>
+                <TableHead className="py-6 px-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground w-[12%] text-center">Method</TableHead>
+                <TableHead className="py-6 px-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground w-[25%]">Mailing/Pickup Detail</TableHead>
+                <TableHead className="py-6 px-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground w-[15%]">Status Alert</TableHead>
+                <TableHead className="py-6 px-10 text-right text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground w-[20%]">Control Gateway</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -233,66 +250,59 @@ export const DispatchList = () => {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="py-8 px-6">
-                      <div className="flex items-center gap-3">
+                    <TableCell className="py-8 px-6 text-center">
+                      <div className="flex flex-col items-center gap-2">
                         {req.degree_fulfillment?.method === 'dispatch' ? (
-                          <div className="flex items-center gap-2 text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-xl border border-indigo-100">
-                            <Truck className="w-3.5 h-3.5" />
-                            <span className="text-[10px] font-black uppercase tracking-widest">Dispatch</span>
-                          </div>
+                          <Badge className="bg-indigo-50 text-indigo-600 border-none font-black text-[8px] uppercase tracking-widest px-3 py-1">Dispatch</Badge>
                         ) : req.degree_fulfillment?.method === 'manual' ? (
-                          <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-100">
-                            <User className="w-3.5 h-3.5" />
-                            <span className="text-[10px] font-black uppercase tracking-widest">Manual</span>
+                          <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[8px] uppercase tracking-widest px-3 py-1">Manual</Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-[8px] font-black uppercase tracking-widest opacity-30">TBD</Badge>
+                        )}
+                        
+                        {req.status === 'fully_cleared' || req.status === 'completed' ? (
+                          <div className="flex items-center gap-1 text-[8px] font-black text-blue-600 uppercase">
+                            <PackageCheck className="w-3 h-3" />
+                            Done
+                          </div>
+                        ) : req.degree_fulfillment ? (
+                          <div className="flex items-center gap-1 text-[8px] font-black text-emerald-600 uppercase">
+                            <CheckCircle2 className="w-3 h-3" />
+                            Ready
                           </div>
                         ) : (
-                          <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest opacity-40">Pending</Badge>
+                          <div className="flex items-center gap-1 text-[8px] font-black text-amber-600 uppercase">
+                            <AlertCircle className="w-3 h-3" />
+                            Wait
+                          </div>
                         )}
                       </div>
                     </TableCell>
                     <TableCell className="py-8 px-6">
-                      <div className="flex items-start gap-4 max-w-md">
-                        <MapPin className="w-5 h-5 text-primary shrink-0 mt-1" />
-                        <p className={`font-bold text-sm leading-relaxed uppercase italic ${!req.degree_fulfillment ? 'text-muted-foreground opacity-50' : 'text-foreground/80'}`}>
+                      <div className="flex items-start gap-3">
+                        <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <p className={`font-bold text-[11px] leading-tight uppercase italic ${!req.degree_fulfillment ? 'text-muted-foreground opacity-50' : 'text-foreground/80'}`}>
                           {!req.degree_fulfillment 
-                            ? 'Awaiting Student Selection' 
+                            ? 'Awaiting Selection' 
                             : req.degree_fulfillment.method === 'manual' 
-                              ? 'Registrar Office Pickup' 
-                              : (req.degree_fulfillment.address || 'Address Missing')}
+                              ? 'Registrar Office' 
+                              : (req.degree_fulfillment.address || 'Missing Address')}
                         </p>
                       </div>
                     </TableCell>
                     <TableCell className="py-8 px-6">
                       {req.degree_fulfillment?.notification_sent ? (
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-2 text-primary font-black text-[9px] uppercase tracking-widest">
-                            <BellRing className="w-3 h-3 animate-pulse" />
+                        <div className="flex flex-col gap-0.5">
+                          <div className="flex items-center gap-1.5 text-primary font-black text-[8px] uppercase tracking-widest">
+                            <BellRing className="w-2.5 h-2.5" />
                             Notified
                           </div>
-                          <p className="text-[8px] font-bold text-muted-foreground uppercase opacity-60">
-                            {req.degree_fulfillment.notification_type === 'dispatched' ? 'Dispatch Alert' : 'Pickup Alert'}
+                          <p className="text-[7px] font-bold text-muted-foreground uppercase opacity-60">
+                            {req.degree_fulfillment.notification_type === 'dispatched' ? 'Dispatch' : 'Pickup'} Alert
                           </p>
                         </div>
                       ) : (
-                        <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest opacity-20 border-dashed">No Alert Sent</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="py-8 px-6">
-                      {req.status === 'completed' ? (
-                        <Badge className="bg-blue-50 text-blue-600 border-none font-black text-[9px] uppercase tracking-[0.2em] px-4 py-2 rounded-full flex items-center gap-2 w-fit">
-                          <PackageCheck className="w-3 h-3" />
-                          Done
-                        </Badge>
-                      ) : !req.degree_fulfillment ? (
-                        <Badge className="bg-amber-50 text-amber-600 border-none font-black text-[9px] uppercase tracking-[0.2em] px-4 py-2 rounded-full flex items-center gap-2 w-fit">
-                          <AlertCircle className="w-3 h-3" />
-                          Waiting
-                        </Badge>
-                      ) : (
-                        <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[9px] uppercase tracking-[0.2em] px-4 py-2 rounded-full flex items-center gap-2 w-fit">
-                          <CheckCircle2 className="w-3 h-3" />
-                          Ready
-                        </Badge>
+                        <div className="text-[7px] font-black uppercase tracking-widest opacity-20 border border-dashed border-foreground/20 rounded px-2 py-1 w-fit">No Alert</div>
                       )}
                     </TableCell>
                     <TableCell className="py-8 px-10 text-right">
