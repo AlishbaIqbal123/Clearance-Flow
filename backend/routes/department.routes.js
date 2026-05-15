@@ -572,7 +572,7 @@ router.put('/requests/:id/status',
     if (rejectedDeptsCount > 0) {
       newOverallStatus = 'rejected';
     } else if (clearedDeptsCount === totalDepartments && totalDepartments > 0) {
-      newOverallStatus = 'cleared'; // All departments cleared
+      newOverallStatus = 'fully_cleared'; // All departments cleared
     } else if (clearedDeptsCount > 0) {
       newOverallStatus = 'partially_cleared';
     } else {
@@ -636,7 +636,7 @@ router.put('/requests/:id/status',
       });
 
       // Notify Exam Department when request is fully cleared by all other departments
-      if (newOverallStatus === 'cleared') {
+      if (newOverallStatus === 'fully_cleared') {
         io.emit('exam-department-notification', {
           title: 'Final Clearance Achieved',
           message: `Student ${request.student?.first_name || 'A student'} has completed all departmental clearances and is now ready for degree processing.`,
@@ -866,7 +866,7 @@ router.post('/requests/:id/department-chat',
         
         let newStatus = 'in_progress';
         if (rejectedDepts > 0) newStatus = 'rejected';
-        else if (clearedDepts === totalDepts && totalDepts > 0) newStatus = 'cleared';
+        else if (clearedDepts === totalDepts && totalDepts > 0) newStatus = 'fully_cleared';
         else if (clearedDepts > 0) newStatus = 'partially_cleared';
         
         await supabase.from('clearance_requests')

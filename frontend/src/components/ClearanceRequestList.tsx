@@ -196,7 +196,7 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
           </SelectTrigger>
           <SelectContent className="rounded-xl border-none shadow-strong p-1 bg-background/95 backdrop-blur-2xl">
             <SelectItem value="all" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">All Requests</SelectItem>
-            {['not_started', 'pending', 'submitted', 'in_progress', 'partially_cleared', 'cleared', 'rejected'].map(s => (
+            {['not_started', 'pending', 'submitted', 'in_progress', 'partially_cleared', 'fully_cleared', 'rejected'].map(s => (
                <SelectItem key={s} value={s} className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">
                   {s.replace('_', ' ').toUpperCase()}
                </SelectItem>

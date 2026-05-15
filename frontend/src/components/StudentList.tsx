@@ -325,7 +325,7 @@ export const StudentList = ({ user, mode }: { user: any, mode?: 'allotment' }) =
                   <SelectItem value="submitted" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Submitted</SelectItem>
                   <SelectItem value="in_progress" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">In Progress</SelectItem>
                   <SelectItem value="partially_cleared" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Partially Cleared</SelectItem>
-                  <SelectItem value="cleared" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Cleared</SelectItem>
+                  <SelectItem value="fully_cleared" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Fully Cleared</SelectItem>
                   <SelectItem value="rejected" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Rejected</SelectItem>
                 </SelectContent>
               </Select>

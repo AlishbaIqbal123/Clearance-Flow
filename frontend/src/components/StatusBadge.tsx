@@ -29,11 +29,12 @@ export const StatusBadge = ({ status, size = 'md', showIcon = true }: StatusBadg
   const getStatusConfig = () => {
     switch (normalizedStatus) {
       case 'cleared':
+      case 'fully_cleared':
       case 'approved':
         return { 
           className: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.05)] hover:bg-emerald-500/20', 
           icon: ShieldCheck,
-          label: 'Cleared'
+          label: 'Fully Cleared'
         };
       case 'pending':
         return { 
