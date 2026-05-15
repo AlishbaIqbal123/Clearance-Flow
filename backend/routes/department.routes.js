@@ -833,26 +833,27 @@ router.post('/requests/:id/department-chat',
     comments.push(newMsg);
     
     // Check for "DONE" protocol command from Exam Department
-    const isDoneProtocol = message.trim().toUpperCase() === 'DONE' || message.trim().toUpperCase() === 'DONE PROTOCOL';
+    const isDoneProtocol = /^(DONE|DONE\s+PROTOCOL)[\!\.]*$/i.test(message.trim());
     
     if (isDoneProtocol) {
       // Get department code to verify if it's the Exam Department (EXD)
       const { data: currentDept } = await supabase
         .from('departments')
-        .select('code')
+        .select('id, code')
         .eq('id', departmentId || req.body.departmentId)
         .single();
         
       if (currentDept && (currentDept.code === 'EXD' || currentDept.code === 'EXAM')) {
-        // Update department status to cleared
+        // Update departmental status to cleared
         await supabase.from('clearance_status')
           .update({
             status: 'cleared',
             cleared_by: staffId,
-            cleared_at: new Date().toISOString()
+            cleared_at: new Date().toISOString(),
+            remarks: 'Cleared via automated DONE protocol command'
           })
           .eq('request_id', id)
-          .eq('department_id', departmentId || req.body.departmentId);
+          .eq('department_id', currentDept.id);
           
         // Recalculate overall progress and status
         const { data: allStatuses } = await supabase
@@ -876,22 +877,33 @@ router.post('/requests/:id/department-chat',
               totalDepartments: totalDepts,
               clearedDepartments: clearedDepts,
               percentage: totalDepts === 0 ? 0 : Math.round((clearedDepts / totalDepts) * 100)
-            }
+            },
+            updated_at: new Date().toISOString()
           })
           .eq('id', id);
           
         // Sync with student profile
         await supabase.from('student_profiles')
-          .update({ clearance_status: newStatus })
+          .update({ 
+            clearance_status: newStatus,
+            updated_at: new Date().toISOString()
+          })
           .eq('id', request.student_id);
           
         const io = req.app.get('io');
         if (io) {
            io.to(`user:${request.student_id}`).emit('clearance-status-changed', {
              requestId: id,
-             departmentId: departmentId || req.body.departmentId,
+             departmentId: currentDept.id,
              status: 'cleared',
              remarks: 'Protocol completed via command'
+           });
+           
+           // Notify admin of status change
+           io.emit('admin-notification', {
+             type: 'STATUS_UPDATE',
+             title: 'Status Updated',
+             message: `Student ${request.student_id} status changed to ${newStatus.replace('_', ' ')}`
            });
         }
       }
