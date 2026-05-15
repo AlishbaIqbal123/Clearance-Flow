@@ -59,17 +59,18 @@ const DepartmentCard = ({
   );
 
   // Synthesize comments to include the latest official remark if it's not already in the stream
+  const deptId = String(dept.department_id || dept.department?.id || '');
   const baseComments = (comments || []).filter((c: any) => 
-    (c.department_id && (String(c.department_id) === String(dept.department_id) || String(c.department_id) === String(dept.department?.id))) || 
-    !c.department_id
+    (c.department_id && String(c.department_id) === deptId) || !c.department_id
   );
+  
   const remarkInComments = baseComments.some((c: any) => 
     c.message?.trim() === dept.remarks?.trim()
   );
   
   const deptComments = [
     ...(dept.remarks && dept.remarks.trim() && !remarkInComments ? [{
-      id: `remark-${dept.id}-${Date.now()}`,
+      id: `remark-${dept.id || deptId}-${Date.now()}`,
       message: dept.remarks,
       author_model: 'Staff',
       authorName: 'Official Feedback',
@@ -586,9 +587,12 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
   const isPhase3Ready = allDepartments.length > 0 && allDepartments.every((d: any) => d.department?.code === 'EXD' || d.status === 'cleared');
   const isFullyCleared = activeRequest?.status === 'cleared' || activeRequest?.status === 'fully_cleared';
 
-  let activeIndex = -1;
+  // All departments in the current phase are unlocked and accessible
+  let activeIndex = 999; // Set high to ensure all items are considered 'active' or 'completed'
   if (activeRequest && departments.length > 0) {
-    activeIndex = departments.findIndex(d => d.status !== 'cleared');
+    // We still track the first non-cleared department if needed for UI emphasis, 
+    // but we won't use it to lock other cards anymore.
+    const firstPendingIndex = departments.findIndex(d => d.status !== 'cleared');
   }
 
   const pageTitle = filterType === 'academic' ? 'Academic Clearance' : filterType === 'administrative' ? 'Administrative Clearance' : 'Overall Status';
@@ -741,8 +745,9 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
             <div className="space-y-0">
               {departments.map((dept, index) => {
                 const isCompleted = dept.status === 'cleared';
-                const isActive = index === activeIndex;
-                const isFuture = !isCompleted && !isActive;
+                // All departments in the current view are considered active/unlocked
+                const isActive = true; 
+                const isFuture = false;
                 return (
                   <DepartmentCard
                     key={dept.id || index}
