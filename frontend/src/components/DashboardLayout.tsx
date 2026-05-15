@@ -71,10 +71,21 @@ interface DashboardLayoutProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   onLogout: () => void;
+  isPhase1Unlocked?: boolean;
+  isPhase2Unlocked?: boolean;
   isPhase3Unlocked?: boolean;
 }
 
-export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLogout, isPhase3Unlocked = false }: DashboardLayoutProps) => {
+export const DashboardLayout = ({ 
+  children, 
+  user, 
+  activeTab, 
+  setActiveTab, 
+  onLogout, 
+  isPhase1Unlocked = false,
+  isPhase2Unlocked = false,
+  isPhase3Unlocked = false 
+}: DashboardLayoutProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -262,8 +273,8 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
     { id: 'requests', label: 'Requests', icon: FileText, roles: ['admin', 'hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'] },
     { id: 'dept-chats', label: 'Live Chats', icon: MessageSquare, roles: ['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'] },
     { id: 'settings', label: 'Settings', icon: Settings, roles: ['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer', 'exam_officer'] },
-    { id: 'admin-clearance', label: 'Phase 1: Admin', icon: Shield, roles: ['student'] },
-    { id: 'academic-clearance', label: 'Phase 2: Academic', icon: Trophy, roles: ['student'] },
+    { id: 'admin-clearance', label: 'Phase 1: Admin', icon: Shield, roles: ['student'], isLocked: !isPhase1Unlocked },
+    { id: 'academic-clearance', label: 'Phase 2: Academic', icon: Trophy, roles: ['student'], isLocked: !isPhase2Unlocked },
     { id: 'degree-allotment', label: 'Phase 3: Degree', icon: Award, roles: ['student'], isLocked: !isPhase3Unlocked },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, roles: ['admin', 'hod'] },
     { id: 'users', label: 'Staff List', icon: Users, roles: ['admin'] }
