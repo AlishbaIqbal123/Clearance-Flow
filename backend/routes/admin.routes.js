@@ -1241,6 +1241,69 @@ router.patch('/dispatch-requests/:id',
 );
 
 /**
+ * @route   POST /api/admin/dispatch-requests/:id/notify
+ * @desc    Send notification to student about degree status
+ * @access  Admin, Exam Officer
+ */
+router.post('/dispatch-requests/:id/notify',
+  authorize('admin', 'exam_officer'),
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { type, message } = req.body;
+    const staffId = req.user.id;
+
+    const { data: request, error: fetchError } = await supabase
+      .from('clearance_requests')
+      .select('*, student:student_id(*)')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !request) {
+      throw new AppError('Clearance request not found', 404, 'REQUEST_NOT_FOUND');
+    }
+
+    const comments = request.comments || [];
+    const title = type === 'dispatched' ? 'Degree Dispatched' : 'Degree Ready for Pickup';
+    const defaultMessage = type === 'dispatched' 
+      ? `Your degree is on its way via ${request.degree_fulfillment?.courier_service || 'Courier'}. Tracking: ${request.degree_fulfillment?.tracking_number || 'N/A'}`
+      : `Your degree is ready for manual pickup. Please visit the Registrar Office with your ID card.`;
+
+    comments.push({
+      author: staffId,
+      authorName: 'Exam Department',
+      author_model: 'User',
+      message: message || defaultMessage,
+      is_notification: true,
+      title: title,
+      type: type,
+      created_at: new Date().toISOString()
+    });
+
+    const { error: updateError } = await supabase
+      .from('clearance_requests')
+      .update({ comments })
+      .eq('id', id);
+
+    if (updateError) throw updateError;
+
+    // Send socket notification
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`user:${request.student_id}`).emit('notification', {
+        title,
+        message: message || defaultMessage,
+        type: 'degree_status'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Notification sent to student successfully'
+    });
+  })
+);
+
+/**
  * @route   POST /api/admin/dispatch-requests/:id/complete
  * @desc    Mark degree dispatch/collection as completed
  * @access  Admin, Exam Officer

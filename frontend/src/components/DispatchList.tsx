@@ -13,7 +13,9 @@ import {
   Package,
   CheckCircle2,
   AlertCircle,
-  Eye
+  Eye,
+  BellRing,
+  Send
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -88,6 +90,20 @@ export const DispatchList = () => {
       toast.error(error.response?.data?.message || 'Failed to update dispatch');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleNotify = async (type: 'ready_for_pickup' | 'dispatched') => {
+    if (!selectedRequest) return;
+    
+    try {
+      const res = await adminService.notifyDispatchRequest(selectedRequest.id, { type });
+      if (res.success) {
+        toast.success(`Student notified: ${type === 'dispatched' ? 'Degree Dispatched' : 'Ready for Pickup'}`);
+        setIsViewOpen(false);
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to send notification');
     }
   };
 
@@ -549,6 +565,40 @@ export const DispatchList = () => {
                   <PackageCheck className="w-4 h-4 text-primary" />
                   {selectedRequest?.degree_fulfillment?.method === 'manual' ? 'Manual Pickup' : 'Courier Dispatch'}
                 </div>
+              </div>
+            </div>
+
+            {/* Notification Actions */}
+            <div className="p-8 bg-primary/5 rounded-[2.5rem] border border-primary/10 space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
+                  <BellRing className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs font-black uppercase tracking-widest text-primary">Student Alert System</p>
+                  <p className="text-[8px] font-bold text-muted-foreground uppercase">Send official portal notification</p>
+                </div>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                {selectedRequest?.degree_fulfillment?.method === 'dispatch' ? (
+                  <Button 
+                    className="h-14 flex-1 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest flex items-center gap-3"
+                    onClick={() => handleNotify('dispatched')}
+                    disabled={!selectedRequest?.degree_fulfillment?.tracking_number}
+                  >
+                    <Send className="w-4 h-4" />
+                    Notify: Degree Dispatched
+                  </Button>
+                ) : (
+                  <Button 
+                    className="h-14 flex-1 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-black text-[10px] uppercase tracking-widest flex items-center gap-3"
+                    onClick={() => handleNotify('ready_for_pickup')}
+                  >
+                    <Send className="w-4 h-4" />
+                    Notify: Ready for Pickup
+                  </Button>
+                )}
               </div>
             </div>
 
