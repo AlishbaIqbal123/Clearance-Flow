@@ -1347,12 +1347,33 @@ router.post('/dispatch-requests/:id/complete',
       timestamp: new Date().toISOString()
     });
 
+    // Automatically mark the Exam department as cleared since they are the ones completing the fulfillment
+    const { data: examDept } = await supabase
+      .from('departments')
+      .select('id')
+      .or('code.eq.EXD,code.eq.EXAM')
+      .single();
+
+    if (examDept) {
+      await supabase
+        .from('clearance_status')
+        .update({
+          status: 'cleared',
+          cleared_by: staffId,
+          cleared_at: new Date().toISOString(),
+          remarks: `Protocol completed via ${degree_fulfillment.method === 'dispatch' ? 'Degree Dispatch' : 'Degree Collection'}`
+        })
+        .eq('request_id', id)
+        .eq('department_id', examDept.id);
+    }
+
     const { error: updateError } = await supabase
       .from('clearance_requests')
       .update({ 
         degree_fulfillment,
         timeline,
-        status: 'fully_cleared' // Final terminal status
+        status: 'fully_cleared', // Final terminal status
+        updated_at: new Date().toISOString()
       })
       .eq('id', id);
 
