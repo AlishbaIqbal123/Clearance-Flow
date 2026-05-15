@@ -256,12 +256,18 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                 </div>
               </div>
               <h2 className="text-lg sm:text-xl lg:text-2xl font-black text-background tracking-tighter leading-none uppercase">
-                Welcome back,<br /><span className="text-primary italic">{student.first_name || 'Scholar'}</span>
+                {activeRequest?.status === 'fully_cleared' ? (
+                  <>Protocol Complete,<br /><span className="text-primary italic">Clearance Finalized</span></>
+                ) : (
+                  <>Welcome back,<br /><span className="text-primary italic">{student.first_name || 'Scholar'}</span></>
+                )}
               </h2>
             </div>
             
             <p className="text-sm text-background/50 font-medium leading-relaxed max-w-xl opacity-80 italic">
-              Easily manage and track your university clearance status in one place.
+              {activeRequest?.status === 'fully_cleared' 
+                ? 'Your clearance protocol is 100% complete. Your degree has been officially allotted and the process is closed.'
+                : 'Easily manage and track your university clearance status in one place.'}
             </p>
 
             <div className="flex flex-wrap gap-3 pt-2">

@@ -1129,6 +1129,11 @@ router.post('/clearance-request/:id/confirm-receipt',
 
     if (updateError) throw updateError;
 
+    // Update student profile to final completed state
+    await supabase.from('student_profiles')
+      .update({ clearance_status: 'fully_cleared' })
+      .eq('id', studentId);
+
     res.status(200).json({
       success: true,
       message: 'Degree receipt confirmed. Clearance complete.',
