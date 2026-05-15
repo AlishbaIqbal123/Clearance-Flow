@@ -243,10 +243,16 @@ router.get('/dashboard',
 
       const totalDepartments = activeRequest.clearance_status.length;
       const clearedDepartments = activeRequest.clearance_status.filter(s => s.status === 'cleared').length;
+      
+      // If the overall request is 'cleared' or beyond, progress is 100%
+      const percentage = (activeRequest.status === 'cleared' || activeRequest.status === 'fully_cleared') 
+        ? 100 
+        : (totalDepartments === 0 ? 0 : Math.round((clearedDepartments / totalDepartments) * 100));
+
       activeRequest.progress = {
         totalDepartments,
         clearedDepartments,
-        percentage: totalDepartments === 0 ? 0 : Math.round((clearedDepartments / totalDepartments) * 100)
+        percentage
       };
     }
 
