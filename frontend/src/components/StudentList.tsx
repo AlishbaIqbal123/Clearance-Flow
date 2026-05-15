@@ -28,7 +28,9 @@ import {
   ChevronRight,
   Info,
   X,
-  UserCircle
+  UserCircle,
+  Award,
+  MoreHorizontal
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
