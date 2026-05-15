@@ -328,8 +328,9 @@ export const StudentList = ({ user, mode }: { user: any, mode?: 'allotment' }) =
            </div>
          </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table className="min-w-[800px]">
+          {/* Desktop Table View */}
+          <div className="hidden lg:block overflow-hidden">
+            <Table>
               <TableHeader className="bg-muted/10">
                 <TableRow className="border-none">
                   <TableHead className="px-6 py-4 text-[8px] font-black text-muted-foreground uppercase tracking-widest">Student Info</TableHead>
@@ -504,6 +505,115 @@ export const StudentList = ({ user, mode }: { user: any, mode?: 'allotment' }) =
                 )}
               </TableBody>
             </Table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="lg:hidden p-4 space-y-4">
+            {loading ? (
+              <div className="h-96 flex flex-col items-center justify-center gap-8">
+                <Loader2 className="w-12 h-12 text-primary animate-spin" />
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground animate-pulse">Loading Registry...</p>
+              </div>
+            ) : filteredStudents.length > 0 ? (
+              filteredStudents.map((student) => (
+                <div 
+                  key={student.id} 
+                  className="bg-card/50 rounded-2xl p-5 border border-foreground/5 space-y-4 hover:border-primary/20 transition-all shadow-soft"
+                  onClick={() => { setSelectedStudent(student); setIsViewOpen(true); }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center font-black text-primary text-xs">
+                        {student.first_name[0]}{student.last_name[0]}
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-black uppercase tracking-tight">{student.first_name} {student.last_name}</h4>
+                        <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest opacity-40">{student.registration_number}</p>
+                      </div>
+                    </div>
+                    <StatusBadge status={student.clearance_status || 'not_started'} />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 py-2 border-y border-foreground/5">
+                    <div className="space-y-1">
+                      <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Program</p>
+                      <p className="text-[10px] font-black uppercase tracking-tight">{student.program}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Batch</p>
+                      <p className="text-[10px] font-black uppercase tracking-tight">{student.batch}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2">
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="w-9 h-9 rounded-xl bg-secondary/50 text-primary"
+                        onClick={(e) => { e.stopPropagation(); student.email && window.open(`mailto:${student.email}`); }}
+                      >
+                        <Mail className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="w-9 h-9 rounded-xl bg-secondary/50 text-emerald-500"
+                        onClick={(e) => { 
+                          e.stopPropagation();
+                          if (student.phone) {
+                            const clean = student.phone.replace(/\D/g, '');
+                            window.open(`https://wa.me/${clean}`);
+                          }
+                        }}
+                      >
+                        <Phone className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                        <Button variant="ghost" size="icon" className="w-9 h-9 rounded-xl bg-secondary/50">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="rounded-xl w-48 p-1.5 shadow-strong bg-background/95 backdrop-blur-2xl border-none">
+                        <DropdownMenuItem 
+                          className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3"
+                          onClick={() => {
+                            setSelectedStudent(student);
+                            setFormData({
+                              firstName: student.first_name,
+                              lastName: student.last_name,
+                              email: student.email,
+                              registrationNumber: student.registration_number,
+                              program: student.program,
+                              batch: student.batch,
+                              departmentId: student.department_id
+                            });
+                            setIsEditOpen(true);
+                          }}
+                        >
+                          <Edit className="w-3.5 h-3.5 mr-2 opacity-40" />
+                          Edit Student
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-destructive focus:text-white px-3 text-destructive"
+                          onClick={() => setConfirmDeleteId(student.id)}
+                        >
+                          <Trash2 className="w-3.5 h-3.5 mr-2" />
+                          Delete Student
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="h-64 flex flex-col items-center justify-center gap-4 text-center">
+                <Users className="w-12 h-12 text-muted-foreground/10" />
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-40">No students found</p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

@@ -528,8 +528,9 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table className="min-w-[800px]">
+          {/* Desktop View */}
+          <div className="hidden lg:block overflow-hidden">
+            <Table>
               <TableHeader className="bg-muted/10">
                 <TableRow className="border-none">
                   <TableHead className="px-8 py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Student</TableHead>
@@ -638,6 +639,52 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                 )}
               </TableBody>
             </Table>
+          </div>
+
+          {/* Mobile View */}
+          <div className="lg:hidden p-4 space-y-4">
+             {(Array.isArray(recentRequests) ? recentRequests : []).map((request: any) => (
+                <div 
+                  key={request.id} 
+                  className="bg-card/40 rounded-2xl p-5 border border-foreground/5 space-y-5 hover:border-primary/20 transition-all"
+                  onClick={() => { setSelectedRequest(request); setIsDetailsOpen(true); }}
+                >
+                  <div className="flex items-center justify-between">
+                     <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center font-black text-primary text-[10px]">
+                           {request.student?.first_name?.[0]}{request.student?.last_name?.[0]}
+                        </div>
+                        <div>
+                           <p className="text-xs font-black uppercase tracking-tight leading-none">{request.student?.first_name} {request.student?.last_name}</p>
+                           <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest mt-1">{request.student?.registration_number}</p>
+                        </div>
+                     </div>
+                     <StatusBadge status={request.status} />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 py-4 border-y border-foreground/5">
+                     <div className="space-y-1">
+                        <p className="text-[7px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Protocol ID</p>
+                        <code className="text-[9px] font-black text-primary tracking-wider">{request.request_id}</code>
+                     </div>
+                     <div className="space-y-1">
+                        <p className="text-[7px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Timeline</p>
+                        <p className="text-[9px] font-black uppercase">{new Date(request.created_at).toLocaleDateString()}</p>
+                     </div>
+                  </div>
+
+                  <Button className="w-full h-11 rounded-xl bg-foreground text-white font-black text-[9px] uppercase tracking-widest active:scale-95 transition-all">
+                     Audit Details
+                  </Button>
+                </div>
+             ))}
+
+             {recentRequests.length === 0 && (
+                <div className="py-20 text-center opacity-20">
+                   <Activity className="w-12 h-12 mx-auto mb-4" />
+                   <p className="text-[10px] font-black uppercase tracking-widest">Registry Idle</p>
+                </div>
+             )}
           </div>
         </CardContent>
       </Card>

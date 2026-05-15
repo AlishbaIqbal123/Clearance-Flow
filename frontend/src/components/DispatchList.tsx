@@ -153,7 +153,8 @@ export const DispatchList = () => {
           <Badge className="bg-secondary text-foreground border-none font-black text-[10px] uppercase tracking-[0.2em] px-4 py-2 rounded-lg">{filteredRequests.length} Packages Detected</Badge>
         </div>
         
-        <div className="overflow-x-auto">
+        {/* Desktop View */}
+        <div className="hidden lg:block overflow-hidden">
           <Table>
             <TableHeader className="bg-secondary/30">
               <TableRow className="hover:bg-transparent border-none">
@@ -245,7 +246,6 @@ export const DispatchList = () => {
                         </Button>
                       </div>
                     </TableCell>
-
                   </TableRow>
                 ))
               ) : (
@@ -260,6 +260,93 @@ export const DispatchList = () => {
               )}
             </TableBody>
           </Table>
+        </div>
+
+        {/* Mobile View */}
+        <div className="lg:hidden p-4 space-y-4">
+          {filteredRequests.length > 0 ? (
+            filteredRequests.map((req) => (
+              <div 
+                key={req.id} 
+                className="bg-card/50 rounded-[2rem] p-6 border border-foreground/5 space-y-6 hover:border-primary/20 transition-all shadow-soft"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center font-black text-primary text-sm">
+                      {req.student?.first_name?.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="font-black text-foreground text-sm uppercase tracking-tight">{req.student?.first_name} {req.student?.last_name}</p>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{req.student?.registration_number}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4 py-4 border-y border-foreground/5">
+                  <div className="space-y-1">
+                    <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.4em]">Mailing Address</p>
+                    <div className="flex items-start gap-3">
+                      <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                      <p className="text-[11px] font-bold uppercase italic leading-relaxed">
+                        {!req.degree_fulfillment 
+                          ? 'Awaiting Selection' 
+                          : req.degree_fulfillment.method === 'manual' 
+                            ? 'Manual Pickup' 
+                            : (req.degree_fulfillment.address || 'N/A')}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.4em]">Status</p>
+                      {req.status === 'completed' ? (
+                        <Badge className="bg-blue-50 text-blue-600 border-none font-black text-[8px] uppercase px-3 py-1.5 rounded-full">Complete</Badge>
+                      ) : !req.degree_fulfillment ? (
+                        <Badge className="bg-amber-50 text-amber-600 border-none font-black text-[8px] uppercase px-3 py-1.5 rounded-full">Pending</Badge>
+                      ) : (
+                        <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[8px] uppercase px-3 py-1.5 rounded-full">Ready</Badge>
+                      )}
+                    </div>
+                    <div className="space-y-1 text-right">
+                      <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.4em]">Date</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest">
+                        {req.degree_fulfillment?.selected_at 
+                          ? new Date(req.degree_fulfillment.selected_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                          : 'TBD'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Button 
+                    className="flex-1 h-12 rounded-2xl bg-foreground text-white hover:bg-primary transition-all font-black text-[10px] uppercase tracking-widest"
+                    onClick={() => handleCompleteDispatch(req)}
+                    disabled={!req.degree_fulfillment}
+                  >
+                    Complete Fulfillment
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-12 w-12 rounded-2xl bg-secondary/50 text-foreground"
+                    onClick={() => {
+                      setSelectedRequest(req);
+                      setIsViewOpen(true);
+                    }}
+                  >
+                    <Eye className="w-5 h-5" />
+                  </Button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="py-24 text-center opacity-20">
+              <Truck className="w-16 h-16 mx-auto mb-4" />
+              <p className="text-sm font-black uppercase tracking-[0.4em]">Empty Queue</p>
+            </div>
+          )}
         </div>
       </Card>
 

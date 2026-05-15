@@ -208,8 +208,9 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
       {viewMode === 'table' ? (
          <Card className="border-none shadow-strong rounded-xl overflow-hidden bg-card/60 backdrop-blur-3xl group">
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table className="min-w-[800px]">
+            {/* Desktop Table View */}
+            <div className="hidden lg:block overflow-hidden">
+              <Table>
               <TableHeader className="bg-muted/10">
                 <TableRow className="border-none">
                   <TableHead className="px-6 py-4 font-black text-muted-foreground uppercase text-[8px] tracking-widest">Identity & Sequence</TableHead>
@@ -316,7 +317,73 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
                   ))
                  )}
               </TableBody>
-            </Table>
+              </Table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="lg:hidden p-4 space-y-4">
+              {loading ? (
+                Array(4).fill(0).map((_, i) => (
+                  <div key={i} className="bg-card/40 rounded-2xl p-5 border border-foreground/5 h-40 animate-pulse" />
+                ))
+              ) : filteredRequests.length === 0 ? (
+                <div className="py-20 text-center opacity-20">
+                  <FileSearch className="w-12 h-12 mx-auto mb-4" />
+                  <p className="text-[10px] font-black uppercase tracking-widest">Empty Registry</p>
+                </div>
+              ) : (
+                filteredRequests.map((req) => (
+                  <div 
+                    key={req.id} 
+                    className="bg-card/40 rounded-2xl p-5 border border-foreground/5 space-y-5 hover:border-primary/20 transition-all shadow-soft"
+                    onClick={() => { setSelectedRequest(req); setIsDetailsOpen(true); }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                          <FileText className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black text-primary uppercase tracking-widest leading-none">{req.request_id}</p>
+                          <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest mt-1">{new Date(req.created_at).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                      <StatusBadge status={req.status} />
+                    </div>
+
+                    <div className="space-y-4 py-4 border-y border-foreground/5">
+                      <div className="flex items-center gap-3">
+                        <UserCircle className="w-4 h-4 text-primary opacity-40" />
+                        <div>
+                          <p className="text-xs font-black uppercase tracking-tight leading-none">{req.student?.first_name} {req.student?.last_name}</p>
+                          <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest mt-1">{req.student?.registration_number}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {(req.clearance_status || []).slice(0, 8).map((cs: any) => (
+                          <div 
+                            key={cs.id}
+                            className={`w-6 h-6 rounded-md flex items-center justify-center text-[6px] font-black ${
+                              cs.status === 'cleared' ? 'bg-emerald-500/10 text-emerald-600' : 
+                              cs.status === 'rejected' ? 'bg-destructive/10 text-destructive' :
+                              'bg-secondary text-muted-foreground'
+                            }`}
+                          >
+                            {cs.department?.code?.substring(0, 2)}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <Button 
+                      className="w-full h-11 rounded-xl bg-foreground text-white font-black text-[9px] uppercase tracking-widest active:scale-95 transition-all shadow-strong"
+                    >
+                      Audit Details
+                    </Button>
+                  </div>
+                ))
+              )}
             </div>
           </CardContent>
         </Card>

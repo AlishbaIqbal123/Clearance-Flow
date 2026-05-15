@@ -79,6 +79,12 @@ router.post('/login',
       throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
     }
 
+    // Dynamically map role for Exam Department staff
+    let effectiveRole = user.role;
+    if (user.role === 'department_officer' && user.department?.contact_info?.custom_type === 'exam') {
+      effectiveRole = 'exam_officer';
+    }
+
     // Create user response object
     const userResponse = {
       id: user.id,
@@ -86,7 +92,7 @@ router.post('/login',
       lastName: user.last_name,
       fullName: `${user.first_name} ${user.last_name}`,
       email: user.email,
-      role: user.role,
+      role: effectiveRole,
       department: user.department,
       avatar: user.avatar_url,
       phone: user.phone,
@@ -97,7 +103,7 @@ router.post('/login',
     const token = generateToken({ 
       id: user.id, 
       userType: 'staff',
-      role: user.role 
+      role: effectiveRole 
     });
 
     res.status(200).json({

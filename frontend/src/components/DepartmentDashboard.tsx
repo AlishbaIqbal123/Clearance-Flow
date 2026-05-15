@@ -243,10 +243,10 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                  </Select>
               </div>
            </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table className="min-w-[800px]">
+        </CardHeader>        <CardContent className="p-0">
+          {/* Desktop Table View */}
+          <div className="hidden lg:block overflow-hidden">
+            <Table>
             <TableHeader className="bg-muted/10">
                <TableRow className="border-none">
                  <TableHead className="px-8 py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Student</TableHead>
@@ -314,7 +314,7 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                         </TableCell>
                          <TableCell className="px-8 py-3 text-right">
                              <Button 
-                              className="rounded-xl h-9 px-6 font-black text-[9px] uppercase tracking-widest bg-secondary/80 text-foreground hover:bg-primary hover:text-white transition-all duration-700 active:scale-95 border border-foreground/5 hover:border-transparent"
+                               className="rounded-xl h-9 px-6 font-black text-[9px] uppercase tracking-widest bg-secondary/80 text-foreground hover:bg-primary hover:text-white transition-all duration-700 active:scale-95 border border-foreground/5 hover:border-transparent"
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelectedRequest(request);
@@ -355,9 +355,89 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                  </TableRow>
                )}
              </TableBody>
-           </Table>
+            </Table>
           </div>
-        </CardContent>
+
+          {/* Mobile Card View */}
+          <div className="lg:hidden p-4 space-y-4">
+            {(recentRequests || [])
+              .filter((request: any) => {
+                const searchLower = searchQuery.toLowerCase();
+                const matchesSearch = 
+                  (request.student?.registration_number?.toLowerCase() || '').includes(searchLower) ||
+                  (request.student?.first_name?.toLowerCase() || '').includes(searchLower);
+                
+                const currentDeptStatus = (request.clearance_status || []).find((ds: any) => 
+                  ds.department_id === currentDeptId || ds.department?.id === currentDeptId
+                );
+                const matchesStatus = statusFilter === 'all' || (currentDeptStatus?.status || 'pending') === statusFilter;
+                return matchesSearch && matchesStatus;
+              })
+              .map((request: any) => {
+                const currentDeptStatus = (request.clearance_status || []).find((ds: any) => 
+                  ds.department_id === currentDeptId || ds.department?.id === currentDeptId
+                );
+                
+                return (
+                  <div 
+                    key={request.id} 
+                    className="bg-card/40 rounded-2xl p-5 border border-foreground/5 space-y-5 hover:border-primary/20 transition-all shadow-soft"
+                    onClick={() => {
+                      setSelectedRequest(request);
+                      setRemarks(currentDeptStatus?.remarks || '');
+                      setDueAmount(currentDeptStatus?.due_amount || 0);
+                      setShowActionDialog(true);
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center font-black text-primary text-xs">
+                          {request.student?.first_name?.[0]}
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-black uppercase tracking-tight">{request.student?.first_name} {request.student?.last_name}</h4>
+                          <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest opacity-40">{request.student?.registration_number}</p>
+                        </div>
+                      </div>
+                      <StatusBadge status={currentDeptStatus?.status || 'pending'} />
+                    </div>
+
+                    <div className="space-y-3 py-3 border-y border-foreground/5">
+                      <div className="flex items-center gap-2">
+                        <GraduationCap className="w-4 h-4 text-primary opacity-40" />
+                        <p className="text-[10px] font-black uppercase tracking-tight truncate">{request.student?.program}</p>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <CalendarDays className="w-4 h-4 text-primary opacity-40" />
+                          <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">
+                            {new Date(request.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                        {currentDeptStatus?.due_amount > 0 && (
+                          <Badge className="bg-amber-100 text-amber-700 border-none text-[8px] font-black uppercase">
+                            PKR {currentDeptStatus.due_amount}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+
+                    <Button 
+                      className="w-full h-11 rounded-xl bg-primary text-white font-black text-[9px] uppercase tracking-widest shadow-strong active:scale-95 transition-all"
+                    >
+                      Manage Identity
+                    </Button>
+                  </div>
+                );
+              })}
+              {recentRequests.length === 0 && (
+                <div className="py-20 text-center opacity-20">
+                  <Activity className="w-12 h-12 mx-auto mb-4" />
+                  <p className="text-[10px] font-black uppercase tracking-widest">No requests found</p>
+                </div>
+              )}
+          </div>
+        </CardContent>t>
       </Card>
 
       {/* Request Action Dialog */}
