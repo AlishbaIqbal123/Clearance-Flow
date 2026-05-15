@@ -1265,8 +1265,8 @@ router.post('/dispatch-requests/:id/notify',
     const comments = request.comments || [];
     const title = type === 'dispatched' ? 'Degree Dispatched' : 'Degree Ready for Pickup';
     const defaultMessage = type === 'dispatched' 
-      ? `Your degree is on its way via ${request.degree_fulfillment?.courier_service || 'Courier'}. Tracking: ${request.degree_fulfillment?.tracking_number || 'N/A'}`
-      : `Your degree is ready for manual pickup. Please visit the Registrar Office with your ID card.`;
+      ? `Your order is dispatched and you will receive soon. Tracking: ${request.degree_fulfillment?.tracking_number || 'Processing'}`
+      : `Please come and pick your degree, it is ready. Please visit the Registrar Office with your ID card.`;
 
     comments.push({
       author: staffId,
