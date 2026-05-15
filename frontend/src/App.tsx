@@ -185,7 +185,12 @@ const App: React.FC = () => {
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
         onLogout={handleLogout}
-        isPhase3Unlocked={activeRequest?.status === 'cleared' || activeRequest?.status === 'fully_cleared'}
+        isPhase3Unlocked={
+          activeRequest?.status === 'cleared' || 
+          activeRequest?.status === 'fully_cleared' || 
+          (activeRequest?.clearance_status && activeRequest.clearance_status.length > 0 && 
+           activeRequest.clearance_status.every((s: any) => s.department?.code === 'EXD' || s.status === 'cleared'))
+        }
       >
         {renderView()}
       </DashboardLayout>
