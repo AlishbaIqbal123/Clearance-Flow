@@ -905,9 +905,11 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
             </CardContent>
           </Card>
         </div>
-      )}
+      </div>
+    </>
+  )}
 
-      {/* Chat Dialog */}
+  {/* Chat Dialog */}
       <Dialog open={!!chatOpenDept} onOpenChange={(open) => {
         if (!open) {
           setChatOpenDept(null);
