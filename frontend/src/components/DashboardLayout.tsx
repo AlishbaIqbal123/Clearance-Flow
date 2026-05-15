@@ -257,14 +257,12 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
     { id: 'students', label: 'Students', icon: GraduationCap, roles: ['admin', 'hod'] },
     { id: 'academic-depts', label: 'Faculties', icon: Building2, roles: ['admin'] },
     { id: 'admin-depts', label: 'Admin Units', icon: Shield, roles: ['admin'] },
-    { id: 'exam-dept', label: 'Exam Dept', icon: Award, roles: ['admin', 'exam_officer'] },
     { id: 'requests', label: 'Requests', icon: FileText, roles: ['admin', 'hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'] },
     { id: 'dept-chats', label: 'Live Chats', icon: MessageSquare, roles: ['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'] },
     { id: 'settings', label: 'Settings', icon: Settings, roles: ['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer', 'exam_officer'] },
     { id: 'admin-clearance', label: 'Phase 1: Admin', icon: Shield, roles: ['student'] },
     { id: 'academic-clearance', label: 'Phase 2: Academic', icon: Trophy, roles: ['student'] },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, roles: ['admin', 'hod'] },
-    { id: 'dispatch', label: 'Degree Logistics', icon: Truck, roles: ['admin', 'exam_officer'] },
     { id: 'users', label: 'Staff List', icon: Users, roles: ['admin'] }
   ];
 

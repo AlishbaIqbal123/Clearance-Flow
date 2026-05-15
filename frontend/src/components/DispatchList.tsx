@@ -94,14 +94,16 @@ export const DispatchList = () => {
     }
   };
 
-  const handleNotify = async (type: 'ready_for_pickup' | 'dispatched') => {
-    if (!selectedRequest) return;
+  const handleNotify = async (type: 'ready_for_pickup' | 'dispatched', requestOverride?: any) => {
+    const target = requestOverride || selectedRequest;
+    if (!target) return;
     
     try {
-      const res = await adminService.notifyDispatchRequest(selectedRequest.id, { type });
+      const res = await adminService.notifyDispatchRequest(target.id, { type });
       if (res.success) {
         toast.success(`Student notified: ${type === 'dispatched' ? 'Degree Dispatched' : 'Ready for Pickup'}`);
         setIsViewOpen(false);
+        fetchRequests();
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to send notification');
@@ -158,9 +160,9 @@ export const DispatchList = () => {
               <Award className="w-7 h-7 text-primary" />
             </div>
             <div className="space-y-1">
-              <Badge className="bg-primary text-white border-none font-black text-[9px] uppercase tracking-[0.4em] px-4 py-1 rounded-full shadow-lg">Exam Department</Badge>
+              <Badge className="bg-primary text-white border-none font-black text-[9px] uppercase tracking-[0.4em] px-4 py-1 rounded-full shadow-lg">Official Portal</Badge>
               <h2 className="text-3xl font-black tracking-tighter uppercase leading-none">
-                Degree <span className="text-primary italic">Allotment Portal</span>
+                Degree <span className="text-primary italic">Allotment & Logistics</span>
               </h2>
             </div>
           </div>
@@ -208,7 +210,7 @@ export const DispatchList = () => {
                 <TableHead className="py-6 px-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Logistics Info</TableHead>
                 <TableHead className="py-6 px-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Alert Status</TableHead>
                 <TableHead className="py-6 px-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Fulfillment</TableHead>
-                <TableHead className="py-6 px-10 text-right text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Operations</TableHead>
+                <TableHead className="py-6 px-10 text-right text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Logistics Control</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -310,13 +312,17 @@ export const DispatchList = () => {
                           variant="ghost"
                           size="icon"
                           className="h-12 w-12 rounded-xl hover:bg-amber-500/10 hover:text-amber-600 transition-all shadow-soft"
-                          title="Notify Student"
+                          title={req.degree_fulfillment?.method === 'dispatch' ? "Notify: Degree Dispatched" : "Notify: Ready for Pickup"}
                           onClick={() => {
-                            setSelectedRequest(req);
-                            setIsViewOpen(true); // Open view first to show notification options
+                            if (!req.degree_fulfillment?.method) {
+                                setSelectedRequest(req);
+                                setIsViewOpen(true);
+                                return;
+                            }
+                            handleNotify(req.degree_fulfillment.method === 'dispatch' ? 'dispatched' : 'ready_for_pickup', req);
                           }}
                         >
-                          <BellRing className="w-5 h-5" />
+                          <BellRing className={`w-5 h-5 ${req.degree_fulfillment?.notification_sent ? 'text-amber-500' : ''}`} />
                         </Button>
                         <Button 
                           className="h-12 w-12 rounded-xl bg-foreground text-white hover:bg-primary transition-all shadow-soft group/action"

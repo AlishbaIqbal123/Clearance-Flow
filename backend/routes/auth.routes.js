@@ -371,6 +371,11 @@ router.get('/me', authenticate, asyncHandler(async (req, res) => {
       isFirstLogin: data.is_first_login,
       userType: 'staff'
     };
+
+    // Dynamically map role for Exam Department staff
+    if (user.role === 'department_officer' && user.department?.contact_info?.custom_type === 'exam') {
+      user.role = 'exam_officer';
+    }
   }
 
   res.status(200).json({
