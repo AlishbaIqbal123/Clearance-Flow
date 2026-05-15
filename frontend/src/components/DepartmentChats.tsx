@@ -15,7 +15,13 @@ import {
   Sparkles,
   Info,
   CornerDownRight,
-  ChevronLeft
+  ChevronLeft,
+  Archive,
+  Trash2,
+  ArchiveRestore,
+  RefreshCw,
+  MoreVertical,
+  Undo2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,15 +43,17 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
   const [messageInput, setMessageInput] = useState('');
   const [sending, setSending] = useState(false);
   const [optimisticMessages, setOptimisticMessages] = useState<any[]>([]);
+  const [view, setView] = useState<'active' | 'archived' | 'deleted'>('active');
   const [isMobileThreadOpen, setIsMobileThreadOpen] = useState(true);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const fetchChatsData = async (silent = false) => {
     if (!user) return;
     try {
       if (!silent) setLoading(true);
-      // Fetch all requests to get comment streams
-      const res = await departmentService.getRequests({ limit: 100 });
+      // Fetch all requests based on current view
+      const res = await departmentService.getRequests({ limit: 100, view });
       if (res?.success) {
         const rawRequests = res.data?.requests || res.data || [];
         setRequests(Array.isArray(rawRequests) ? rawRequests : []);
@@ -66,7 +74,7 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
       fetchChatsData(true);
     }, 10000);
     return () => clearInterval(interval);
-  }, [user]);
+  }, [user, view]);
 
   // Auto scroll to bottom of selected chat stream
   const scrollToBottom = () => {
@@ -75,7 +83,24 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [selectedRequestId, requests]);
+    
+    // Automatically mark as read if a thread is selected and has unread messages
+    if (selectedRequestId && user) {
+      const selectedReq = requests.find(r => r.id === selectedRequestId);
+      if (selectedReq) {
+        const deptId = user?.department_id || user?.department?.id;
+        const hasUnread = (selectedReq.comments || []).some((c: any) => 
+          c.author_model === 'Student' && 
+          (c.department_id === deptId || !c.department_id) && 
+          !c.read_by_dept
+        );
+        
+        if (hasUnread) {
+          handleSelectThread(selectedReq);
+        }
+      }
+    }
+  }, [selectedRequestId, requests, user]);
 
   // Handle Mark read automatically when selecting a thread with unread count
   const handleSelectThread = async (req: any) => {
@@ -92,6 +117,10 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
     if (hasUnread && deptId) {
       try {
         await departmentService.markDepartmentChatRead(req.id, deptId);
+        
+        // Dispatch global event to sync sidebar badge immediately
+        window.dispatchEvent(new CustomEvent('chats-updated'));
+        
         // Optimistically update local requests array
         setRequests(prev => prev.map(item => {
           if (item.id === req.id) {
@@ -108,6 +137,22 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
       } catch (e) {
         console.error('Failed to mark thread read', e);
       }
+    }
+  };
+
+  const handleUpdateChatSettings = async (requestId: string, action: 'archive' | 'unarchive' | 'delete' | 'restore') => {
+    setActionLoading(requestId);
+    try {
+      const res = await departmentService.updateChatSettings(requestId, action);
+      if (res.success) {
+        toast.success(`Chat ${action === 'unarchive' ? 'moved to active' : action === 'restore' ? 'restored' : action + 'd'} successfully`);
+        if (selectedRequestId === requestId) setSelectedRequestId(null);
+        await fetchChatsData();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || `Failed to ${action} chat`);
+    } finally {
+      setActionLoading(null);
     }
   };
 
@@ -243,15 +288,40 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
           ${isMobileThreadOpen ? 'flex' : 'hidden md:flex'} 
           w-full md:w-[300px] lg:w-[360px] border-b md:border-b-0 md:border-r border-foreground/5 flex flex-col bg-secondary/10 shrink-0 h-full
         `}>
+          {/* View Selection Tabs - Moved for better visibility */}
+          <div className="px-4 pt-4">
+            <div className="flex p-1 bg-background/50 gap-1 border border-foreground/5 rounded-2xl shadow-inner">
+              {[
+                { id: 'active', label: 'Active', icon: MessageSquare },
+                { id: 'archived', label: 'Archived', icon: Archive },
+                { id: 'deleted', label: 'Trash', icon: Trash2 }
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => { setView(tab.id as any); setSelectedRequestId(null); }}
+                  className={`
+                    flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-300
+                    ${view === tab.id 
+                      ? 'bg-primary text-white shadow-strong scale-[1.02]' 
+                      : 'text-muted-foreground hover:bg-foreground/5 hover:text-foreground'}
+                  `}
+                >
+                  <tab.icon className={`w-3.5 h-3.5 ${view === tab.id ? 'animate-pulse' : ''}`} />
+                  <span>{tab.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Search bar header */}
-          <div className="p-4 border-b border-foreground/5 bg-secondary/30">
+          <div className="p-4 space-y-3">
             <div className="relative group">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
               <Input
                 placeholder="Search student or sequence..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-10 bg-background/80 border-none rounded-xl text-xs font-bold shadow-inner placeholder:text-muted-foreground/40 focus-visible:ring-2 focus-visible:ring-primary/20 transition-all"
+                className="pl-10 h-12 bg-background/80 border-none rounded-2xl text-xs font-bold shadow-inner placeholder:text-muted-foreground/30 focus-visible:ring-2 focus-visible:ring-primary/20 transition-all"
               />
             </div>
           </div>
@@ -266,7 +336,7 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
             ) : filteredThreads.length === 0 ? (
               <div className="p-8 text-center space-y-2 opacity-50">
                 <MessageSquare className="w-8 h-8 text-muted-foreground mx-auto mb-3 stroke-[1.5]" />
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">No corresponding dialogues</p>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">No {view} dialogues found</p>
               </div>
             ) : (
               <div className="space-y-1.5">
@@ -274,59 +344,110 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
                   const isSelected = t.id === selectedRequestId;
                   const studentFullName = `${t.student?.first_name || ''} ${t.student?.last_name || ''}`.trim() || 'Anonymous Student';
                   return (
-                    <button
-                      key={t.id}
-                      onClick={() => handleSelectThread(t)}
-                      className={`w-full p-3 rounded-2xl text-left transition-all duration-300 flex items-start gap-3 relative group border ${
-                        isSelected 
-                          ? 'bg-primary text-white shadow-strong shadow-primary/20 border-primary scale-[1.01]' 
-                          : 'hover:bg-secondary/80 bg-card/40 border-foreground/5 hover:border-foreground/10 text-foreground'
-                      }`}
-                    >
-                      <div className="relative shrink-0 mt-0.5">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs shadow-soft transition-transform group-hover:scale-105 ${
-                          isSelected ? 'bg-white/20 text-white' : 'bg-secondary text-primary'
-                        }`}>
-                          {t.student?.first_name?.[0] || 'S'}{t.student?.last_name?.[0] || ''}
+                    <div key={t.id} className="relative group">
+                      <button
+                        onClick={() => handleSelectThread(t)}
+                        className={`w-full p-3 rounded-2xl text-left transition-all duration-300 flex items-start gap-3 relative group border ${
+                          isSelected 
+                            ? 'bg-primary text-white shadow-strong shadow-primary/20 border-primary scale-[1.01]' 
+                            : 'hover:bg-secondary/80 bg-card/40 border-foreground/5 hover:border-foreground/10 text-foreground'
+                        }`}
+                      >
+                        <div className="relative shrink-0 mt-0.5">
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs shadow-soft transition-transform group-hover:scale-105 ${
+                            isSelected ? 'bg-white/20 text-white' : 'bg-secondary text-primary'
+                          }`}>
+                            {t.student?.first_name?.[0] || 'S'}{t.student?.last_name?.[0] || ''}
+                          </div>
+                          {t.unreadCount > 0 && view === 'active' && (
+                            <span className="absolute -top-1 -right-1 w-4 h-4 bg-destructive text-white rounded-full text-[8px] font-black flex items-center justify-center border-2 border-background animate-bounce shadow-sm">
+                              {t.unreadCount}
+                            </span>
+                          )}
                         </div>
-                        {t.unreadCount > 0 && (
-                          <span className="absolute -top-1 -right-1 w-4 h-4 bg-destructive text-white rounded-full text-[8px] font-black flex items-center justify-center border-2 border-background animate-bounce shadow-sm">
-                            {t.unreadCount}
-                          </span>
+
+                        <div className="flex-1 min-w-0 space-y-1">
+                          <div className="flex items-center justify-between gap-1">
+                            <p className={`text-xs font-black truncate uppercase tracking-tight ${isSelected ? 'text-white' : 'text-foreground'}`}>
+                              {studentFullName}
+                            </p>
+                            <span className={`text-[8px] font-bold uppercase tracking-widest shrink-0 ${isSelected ? 'text-white/70' : 'text-muted-foreground/60'}`}>
+                              {t.lastMessage ? new Date(t.lastMessage.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'New'}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <span className={`text-[9px] font-bold tracking-tight truncate max-w-[120px] block ${isSelected ? 'text-white/80' : 'text-muted-foreground'}`}>
+                              {t.student?.registration_number || 'N/A'}
+                            </span>
+                            <span className="w-1 h-1 rounded-full bg-foreground/10 shrink-0" />
+                            <span className={`text-[8px] font-black uppercase tracking-widest truncate ${isSelected ? 'text-white/60' : 'text-primary/60'}`}>
+                              {t.student?.program || 'General'}
+                            </span>
+                          </div>
+
+                          <p className={`text-[10px] font-medium line-clamp-1 italic pt-0.5 ${
+                            t.unreadCount > 0 && view === 'active' ? 'text-primary font-bold dark:text-primary-foreground' : isSelected ? 'text-white/70' : 'text-muted-foreground/70'
+                          }`}>
+                            {t.lastMessage ? t.lastMessage.message : 'No message history yet.'}
+                          </p>
+                        </div>
+                      </button>
+
+                      {/* Quick Action Buttons */}
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-1 z-20">
+                        {view === 'active' && (
+                          <>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="w-7 h-7 rounded-lg bg-background shadow-soft hover:bg-primary hover:text-white"
+                              onClick={(e) => { e.stopPropagation(); handleUpdateChatSettings(t.id, 'archive'); }}
+                            >
+                              <Archive className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="w-7 h-7 rounded-lg bg-background shadow-soft hover:bg-destructive hover:text-white"
+                              onClick={(e) => { e.stopPropagation(); handleUpdateChatSettings(t.id, 'delete'); }}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </>
+                        )}
+                        {view === 'archived' && (
+                          <>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="w-7 h-7 rounded-lg bg-background shadow-soft hover:bg-emerald-500 hover:text-white"
+                              onClick={(e) => { e.stopPropagation(); handleUpdateChatSettings(t.id, 'unarchive'); }}
+                            >
+                              <ArchiveRestore className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="w-7 h-7 rounded-lg bg-background shadow-soft hover:bg-destructive hover:text-white"
+                              onClick={(e) => { e.stopPropagation(); handleUpdateChatSettings(t.id, 'delete'); }}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </>
+                        )}
+                        {view === 'deleted' && (
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="w-7 h-7 rounded-lg bg-background shadow-soft hover:bg-emerald-500 hover:text-white"
+                            onClick={(e) => { e.stopPropagation(); handleUpdateChatSettings(t.id, 'restore'); }}
+                          >
+                            <RefreshCw className="w-3.5 h-3.5" />
+                          </Button>
                         )}
                       </div>
-
-                      <div className="flex-1 min-w-0 space-y-1">
-                        <div className="flex items-center justify-between gap-1">
-                          <p className={`text-xs font-black truncate uppercase tracking-tight ${isSelected ? 'text-white' : 'text-foreground'}`}>
-                            {studentFullName}
-                          </p>
-                          <span className={`text-[8px] font-bold uppercase tracking-widest shrink-0 ${isSelected ? 'text-white/70' : 'text-muted-foreground/60'}`}>
-                            {t.lastMessage ? new Date(t.lastMessage.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'New'}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <span className={`text-[9px] font-bold tracking-tight truncate max-w-[120px] block ${isSelected ? 'text-white/80' : 'text-muted-foreground'}`}>
-                            {t.student?.registration_number || 'N/A'}
-                          </span>
-                          <span className="w-1 h-1 rounded-full bg-foreground/10 shrink-0" />
-                          <span className={`text-[8px] font-black uppercase tracking-widest truncate ${isSelected ? 'text-white/60' : 'text-primary/60'}`}>
-                            {t.student?.program || 'General'}
-                          </span>
-                        </div>
-
-                        <p className={`text-[10px] font-medium line-clamp-1 italic pt-0.5 ${
-                          t.unreadCount > 0 ? 'text-primary font-bold dark:text-primary-foreground' : isSelected ? 'text-white/70' : 'text-muted-foreground/70'
-                        }`}>
-                          {t.lastMessage ? t.lastMessage.message : 'No message history yet.'}
-                        </p>
-                      </div>
-
-                      {!isSelected && t.unreadCount > 0 && (
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
-                      )}
-                    </button>
+                    </div>
                   );
                 })}
               </div>

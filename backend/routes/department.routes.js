@@ -345,9 +345,9 @@ router.put('/profile',
  */
 router.get('/requests', asyncHandler(async (req, res) => {
   const departmentId = req.user.department_id;
-  const { status, search, page = 1, limit = 20 } = req.query;
+  const { status, search, page = 1, limit = 20, view = 'active' } = req.query;
   
-  console.log('GET /requests - User:', req.user.email, 'Role:', req.user.role, 'DeptID:', departmentId);
+  console.log('GET /requests - User:', req.user.email, 'Role:', req.user.role, 'DeptID:', departmentId, 'View:', view);
   
   if (!departmentId && req.user.role !== 'admin') {
     throw new AppError('No department assigned', 403, 'NO_DEPARTMENT');
@@ -357,13 +357,21 @@ router.get('/requests', asyncHandler(async (req, res) => {
     // 1. Get current department info
     const { data: currentDept } = await supabase
       .from('departments')
-      .select('id, type, code, contact_info')
+      .select('id, type, code, contact_info, clearance_config')
       .eq('id', departmentId)
       .single();
 
+    const config = currentDept?.clearance_config || {};
+    const archivedIds = config.archived_chats || [];
+    const deletedIds = config.deleted_chats || [];
+
     let queryBuilder = supabase
       .from('clearance_requests')
-      .select('*, student:student_id(*, department:department_id(name, code)), clearance_status!inner(*)', { count: 'exact' });
+      .select(`
+        *, 
+        student:student_id(*, department:department_id(name, code)), 
+        clearance_status!inner(*)
+      `, { count: 'exact' });
     
     if (departmentId) {
       queryBuilder = queryBuilder.eq('clearance_status.department_id', departmentId);
@@ -378,15 +386,37 @@ router.get('/requests', asyncHandler(async (req, res) => {
       queryBuilder = queryBuilder.or(`student_id.first_name.ilike.%${search}%,student_id.last_name.ilike.%${search}%,registration_number.ilike.%${search}%`);
     }
     
-    const { data: records, count, error } = await queryBuilder
+    let { data: records, count, error } = await queryBuilder
       .order('created_at', { ascending: false });
-    
+
     if (error) {
       console.error('Database error in /requests:', error);
       throw error;
     }
 
-    // 2. Sequential Flow Logic for Academic Departments
+    // 2. Filter by View (Archive/Delete)
+    if (view === 'archived') {
+      records = records.filter(r => archivedIds.includes(r.id));
+    } else if (view === 'deleted') {
+      records = records.filter(r => deletedIds.includes(r.id));
+    } else {
+      // Default: 'active' view hides archived and deleted
+      records = records.filter(r => !archivedIds.includes(r.id) && !deletedIds.includes(r.id));
+    }
+
+    // 3. Post-process to filter comments by targeted department
+    if (departmentId) {
+      records = records.map(record => {
+        if (record.comments) {
+          record.comments = record.comments.filter(c => 
+            String(c.department_id) === String(departmentId) || !c.department_id
+          );
+        }
+        return record;
+      });
+    }
+
+    // 4. Sequential Flow Logic for Academic Departments
     const finalRecords = await applySequentialFlow(records || [], currentDept, req.user);
 
     // Apply pagination manually after filtering
@@ -1052,5 +1082,64 @@ router.get('/pending-requests', asyncHandler(async (req, res) => {
     data: { count }
   });
 }));
+
+/**
+ * @route   PUT /api/departments/chat-settings
+ * @desc    Archive or Delete a student chat thread for the department
+ * @access  Department Staff
+ */
+router.put('/chat-settings', 
+  [
+    body('requestId').isUUID().withMessage('Valid request ID required'),
+    body('action').isIn(['archive', 'unarchive', 'delete', 'restore']).withMessage('Invalid action'),
+    validate
+  ],
+  asyncHandler(async (req, res) => {
+    const { requestId, action } = req.body;
+    const departmentId = req.user.department_id;
+    
+    if (!departmentId) {
+       throw new AppError('Department ID missing from user profile', 400);
+    }
+    
+    const { data: dept } = await supabase
+      .from('departments')
+      .select('clearance_config')
+      .eq('id', departmentId)
+      .single();
+      
+    if (!dept) throw new AppError('Department not found', 404);
+    
+    let config = dept.clearance_config || {};
+    if (!config.archived_chats) config.archived_chats = [];
+    if (!config.deleted_chats) config.deleted_chats = [];
+    
+    if (action === 'archive') {
+      if (!config.archived_chats.includes(requestId)) config.archived_chats.push(requestId);
+      config.deleted_chats = config.deleted_chats.filter(id => id !== requestId);
+    } else if (action === 'unarchive') {
+      config.archived_chats = config.archived_chats.filter(id => id !== requestId);
+    } else if (action === 'delete') {
+      if (!config.deleted_chats.includes(requestId)) config.deleted_chats.push(requestId);
+      config.archived_chats = config.archived_chats.filter(id => id !== requestId);
+    } else if (action === 'restore') {
+      config.deleted_chats = config.deleted_chats.filter(id => id !== requestId);
+      config.archived_chats = config.archived_chats.filter(id => id !== requestId);
+    }
+    
+    const { error: updateError } = await supabase
+      .from('departments')
+      .update({ clearance_config: config })
+      .eq('id', departmentId);
+      
+    if (updateError) throw updateError;
+    
+    res.status(200).json({
+      success: true,
+      message: `Chat ${action}d successfully`,
+      data: config
+    });
+  })
+);
 
 module.exports = router;

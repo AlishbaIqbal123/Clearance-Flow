@@ -216,7 +216,14 @@ export const DashboardLayout = ({
   useEffect(() => {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 60000); // Poll every minute
-    return () => clearInterval(interval);
+    
+    // Listen for manual chat updates to sync badge immediately
+    window.addEventListener('chats-updated', fetchNotifications);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('chats-updated', fetchNotifications);
+    };
   }, []);
 
   const saveProfile = async () => {

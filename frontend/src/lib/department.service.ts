@@ -54,5 +54,10 @@ export const departmentService = {
   markDepartmentChatRead: async (id: string, departmentId?: string) => {
     const response = await api.post(`/departments/requests/${id}/mark-chat-read`, { departmentId });
     return response.data;
+  },
+  
+  updateChatSettings: async (requestId: string, action: 'archive' | 'unarchive' | 'delete' | 'restore') => {
+    const response = await api.put('/departments/chat-settings', { requestId, action });
+    return response.data;
   }
 };
