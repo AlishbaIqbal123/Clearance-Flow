@@ -437,7 +437,7 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                 </div>
               )}
           </div>
-        </CardContent>t>
+        </CardContent>
       </Card>
 
       {/* Request Action Dialog */}
