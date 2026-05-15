@@ -18,6 +18,8 @@ import { MyClearance } from '@/components/MyClearance';
 import { DispatchList } from '@/components/DispatchList';
 import { Landing } from '@/components/Landing';
 import { authService } from '@/lib/auth.service';
+import { studentService } from '@/lib/student.service';
+import { Award, Check } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import './App.css';
 
