@@ -14,7 +14,8 @@ import {
   ShieldCheck,
   Sparkles,
   Info,
-  CornerDownRight
+  CornerDownRight,
+  ChevronLeft
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,6 +37,7 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
   const [messageInput, setMessageInput] = useState('');
   const [sending, setSending] = useState(false);
   const [optimisticMessages, setOptimisticMessages] = useState<any[]>([]);
+  const [isMobileThreadOpen, setIsMobileThreadOpen] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const fetchChatsData = async (silent = false) => {
@@ -78,6 +80,7 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
   // Handle Mark read automatically when selecting a thread with unread count
   const handleSelectThread = async (req: any) => {
     setSelectedRequestId(req.id);
+    setIsMobileThreadOpen(false); // Switch to chat view on mobile
     const comments = req.comments || [];
     const deptId = user?.department_id || user?.department?.id;
     const hasUnread = comments.some((c: any) => 
@@ -216,7 +219,10 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
       <div className="flex-1 min-h-0 rounded-3xl border border-foreground/5 bg-card/60 backdrop-blur-3xl shadow-strong overflow-hidden flex flex-col md:flex-row relative">
         
         {/* Left Sidebar Pane */}
-        <div className="w-full md:w-[360px] border-b md:border-b-0 md:border-r border-foreground/5 flex flex-col bg-secondary/10 shrink-0 h-[40%] md:h-full">
+        <div className={`
+          ${isMobileThreadOpen ? 'flex' : 'hidden md:flex'} 
+          w-full md:w-[300px] lg:w-[360px] border-b md:border-b-0 md:border-r border-foreground/5 flex flex-col bg-secondary/10 shrink-0 h-full
+        `}>
           {/* Search bar header */}
           <div className="p-4 border-b border-foreground/5 bg-secondary/30">
             <div className="relative group">
@@ -309,7 +315,10 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
         </div>
 
         {/* Right Chat Console Pane */}
-        <div className="flex-1 flex flex-col bg-background/20 relative overflow-hidden h-[60%] md:h-full">
+        <div className={`
+          ${!isMobileThreadOpen ? 'flex' : 'hidden md:flex'} 
+          flex-1 flex flex-col bg-background/20 relative overflow-hidden h-full
+        `}>
           {!selectedThread ? (
             <div className="flex-1 flex flex-col items-center justify-center p-8 text-center relative">
               <div className="absolute inset-0 bg-primary/5 blur-[100px] pointer-events-none rounded-full" />
@@ -333,6 +342,16 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
               {/* Sticky Top Header */}
               <div className="px-6 py-4 glass border-b border-foreground/5 flex items-center justify-between gap-4 sticky top-0 z-20 shadow-soft">
                 <div className="flex items-center gap-3">
+                  {/* Back button for mobile */}
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => setIsMobileThreadOpen(true)}
+                    className="md:hidden rounded-full hover:bg-secondary w-9 h-9"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </Button>
+
                   <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-black text-xs shadow-inner">
                     {selectedThread.student?.first_name?.[0] || 'S'}{selectedThread.student?.last_name?.[0] || ''}
                   </div>
@@ -383,16 +402,24 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
                             </span>
                           </div>
                           <div className={`px-4 py-3 rounded-2xl max-w-[85%] text-xs font-semibold leading-relaxed shadow-soft relative ${
-                            isStudent 
-                              ? 'bg-secondary text-foreground rounded-bl-sm border border-foreground/5' 
-                              : 'bg-primary text-white rounded-br-sm shadow-primary/20'
+                            msg.is_notification 
+                              ? 'bg-amber-500/10 text-amber-700 border border-amber-500/20 italic' 
+                              : isStudent 
+                                ? 'bg-secondary text-foreground rounded-bl-sm border border-foreground/5' 
+                                : 'bg-primary text-white rounded-br-sm shadow-primary/20'
                           }`}>
+                            {msg.is_notification && <Info className="w-3 h-3 inline mr-2 opacity-50" />}
                             {msg.message}
                           </div>
                           <div className="flex items-center gap-1.5 mt-1 opacity-60 group-hover/msg:opacity-100 transition-opacity">
                             <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest">
                               {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
+                            {msg.is_notification && (
+                              <Badge className="bg-amber-500/10 text-amber-600 border-none text-[7px] font-black uppercase tracking-widest px-1.5 py-0">
+                                System Log
+                              </Badge>
+                            )}
                           </div>
                         </div>
                       );

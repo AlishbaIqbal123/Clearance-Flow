@@ -597,6 +597,7 @@ router.put('/requests/:id/status',
         authorName: req.user.fullName || 'Department Officer',
         message: remarks,
         is_internal: false,
+        is_notification: true, // Mark as official feedback
         read_by_student: false,
         created_at: new Date().toISOString()
       });

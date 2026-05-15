@@ -464,12 +464,24 @@ const DepartmentCard = ({
                                 {msg.authorName || (isStudent ? 'You' : 'Officer')}
                               </span>
                             </div>
-                            <div className={`px-4 py-3 rounded-2xl max-w-[85%] text-xs font-medium leading-relaxed ${isStudent ? 'bg-primary text-white rounded-br-sm shadow-soft shadow-primary/20' : 'bg-secondary text-foreground rounded-bl-sm border border-foreground/5'}`}>
+                            <div className={`px-4 py-3 rounded-2xl max-w-[85%] text-xs font-medium leading-relaxed ${
+                              msg.is_notification 
+                                ? 'bg-amber-500/10 text-amber-700 border border-amber-500/20 italic' 
+                                : isStudent 
+                                  ? 'bg-primary text-white rounded-br-sm shadow-soft shadow-primary/20' 
+                                  : 'bg-secondary text-foreground rounded-bl-sm border border-foreground/5'
+                            }`}>
+                              {msg.is_notification && <Info className="w-3 h-3 inline mr-2 opacity-50" />}
                               {msg.message}
                             </div>
-                            <span className="text-[7px] font-bold text-muted-foreground/40 mt-1 uppercase tracking-widest">
-                              {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-[7px] font-bold text-muted-foreground/40 uppercase tracking-widest">
+                                {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                              {msg.is_notification && (
+                                <span className="text-[7px] font-black text-amber-600 uppercase tracking-widest opacity-60">Official Feedback</span>
+                              )}
+                            </div>
                           </div>
                         );
                       })
