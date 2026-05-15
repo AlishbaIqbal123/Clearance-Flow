@@ -105,5 +105,10 @@ export const adminService = {
   getDispatchRequests: async () => {
     const response = await api.get('/admin/dispatch-requests');
     return response.data;
+  },
+
+  completeDispatch: async (id: string) => {
+    const response = await api.post(`/admin/dispatch-requests/${id}/complete`);
+    return response.data;
   }
 };

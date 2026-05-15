@@ -1182,13 +1182,82 @@ router.get('/dispatch-requests',
 
     // Filter in JS because Supabase JSONB filtering can be tricky for nested values
     const dispatchRequests = data.filter(req => 
-      req.status === 'cleared' && req.degree_fulfillment && (req.degree_fulfillment.method === 'dispatch' || req.degree_fulfillment.method === 'manual')
+      req.status === 'cleared'
     );
 
     res.status(200).json({
       success: true,
       count: dispatchRequests.length,
       data: dispatchRequests
+    });
+  })
+);
+
+/**
+ * @route   POST /api/admin/dispatch-requests/:id/complete
+ * @desc    Mark degree dispatch/collection as completed
+ * @access  Admin, Exam Officer
+ */
+router.post('/dispatch-requests/:id/complete',
+  authorize('admin', 'exam_officer'),
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const staffId = req.user.id;
+
+    const { data: request, error: fetchError } = await supabase
+      .from('clearance_requests')
+      .select('*, student:student_id(*)')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !request) {
+      throw new AppError('Clearance request not found', 404, 'REQUEST_NOT_FOUND');
+    }
+
+    const degree_fulfillment = request.degree_fulfillment || {};
+    degree_fulfillment.status = 'completed';
+    degree_fulfillment.completed_at = new Date().toISOString();
+    degree_fulfillment.completed_by = staffId;
+
+    const timeline = request.timeline || [];
+    timeline.push({
+      action: 'fulfillment_completed',
+      performedBy: staffId,
+      performedByModel: 'User',
+      description: `Degree ${degree_fulfillment.method === 'dispatch' ? 'Dispatched' : 'Collected'} by Exam Department.`,
+      timestamp: new Date().toISOString()
+    });
+
+    const { error: updateError } = await supabase
+      .from('clearance_requests')
+      .update({ 
+        degree_fulfillment,
+        timeline,
+        status: 'completed' // Final terminal status
+      })
+      .eq('id', id);
+
+    if (updateError) throw updateError;
+
+    // Update student profile to final completed state
+    await supabase.from('student_profiles')
+      .update({ clearance_status: 'completed' })
+      .eq('id', request.student_id);
+
+    // Notify student
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`user:${request.student_id}`).emit('fulfillment-completed', {
+        requestId: id,
+        method: degree_fulfillment.method,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Degree fulfillment marked as completed',
+      data: { degree_fulfillment }
     });
   })
 );

@@ -584,6 +584,17 @@ router.put('/requests/:id/status',
         status,
         remarks
       });
+
+      // Notify Exam Department when request is fully cleared by all other departments
+      if (newOverallStatus === 'cleared') {
+        io.emit('exam-department-notification', {
+          title: 'Final Clearance Achieved',
+          message: `Student ${request.student?.first_name || 'A student'} has completed all departmental clearances and is now ready for degree processing.`,
+          requestId: id,
+          registrationNumber: request.student?.registration_number,
+          timestamp: new Date().toISOString()
+        });
+      }
     }
     
     // Send email notification via Apps Script

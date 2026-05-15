@@ -65,6 +65,28 @@ export const DispatchList = () => {
     fetchDispatchRequests();
   }, []);
 
+  const handleCompleteDispatch = async (req: any) => {
+    if (!req.degree_fulfillment) {
+      toast.error('Student has not selected a fulfillment method yet');
+      return;
+    }
+
+    const action = req.degree_fulfillment.method === 'manual' ? 'pickup' : 'dispatch';
+    if (!window.confirm(`Are you sure you want to confirm the ${action} for ${req.student?.first_name}?`)) {
+      return;
+    }
+
+    try {
+      const res = await adminService.completeDispatch(req.id);
+      if (res.success) {
+        toast.success(`Degree ${action} confirmed successfully`);
+        fetchDispatchRequests();
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to complete dispatch');
+    }
+  };
+
   const filteredRequests = requests.filter(req => 
     req.student?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     req.student?.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -164,8 +186,12 @@ export const DispatchList = () => {
                     <TableCell className="py-8 px-6">
                       <div className="flex items-start gap-4 max-w-md">
                         <MapPin className="w-5 h-5 text-primary shrink-0 mt-1" />
-                        <p className="font-bold text-sm text-foreground/80 leading-relaxed uppercase italic">
-                          {req.degree_fulfillment?.method === 'manual' ? 'Manual Collection (In-Person Pickup)' : (req.degree_fulfillment?.address || 'N/A')}
+                        <p className={`font-bold text-sm leading-relaxed uppercase italic ${!req.degree_fulfillment ? 'text-muted-foreground opacity-50' : 'text-foreground/80'}`}>
+                          {!req.degree_fulfillment 
+                            ? 'Awaiting Student Selection' 
+                            : req.degree_fulfillment.method === 'manual' 
+                              ? 'Manual Collection (In-Person Pickup)' 
+                              : (req.degree_fulfillment.address || 'Address Not Provided')}
                         </p>
                       </div>
                     </TableCell>
@@ -173,15 +199,24 @@ export const DispatchList = () => {
                       <div className="flex items-center gap-3 text-muted-foreground">
                         <Calendar className="w-4 h-4" />
                         <span className="text-[11px] font-black uppercase tracking-widest">
-                          {new Date(req.degree_fulfillment?.selected_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          {req.degree_fulfillment?.selected_at 
+                            ? new Date(req.degree_fulfillment.selected_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                            : 'PENDING'}
                         </span>
                       </div>
                     </TableCell>
                     <TableCell className="py-8 px-6">
-                      <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[9px] uppercase tracking-[0.2em] px-4 py-2 rounded-full flex items-center gap-2 w-fit">
-                        <CheckCircle2 className="w-3 h-3" />
-                        {req.degree_fulfillment?.method === 'manual' ? 'Ready for Pickup' : 'Ready for Dispatch'}
-                      </Badge>
+                      {!req.degree_fulfillment ? (
+                        <Badge className="bg-amber-50 text-amber-600 border-none font-black text-[9px] uppercase tracking-[0.2em] px-4 py-2 rounded-full flex items-center gap-2 w-fit">
+                          <AlertCircle className="w-3 h-3" />
+                          Awaiting Selection
+                        </Badge>
+                      ) : (
+                        <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[9px] uppercase tracking-[0.2em] px-4 py-2 rounded-full flex items-center gap-2 w-fit">
+                          <CheckCircle2 className="w-3 h-3" />
+                          {req.degree_fulfillment.method === 'manual' ? 'Ready for Pickup' : 'Ready for Dispatch'}
+                        </Badge>
+                      )}
                     </TableCell>
                     <TableCell className="py-8 px-10 text-right">
                       <div className="flex items-center justify-end gap-3">
@@ -196,7 +231,11 @@ export const DispatchList = () => {
                         >
                           <Eye className="w-5 h-5" />
                         </Button>
-                        <Button className="h-12 w-12 rounded-xl bg-foreground text-white hover:bg-primary transition-all shadow-soft group/action">
+                        <Button 
+                          className="h-12 w-12 rounded-xl bg-foreground text-white hover:bg-primary transition-all shadow-soft group/action"
+                          onClick={() => handleCompleteDispatch(req)}
+                          disabled={!req.degree_fulfillment}
+                        >
                           <PackageCheck className="w-5 h-5 group-hover/action:scale-110 transition-transform" />
                         </Button>
                       </div>
