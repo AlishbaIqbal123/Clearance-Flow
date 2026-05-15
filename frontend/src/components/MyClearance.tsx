@@ -58,10 +58,23 @@ const DepartmentCard = ({
     s.department?.type === 'academic' || s.status === 'cleared'
   );
 
+  // Synthesize comments to include the latest official remark if it's not already in the stream
+  const baseComments = (comments || []).filter((c: any) => c.department_id === dept.department_id || !c.department_id);
+  const remarkInComments = baseComments.some(c => c.message === dept.remarks && c.is_notification);
+  
   const deptComments = [
-    ...comments.filter((c: any) => c.department_id === dept.department_id || !c.department_id),
+    ...(dept.remarks && !remarkInComments ? [{
+      id: `remark-${dept.id}`,
+      message: dept.remarks,
+      author_model: 'Staff',
+      authorName: 'Official Feedback',
+      is_notification: true,
+      created_at: dept.updated_at || dept.created_at || new Date().toISOString()
+    }] : []),
+    ...baseComments,
     ...optimisticMessages
-  ];
+  ].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+
   const unreadCount = deptComments.filter((c: any) => c.author_model === 'Staff' && !c.read_by_student).length;
 
   const handleWhatsApp = () => {

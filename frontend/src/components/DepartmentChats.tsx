@@ -124,11 +124,27 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
       c.author_model === 'Student' && !c.read_by_dept
     ).length;
 
-    const lastMessage = deptComments[deptComments.length - 1];
+    // Synthesize latest remark from status into the chat feed if missing
+    const deptStatus = (req.clearance_status || []).find((s: any) => s.department_id === deptId);
+    const remarkInComments = deptComments.some(c => c.message === deptStatus?.remarks && c.is_notification);
+    
+    const combinedComments = [
+      ...(deptStatus?.remarks && !remarkInComments ? [{
+        id: `remark-${deptStatus.id}`,
+        message: deptStatus.remarks,
+        author_model: 'Staff',
+        authorName: 'Official Remark',
+        is_notification: true,
+        created_at: deptStatus.updated_at || deptStatus.created_at || new Date().toISOString()
+      }] : []),
+      ...deptComments
+    ].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+
+    const lastMessage = combinedComments[combinedComments.length - 1];
 
     return {
       ...req,
-      deptComments,
+      deptComments: combinedComments,
       unreadCount,
       lastMessage,
       lastTimestamp: lastMessage ? new Date(lastMessage.created_at).getTime() : new Date(req.created_at).getTime()

@@ -589,18 +589,22 @@ router.put('/requests/:id/status',
     });
 
     if (remarks) {
-      comments.push({
-        id: Date.now().toString(),
-        department_id: departmentId || req.body.department_id,
-        author: staffId,
-        author_model: 'Staff',
-        authorName: req.user.fullName || 'Department Officer',
-        message: remarks,
-        is_internal: false,
-        is_notification: true, // Mark as official feedback
-        read_by_student: false,
-        created_at: new Date().toISOString()
-      });
+      // Check if this exact remark was already the last system message to avoid duplicates
+      const lastSystemMessage = [...comments].reverse().find(c => c.is_notification && c.department_id === (departmentId || req.body.department_id));
+      if (!lastSystemMessage || lastSystemMessage.message !== remarks) {
+        comments.push({
+          id: Date.now().toString(),
+          department_id: departmentId || req.body.department_id,
+          author: staffId,
+          author_model: 'Staff',
+          authorName: req.user.fullName || req.user.first_name || 'Department Officer',
+          message: remarks,
+          is_internal: false,
+          is_notification: true,
+          read_by_student: false,
+          created_at: new Date().toISOString()
+        });
+      }
     }
 
     await supabase.from('clearance_requests')
