@@ -495,12 +495,12 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                   </div>
                 </div>
                 <div className="mt-6 relative h-3 bg-secondary/50 rounded-full overflow-hidden border border-foreground/5 p-0.5">
-                   <div 
-                    className="h-full bg-primary rounded-full transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(var(--primary),0.4)] relative"
-                    style={{ width: `${activeRequest.progress?.percentage || 0}%` }}
-                   >
-                     <div className="absolute inset-0 bg-white/20 shimmer" />
-                   </div>
+                    <div 
+                      className={`h-full transition-all duration-1000 ease-out relative ${activeRequest.status === 'fully_cleared' ? 'bg-primary shadow-[0_0_20px_rgba(var(--primary-rgb),0.5)]' : 'bg-primary'}`} 
+                      style={{ width: `${activeRequest.status === 'fully_cleared' ? 100 : (activeRequest.progress?.percentage || 0)}%` }}
+                     >
+                      <div className="absolute inset-0 bg-white/20 shimmer" />
+                    </div>
                 </div>
               </CardHeader>
               <CardContent className="p-0">
