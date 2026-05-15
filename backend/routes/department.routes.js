@@ -71,7 +71,7 @@ const applySequentialFlow = async (records, currentDept, user) => {
   // Fetch ALL statuses for these requests to check other departments
   const { data: allStatuses, error: statusError } = await supabase
     .from('clearance_status')
-    .select('request_id, status, department:department_id(id, type, name, code, contact_info)')
+    .select('request_id, status, department_id, department:department_id(id, type, name, code, contact_info)')
     .in('request_id', requestIds);
 
   if (statusError) {
@@ -159,7 +159,7 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
     const requestIds = statsRaw.map(s => s.request_id);
     const { data: phase1Data } = await supabase
       .from('clearance_status')
-      .select('request_id, status, department:department_id(type)')
+      .select('request_id, status, department_id, department:department_id(id, type, name, code)')
       .in('request_id', requestIds);
 
     if (phase1Data) {
