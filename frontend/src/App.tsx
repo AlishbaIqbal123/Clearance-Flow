@@ -115,6 +115,7 @@ const App: React.FC = () => {
     if (activeTab === 'dashboard') {
       if (user.role === 'admin') return <AdminDashboard onNavigate={setActiveTab} />;
       if (user.role === 'student') return <StudentDashboard onNavigate={setActiveTab} />;
+      if (user.role === 'exam_officer') return <DispatchList />;
       return <DepartmentDashboard onNavigate={setActiveTab} user={user} />;
     }
 
