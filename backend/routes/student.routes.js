@@ -604,7 +604,7 @@ router.post('/clearance-request/:id/documents',
           authorName: req.user.fullName,
           message: `Uploaded ${newDocuments.length} supporting documents.`,
           is_internal: false,
-          attachments: newDocuments,
+          read_by_dept: false, // Ensure it's unread for depts
           created_at: new Date().toISOString()
         });
 
@@ -709,7 +709,13 @@ router.post('/clearance-request/:id/department-chat',
       throw new AppError('Clearance request not found', 404, 'REQUEST_NOT_FOUND');
     }
     
-    const comments = request.comments || [];
+    const comments = (request.comments || []).map(c => {
+      // Mark staff messages from this department as read by student when student replies
+      if (c.department_id === departmentId && c.author_model === 'Staff' && !c.read_by_student) {
+        return { ...c, read_by_student: true };
+      }
+      return c;
+    });
     const newMsg = {
       id: Date.now().toString(),
       department_id: departmentId,
@@ -773,7 +779,11 @@ router.post('/clearance-request/:id/mark-chat-read',
     
     let updated = false;
     const comments = (request.comments || []).map(c => {
-      if (c.department_id === departmentId && c.author_model === 'Staff' && !c.read_by_student) {
+      // Mark messages from this department OR broadcast messages as read
+      const isFromDept = c.department_id === departmentId;
+      const isBroadcast = !c.department_id;
+      
+      if ((isFromDept || isBroadcast) && c.author_model === 'Staff' && !c.read_by_student) {
         updated = true;
         return { ...c, read_by_student: true };
       }
@@ -963,8 +973,9 @@ router.post('/clearance-request/:id/submit-form',
       author_model: 'Student',
       message: notificationMessage,
       is_internal: false,
-      is_notification: true, // Special flag for the UI
-      target_department_id: departmentId, // Only show to this department
+      is_notification: true,
+      department_id: departmentId, // Standardized key
+      read_by_dept: false,
       created_at: new Date().toISOString()
     });
 

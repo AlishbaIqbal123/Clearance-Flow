@@ -191,9 +191,22 @@ export const DashboardLayout = ({
             });
             setUnreadChatCount(count);
           }
-        } catch (err) {
-          // Silent catch for live status updates
-        }
+        } catch (err) {}
+      }
+
+      // Sync unread chats for students
+      if (user?.role === 'student') {
+        try {
+          const res = await studentService.getDashboard();
+          if (res.success) {
+            const activeRequest = res.data?.activeRequest;
+            if (activeRequest) {
+              const comments = activeRequest.comments || [];
+              const count = comments.filter((c: any) => c.author_model === 'Staff' && !c.read_by_student).length;
+              setUnreadChatCount(count);
+            }
+          }
+        } catch (err) {}
       }
     } catch (e) {
       console.error('Failed to fetch notifications');
@@ -330,6 +343,11 @@ export const DashboardLayout = ({
                     {isLocked && <Lock className="w-3 h-3 ml-auto opacity-50" />}
                     {item.id === 'dept-chats' && unreadChatCount > 0 && !isLocked && (
                       <span className="px-2 py-0.5 rounded-full bg-destructive text-white text-[9px] font-black animate-pulse shadow-sm">
+                        {unreadChatCount}
+                      </span>
+                    )}
+                    {item.id === 'dashboard' && user?.role === 'student' && unreadChatCount > 0 && (
+                      <span className="px-2 py-0.5 rounded-full bg-destructive text-white text-[9px] font-black animate-pulse shadow-sm ml-auto">
                         {unreadChatCount}
                       </span>
                     )}

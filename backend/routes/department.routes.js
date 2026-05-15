@@ -579,11 +579,35 @@ router.put('/requests/:id/status',
       newOverallStatus = 'in_progress';
     }
 
+    // If remarks provided, also add to chat/comments
+    const comments = (request.comments || []).map(c => {
+      // Mark student messages for this department as read by dept when staff updates status
+      if (c.department_id === (departmentId || req.body.department_id) && c.author_model === 'Student' && !c.read_by_dept) {
+        return { ...c, read_by_dept: true };
+      }
+      return c;
+    });
+
+    if (remarks) {
+      comments.push({
+        id: Date.now().toString(),
+        department_id: departmentId || req.body.department_id,
+        author: staffId,
+        author_model: 'Staff',
+        authorName: req.user.fullName || 'Department Officer',
+        message: remarks,
+        is_internal: false,
+        read_by_student: false,
+        created_at: new Date().toISOString()
+      });
+    }
+
     await supabase.from('clearance_requests')
       .update({ 
         timeline,
         progress: newProgress,
-        status: newOverallStatus
+        status: newOverallStatus,
+        comments
       })
       .eq('id', id);
 
@@ -782,7 +806,14 @@ router.post('/requests/:id/department-chat',
       throw new AppError('Clearance request not found', 404, 'REQUEST_NOT_FOUND');
     }
     
-    const comments = request.comments || [];
+    const comments = (request.comments || []).map(c => {
+      // Mark student messages for this department as read by dept when staff replies
+      if (c.department_id === (departmentId || req.body.departmentId) && c.author_model === 'Student' && !c.read_by_dept) {
+        return { ...c, read_by_dept: true };
+      }
+      return c;
+    });
+
     const newMsg = {
       id: Date.now().toString(),
       department_id: departmentId || req.body.departmentId,
@@ -840,7 +871,11 @@ router.post('/requests/:id/mark-chat-read',
     
     let updated = false;
     const comments = (request.comments || []).map(c => {
-      if (c.department_id === departmentId && c.author_model === 'Student' && !c.read_by_dept) {
+      // Mark messages for this department OR broadcast messages as read
+      const isForDept = c.department_id === departmentId;
+      const isBroadcast = !c.department_id;
+      
+      if ((isForDept || isBroadcast) && c.author_model === 'Student' && !c.read_by_dept) {
         updated = true;
         return { ...c, read_by_dept: true };
       }
