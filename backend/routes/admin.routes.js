@@ -1279,9 +1279,17 @@ router.post('/dispatch-requests/:id/notify',
       created_at: new Date().toISOString()
     });
 
+    const degree_fulfillment = request.degree_fulfillment || {};
+    degree_fulfillment.notification_sent = true;
+    degree_fulfillment.notification_type = type;
+    degree_fulfillment.notified_at = new Date().toISOString();
+
     const { error: updateError } = await supabase
       .from('clearance_requests')
-      .update({ comments })
+      .update({ 
+        comments,
+        degree_fulfillment
+      })
       .eq('id', id);
 
     if (updateError) throw updateError;
