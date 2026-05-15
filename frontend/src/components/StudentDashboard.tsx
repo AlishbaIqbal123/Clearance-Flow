@@ -575,7 +575,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
           icon={ShieldCheck} 
           color="bg-primary" 
           description="Your current clearance state"
-          onClick={() => onNavigate('my-clearance')}
+          onClick={() => onNavigate?.('my-clearance')}
         />
         <BentoStatCard 
           title="Cleared Departments" 
@@ -583,7 +583,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
           icon={CheckCircle2} 
           color="bg-emerald-500" 
           description={`${activeRequest?.progress?.clearedDepartments || 0}/${activeRequest?.progress?.totalDepartments || 0} Departments Cleared`}
-          onClick={() => onNavigate('my-clearance')}
+          onClick={() => onNavigate?.('my-clearance')}
         />
         <BentoStatCard 
           title="Total Departments" 
@@ -591,7 +591,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
           icon={LayoutDashboard} 
           color="bg-slate-900 dark:bg-slate-200" 
           description="Departments involved in clearance"
-          onClick={() => onNavigate('my-clearance')}
+          onClick={() => onNavigate?.('my-clearance')}
         />
         <BentoStatCard 
           title="Previous Requests" 
@@ -599,7 +599,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
           icon={History} 
           color="bg-indigo-600" 
           description="View your clearance history"
-          onClick={() => onNavigate('my-clearance')}
+          onClick={() => onNavigate?.('my-clearance')}
         />
       </div>
 
