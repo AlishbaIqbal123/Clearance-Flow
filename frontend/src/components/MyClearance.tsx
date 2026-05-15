@@ -60,7 +60,7 @@ const DepartmentCard = ({
 
   // Synthesize comments to include the latest official remark if it's not already in the stream
   const baseComments = (comments || []).filter((c: any) => c.department_id === dept.department_id || !c.department_id);
-  const remarkInComments = baseComments.some(c => c.message === dept.remarks && c.is_notification);
+  const remarkInComments = baseComments.some((c: any) => c.message === dept.remarks && c.is_notification);
   
   const deptComments = [
     ...(dept.remarks && !remarkInComments ? [{
