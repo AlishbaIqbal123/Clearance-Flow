@@ -40,6 +40,7 @@ import {
 } from '@/components/ui/dialog';
 import { adminService } from '@/lib/admin.service';
 import { toast } from 'sonner';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 
 export const DispatchList = () => {
