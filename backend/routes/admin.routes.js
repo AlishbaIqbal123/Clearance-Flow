@@ -42,6 +42,9 @@ const adminPlus = authorize('admin');
 router.get('/dashboard', adminPlus, asyncHandler(async (req, res) => {
   console.log('Fetching admin dashboard data...');
 
+  // Get all departments for name mapping
+  const { data: allDepts } = await supabase.from('departments').select('id, name, code').eq('is_active', true);
+
   // Get counts
   const { count: totalStudents } = await supabase.from('student_profiles').select('*', { count: 'exact', head: true }).eq('is_active', true);
   const { count: totalDepartments } = await supabase.from('departments').select('*', { count: 'exact', head: true }).eq('is_active', true);
@@ -100,19 +103,42 @@ router.get('/dashboard', adminPlus, asyncHandler(async (req, res) => {
   }));
 
   const { count: pendingClearance } = await supabase.from('clearance_requests').select('*', { count: 'exact', head: true }).eq('status', 'submitted');
+  const { count: dispatchPendingCount } = await supabase.from('dispatch_log').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+
+  // Department-wise student counts
+  const { data: deptStudentStatsRaw } = await supabase
+    .from('student_profiles')
+    .select('department_id, id')
+    .eq('is_active', true);
+    
+  const deptStudentStatsMap = (deptStudentStatsRaw || []).reduce((acc, curr) => {
+    const dept = pendingDepts?.find(d => d.id === curr.department_id) || allDepts?.find(d => d.id === curr.department_id);
+    const name = dept?.name || 'Unknown';
+    acc[name] = (acc[name] || 0) + 1;
+    return acc;
+  }, {});
+
+  const departmentStudentStats = Object.entries(deptStudentStatsMap).map(([name, count]) => ({
+    name: name,
+    count: count
+  }));
 
   res.status(200).json({
     success: true,
     data: {
-      stats: {
-        totalStudents,
-        totalDepartments,
-        totalStaff,
-        clearanceStats: clearanceMap,
-        pendingClearance
+      counts: {
+        totalStudents: totalStudents || 0,
+        totalDepartments: totalDepartments || 0,
+        totalStaff: totalStaff || 0,
+        totalClearanceRequests: (requests || []).length,
+        totalRequests: (requests || []).length,
+        pendingClearance: pendingClearance || 0,
+        dispatchPendingCount: dispatchPendingCount || 0
       },
+      clearanceStats: clearanceMap,
       recentRequests,
-      deptPendingStats
+      departmentPendingStats: deptPendingStats,
+      departmentStudentStats
     }
   });
 }));
