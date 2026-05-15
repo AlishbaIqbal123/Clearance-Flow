@@ -326,10 +326,14 @@ export const DispatchList = () => {
                           <BellRing className={`w-5 h-5 ${req.degree_fulfillment?.notification_sent ? 'text-amber-500' : ''}`} />
                         </Button>
                         <Button 
-                          className="h-12 w-12 rounded-xl bg-foreground text-white hover:bg-primary transition-all shadow-soft group/action"
+                          className={`h-12 w-12 rounded-xl transition-all shadow-soft group/action ${
+                            req.status === 'fully_cleared' || req.status === 'completed' 
+                              ? 'bg-emerald-500 text-white' 
+                              : 'bg-foreground text-white hover:bg-primary'
+                          }`}
                           title="Complete Protocol"
                           onClick={() => handleCompleteDispatch(req)}
-                          disabled={!req.degree_fulfillment}
+                          disabled={!req.degree_fulfillment || req.status === 'fully_cleared' || req.status === 'completed'}
                         >
                           <PackageCheck className="w-5 h-5 group-hover/action:scale-110 transition-transform" />
                         </Button>
@@ -654,16 +658,27 @@ export const DispatchList = () => {
             <div className="space-y-4 pt-4">
               <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Protocol Controls</h4>
               <div className="grid grid-cols-1 gap-4">
-                 <Button 
-                   className="h-16 rounded-2xl bg-foreground text-background hover:bg-primary hover:text-white transition-all font-black text-[11px] uppercase tracking-[0.3em] flex items-center gap-4 group"
-                   onClick={() => handleCompleteDispatch(selectedRequest)}
-                   disabled={!selectedRequest?.degree_fulfillment || selectedRequest?.status === 'completed'}
-                 >
-                   <div className="w-8 h-8 bg-background/10 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <PackageCheck className="w-4 h-4" />
-                   </div>
-                   {selectedRequest?.status === 'completed' ? 'Protocol Finalized' : 'Confirm Institutional Handover'}
-                 </Button>
+                  <Button 
+                    className={`h-20 rounded-[2rem] transition-all font-black text-[12px] uppercase tracking-[0.4em] flex items-center justify-center gap-6 group shadow-xl ${
+                      selectedRequest?.status === 'fully_cleared' || selectedRequest?.status === 'completed'
+                        ? 'bg-emerald-500 text-white cursor-default'
+                        : 'bg-foreground text-background hover:bg-primary hover:text-white'
+                    }`}
+                    onClick={() => handleCompleteDispatch(selectedRequest)}
+                    disabled={!selectedRequest?.degree_fulfillment || selectedRequest?.status === 'fully_cleared' || selectedRequest?.status === 'completed'}
+                  >
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-transform ${
+                       selectedRequest?.status === 'fully_cleared' || selectedRequest?.status === 'completed'
+                         ? 'bg-white/20'
+                         : 'bg-background/10 group-hover:scale-110'
+                    }`}>
+                       <PackageCheck className="w-5 h-5" />
+                    </div>
+                    <div className="flex flex-col items-start gap-1">
+                      <span>{selectedRequest?.status === 'fully_cleared' || selectedRequest?.status === 'completed' ? 'Degree Received & Clear' : 'Student Received Degree'}</span>
+                      <span className="text-[8px] opacity-40 font-bold tracking-widest uppercase">Institutional Final Clearance Protocol</span>
+                    </div>
+                  </Button>
               </div>
             </div>
 
