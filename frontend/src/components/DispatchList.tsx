@@ -103,7 +103,7 @@ export const DispatchList = () => {
       if (res.success) {
         toast.success(`Student notified: ${type === 'dispatched' ? 'Degree Dispatched' : 'Ready for Pickup'}`);
         setIsViewOpen(false);
-        fetchRequests();
+        fetchDispatchRequests();
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to send notification');
