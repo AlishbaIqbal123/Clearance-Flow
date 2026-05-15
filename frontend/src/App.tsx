@@ -182,11 +182,13 @@ const App: React.FC = () => {
 
   const clearanceStatuses = activeRequest?.clearance_status || [];
   
-  // Phase 1 (Admin/Non-Academic): Unlocked if there is an active request
-  const isPhase1Unlocked = !!activeRequest;
+  // Phase 1 (Admin/Non-Academic): Always unlocked for students to allow them to start/view their initial progress
+  const isPhase1Unlocked = user?.role === 'student';
   
   // Phase 2 (Academic): Unlocked if ALL Phase 1 departments (non-academic) are 'cleared'
+  // Only if there is an active request and it has some status entries
   const isPhase2Unlocked = isPhase1Unlocked && 
+    activeRequest && 
     clearanceStatuses.length > 0 && 
     clearanceStatuses
       .filter((s: any) => s.department?.type !== 'academic' && s.department?.code !== 'EXD')
@@ -195,6 +197,7 @@ const App: React.FC = () => {
   // Phase 3 (Degree): Unlocked if ALL departments (including Phase 2 Academic) are 'cleared'
   // (EXD/Exam department is excluded from this check as it is the terminal node for Phase 3)
   const isPhase3Unlocked = isPhase2Unlocked && 
+    clearanceStatuses.length > 0 &&
     clearanceStatuses
       .filter((s: any) => s.department?.type === 'academic')
       .every((s: any) => s.status === 'cleared');
