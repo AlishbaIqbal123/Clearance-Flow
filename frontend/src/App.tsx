@@ -131,7 +131,7 @@ const App: React.FC = () => {
         if (user.role === 'admin') return <DepartmentList filterType="administrative" />;
         return <div className="p-8 text-center text-slate-400 font-bold">ACCESS DENIED</div>;
       case 'exam-dept':
-        if (user.role === 'admin') return <DepartmentList filterType="exam" />;
+        if (user.role === 'admin' || user.role === 'exam_officer') return <StudentList user={user} mode="allotment" />;
         return <div className="p-8 text-center text-slate-400 font-bold">ACCESS DENIED</div>;
       case 'departments':
         if (user.role === 'admin') return <DepartmentList />;

@@ -31,7 +31,7 @@ const validate = (req, res, next) => {
 router.use(authenticate);
 
 // Apply authorization middleware selectively
-const hodOrAdmin = authorize('admin', 'hod');
+const hodOrAdmin = authorize('admin', 'hod', 'exam_officer');
 const adminPlus = authorize('admin');
 
 /**
@@ -99,77 +99,25 @@ router.get('/dashboard', adminPlus, asyncHandler(async (req, res) => {
     count
   }));
 
-  // Student distribution by department
-  const { data: deptStudentStatsRaw } = await supabase
-    .from('student_profiles')
-    .select('department_id')
-    .eq('is_active', true);
-
-  const academicDepts = (pendingDepts || []).length > 0 ? pendingDepts : (await supabase.from('departments').select('id, name').eq('type', 'academic')).data;
-  
-  const deptStudentStatsMap = (deptStudentStatsRaw || []).reduce((acc, curr) => {
-    const dept = (academicDepts || []).find(d => d.id === curr.department_id);
-    if (dept) {
-      acc[dept.name] = (acc[dept.name] || 0) + 1;
-    }
-    return acc;
-  }, {});
-
-  const departmentStudentStats = Object.entries(deptStudentStatsMap).map(([name, count]) => ({
-    name,
-    count
-  }));
-  
-  // Monthly clearance trend (Mocking calculation for now or using simple select if small)
-  const monthlyTrend = []; // To implement properly later
-
-  // Degree Fulfillment Statistics (Safe retrieval)
-  let dispatchPendingCount = 0;
-  let manualPickupCount = 0;
-  
-  try {
-    const { data: fulfillmentRequests } = await supabase
-      .from('clearance_requests')
-      .select('degree_fulfillment')
-      .not('degree_fulfillment', 'is', null);
-
-    if (fulfillmentRequests) {
-      dispatchPendingCount = fulfillmentRequests.filter(r => 
-        r.degree_fulfillment && r.degree_fulfillment.method === 'dispatch'
-      ).length;
-
-      manualPickupCount = fulfillmentRequests.filter(r => 
-        r.degree_fulfillment && r.degree_fulfillment.method === 'manual'
-      ).length;
-    }
-  } catch (err) {
-    console.error('Fulfillment column likely missing:', err.message);
-  }
+  const { count: pendingClearance } = await supabase.from('clearance_requests').select('*', { count: 'exact', head: true }).eq('status', 'submitted');
 
   res.status(200).json({
     success: true,
     data: {
-      counts: {
-        totalStudents: totalStudents || 0,
-        totalDepartments: totalDepartments || 0,
-        totalStaff: totalStaff || 0,
-        totalClearanceRequests: (requests || []).length,
-        dispatchPendingCount,
-        manualPickupCount
-      },
-      clearanceStats: {
-        cleared: clearanceMap.cleared || 0,
-        pending: clearanceMap.pending || 0,
-        in_review: clearanceMap.in_review || 0,
-        rejected: clearanceMap.rejected || 0
+      stats: {
+        totalStudents,
+        totalDepartments,
+        totalStaff,
+        clearanceStats: clearanceMap,
+        pendingClearance
       },
       recentRequests,
-      departmentPendingStats: deptPendingStats,
-      departmentStudentStats
-
+      deptPendingStats
     }
   });
 }));
+
+
 
 /**
  * @route   GET /api/admin/users
@@ -440,8 +388,9 @@ router.get('/students', hodOrAdmin, asyncHandler(async (req, res) => {
     .select('*, department:department_id(name, code)', { count: 'exact' })
     .eq('is_active', true);
 
-  // If not admin, only show students belonging to the user's department
-  if (req.user.role !== 'admin' && req.user.department_id) {
+  // If not admin/exam_officer, only show students belonging to the user's department
+  const isExamOfficer = req.user.role === 'exam_officer';
+  if (req.user.role !== 'admin' && !isExamOfficer && req.user.department_id) {
     queryBuilder = queryBuilder.eq('department_id', req.user.department_id);
   }
   

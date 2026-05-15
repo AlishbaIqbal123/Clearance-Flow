@@ -82,7 +82,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-export const StudentList = ({ user }: { user: any }) => {
+export const StudentList = ({ user, mode }: { user: any, mode?: 'allotment' }) => {
   const [students, setStudents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -100,7 +100,7 @@ export const StudentList = ({ user }: { user: any }) => {
     departmentId: ''
   });
   const [selectedDeptFilter, setSelectedDeptFilter] = useState('all');
-  const [selectedStatusFilter, setSelectedStatusFilter] = useState('all');
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState(mode === 'allotment' ? 'cleared' : 'all');
   const [departments, setDepartments] = useState<any[]>([]);
 
   const fetchStudents = async () => {
@@ -239,10 +239,12 @@ export const StudentList = ({ user }: { user: any }) => {
         <div className="space-y-2">
            <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary shadow-soft group">
-                 <Users className="w-5 h-5 relative z-10" />
+                 {mode === 'allotment' ? <Award className="w-5 h-5 relative z-10" /> : <Users className="w-5 h-5 relative z-10" />}
               </div>
               <div className="space-y-0.5">
-                 <h2 className="text-lg font-black text-foreground tracking-tighter uppercase leading-none">Manage Students</h2>
+                 <h2 className="text-lg font-black text-foreground tracking-tighter uppercase leading-none">
+                    {mode === 'allotment' ? 'Degree Allotment Dashboard' : 'Manage Students'}
+                 </h2>
               </div>
            </div>
         </div>
