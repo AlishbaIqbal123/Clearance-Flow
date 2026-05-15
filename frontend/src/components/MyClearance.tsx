@@ -553,6 +553,9 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
   });
 
   const progress = activeRequest?.progress || {};
+  const isPhase3Ready = allDepartments.length > 0 && allDepartments.every((d: any) => d.department?.code === 'EXD' || d.status === 'cleared');
+  const isFullyCleared = activeRequest?.status === 'cleared' || activeRequest?.status === 'fully_cleared';
+
   let activeIndex = -1;
   if (activeRequest && departments.length > 0) {
     activeIndex = departments.findIndex(d => d.status !== 'cleared');
@@ -744,7 +747,7 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
                 </div>
                 <div className={`
                   flex-1 mb-6 rounded-2xl border-2 p-6 flex flex-col md:flex-row items-center justify-between gap-6 transition-all duration-1000 relative overflow-hidden
-                  ${progress.percentage === 100
+                  ${(progress.percentage === 100 || isPhase3Ready)
                     ? 'border-primary/20 bg-primary/5 shadow-strong'
                     : 'border-dashed border-foreground/5 bg-muted/5'
                   }
@@ -752,23 +755,25 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
                   <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full blur-[60px] -mr-24 -mt-24 opacity-0 group-hover/terminal:opacity-100 transition-opacity" />
                   <div className="space-y-2 relative z-10">
                     <div className="flex items-center gap-2">
-                       <div className={`w-1.5 h-1.5 rounded-full ${progress.percentage === 100 ? 'bg-primary animate-pulse shadow-primary/40' : 'bg-muted/20'}`} />
-                       <span className={`text-[8px] font-black uppercase tracking-[0.4em] ${progress.percentage === 100 ? 'text-primary' : 'text-muted-foreground/30'}`}>Final Clearance</span>
+                       <div className={`w-1.5 h-1.5 rounded-full ${(progress.percentage === 100 || isPhase3Ready) ? 'bg-primary animate-pulse shadow-primary/40' : 'bg-muted/20'}`} />
+                       <span className={`text-[8px] font-black uppercase tracking-[0.4em] ${(progress.percentage === 100 || isPhase3Ready) ? 'text-primary' : 'text-muted-foreground/30'}`}>Final Clearance</span>
                     </div>
-                    <div className="space-y-1">
-                       <p className={`font-black text-2xl tracking-tight leading-none uppercase ${progress.percentage === 100 ? 'text-foreground' : 'text-muted-foreground/20'}`}>
-                        {progress.percentage === 100 ? 'Clearance Complete' : 'Pending'}
+                    <div className="space-y-1 text-center sm:text-left">
+                       <p className={`font-black text-2xl tracking-tight leading-none uppercase ${(progress.percentage === 100 || isPhase3Ready) ? 'text-foreground' : 'text-muted-foreground/20'}`}>
+                        {isFullyCleared ? 'Protocol Complete' : isPhase3Ready ? 'Ready for Phase 3' : 'Pending'}
                       </p>
-                      <p className={`text-sm font-medium italic leading-relaxed max-w-xl ${progress.percentage === 100 ? 'text-muted-foreground' : 'text-muted-foreground/10'}`}>
-                        {progress.percentage === 100
-                          ? 'All departments have cleared your request.'
+                      <p className={`text-sm font-medium italic leading-relaxed max-w-xl ${(progress.percentage === 100 || isPhase3Ready) ? 'text-muted-foreground' : 'text-muted-foreground/10'}`}>
+                        {isFullyCleared
+                          ? 'Institutional protocol closed. Your degree has been successfully processed.'
+                          : isPhase3Ready
+                          ? 'All departments have approved your request. Please proceed to the Degree Allotment tab.'
                           : 'Final clearance will be available once all departments have approved.'}
                       </p>
                     </div>
                   </div>
-                  {progress.percentage === 100 && (
+                  {(progress.percentage === 100 || isPhase3Ready) && (
                      <div className="w-12 h-12 bg-primary text-white rounded-xl flex items-center justify-center shadow-strong shadow-primary/30 animate-bounce relative z-10">
-                        <Sparkles className="w-6 h-6" />
+                        {isFullyCleared ? <Check className="w-6 h-6" /> : <Award className="w-6 h-6" />}
                      </div>
                   )}
                 </div>
