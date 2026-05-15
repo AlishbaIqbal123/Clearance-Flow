@@ -13,7 +13,10 @@ import {
   Package,
   CheckCircle2,
   AlertCircle,
-  Eye
+  Eye,
+  BellRing,
+  Send,
+  Award
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,6 +40,7 @@ import {
 } from '@/components/ui/dialog';
 import { adminService } from '@/lib/admin.service';
 import { toast } from 'sonner';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 
 export const DispatchList = () => {
@@ -45,6 +49,14 @@ export const DispatchList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editForm, setEditForm] = useState({
+    method: 'manual',
+    address: '',
+    tracking_number: '',
+    courier_service: ''
+  });
 
 
   const fetchDispatchRequests = async () => {
@@ -64,6 +76,62 @@ export const DispatchList = () => {
   useEffect(() => {
     fetchDispatchRequests();
   }, []);
+
+  const handleUpdateDispatch = async () => {
+    if (!selectedRequest) return;
+    
+    try {
+      setIsSubmitting(true);
+      const res = await adminService.updateDispatchRequest(selectedRequest.id, editForm);
+      if (res.success) {
+        toast.success('Dispatch details updated successfully');
+        setIsEditOpen(false);
+        fetchDispatchRequests();
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to update dispatch');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleNotify = async (type: 'ready_for_pickup' | 'dispatched', requestOverride?: any) => {
+    const target = requestOverride || selectedRequest;
+    if (!target) return;
+    
+    try {
+      const res = await adminService.notifyDispatchRequest(target.id, { type });
+      if (res.success) {
+        toast.success(`Student notified: ${type === 'dispatched' ? 'Degree Dispatched' : 'Ready for Pickup'}`);
+        setIsViewOpen(false);
+        fetchDispatchRequests();
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to send notification');
+    }
+  };
+
+  const handleCompleteDispatch = async (req: any) => {
+    if (!req.degree_fulfillment) {
+      toast.error('Student has not selected a fulfillment method yet');
+      return;
+    }
+
+    const action = req.degree_fulfillment.method === 'manual' ? 'pickup' : 'dispatch';
+    if (!window.confirm(`Are you sure you want to confirm the ${action} for ${req.student?.first_name}?`)) {
+      return;
+    }
+
+    try {
+      const res = await adminService.completeDispatch(req.id);
+      if (res.success) {
+        toast.success(`Degree ${action} confirmed successfully`);
+        fetchDispatchRequests();
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to complete dispatch');
+    }
+  };
 
   const filteredRequests = requests.filter(req => 
     req.student?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -90,15 +158,17 @@ export const DispatchList = () => {
         <div className="relative z-10 space-y-4">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/5 shadow-2xl group-hover:scale-110 transition-transform duration-700">
-              <Truck className="w-7 h-7 text-primary" />
+              <Award className="w-7 h-7 text-primary" />
             </div>
             <div className="space-y-1">
-              <Badge className="bg-primary text-white border-none font-black text-[9px] uppercase tracking-[0.4em] px-4 py-1 rounded-full shadow-lg">Logistics Center</Badge>
-              <h1 className="text-4xl font-black tracking-tighter uppercase leading-none">Degree Dispatch Management</h1>
+              <Badge className="bg-primary text-white border-none font-black text-[9px] uppercase tracking-[0.4em] px-4 py-1 rounded-full shadow-lg">Official Portal</Badge>
+              <h2 className="text-3xl font-black tracking-tighter uppercase leading-none">
+                Degree <span className="text-primary italic">Allotment & Logistics</span>
+              </h2>
             </div>
           </div>
-          <p className="text-sm font-bold text-white/40 uppercase tracking-widest max-w-xl">
-            Monitor and manage physical degree distributions. Verify student mailing addresses and track fulfillment status across the campus network.
+          <p className="text-sm text-white/40 font-medium max-w-xl leading-relaxed italic uppercase tracking-widest text-[10px]">
+            Formal management for student fulfillment preferences and institutional logistics notifications.
           </p>
         </div>
 
@@ -131,15 +201,17 @@ export const DispatchList = () => {
           <Badge className="bg-secondary text-foreground border-none font-black text-[10px] uppercase tracking-[0.2em] px-4 py-2 rounded-lg">{filteredRequests.length} Packages Detected</Badge>
         </div>
         
-        <div className="overflow-x-auto">
+        {/* Desktop View */}
+        <div className="hidden lg:block overflow-hidden">
           <Table>
             <TableHeader className="bg-secondary/30">
               <TableRow className="hover:bg-transparent border-none">
                 <TableHead className="py-6 px-10 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Student & ID</TableHead>
-                <TableHead className="py-6 px-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Mailing Address</TableHead>
-                <TableHead className="py-6 px-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Selection Date</TableHead>
-                <TableHead className="py-6 px-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">System Status</TableHead>
-                <TableHead className="py-6 px-10 text-right text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Actions</TableHead>
+                <TableHead className="py-6 px-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Method</TableHead>
+                <TableHead className="py-6 px-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Logistics Info</TableHead>
+                <TableHead className="py-6 px-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Alert Status</TableHead>
+                <TableHead className="py-6 px-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Fulfillment</TableHead>
+                <TableHead className="py-6 px-10 text-right text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Logistics Control</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -162,26 +234,66 @@ export const DispatchList = () => {
                       </div>
                     </TableCell>
                     <TableCell className="py-8 px-6">
+                      <div className="flex items-center gap-3">
+                        {req.degree_fulfillment?.method === 'dispatch' ? (
+                          <div className="flex items-center gap-2 text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-xl border border-indigo-100">
+                            <Truck className="w-3.5 h-3.5" />
+                            <span className="text-[10px] font-black uppercase tracking-widest">Dispatch</span>
+                          </div>
+                        ) : req.degree_fulfillment?.method === 'manual' ? (
+                          <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-100">
+                            <User className="w-3.5 h-3.5" />
+                            <span className="text-[10px] font-black uppercase tracking-widest">Manual</span>
+                          </div>
+                        ) : (
+                          <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest opacity-40">Pending</Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-8 px-6">
                       <div className="flex items-start gap-4 max-w-md">
                         <MapPin className="w-5 h-5 text-primary shrink-0 mt-1" />
-                        <p className="font-bold text-sm text-foreground/80 leading-relaxed uppercase italic">
-                          {req.degree_fulfillment?.address || 'N/A'}
+                        <p className={`font-bold text-sm leading-relaxed uppercase italic ${!req.degree_fulfillment ? 'text-muted-foreground opacity-50' : 'text-foreground/80'}`}>
+                          {!req.degree_fulfillment 
+                            ? 'Awaiting Student Selection' 
+                            : req.degree_fulfillment.method === 'manual' 
+                              ? 'Registrar Office Pickup' 
+                              : (req.degree_fulfillment.address || 'Address Missing')}
                         </p>
                       </div>
                     </TableCell>
                     <TableCell className="py-8 px-6">
-                      <div className="flex items-center gap-3 text-muted-foreground">
-                        <Calendar className="w-4 h-4" />
-                        <span className="text-[11px] font-black uppercase tracking-widest">
-                          {new Date(req.degree_fulfillment?.selected_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                        </span>
-                      </div>
+                      {req.degree_fulfillment?.notification_sent ? (
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2 text-primary font-black text-[9px] uppercase tracking-widest">
+                            <BellRing className="w-3 h-3 animate-pulse" />
+                            Notified
+                          </div>
+                          <p className="text-[8px] font-bold text-muted-foreground uppercase opacity-60">
+                            {req.degree_fulfillment.notification_type === 'dispatched' ? 'Dispatch Alert' : 'Pickup Alert'}
+                          </p>
+                        </div>
+                      ) : (
+                        <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest opacity-20 border-dashed">No Alert Sent</Badge>
+                      )}
                     </TableCell>
                     <TableCell className="py-8 px-6">
-                      <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[9px] uppercase tracking-[0.2em] px-4 py-2 rounded-full flex items-center gap-2 w-fit">
-                        <CheckCircle2 className="w-3 h-3" />
-                        Ready for Dispatch
-                      </Badge>
+                      {req.status === 'completed' ? (
+                        <Badge className="bg-blue-50 text-blue-600 border-none font-black text-[9px] uppercase tracking-[0.2em] px-4 py-2 rounded-full flex items-center gap-2 w-fit">
+                          <PackageCheck className="w-3 h-3" />
+                          Done
+                        </Badge>
+                      ) : !req.degree_fulfillment ? (
+                        <Badge className="bg-amber-50 text-amber-600 border-none font-black text-[9px] uppercase tracking-[0.2em] px-4 py-2 rounded-full flex items-center gap-2 w-fit">
+                          <AlertCircle className="w-3 h-3" />
+                          Waiting
+                        </Badge>
+                      ) : (
+                        <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[9px] uppercase tracking-[0.2em] px-4 py-2 rounded-full flex items-center gap-2 w-fit">
+                          <CheckCircle2 className="w-3 h-3" />
+                          Ready
+                        </Badge>
+                      )}
                     </TableCell>
                     <TableCell className="py-8 px-10 text-right">
                       <div className="flex items-center justify-end gap-3">
@@ -189,6 +301,7 @@ export const DispatchList = () => {
                           variant="ghost" 
                           size="icon" 
                           className="h-12 w-12 rounded-xl hover:bg-primary/10 hover:text-primary transition-all shadow-soft"
+                          title="View Details"
                           onClick={() => {
                             setSelectedRequest(req);
                             setIsViewOpen(true);
@@ -196,12 +309,32 @@ export const DispatchList = () => {
                         >
                           <Eye className="w-5 h-5" />
                         </Button>
-                        <Button className="h-12 w-12 rounded-xl bg-foreground text-white hover:bg-primary transition-all shadow-soft group/action">
+                        <Button 
+                          variant="ghost"
+                          size="icon"
+                          className="h-12 w-12 rounded-xl hover:bg-amber-500/10 hover:text-amber-600 transition-all shadow-soft"
+                          title={req.degree_fulfillment?.method === 'dispatch' ? "Notify: Degree Dispatched" : "Notify: Ready for Pickup"}
+                          onClick={() => {
+                            if (!req.degree_fulfillment?.method) {
+                                setSelectedRequest(req);
+                                setIsViewOpen(true);
+                                return;
+                            }
+                            handleNotify(req.degree_fulfillment.method === 'dispatch' ? 'dispatched' : 'ready_for_pickup', req);
+                          }}
+                        >
+                          <BellRing className={`w-5 h-5 ${req.degree_fulfillment?.notification_sent ? 'text-amber-500' : ''}`} />
+                        </Button>
+                        <Button 
+                          className="h-12 w-12 rounded-xl bg-foreground text-white hover:bg-primary transition-all shadow-soft group/action"
+                          title="Complete Protocol"
+                          onClick={() => handleCompleteDispatch(req)}
+                          disabled={!req.degree_fulfillment}
+                        >
                           <PackageCheck className="w-5 h-5 group-hover/action:scale-110 transition-transform" />
                         </Button>
                       </div>
                     </TableCell>
-
                   </TableRow>
                 ))
               ) : (
@@ -217,12 +350,187 @@ export const DispatchList = () => {
             </TableBody>
           </Table>
         </div>
+
+        {/* Mobile View */}
+        <div className="lg:hidden p-4 space-y-4">
+          {filteredRequests.length > 0 ? (
+            filteredRequests.map((req) => (
+              <div 
+                key={req.id} 
+                className="bg-card/50 rounded-[2rem] p-6 border border-foreground/5 space-y-6 hover:border-primary/20 transition-all shadow-soft"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center font-black text-primary text-sm">
+                      {req.student?.first_name?.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="font-black text-foreground text-sm uppercase tracking-tight">{req.student?.first_name} {req.student?.last_name}</p>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{req.student?.registration_number}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4 py-4 border-y border-foreground/5">
+                  <div className="space-y-1">
+                    <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.4em]">Mailing Address</p>
+                    <div className="flex items-start gap-3">
+                      <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                      <p className="text-[11px] font-bold uppercase italic leading-relaxed">
+                        {!req.degree_fulfillment 
+                          ? 'Awaiting Selection' 
+                          : req.degree_fulfillment.method === 'manual' 
+                            ? 'Manual Pickup' 
+                            : (req.degree_fulfillment.address || 'N/A')}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.4em]">Status</p>
+                      {req.status === 'completed' ? (
+                        <Badge className="bg-blue-50 text-blue-600 border-none font-black text-[8px] uppercase px-3 py-1.5 rounded-full">Complete</Badge>
+                      ) : !req.degree_fulfillment ? (
+                        <Badge className="bg-amber-50 text-amber-600 border-none font-black text-[8px] uppercase px-3 py-1.5 rounded-full">Pending</Badge>
+                      ) : (
+                        <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[8px] uppercase px-3 py-1.5 rounded-full">Ready</Badge>
+                      )}
+                    </div>
+                    <div className="space-y-1 text-right">
+                      <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.4em]">Date</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest">
+                        {req.degree_fulfillment?.selected_at 
+                          ? new Date(req.degree_fulfillment.selected_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                          : 'TBD'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Button 
+                    className="flex-1 h-12 rounded-2xl bg-foreground text-white hover:bg-primary transition-all font-black text-[10px] uppercase tracking-widest"
+                    onClick={() => handleCompleteDispatch(req)}
+                    disabled={!req.degree_fulfillment}
+                  >
+                    Complete Fulfillment
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-12 w-12 rounded-2xl bg-secondary/50 text-foreground"
+                    onClick={() => {
+                      setSelectedRequest(req);
+                      setIsViewOpen(true);
+                    }}
+                  >
+                    <Eye className="w-5 h-5" />
+                  </Button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="py-24 text-center opacity-20">
+              <Truck className="w-16 h-16 mx-auto mb-4" />
+              <p className="text-sm font-black uppercase tracking-[0.4em]">Empty Queue</p>
+            </div>
+          )}
+        </div>
       </Card>
+
+      {/* Manage Details Dialog (CRUD) */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="sm:max-w-[600px] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background">
+          <div className="bg-foreground p-8 text-background relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full -mr-32 -mt-32 blur-[80px]" />
+            <div className="relative z-10 flex items-center gap-6">
+              <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center text-primary backdrop-blur-xl border border-white/5">
+                <Truck className="w-8 h-8" />
+              </div>
+              <div>
+                <Badge className="bg-primary text-white border-none rounded-full px-4 py-1 text-[8px] font-black uppercase tracking-[0.4em] mb-2">Manage Logistics</Badge>
+                <DialogTitle className="text-2xl font-black tracking-tighter uppercase leading-none">Edit Fulfillment Data</DialogTitle>
+              </div>
+            </div>
+          </div>
+          
+          <div className="p-8 space-y-8 bg-card/40 backdrop-blur-3xl">
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest pl-4">Collection Method</label>
+                  <select 
+                    className="w-full h-14 bg-secondary/50 border-none rounded-2xl px-6 font-bold text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all uppercase"
+                    value={editForm.method}
+                    onChange={(e) => setEditForm({ ...editForm, method: e.target.value })}
+                  >
+                    <option value="manual">Manual Pickup</option>
+                    <option value="dispatch">Home Dispatch</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest pl-4">Courier Service</label>
+                  <Input 
+                    className="h-14 bg-secondary/50 border-none rounded-2xl px-6 font-bold text-sm focus:ring-2 focus:ring-primary/20 uppercase"
+                    placeholder="e.g. TCS, Leopard, FedEx"
+                    value={editForm.courier_service}
+                    onChange={(e) => setEditForm({ ...editForm, courier_service: e.target.value })}
+                    disabled={editForm.method === 'manual'}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest pl-4">Dispatch Address</label>
+                <textarea 
+                  className="w-full min-h-[100px] bg-secondary/50 border-none rounded-[2rem] p-6 font-bold text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all uppercase resize-none"
+                  placeholder="Enter full mailing address..."
+                  value={editForm.address}
+                  onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                  disabled={editForm.method === 'manual'}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest pl-4">Tracking Number</label>
+                <div className="relative">
+                  <Input 
+                    className="h-14 bg-secondary/50 border-none rounded-2xl pl-14 font-bold text-sm focus:ring-2 focus:ring-primary/20 uppercase tracking-[0.2em]"
+                    placeholder="TRK-XXXX-XXXX"
+                    value={editForm.tracking_number}
+                    onChange={(e) => setEditForm({ ...editForm, tracking_number: e.target.value })}
+                    disabled={editForm.method === 'manual'}
+                  />
+                  <Package className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground opacity-40" />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <Button 
+                variant="ghost" 
+                className="h-14 flex-1 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:bg-secondary/80" 
+                onClick={() => setIsEditOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button 
+                className="h-14 flex-1 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-[10px] uppercase tracking-[0.2em] shadow-strong shadow-primary/20"
+                onClick={handleUpdateDispatch}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Changes'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* View Details Dialog */}
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <DialogContent className="sm:max-w-[600px] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background">
-          <div className="bg-foreground p-8 text-background relative overflow-hidden">
+        <DialogContent className="sm:max-w-[700px] w-[95vw] h-[85vh] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background flex flex-col">
+          <div className="bg-foreground p-8 text-background relative overflow-hidden shrink-0">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full -mr-32 -mt-32 blur-[80px]" />
             <div className="relative z-10 flex items-center gap-6">
               <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center text-primary backdrop-blur-xl border border-white/5">
@@ -235,7 +543,8 @@ export const DispatchList = () => {
             </div>
           </div>
           
-          <div className="p-8 space-y-8 bg-card/40 backdrop-blur-3xl">
+          <ScrollArea className="flex-1">
+            <div className="p-8 space-y-8 bg-card/40 backdrop-blur-3xl">
             {/* Student Info */}
             <div className="space-y-4">
               <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Recipient Identity</h4>
@@ -254,24 +563,36 @@ export const DispatchList = () => {
               </div>
             </div>
 
-            {/* Address Info */}
+            {/* Address & Tracking Info */}
             <div className="space-y-4">
-              <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Dispatch Coordinates</h4>
-              <div className="p-8 bg-white rounded-[2.5rem] border border-foreground/5 shadow-soft space-y-4">
+              <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Fulfillment Status</h4>
+              <div className="p-8 bg-white rounded-[2.5rem] border border-foreground/5 shadow-soft space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
                     <MapPin className="w-5 h-5 text-primary" />
                   </div>
                   <div className="space-y-2">
                     <p className="text-base font-bold text-foreground leading-relaxed uppercase italic">
-                      {selectedRequest?.degree_fulfillment?.address}
+                      {selectedRequest?.degree_fulfillment?.method === 'manual' ? 'Manual Collection (Registrar Pickup)' : (selectedRequest?.degree_fulfillment?.address || 'Awaiting Selection')}
                     </p>
                     <div className="flex items-center gap-2 text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">
                       <Package className="w-3.5 h-3.5" />
-                      Standard Institutional Delivery
+                      {selectedRequest?.degree_fulfillment?.method === 'manual' ? 'In-Person Authentication Required' : 'Standard Institutional Delivery'}
                     </div>
                   </div>
                 </div>
+
+                {selectedRequest?.degree_fulfillment?.tracking_number && (
+                  <div className="flex items-start gap-4 pt-6 border-t border-foreground/5">
+                    <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center shrink-0">
+                      <Truck className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.4em]">Tracking: {selectedRequest.degree_fulfillment.courier_service || 'Standard'}</p>
+                      <p className="text-base font-black text-emerald-600 tracking-[0.2em] uppercase">{selectedRequest.degree_fulfillment.tracking_number}</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -281,28 +602,97 @@ export const DispatchList = () => {
                 <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">Selection Date</p>
                 <div className="flex items-center gap-2 text-sm font-black uppercase">
                   <Calendar className="w-4 h-4 text-primary" />
-                  {selectedRequest && new Date(selectedRequest.degree_fulfillment?.selected_at).toLocaleDateString()}
+                  {selectedRequest?.degree_fulfillment?.selected_at 
+                    ? new Date(selectedRequest.degree_fulfillment.selected_at).toLocaleDateString()
+                    : 'N/A'}
                 </div>
               </div>
               <div className="p-5 bg-secondary/30 rounded-2xl border border-foreground/5 space-y-1">
                 <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">Fulfillment Type</p>
                 <div className="flex items-center gap-2 text-sm font-black uppercase">
                   <PackageCheck className="w-4 h-4 text-primary" />
-                  Courier
+                  {selectedRequest?.degree_fulfillment?.method === 'manual' ? 'Manual Pickup' : 'Courier Dispatch'}
                 </div>
               </div>
             </div>
 
-            <DialogFooter className="pt-4">
+            {/* Notification Actions */}
+            <div className="p-8 bg-primary/5 rounded-[2.5rem] border border-primary/10 space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
+                  <BellRing className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs font-black uppercase tracking-widest text-primary">Student Alert System</p>
+                  <p className="text-[8px] font-bold text-muted-foreground uppercase">Send official portal notification</p>
+                </div>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                {selectedRequest?.degree_fulfillment?.method === 'dispatch' ? (
+                  <Button 
+                    className="h-14 flex-1 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest flex items-center gap-3"
+                    onClick={() => handleNotify('dispatched')}
+                    disabled={!selectedRequest?.degree_fulfillment?.tracking_number}
+                  >
+                    <Send className="w-4 h-4" />
+                    Notify: Degree Dispatched
+                  </Button>
+                ) : (
+                  <Button 
+                    className="h-14 flex-1 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-black text-[10px] uppercase tracking-widest flex items-center gap-3"
+                    onClick={() => handleNotify('ready_for_pickup')}
+                  >
+                    <Send className="w-4 h-4" />
+                    Notify: Ready for Pickup
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Protocol Controls */}
+            <div className="space-y-4 pt-4">
+              <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Protocol Controls</h4>
+              <div className="grid grid-cols-1 gap-4">
+                 <Button 
+                   className="h-16 rounded-2xl bg-foreground text-background hover:bg-primary hover:text-white transition-all font-black text-[11px] uppercase tracking-[0.3em] flex items-center gap-4 group"
+                   onClick={() => handleCompleteDispatch(selectedRequest)}
+                   disabled={!selectedRequest?.degree_fulfillment || selectedRequest?.status === 'completed'}
+                 >
+                   <div className="w-8 h-8 bg-background/10 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <PackageCheck className="w-4 h-4" />
+                   </div>
+                   {selectedRequest?.status === 'completed' ? 'Protocol Finalized' : 'Confirm Institutional Handover'}
+                 </Button>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
               <Button 
                 variant="ghost" 
-                className="h-12 rounded-xl px-10 font-black text-[10px] uppercase tracking-[0.4em] text-muted-foreground hover:bg-secondary/80 w-full" 
+                className="h-14 flex-1 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:bg-secondary/80" 
                 onClick={() => setIsViewOpen(false)}
               >
                 Close View
               </Button>
-            </DialogFooter>
+              <Button 
+                className="h-14 flex-1 rounded-2xl bg-secondary/50 hover:bg-primary hover:text-white transition-all text-foreground font-black text-[10px] uppercase tracking-[0.2em]"
+                onClick={() => {
+                  setEditForm({
+                    method: selectedRequest?.degree_fulfillment?.method || 'manual',
+                    address: selectedRequest?.degree_fulfillment?.address || '',
+                    tracking_number: selectedRequest?.degree_fulfillment?.tracking_number || '',
+                    courier_service: selectedRequest?.degree_fulfillment?.courier_service || ''
+                  });
+                  setIsViewOpen(false);
+                  setIsEditOpen(true);
+                }}
+              >
+                Modify Data
+              </Button>
+            </div>
           </div>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </div>

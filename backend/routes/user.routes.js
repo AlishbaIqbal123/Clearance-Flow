@@ -192,7 +192,30 @@ router.get('/notifications', asyncHandler(async (req, res) => {
   
   let notifications = [];
 
-  if (userType !== 'student') {
+  if (userType === 'student') {
+    // Fetch notifications for the student from their requests
+    const { data: requests } = await supabase
+      .from('clearance_requests')
+      .select('id, request_id, comments')
+      .eq('student_id', userId);
+
+    (requests || []).forEach(req_data => {
+      const comments = req_data.comments || [];
+      comments.forEach(c => {
+        if (c.is_notification) {
+          notifications.push({
+            id: `${req_data.id}-${c.created_at}`,
+            title: c.title || 'System Notification',
+            description: c.message,
+            time: new Date(c.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            date: new Date(c.created_at).toLocaleDateString(),
+            requestId: req_data.id,
+            type: c.type || 'system_update'
+          });
+        }
+      });
+    });
+  } else {
     // Get staff profile to find department
     const { data: profile } = await supabase
       .from('profiles')

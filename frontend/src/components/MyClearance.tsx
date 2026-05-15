@@ -10,7 +10,7 @@ import {
   Layers, Globe, Lock, History, ShieldAlert,
   X, UserCircle, Search, Filter, LayoutGrid, List,
   Download, MoreHorizontal, Database, ArrowUp,
-  CreditCard, Wallet, Fingerprint, Check
+  CreditCard, Wallet, Fingerprint, Check, MessageSquare, Send
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -29,6 +29,7 @@ const DepartmentCard = ({
   student,
   allStatuses,
   requestId,
+  comments = [],
   onRefresh
 }: {
   dept: any;
@@ -39,13 +40,29 @@ const DepartmentCard = ({
   student: any;
   allStatuses: any[];
   requestId: string;
+  comments?: any[];
   onRefresh: () => void;
 }) => {
   const [submittingForms, setSubmittingForms] = useState<Record<string, boolean>>({});
+  const [showChat, setShowChat] = useState(false);
+  const [messageInput, setMessageInput] = useState('');
+  const [sendingChat, setSendingChat] = useState(false);
+  const [optimisticMessages, setOptimisticMessages] = useState<any[]>([]);
+
+  useEffect(() => {
+    setOptimisticMessages([]);
+  }, [comments]);
+
   const isAcademic = dept.department?.type === 'academic';
   const phase1Cleared = (allStatuses || []).every((s: any) => 
     s.department?.type === 'academic' || s.status === 'cleared'
   );
+
+  const deptComments = [
+    ...comments.filter((c: any) => c.department_id === dept.department_id || !c.department_id),
+    ...optimisticMessages
+  ];
+  const unreadCount = deptComments.filter((c: any) => c.author_model === 'Staff' && !c.read_by_student).length;
 
   const handleWhatsApp = () => {
     const phone = dept.department?.head?.phone || dept.department?.contact_info?.phone || dept.department?.phone;
@@ -88,6 +105,39 @@ const DepartmentCard = ({
       toast.error(error.response?.data?.message || 'Failed to notify department');
     } finally {
       setSubmittingForms(prev => ({ ...prev, [key]: false }));
+    }
+  };
+
+  const handleSendChat = async () => {
+    if (!messageInput.trim() || !requestId) return;
+    
+    const textToSend = messageInput.trim();
+    const tempMessage = {
+      id: `temp-${Date.now()}`,
+      message: textToSend,
+      author_model: 'Student',
+      department_id: dept.department_id,
+      created_at: new Date().toISOString(),
+      authorName: 'You'
+    };
+
+    setOptimisticMessages(prev => [...prev, tempMessage]);
+    setMessageInput('');
+    setSendingChat(true);
+
+    try {
+      const res = await studentService.sendDepartmentChat(requestId, {
+        departmentId: dept.department_id,
+        message: textToSend
+      });
+      if (res.success) {
+        onRefresh();
+      }
+    } catch {
+      toast.error('Failed to send message');
+      onRefresh();
+    } finally {
+      setSendingChat(false);
     }
   };
 
@@ -344,23 +394,108 @@ const DepartmentCard = ({
 
           {/* Operational Directives */}
           {!isFuture && (
-            <div className="flex flex-col sm:flex-row gap-4 mt-10">
-              <Button
-                className="rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[10px] uppercase tracking-[0.3em] flex-1 h-16 shadow-strong shadow-emerald-500/20 transition-all active:scale-95 group/wa relative overflow-hidden"
-                onClick={handleWhatsApp}
-              >
-                <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover/wa:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
-                <MessageCircle className="w-5 h-5 mr-4 group-hover/wa:rotate-12 transition-transform" />
-                Secure WhatsApp Channel
-              </Button>
-              <Button
-                variant="outline"
-                className="rounded-2xl border-foreground/5 bg-card hover:bg-secondary text-foreground font-black text-[10px] uppercase tracking-[0.3em] flex-1 h-16 shadow-soft transition-all active:scale-95 group/mail"
-                onClick={handleEmail}
-              >
-                <Mail className="w-5 h-5 mr-4 group-hover/mail:-translate-y-2 transition-transform duration-500" />
-                University Email
-              </Button>
+            <div className="space-y-4 mt-10">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button
+                  className="rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[10px] uppercase tracking-[0.3em] flex-1 h-16 shadow-strong shadow-emerald-500/20 transition-all active:scale-95 group/wa relative overflow-hidden"
+                  onClick={handleWhatsApp}
+                >
+                  <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover/wa:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
+                  <MessageCircle className="w-5 h-5 mr-3 group-hover/wa:rotate-12 transition-transform" />
+                  WhatsApp
+                </Button>
+                <Button
+                  variant="outline"
+                  className="rounded-2xl border-foreground/5 bg-card hover:bg-secondary text-foreground font-black text-[10px] uppercase tracking-[0.3em] flex-1 h-16 shadow-soft transition-all active:scale-95 group/mail"
+                  onClick={handleEmail}
+                >
+                  <Mail className="w-5 h-5 mr-3 group-hover/mail:-translate-y-1 transition-transform duration-500" />
+                  Email
+                </Button>
+                <Button
+                  variant="outline"
+                  className={`rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] flex-1 h-16 shadow-soft transition-all active:scale-95 relative group/chat ${showChat ? 'bg-primary text-white border-primary shadow-primary/20' : 'border-primary/20 bg-primary/5 text-primary hover:bg-primary/10'}`}
+                  onClick={() => {
+                    setShowChat(!showChat);
+                    if (unreadCount > 0 && requestId) {
+                      studentService.markDepartmentChatRead(requestId, dept.department_id).then(() => onRefresh());
+                    }
+                  }}
+                >
+                  <MessageSquare className="w-5 h-5 mr-3 group-hover/chat:scale-110 transition-transform" />
+                  <span>Chat Gateway</span>
+                  {unreadCount > 0 && (
+                    <Badge className="absolute -top-2 -right-2 bg-destructive text-white border-none rounded-full px-2 py-0.5 text-[8px] font-black animate-pulse shadow-strong">
+                      {unreadCount}
+                    </Badge>
+                  )}
+                </Button>
+              </div>
+
+              {/* Chat Matrix UI */}
+              {showChat && (
+                <div className="mt-6 rounded-3xl border border-primary/20 bg-card shadow-strong overflow-hidden animate-in slide-in-from-top-4 duration-500 flex flex-col">
+                  {/* Header */}
+                  <div className="px-6 py-4 bg-primary/5 border-b border-primary/10 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full bg-primary animate-ping" />
+                      <span className="text-xs font-black uppercase tracking-widest text-foreground">
+                        Direct Core: {dept.department?.name || 'Department'}
+                      </span>
+                    </div>
+                    <span className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic">
+                      Encrypted Relay
+                    </span>
+                  </div>
+
+                  {/* Messages Stream */}
+                  <div className="p-6 max-h-80 overflow-y-auto space-y-4 custom-scrollbar bg-background/30">
+                    {deptComments.length === 0 ? (
+                      <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest italic text-center py-8">
+                        No previous dialogue recorded. Initiate correspondence below.
+                      </p>
+                    ) : (
+                      deptComments.map((msg: any, idx: number) => {
+                        const isStudent = msg.author_model === 'Student';
+                        return (
+                          <div key={msg.id || idx} className={`flex flex-col ${isStudent ? 'items-end' : 'items-start'}`}>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/60">
+                                {msg.authorName || (isStudent ? 'You' : 'Officer')}
+                              </span>
+                            </div>
+                            <div className={`px-4 py-3 rounded-2xl max-w-[85%] text-xs font-medium leading-relaxed ${isStudent ? 'bg-primary text-white rounded-br-sm shadow-soft shadow-primary/20' : 'bg-secondary text-foreground rounded-bl-sm border border-foreground/5'}`}>
+                              {msg.message}
+                            </div>
+                            <span className="text-[7px] font-bold text-muted-foreground/40 mt-1 uppercase tracking-widest">
+                              {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+
+                  {/* Message Form */}
+                  <div className="p-4 bg-card border-t border-foreground/5 flex gap-3">
+                    <input
+                      type="text"
+                      placeholder="Transmit inquiry to department..."
+                      value={messageInput}
+                      onChange={(e) => setMessageInput(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') handleSendChat(); }}
+                      className="flex-1 h-12 bg-secondary/40 border-none rounded-xl px-4 text-xs font-bold outline-none focus:ring-2 focus:ring-primary/20"
+                    />
+                    <Button
+                      disabled={sendingChat || !messageInput.trim()}
+                      onClick={handleSendChat}
+                      className="h-12 w-12 rounded-xl bg-primary text-white shadow-strong shadow-primary/20 shrink-0 hover:scale-105 active:scale-95 transition-all p-0 flex items-center justify-center"
+                    >
+                      {sendingChat ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -409,6 +544,9 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
   const activeRequest = data?.activeRequest;
   const allDepartments: any[] = activeRequest?.clearance_status || [];
   const departments = allDepartments.filter(dept => {
+    // EXCLUDE EXAM FROM P1/P2 - It is for Phase 3 only
+    if (dept.department?.code === 'EXD') return false;
+    
     if (!filterType) return true;
     const isAcademic = dept.department?.type === 'academic';
     return filterType === 'academic' ? isAcademic : !isAcademic;
@@ -583,6 +721,7 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
                     student={data.student}
                     allStatuses={allDepartments}
                     requestId={activeRequest.id}
+                    comments={activeRequest.comments || []}
                     onRefresh={fetchClearanceData}
                   />
                 );
@@ -660,7 +799,10 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
                <Button 
                 className="rounded-2xl h-16 bg-foreground text-background hover:bg-foreground/90 font-black text-xs uppercase tracking-[0.4em] px-12 shadow-strong group/cta active:scale-95 transition-all relative overflow-hidden"
                 onClick={async () => {
-                  const promise = studentService.submitRequest({ type: 'graduation' });
+                  const promise = studentService.submitRequest({ 
+                    requestType: 'graduation', 
+                    reason: 'Initiated by student' 
+                  });
                   toast.promise(promise, {
                     loading: 'Initializing clearance protocol...',
                     success: () => {
@@ -672,7 +814,7 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
                 }}
                >
                   <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover/cta:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
-                  Initialize Workflow
+                  Start Clearance
                   <ArrowRight className="ml-4 w-6 h-6 group-hover/cta:translate-x-4 transition-transform duration-700" />
                </Button>
                <div className="flex items-center justify-center gap-4 text-muted-foreground/30 font-black text-[9px] uppercase tracking-[0.3em] pt-8 border-t border-foreground/5 w-full max-w-sm mx-auto">

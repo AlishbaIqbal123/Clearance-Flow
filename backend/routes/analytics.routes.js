@@ -24,11 +24,23 @@ router.get('/overview', asyncHandler(async (req, res) => {
   const { startDate, endDate } = req.query;
   
   // Base queries
-  const studentCountQuery = supabase.from('student_profiles').select('*', { count: 'exact', head: true }).eq('is_active', true);
-  const deptCountQuery = supabase.from('departments').select('*', { count: 'exact', head: true }).eq('is_active', true);
-  const staffCountQuery = supabase.from('profiles').select('*', { count: 'exact', head: true }).neq('role', 'admin').eq('is_active', true);
-  
-  let requestQuery = supabase.from('clearance_requests').select('status, created_at, completed_at', { count: 'exact' });
+  let studentCountQuery = supabase.from('student_profiles').select('*', { count: 'exact', head: true }).eq('is_active', true);
+  let deptCountQuery = supabase.from('departments').select('*', { count: 'exact', head: true }).eq('is_active', true);
+  let staffCountQuery = supabase.from('profiles').select('*', { count: 'exact', head: true }).neq('role', 'admin').eq('is_active', true);
+  let requestQuery = supabase.from('clearance_requests').select('status, created_at, completed_at, student:student_id(department_id)', { count: 'exact' });
+
+  // Apply department filters if not admin
+  if (req.user.role !== 'admin' && req.user.department_id) {
+    studentCountQuery = studentCountQuery.eq('department_id', req.user.department_id);
+    deptCountQuery = deptCountQuery.eq('id', req.user.department_id);
+    staffCountQuery = staffCountQuery.eq('department_id', req.user.department_id);
+    
+    // For requests, we filter by students belonging to this department
+    const { data: deptStudents } = await supabase.from('student_profiles').select('id').eq('department_id', req.user.department_id);
+    const studentIds = (deptStudents || []).map(s => s.id);
+    requestQuery = requestQuery.in('student_id', studentIds);
+  }
+
   if (startDate) requestQuery = requestQuery.gte('created_at', startDate);
   if (endDate) requestQuery = requestQuery.lte('created_at', endDate);
 
@@ -51,9 +63,15 @@ router.get('/overview', asyncHandler(async (req, res) => {
   }, {});
   
   // Department performance
-  const { data: deptStatsRaw } = await supabase
+  let deptStatsQuery = supabase
     .from('clearance_status')
-    .select('status, cleared_at, department:department_id(name)');
+    .select('status, cleared_at, department:department_id(name, id)');
+    
+  if (req.user.role !== 'admin' && req.user.department_id) {
+    deptStatsQuery = deptStatsQuery.eq('department_id', req.user.department_id);
+  }
+  
+  const { data: deptStatsRaw } = await deptStatsQuery;
   
   const deptPerfMap = (deptStatsRaw || []).reduce((acc, curr) => {
     const name = curr.department?.name || 'Unknown';
@@ -75,6 +93,26 @@ router.get('/overview', asyncHandler(async (req, res) => {
     avgProcessingTimeHours: 0 // Simplified
   }));
   
+  // Batch distribution of pending requests
+  const { data: pendingRequests } = await supabase
+    .from('clearance_requests')
+    .select('student:student_id(batch)')
+    .eq('status', 'pending');
+  
+  const batchDistribution = (pendingRequests || []).reduce((acc, curr) => {
+    const batch = curr.student?.batch || 'Unknown';
+    acc[batch] = (acc[batch] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Recent Pending Requests for quick view
+  const { data: recentPendingRaw } = await supabase
+    .from('clearance_requests')
+    .select('*, student:student_id(first_name, last_name, registration_number, batch)')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: false })
+    .limit(5);
+
   res.status(200).json({
     success: true,
     data: {
@@ -86,6 +124,8 @@ router.get('/overview', asyncHandler(async (req, res) => {
       },
       statusBreakdown,
       departmentPerformance,
+      batchDistribution: Object.entries(batchDistribution).map(([batch, count]) => ({ batch, count })),
+      recentPending: recentPendingRaw || [],
       monthlyTrend: [],
       processingTimeStats: null
     }

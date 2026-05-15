@@ -243,10 +243,16 @@ router.get('/dashboard',
 
       const totalDepartments = activeRequest.clearance_status.length;
       const clearedDepartments = activeRequest.clearance_status.filter(s => s.status === 'cleared').length;
+      
+      // If the overall request is 'cleared' or beyond, progress is 100%
+      const percentage = (activeRequest.status === 'cleared' || activeRequest.status === 'fully_cleared') 
+        ? 100 
+        : (totalDepartments === 0 ? 0 : Math.round((clearedDepartments / totalDepartments) * 100));
+
       activeRequest.progress = {
         totalDepartments,
         clearedDepartments,
-        percentage: totalDepartments === 0 ? 0 : Math.round((clearedDepartments / totalDepartments) * 100)
+        percentage
       };
     }
 
@@ -406,7 +412,7 @@ router.post('/clearance-request',
       .eq('is_active', true);
 
     const departments = (allDepts || []).filter(d =>
-      d.type !== 'academic' || d.id === studentProfile?.department_id
+      (d.type !== 'academic' || d.id === studentProfile?.department_id)
     );
     
     // Generate request ID using Registration Number
@@ -676,6 +682,118 @@ router.post('/clearance-request/:id/comments',
 );
 
 /**
+ * @route   POST /api/students/clearance-request/:id/department-chat
+ * @desc    Send a chat message to a specific department
+ * @access  Student
+ */
+router.post('/clearance-request/:id/department-chat',
+  studentOnly,
+  [
+    body('departmentId').notEmpty().withMessage('Department ID is required'),
+    body('message').trim().notEmpty().isLength({ max: 2000 }).withMessage('Message is required'),
+    validate
+  ],
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const studentId = req.user.id;
+    const { departmentId, message } = req.body;
+    
+    const { data: request } = await supabase
+      .from('clearance_requests')
+      .select('*')
+      .eq('id', id)
+      .eq('student_id', studentId)
+      .single();
+    
+    if (!request) {
+      throw new AppError('Clearance request not found', 404, 'REQUEST_NOT_FOUND');
+    }
+    
+    const comments = request.comments || [];
+    const newMsg = {
+      id: Date.now().toString(),
+      department_id: departmentId,
+      author: studentId,
+      author_model: 'Student',
+      authorName: req.user.fullName || 'Student',
+      message,
+      is_internal: false,
+      read_by_dept: false,
+      created_at: new Date().toISOString()
+    };
+    comments.push(newMsg);
+    
+    await supabase.from('clearance_requests')
+      .update({ comments })
+      .eq('id', id);
+      
+    // Emit real-time event if configured
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`dept:${departmentId}`).emit('department-chat-msg', {
+        requestId: id,
+        message: newMsg
+      });
+    }
+    
+    res.status(201).json({
+      success: true,
+      message: 'Message sent successfully',
+      data: { comments: comments.filter(c => !c.is_internal) }
+    });
+  })
+);
+
+/**
+ * @route   POST /api/students/clearance-request/:id/mark-chat-read
+ * @desc    Mark department chat messages as read by student
+ * @access  Student
+ */
+router.post('/clearance-request/:id/mark-chat-read',
+  studentOnly,
+  [
+    body('departmentId').notEmpty().withMessage('Department ID is required'),
+    validate
+  ],
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const studentId = req.user.id;
+    const { departmentId } = req.body;
+    
+    const { data: request } = await supabase
+      .from('clearance_requests')
+      .select('id, comments')
+      .eq('id', id)
+      .eq('student_id', studentId)
+      .single();
+      
+    if (!request) {
+      throw new AppError('Clearance request not found', 404, 'REQUEST_NOT_FOUND');
+    }
+    
+    let updated = false;
+    const comments = (request.comments || []).map(c => {
+      if (c.department_id === departmentId && c.author_model === 'Staff' && !c.read_by_student) {
+        updated = true;
+        return { ...c, read_by_student: true };
+      }
+      return c;
+    });
+    
+    if (updated) {
+      await supabase.from('clearance_requests').update({ comments }).eq('id', id);
+    }
+    
+    res.status(200).json({
+      success: true,
+      message: 'Messages marked as read',
+      data: { comments: comments.filter(c => !c.is_internal) }
+    });
+  })
+);
+
+
+/**
  * @route   GET /api/students/departments
  * @desc    Get all departments with contact info
  * @access  Student
@@ -938,9 +1056,93 @@ router.post('/clearance-request/:id/degree-preference',
 
     if (updateError) throw updateError;
 
+    // Notify the Exam Department via live sockets
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('exam-department-notification', {
+        title: 'New Degree Fulfillment Request',
+        message: `Student ${request.student?.first_name || ''} requested ${method === 'dispatch' ? 'Degree Dispatch' : 'Manual Pickup'}.`,
+        requestId: id,
+        method,
+        timestamp: new Date().toISOString()
+      });
+    }
+
     res.status(200).json({
       success: true,
       message: 'Fulfillment preference updated successfully',
+      data: { degree_fulfillment }
+    });
+  })
+);
+
+/**
+ * @route   POST /api/students/clearance-request/:id/confirm-receipt
+ * @desc    Confirm degree receipt by student
+ * @access  Student
+ */
+router.post('/clearance-request/:id/confirm-receipt',
+  studentOnly,
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const studentId = req.user.id;
+
+    const { data: request, error: fetchError } = await supabase
+      .from('clearance_requests')
+      .select('*, student:student_id(*)')
+      .eq('id', id)
+      .eq('student_id', studentId)
+      .single();
+
+    if (fetchError || !request) {
+      throw new AppError('Clearance request not found', 404, 'REQUEST_NOT_FOUND');
+    }
+
+    const degree_fulfillment = request.degree_fulfillment || {};
+    degree_fulfillment.received_by_student = true;
+    degree_fulfillment.received_at = new Date().toISOString();
+
+    const timeline = request.timeline || [];
+    timeline.push({
+      action: 'degree_received',
+      performedBy: studentId,
+      performedByModel: 'Student',
+      description: `Student confirmed receipt of the degree.`,
+      timestamp: new Date().toISOString()
+    });
+
+    const comments = request.comments || [];
+    comments.push({
+      author: studentId,
+      authorName: req.user.fullName,
+      author_model: 'Student',
+      message: `I have successfully received my degree. The clearance process is now complete.`,
+      is_internal: false,
+      is_fulfillment_update: true,
+      created_at: new Date().toISOString()
+    });
+
+    // Mark as fully cleared
+    const { error: updateError } = await supabase
+      .from('clearance_requests')
+      .update({ 
+        degree_fulfillment,
+        timeline,
+        comments,
+        status: 'fully_cleared' // New final state
+      })
+      .eq('id', id);
+
+    if (updateError) throw updateError;
+
+    // Update student profile to final completed state
+    await supabase.from('student_profiles')
+      .update({ clearance_status: 'fully_cleared' })
+      .eq('id', studentId);
+
+    res.status(200).json({
+      success: true,
+      message: 'Degree receipt confirmed. Clearance complete.',
       data: { degree_fulfillment }
     });
   })

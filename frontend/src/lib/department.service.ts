@@ -44,5 +44,15 @@ export const departmentService = {
   getPendingCount: async () => {
     const response = await api.get('/departments/pending-requests');
     return response.data;
+  },
+
+  sendDepartmentChat: async (id: string, chatData: { message: string, departmentId?: string }) => {
+    const response = await api.post(`/departments/requests/${id}/department-chat`, chatData);
+    return response.data;
+  },
+
+  markDepartmentChatRead: async (id: string, departmentId?: string) => {
+    const response = await api.post(`/departments/requests/${id}/mark-chat-read`, { departmentId });
+    return response.data;
   }
 };

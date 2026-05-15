@@ -220,6 +220,7 @@ export const OfficialList = () => {
             <SelectContent className="rounded-xl border-none shadow-strong p-1 bg-background/95 backdrop-blur-2xl">
               <SelectItem value="all" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">All Roles</SelectItem>
               <SelectItem value="hod" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">HOD</SelectItem>
+              <SelectItem value="exam_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Exam Officer</SelectItem>
               <SelectItem value="finance_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Finance</SelectItem>
               <SelectItem value="library_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Library</SelectItem>
               <SelectItem value="transport_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Transport</SelectItem>
@@ -245,8 +246,9 @@ export const OfficialList = () => {
 
        <Card className="border-none shadow-strong rounded-2xl overflow-hidden bg-card/60 backdrop-blur-3xl group">
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table className="min-w-[800px]">
+          {/* Desktop Table View */}
+          <div className="hidden lg:block overflow-hidden">
+            <Table>
             <TableHeader className="bg-muted/10">
               <TableRow className="border-none">
                 <TableHead className="px-6 py-4 font-black text-muted-foreground uppercase text-[8px] tracking-widest">Official Name</TableHead>
@@ -372,6 +374,95 @@ export const OfficialList = () => {
             </TableBody>
           </Table>
           </div>
+
+          {/* Mobile Card View */}
+          <div className="lg:hidden p-4 space-y-4">
+            {loading ? (
+              Array(4).fill(0).map((_, i) => (
+                <div key={i} className="bg-card/40 rounded-2xl p-5 border border-foreground/5 h-32 animate-pulse" />
+              ))
+            ) : filteredOfficials.length === 0 ? (
+              <div className="py-20 text-center opacity-20">
+                <Users className="w-12 h-12 mx-auto mb-4" />
+                <p className="text-[10px] font-black uppercase tracking-widest">No staff found</p>
+              </div>
+            ) : (
+              filteredOfficials.map((off) => (
+                <div 
+                  key={off.id} 
+                  className="bg-card/40 rounded-2xl p-5 border border-foreground/5 space-y-5 hover:border-primary/20 transition-all shadow-soft"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center font-black text-primary text-xs">
+                        {off.first_name?.[0]}{off.last_name?.[0]}
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-black uppercase tracking-tight">{off.first_name} {off.last_name}</h4>
+                        <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest opacity-40 truncate max-w-[150px]">{off.email}</p>
+                      </div>
+                    </div>
+                    <div className={`w-2 h-2 rounded-full ${off.is_active !== false ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-muted-foreground/20'}`} />
+                  </div>
+
+                  <div className="flex items-center justify-between py-3 border-y border-foreground/5">
+                    <div className="space-y-1">
+                      <p className="text-[7px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Unit / Dept</p>
+                      <p className="text-[9px] font-black uppercase tracking-tight">{off.department?.name || 'Admin'}</p>
+                    </div>
+                    <div className="space-y-1 text-right">
+                      <p className="text-[7px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Role</p>
+                      <Badge className="bg-primary/10 text-primary border-none text-[7px] font-black uppercase px-2 py-0.5 rounded-md">
+                        {off.role.replace('_', ' ')}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <Button 
+                      className="flex-1 h-11 rounded-xl bg-foreground text-white font-black text-[9px] uppercase tracking-widest active:scale-95 transition-all"
+                      onClick={() => {
+                        setSelectedOfficial(off);
+                        setFormData({
+                          firstName: off.first_name,
+                          lastName: off.last_name,
+                          email: off.email,
+                          role: off.role,
+                          departmentId: off.department_id || ''
+                        });
+                        setIsEditOpen(true);
+                      }}
+                    >
+                      Configure Profile
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl bg-secondary/50 text-foreground">
+                          <MoreVertical className="w-5 h-5" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="rounded-xl w-48 p-1.5 shadow-strong bg-background/95 backdrop-blur-2xl border-none">
+                        <DropdownMenuItem 
+                          className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-amber-600 focus:text-white px-3 cursor-pointer"
+                          onClick={() => setConfirmResetId(off.id)}
+                        >
+                          <Key className="w-3.5 h-3.5 mr-2 opacity-40" />
+                          Reset Password
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-destructive focus:text-white px-3 cursor-pointer text-destructive"
+                          onClick={() => setConfirmDeleteId(off.id)}
+                        >
+                          <ShieldAlert className="w-3.5 h-3.5 mr-2" />
+                          Revoke Access
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </CardContent>
       </Card>
 
@@ -489,45 +580,72 @@ export const OfficialList = () => {
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-[8px] font-black uppercase tracking-widest text-muted-foreground ml-1">Staff Role</Label>
-                <Select 
-                  value={formData.role} 
-                  onValueChange={(val) => setFormData({...formData, role: val})}
-                >
-                  <SelectTrigger className="h-10 rounded-lg bg-secondary/50 border-none font-black text-[9px] uppercase tracking-widest px-4 shadow-inner">
-                    <SelectValue placeholder="Select Role" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-xl border-none shadow-strong p-1 bg-background/95 backdrop-blur-2xl">
-                    <SelectItem value="hod" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">HOD</SelectItem>
-                    <SelectItem value="department_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Dept Staff</SelectItem>
-                    <SelectItem value="finance_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Finance</SelectItem>
-                    <SelectItem value="library_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Library</SelectItem>
-                    <SelectItem value="transport_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Transport</SelectItem>
-                    <SelectItem value="admin" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Admin</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1">
                 <Label className="text-[8px] font-black uppercase tracking-widest text-muted-foreground ml-1">Department</Label>
                 <Select 
                   value={formData.departmentId} 
-                  onValueChange={(val) => setFormData({...formData, departmentId: val})}
+                  onValueChange={(val) => {
+                    const selectedD = departments.find((d: any) => d.id === val);
+                    let autoRole = formData.role;
+                    if (selectedD) {
+                      if (selectedD.type === 'finance') autoRole = 'finance_officer';
+                      else if (selectedD.type === 'library') autoRole = 'library_officer';
+                      else if (selectedD.type === 'transport') autoRole = 'transport_officer';
+                      else if (selectedD.type === 'hostel') autoRole = 'hostel_officer';
+                      else if (selectedD.contact_info?.custom_type === 'exam') autoRole = 'exam_officer';
+                      else if (selectedD.type === 'academic') {
+                        // Allow user to select HOD or Faculty Staff
+                        if (!['hod', 'department_officer'].includes(autoRole)) {
+                          autoRole = 'department_officer';
+                        }
+                      } else {
+                        // Custom/Other departments map to standard staff
+                        autoRole = 'department_officer';
+                      }
+                    }
+                    setFormData({...formData, departmentId: val, role: autoRole});
+                  }}
                 >
                   <SelectTrigger className="h-10 rounded-lg bg-secondary/50 border-none font-black text-[9px] uppercase tracking-widest px-4 shadow-inner">
                     <SelectValue placeholder="Select Unit" />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl border-none shadow-strong p-1 bg-background/95 backdrop-blur-2xl max-h-[250px]">
-                    <div className="px-3 py-1.5 text-[7px] font-black uppercase tracking-widest text-primary/40 bg-primary/5 rounded-lg mb-1">Academic</div>
-                    {departments.filter(d => d.type === 'academic').map((d: any) => (
+                    <div className="px-3 py-1.5 text-[7px] font-black uppercase tracking-widest text-primary/40 bg-primary/5 rounded-lg mb-1">Academic Departments</div>
+                    {departments.filter((d: any) => d.type === 'academic').map((d: any) => (
                       <SelectItem key={d.id} value={d.id} className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">{d.name}</SelectItem>
                     ))}
-                    <div className="px-3 py-1.5 text-[7px] font-black uppercase tracking-widest text-primary/40 bg-primary/5 rounded-lg my-1">Operational</div>
-                    {departments.filter(d => d.type !== 'academic').map((d: any) => (
-                      <SelectItem key={d.id} value={d.id} className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">{d.name}</SelectItem>
+                    <div className="px-3 py-1.5 text-[7px] font-black uppercase tracking-widest text-primary/40 bg-primary/5 rounded-lg my-1">Admin / Operational Units</div>
+                    {departments.filter((d: any) => d.type !== 'academic' && d.contact_info?.custom_type !== 'exam').map((d: any) => (
+                      <SelectItem key={d.id} value={d.id} className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">
+                        {d.name} {d.type === 'other' && d.contact_info?.custom_type ? `(${d.contact_info.custom_type.toUpperCase()})` : ''}
+                      </SelectItem>
+                    ))}
+                    <div className="px-3 py-1.5 text-[7px] font-black uppercase tracking-widest text-amber-500/40 bg-amber-500/5 rounded-lg my-1">Exam Department</div>
+                    {departments.filter((d: any) => d.contact_info?.custom_type === 'exam').map((d: any) => (
+                      <SelectItem key={d.id} value={d.id} className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-amber-600 focus:text-white px-3">{d.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Only show role select if department is academic or if not auto-inferred */}
+              {(!formData.departmentId || departments.find((d: any) => d.id === formData.departmentId)?.type === 'academic') && (
+                <div className="space-y-1">
+                  <Label className="text-[8px] font-black uppercase tracking-widest text-muted-foreground ml-1">Staff Role</Label>
+                  <Select 
+                    value={formData.role} 
+                    onValueChange={(val) => setFormData({...formData, role: val})}
+                  >
+                    <SelectTrigger className="h-10 rounded-lg bg-secondary/50 border-none font-black text-[9px] uppercase tracking-widest px-4 shadow-inner">
+                      <SelectValue placeholder="Select Role" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-none shadow-strong p-1 bg-background/95 backdrop-blur-2xl max-h-[250px]">
+                      <div className="px-3 py-1.5 text-[7px] font-black uppercase tracking-widest text-primary/40 bg-primary/5 rounded-lg mb-1">Academic Leadership</div>
+                      <SelectItem value="hod" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">HOD / Dean</SelectItem>
+                      <SelectItem value="department_officer" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Faculty Staff</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
             
             <DialogFooter className="pt-4 gap-3">

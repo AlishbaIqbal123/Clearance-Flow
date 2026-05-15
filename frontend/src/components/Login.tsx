@@ -1,5 +1,5 @@
 // UI ONLY — NO LOGIC CHANGED
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; // Force Vercel redeploy
 import { 
   Loader2, 
   User, 
@@ -22,7 +22,9 @@ import {
   Activity,
   ChevronRight,
   ShieldAlert,
-  CheckCircle2
+  CheckCircle2,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { authService } from '@/lib/auth.service';
 import { toast } from 'sonner';
@@ -50,6 +52,8 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
   const [studentPassword, setStudentPassword] = useState('');
   const [staffEmail, setStaffEmail] = useState('');
   const [staffPassword, setStaffPassword] = useState('');
+  const [showStudentPassword, setShowStudentPassword] = useState(false);
+  const [showStaffPassword, setShowStaffPassword] = useState(false);
   const [showForgotDialog, setShowForgotDialog] = useState(false);
   const [recoveryEmail, setRecoveryEmail] = useState('');
   const [recoveryReg, setRecoveryReg] = useState('');
@@ -58,6 +62,15 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
   const [maskedEmail, setMaskedEmail] = useState('');
   const [copied, setCopied] = useState(false);
   const [isDark, setIsDark] = useState(document.documentElement.classList.contains('dark'));
+  const [resetToken, setResetToken] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [receivedToken, setReceivedToken] = useState<string | null>(null);
+  const [beautifiedEmailData, setBeautifiedEmailData] = useState<any>(null);
+  const [showSimulatedInbox, setShowSimulatedInbox] = useState(false);
+  const [revealToken, setRevealToken] = useState(false);
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -136,6 +149,9 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
       if (response.success) {
         if (response.data?.maskedEmail) {
           setMaskedEmail(response.data.maskedEmail);
+          if (response.data.resetToken) setReceivedToken(response.data.resetToken);
+          if (response.data.previewUrl) setPreviewUrl(response.data.previewUrl);
+          if (response.data.beautifiedEmail) setBeautifiedEmailData(response.data.beautifiedEmail);
           setResetSuccess(true);
         } else {
           toast.success(response.message);
@@ -148,6 +164,42 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
       toast.error(error.response?.data?.message || 'Reset request failed. Please contact support.');
     } finally {
       setRecoveryLoading(false);
+    }
+  };
+
+  const handleCompleteReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetToken || !newPassword) return toast.error('Please fill in all fields');
+    if (newPassword.length < 8) return toast.error('Password must be at least 8 characters');
+    if (newPassword !== confirmPassword) return toast.error('Passwords do not match');
+
+    setIsResetting(true);
+    try {
+      const response = await authService.resetPassword({
+        token: resetToken,
+        newPassword,
+        type: activePortal
+      });
+
+      if (response.success) {
+        toast.success(response.message || 'Password reset successfully!');
+        setShowForgotDialog(false);
+        setResetSuccess(false);
+        setResetToken('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setPreviewUrl(null);
+        setReceivedToken(null);
+        setBeautifiedEmailData(null);
+        setShowSimulatedInbox(false);
+        setRevealToken(false);
+      } else {
+        toast.error(response.message || 'Failed to reset password');
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Invalid or expired token.');
+    } finally {
+      setIsResetting(false);
     }
   };
 
@@ -274,12 +326,19 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
                       <div className="relative">
                         <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-all duration-500" />
                         <Input 
-                          type="password"
+                          type={showStudentPassword ? "text" : "password"}
                           value={studentPassword}
                           onChange={(e) => setStudentPassword(e.target.value)}
                           placeholder="••••••••" 
-                          className="h-14 pl-14 bg-secondary/30 border-none rounded-xl font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm"
+                          className="h-14 pl-14 pr-12 bg-secondary/30 border-none rounded-xl font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm"
                         />
+                        <button
+                          type="button"
+                          onClick={() => setShowStudentPassword(!showStudentPassword)}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors p-1"
+                        >
+                          {showStudentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
                       </div>
                     </div>
                     
@@ -364,12 +423,19 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
                       <div className="relative">
                         <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-all duration-500" />
                         <Input 
-                          type="password" 
+                          type={showStaffPassword ? "text" : "password"} 
                           placeholder="••••••••" 
                           value={staffPassword}
                           onChange={(e) => setStaffPassword(e.target.value)}
-                          className="h-14 pl-14 bg-secondary/30 border-none rounded-xl font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm"
+                          className="h-14 pl-14 pr-12 bg-secondary/30 border-none rounded-xl font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm"
                         />
+                        <button
+                          type="button"
+                          onClick={() => setShowStaffPassword(!showStaffPassword)}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors p-1"
+                        >
+                          {showStaffPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
                       </div>
                     </div>
                     <Button disabled={loading} className="w-full h-14 bg-foreground hover:opacity-90 text-background rounded-xl font-black text-[11px] uppercase tracking-[0.5em] shadow-strong transition-all active:scale-95 group/btn overflow-hidden relative">
@@ -425,16 +491,19 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
         if (!open) {
           setResetSuccess(false);
           setMaskedEmail('');
+          setBeautifiedEmailData(null);
+          setShowSimulatedInbox(false);
+          setRevealToken(false);
         }
       }}>
-        <DialogContent className="sm:max-w-xl rounded-[3rem] border-none shadow-strong p-0 bg-background text-foreground overflow-hidden max-h-[90vh] overflow-y-auto custom-scrollbar">
-          <div className="bg-primary/5 p-12 space-y-8 relative overflow-hidden">
+        <DialogContent className="sm:max-w-xl rounded-3xl border-none shadow-strong p-0 bg-background text-foreground overflow-hidden max-h-[90vh] overflow-y-auto custom-scrollbar">
+          <div className="bg-primary/5 p-8 space-y-8 relative overflow-hidden">
              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full -mr-32 -mt-32 blur-[100px]" />
              <div className="w-20 h-20 bg-primary/10 rounded-[2rem] flex items-center justify-center relative shadow-inner">
                 {resetSuccess ? <CheckCircle2 className="w-10 h-10 text-emerald-500" /> : <Lock className="w-10 h-10 text-primary" />}
              </div>
              <div className="space-y-2">
-                <DialogTitle className="text-3xl font-black tracking-tighter uppercase leading-none text-foreground">
+                <DialogTitle className="text-2xl font-black tracking-tighter uppercase leading-none text-foreground">
                   {resetSuccess ? "Check Your Email" : "Account Recovery"}
                 </DialogTitle>
                 <DialogDescription className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] leading-relaxed max-w-sm">
@@ -448,49 +517,111 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
              </div>
           </div>
           
-          <div className="p-12">
+          <div className="p-8">
             {resetSuccess ? (
-              <div className="space-y-10 animate-in fade-in slide-in-from-bottom-5 duration-500">
-                <div className="p-8 bg-emerald-500/5 rounded-3xl border border-emerald-500/10 space-y-4">
-                  <p className="text-sm font-medium text-foreground leading-relaxed italic">
-                    We've sent a secure reset link to your registered email:
+              <form onSubmit={handleCompleteReset} className="space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-500">
+                <div className="p-6 bg-emerald-500/5 rounded-3xl border border-emerald-500/10 space-y-3">
+                  <p className="text-xs font-medium text-foreground leading-relaxed italic">
+                    We've dispatched a recovery secret to your registered email:
                   </p>
-                  <div className="flex items-center gap-4 bg-white/50 dark:bg-black/20 p-4 rounded-2xl border border-foreground/5 shadow-inner">
-                    <Mail className="w-5 h-5 text-emerald-500 opacity-60" />
-                    <span className="font-black text-emerald-600 tracking-tight">{maskedEmail}</span>
+                  <div className="flex items-center justify-between gap-4 bg-white/50 dark:bg-black/20 p-3 rounded-2xl border border-foreground/5 shadow-inner flex-wrap">
+                    <div className="flex items-center gap-3">
+                      <Mail className="w-4 h-4 text-emerald-500 opacity-60" />
+                      <span className="font-black text-emerald-600 tracking-tight text-xs">{maskedEmail}</span>
+                    </div>
+                    {previewUrl && (
+                      <a 
+                        href={previewUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="px-3 py-1.5 rounded-xl bg-emerald-500 text-white font-black text-[9px] uppercase tracking-wider hover:bg-emerald-600 transition-all flex items-center gap-1 shadow-sm"
+                      >
+                        <Sparkles className="w-3 h-3" />
+                        Preview Email
+                      </a>
+                    )}
                   </div>
                 </div>
                 
-                <div className="space-y-6">
+                <div className="space-y-4">
                   <div className="flex items-center gap-4 text-muted-foreground/40 font-black text-[9px] uppercase tracking-[0.3em]">
                     <div className="flex-1 h-px bg-foreground/5" />
-                    Next Steps
+                    Enter Recovery Secret
                     <div className="flex-1 h-px bg-foreground/5" />
                   </div>
                   
-                  <ul className="space-y-4">
-                    {[
-                      'Check your inbox and spam folder',
-                      'Click the link to verify your identity',
-                      'Define a new secure access secret'
-                    ].map((step, i) => (
-                      <li key={i} className="flex items-center gap-4 group">
-                        <div className="w-8 h-8 rounded-xl bg-secondary flex items-center justify-center font-black text-[10px] text-primary group-hover:scale-110 transition-transform">
-                          0{i+1}
-                        </div>
-                        <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{step}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="space-y-3">
+                    <div className="space-y-1.5 group">
+                      <label className="text-[9px] font-black text-primary uppercase tracking-[0.3em] ml-2">Secret Token</label>
+                      <div className="relative">
+                        <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                        <Input 
+                          value={resetToken} 
+                          onChange={(e) => setResetToken(e.target.value)}
+                          placeholder="A8F3E2"
+                          className="pl-11 h-12 rounded-xl bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm uppercase tracking-widest" 
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 group">
+                      <label className="text-[9px] font-black text-primary uppercase tracking-[0.3em] ml-2">New Password</label>
+                      <div className="relative">
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                        <Input 
+                          type="password"
+                          value={newPassword} 
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          placeholder="••••••••"
+                          className="pl-11 h-12 rounded-xl bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm" 
+                          required
+                          minLength={8}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 group">
+                      <label className="text-[9px] font-black text-primary uppercase tracking-[0.3em] ml-2">Confirm Password</label>
+                      <div className="relative">
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                        <Input 
+                          type="password"
+                          value={confirmPassword} 
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          placeholder="••••••••"
+                          className="pl-11 h-12 rounded-xl bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm" 
+                          required
+                          minLength={8}
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <Button 
-                  className="w-full bg-foreground text-background hover:bg-foreground/90 h-14 rounded-2xl font-black text-[9px] uppercase tracking-[0.4em] shadow-strong active:scale-95 transition-all"
-                  onClick={() => setShowForgotDialog(false)}
-                >
-                  Return to Login
-                </Button>
-              </div>
+                <div className="flex flex-col gap-3 pt-2">
+                  <Button 
+                    type="submit"
+                    disabled={isResetting}
+                    className="w-full bg-primary hover:bg-primary/90 text-white h-12 rounded-xl font-black text-[10px] uppercase tracking-[0.4em] shadow-strong active:scale-95 transition-all"
+                  >
+                    {isResetting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Define New Access Secret"}
+                  </Button>
+                  <Button 
+                    type="button"
+                    variant="ghost"
+                    className="w-full h-10 rounded-xl font-black text-[9px] uppercase tracking-widest text-muted-foreground hover:bg-secondary"
+                    onClick={() => {
+                      setResetSuccess(false);
+                      setResetToken('');
+                      setNewPassword('');
+                      setConfirmPassword('');
+                    }}
+                  >
+                    Back to Request
+                  </Button>
+                </div>
+              </form>
             ) : (
               <form onSubmit={handleResetRequest} className="space-y-10">
                 <div className="space-y-8">
@@ -535,7 +666,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
                   <Button 
                     type="submit" 
                     disabled={recoveryLoading}
-                    className="w-full bg-primary hover:bg-primary/90 h-14 rounded-2xl font-black text-[9px] uppercase tracking-[0.4em] shadow-strong shadow-primary/20 active:scale-95 transition-all"
+                    className="w-full bg-primary hover:bg-primary/90 h-12 rounded-2xl font-black text-[9px] uppercase tracking-[0.4em] shadow-strong shadow-primary/20 active:scale-95 transition-all"
                   >
                     {recoveryLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Dispatch Reset Link"}
                   </Button>

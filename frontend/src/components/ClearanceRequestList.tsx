@@ -141,7 +141,7 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
                  <div className="flex items-center gap-2">
                     <Badge className="bg-primary/10 text-primary border-none rounded-full px-3 py-0.5 text-[8px] font-black uppercase tracking-widest">Master Audit Stream</Badge>
                  </div>
-                 <h2 className="text-lg font-black text-foreground tracking-tighter uppercase leading-none">Clearance Requests</h2>
+                  <h2 className="text-base font-black text-foreground tracking-tighter uppercase leading-none">Clearance Requests</h2>
               </div>
            </div>
         </div>
@@ -167,7 +167,7 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
           </div>
           <div className="w-px h-6 bg-foreground/10 mx-1" />
           <Button 
-            className="rounded-lg bg-primary text-white hover:bg-primary/90 h-10 px-6 font-black text-[9px] uppercase tracking-widest shadow-strong shadow-primary/20 flex items-center gap-2 active:scale-95 transition-all group shrink-0"
+            className="rounded-lg bg-primary text-white hover:bg-primary/90 h-9 px-6 font-black text-[9px] uppercase tracking-widest shadow-strong shadow-primary/20 flex items-center gap-2 active:scale-95 transition-all group shrink-0"
             onClick={handleExport}
           >
             <Download className="w-4 h-4" />
@@ -206,15 +206,17 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
       </div>
 
       {viewMode === 'table' ? (
-         <Card className="border-none shadow-strong rounded-2xl overflow-hidden bg-card/60 backdrop-blur-3xl group">
+         <Card className="border-none shadow-strong rounded-xl overflow-hidden bg-card/60 backdrop-blur-3xl group">
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table className="min-w-[800px]">
+            {/* Desktop Table View */}
+            <div className="hidden lg:block overflow-hidden">
+              <Table>
               <TableHeader className="bg-muted/10">
                 <TableRow className="border-none">
                   <TableHead className="px-6 py-4 font-black text-muted-foreground uppercase text-[8px] tracking-widest">Identity & Sequence</TableHead>
                   <TableHead className="py-4 font-black text-muted-foreground uppercase text-[8px] tracking-widest">Student Profile</TableHead>
                   <TableHead className="py-4 font-black text-muted-foreground uppercase text-[8px] tracking-widest">Protocol Status</TableHead>
+                  <TableHead className="py-4 font-black text-muted-foreground uppercase text-[8px] tracking-widest">Fulfillment</TableHead>
                   <TableHead className="py-4 font-black text-muted-foreground uppercase text-[8px] tracking-widest">Node Authorization</TableHead>
                   <TableHead className="px-6 text-right text-[8px] font-black text-muted-foreground uppercase tracking-widest">Directives</TableHead>
                 </TableRow>
@@ -282,6 +284,22 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
                         <StatusBadge status={req.status} />
                       </TableCell>
                       <TableCell>
+                        {req.degree_fulfillment ? (
+                          <div className="flex items-center gap-2">
+                            <Badge className={`${req.degree_fulfillment.method === 'dispatch' ? 'bg-indigo-50 text-indigo-600' : 'bg-orange-50 text-orange-600'} border-none font-black text-[7px] uppercase px-2 py-1 rounded-md`}>
+                              {req.degree_fulfillment.method}
+                            </Badge>
+                            {req.degree_fulfillment.method === 'dispatch' && (
+                              <span className="text-[7px] font-black text-muted-foreground uppercase truncate max-w-[100px]" title={req.degree_fulfillment.address}>
+                                {req.degree_fulfillment.address?.substring(0, 15)}...
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-[7px] font-black text-muted-foreground/30 uppercase tracking-widest italic">TBD</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
                         <div className="flex -space-x-3">
                           {(req.clearance_status || []).slice(0, 5).map((cs: any, idx: number) => (
                             <div 
@@ -316,7 +334,73 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
                   ))
                  )}
               </TableBody>
-            </Table>
+              </Table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="lg:hidden p-4 space-y-4">
+              {loading ? (
+                Array(4).fill(0).map((_, i) => (
+                  <div key={i} className="bg-card/40 rounded-2xl p-5 border border-foreground/5 h-40 animate-pulse" />
+                ))
+              ) : filteredRequests.length === 0 ? (
+                <div className="py-20 text-center opacity-20">
+                  <FileSearch className="w-12 h-12 mx-auto mb-4" />
+                  <p className="text-[10px] font-black uppercase tracking-widest">Empty Registry</p>
+                </div>
+              ) : (
+                filteredRequests.map((req) => (
+                  <div 
+                    key={req.id} 
+                    className="bg-card/40 rounded-2xl p-5 border border-foreground/5 space-y-5 hover:border-primary/20 transition-all shadow-soft"
+                    onClick={() => { setSelectedRequest(req); setIsDetailsOpen(true); }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                          <FileText className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black text-primary uppercase tracking-widest leading-none">{req.request_id}</p>
+                          <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest mt-1">{new Date(req.created_at).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                      <StatusBadge status={req.status} />
+                    </div>
+
+                    <div className="space-y-4 py-4 border-y border-foreground/5">
+                      <div className="flex items-center gap-3">
+                        <UserCircle className="w-4 h-4 text-primary opacity-40" />
+                        <div>
+                          <p className="text-xs font-black uppercase tracking-tight leading-none">{req.student?.first_name} {req.student?.last_name}</p>
+                          <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest mt-1">{req.student?.registration_number}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {(req.clearance_status || []).slice(0, 8).map((cs: any) => (
+                          <div 
+                            key={cs.id}
+                            className={`w-6 h-6 rounded-md flex items-center justify-center text-[6px] font-black ${
+                              cs.status === 'cleared' ? 'bg-emerald-500/10 text-emerald-600' : 
+                              cs.status === 'rejected' ? 'bg-destructive/10 text-destructive' :
+                              'bg-secondary text-muted-foreground'
+                            }`}
+                          >
+                            {cs.department?.code?.substring(0, 2)}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <Button 
+                      className="w-full h-11 rounded-xl bg-foreground text-white font-black text-[9px] uppercase tracking-widest active:scale-95 transition-all shadow-strong"
+                    >
+                      Audit Details
+                    </Button>
+                  </div>
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -327,7 +411,7 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
                <div key={i} className="h-64 bg-card/60 rounded-2xl animate-pulse"></div>
              ))
           ) : filteredRequests.map(req => (
-            <Card key={req.id} className="border-none shadow-strong rounded-2xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden bg-card/60 backdrop-blur-3xl border border-foreground/5 cursor-pointer" onClick={() => { setSelectedRequest(req); setIsDetailsOpen(true); }}>
+            <Card key={req.id} className="border-none shadow-strong rounded-xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden bg-card/60 backdrop-blur-3xl border border-foreground/5 cursor-pointer" onClick={() => { setSelectedRequest(req); setIsDetailsOpen(true); }}>
                <CardContent className="p-6 relative flex flex-col h-full">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-[60px] group-hover:bg-primary/10 transition-colors duration-500" />
                   
@@ -378,7 +462,7 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
       {/* Premium Audit Master Console Dialog */}
        <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="sm:max-w-[650px] w-[95vw] max-h-[90vh] rounded-2xl p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 overflow-y-auto custom-scrollbar">
-          <div className="bg-card p-6 sm:p-8 text-foreground relative overflow-hidden border-b border-foreground/5">
+          <div className="bg-card p-4 sm:p-6 text-foreground relative overflow-hidden border-b border-foreground/5">
             <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-primary/20 rounded-full -mr-32 -mt-32 blur-[80px] pointer-events-none" />
             
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
@@ -392,7 +476,7 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
                        <p className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-widest mt-0.5">{selectedRequest?.request_type?.replace('_', ' ')}</p>
                     </div>
                  </div>
-                 <DialogTitle className="text-xl sm:text-2xl font-black tracking-tighter uppercase leading-none">{selectedRequest?.request_id}</DialogTitle>
+                 <DialogTitle className="text-lg sm:text-xl font-black tracking-tighter uppercase leading-none">{selectedRequest?.request_id}</DialogTitle>
               </div>
               <div className="text-left sm:text-right space-y-1">
                  <p className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-widest">Protocol Status</p>
@@ -404,9 +488,9 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
             </div>
           </div>
           
-          <div className="p-6 sm:p-8 space-y-6 sm:space-y-8 bg-card/40 backdrop-blur-3xl overflow-y-auto max-h-[60vh] custom-scrollbar">
+          <div className="p-4 sm:p-6 space-y-6 sm:space-y-8 bg-card/40 backdrop-blur-3xl overflow-y-auto max-h-[60vh] custom-scrollbar">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-3 p-4 sm:p-6 bg-secondary/50 rounded-2xl border border-foreground/5 group hover:bg-secondary transition-all duration-500">
+              <div className="space-y-3 p-3 sm:p-4 bg-secondary/50 rounded-xl border border-foreground/5 group hover:bg-secondary transition-all duration-500">
                 <div className="flex items-center gap-3">
                    <div className="p-2.5 bg-primary/10 rounded-lg group-hover:rotate-6 transition-transform">
                       <UserCircle className="w-5 h-5 text-primary" />
@@ -425,7 +509,7 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
                 </div>
               </div>
               
-              <div className="space-y-4 p-6 bg-secondary/50 rounded-2xl border border-foreground/5 group hover:bg-secondary transition-all">
+              <div className="space-y-4 p-4 bg-secondary/50 rounded-xl border border-foreground/5 group hover:bg-secondary transition-all">
                 <div className="flex items-center gap-3">
                    <div className="p-2.5 bg-primary/10 rounded-lg group-hover:scale-105 transition-transform">
                       <Activity className="w-5 h-5 text-primary" />
@@ -491,13 +575,13 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
             </div>
           </div>
 
-          <div className="p-6 sm:p-8 bg-card border-t border-foreground/5">
+          <div className="p-4 sm:p-6 bg-card border-t border-foreground/5">
              <div className="flex flex-col sm:flex-row gap-3">
-                <Button variant="ghost" className="h-10 rounded-xl px-6 font-black text-[9px] uppercase tracking-widest text-muted-foreground hover:bg-secondary flex-1 transition-all" onClick={() => setIsDetailsOpen(false)}>
+                <Button variant="ghost" className="h-9 rounded-xl px-6 font-black text-[9px] uppercase tracking-widest text-muted-foreground hover:bg-secondary flex-1 transition-all" onClick={() => setIsDetailsOpen(false)}>
                   Close
                 </Button>
                 <Button 
-                  className="h-10 bg-primary text-white hover:bg-primary/90 rounded-xl px-6 font-black text-[9px] uppercase tracking-widest flex-[2] shadow-strong shadow-primary/20 group transition-all relative overflow-hidden"
+                  className="h-9 bg-primary text-white hover:bg-primary/90 rounded-xl px-6 font-black text-[9px] uppercase tracking-widest flex-[2] shadow-strong shadow-primary/20 group transition-all relative overflow-hidden"
                   onClick={() => selectedRequest && handleDownloadSlip(selectedRequest)}
                 >
                   <span>Download Protocol Slip</span>

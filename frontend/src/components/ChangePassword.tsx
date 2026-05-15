@@ -79,27 +79,27 @@ export const ChangePassword = ({ onSuccess }: ChangePasswordProps) => {
              </div>
           </div>
           <div className="space-y-2">
-             <h2 className="text-5xl font-black text-foreground tracking-tighter uppercase leading-none">Security Protocol</h2>
+             <h2 className="text-4xl font-black text-foreground tracking-tighter uppercase leading-none">Security Protocol</h2>
              <div className="flex items-center justify-center gap-4">
                 <Badge className="bg-primary/10 text-primary border-none rounded-full px-5 py-1.5 text-[10px] font-black uppercase tracking-[0.4em]">Credentials Update</Badge>
                 <p className="text-muted-foreground/40 font-black text-[10px] uppercase tracking-[0.4em]">Matrix v4.2</p>
              </div>
           </div>
-          <p className="text-xl text-muted-foreground font-medium max-w-md mx-auto leading-relaxed italic">
+          <p className="text-lg text-muted-foreground font-medium max-w-md mx-auto leading-relaxed italic">
             Your current password is temporary. Please set a new secure password to continue.
           </p>
         </div>
 
-        <Card className="border-none shadow-strong rounded-[4rem] bg-card/60 backdrop-blur-3xl border border-foreground/5 overflow-hidden animate-in zoom-in-95 duration-1000">
-          <CardHeader className="p-12 pb-0">
+        <Card className="border-none shadow-strong rounded-3xl bg-card/60 backdrop-blur-3xl border border-foreground/5 overflow-hidden animate-in zoom-in-95 duration-1000">
+          <CardHeader className="p-8 pb-0">
              <div className="flex items-center gap-4 text-primary mb-2">
                 <Fingerprint className="w-6 h-6" />
-                <CardTitle className="text-2xl font-black uppercase tracking-tighter">Identity Matrix</CardTitle>
+                <CardTitle className="text-xl font-black uppercase tracking-tighter">Identity Matrix</CardTitle>
              </div>
              <CardDescription className="text-sm font-black uppercase tracking-widest opacity-40">Choose a high-entropy key with at least 8 unique identifiers.</CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
-            <CardContent className="p-12 space-y-10">
+            <CardContent className="p-8 space-y-10">
               <div className="grid grid-cols-1 gap-8">
                 {/* Current Key Input */}
                 <div className="space-y-3 group/input">
@@ -111,7 +111,7 @@ export const ChangePassword = ({ onSuccess }: ChangePasswordProps) => {
                     <Input 
                       type={showCurrent ? "text" : "password"} 
                       placeholder="Temporary Key" 
-                      className="pl-16 pr-16 h-20 bg-background/50 border-none rounded-[1.75rem] font-black px-8 text-lg shadow-inner focus-visible:ring-primary/20 transition-all"
+                      className="pl-16 pr-16 h-14 bg-background/50 border-none rounded-xl font-black px-8 text-lg shadow-inner focus-visible:ring-primary/20 transition-all"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       required
@@ -137,7 +137,7 @@ export const ChangePassword = ({ onSuccess }: ChangePasswordProps) => {
                       <Input 
                         type={showNew ? "text" : "password"} 
                         placeholder="Secure Key" 
-                        className="pl-16 pr-16 h-20 bg-background/50 border-none rounded-[1.75rem] font-black px-8 text-lg shadow-inner focus-visible:ring-primary/20 transition-all"
+                        className="pl-16 pr-16 h-14 bg-background/50 border-none rounded-xl font-black px-8 text-lg shadow-inner focus-visible:ring-primary/20 transition-all"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         required
@@ -160,7 +160,7 @@ export const ChangePassword = ({ onSuccess }: ChangePasswordProps) => {
                       <Input 
                         type={showConfirm ? "text" : "password"} 
                         placeholder="Confirm Key" 
-                        className="pl-16 pr-16 h-20 bg-background/50 border-none rounded-[1.75rem] font-black px-8 text-lg shadow-inner focus-visible:ring-primary/20 transition-all"
+                        className="pl-16 pr-16 h-14 bg-background/50 border-none rounded-xl font-black px-8 text-lg shadow-inner focus-visible:ring-primary/20 transition-all"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
@@ -178,7 +178,7 @@ export const ChangePassword = ({ onSuccess }: ChangePasswordProps) => {
               </div>
 
               {/* Entropy Validation Matrix */}
-              <div className="p-10 bg-secondary/30 rounded-[3rem] border border-foreground/5 space-y-6">
+              <div className="p-6 bg-secondary/30 rounded-2xl border border-foreground/5 space-y-6">
                 <div className="flex items-center gap-4 text-primary">
                    <Activity className="w-5 h-5" />
                    <span className="text-[10px] font-black uppercase tracking-[0.5em]">Entropy Analysis</span>
@@ -199,7 +199,7 @@ export const ChangePassword = ({ onSuccess }: ChangePasswordProps) => {
             </CardContent>
             <CardFooter className="p-8 pt-0 flex flex-col gap-6">
               <Button 
-                className="w-full h-14 bg-primary hover:bg-primary/90 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-strong shadow-primary/20 group active:scale-95 transition-all overflow-hidden relative" 
+                className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-strong shadow-primary/20 group active:scale-95 transition-all overflow-hidden relative" 
                 disabled={loading}
               >
                 {loading ? (

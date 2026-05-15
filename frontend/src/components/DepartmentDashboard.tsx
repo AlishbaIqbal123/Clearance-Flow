@@ -165,7 +165,7 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
       {/* Department Hero */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 relative overflow-hidden p-5 sm:p-8 lg:p-10 rounded-[2rem] bg-foreground group">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 relative overflow-hidden p-4 sm:p-6 lg:p-8 rounded-3xl bg-foreground group">
         <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[15%] -mt-[5%] blur-3xl group-hover:scale-110 transition-transform duration-1000" />
         
         <div className="flex flex-col lg:flex-row lg:items-center gap-6 relative z-10 flex-1">
@@ -176,7 +176,7 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
               <div className="flex items-center gap-3">
                  <Badge className="bg-primary/20 text-primary border-none rounded-full px-4 py-1 text-[9px] font-black uppercase tracking-widest backdrop-blur-md">Active Dashboard</Badge>
               </div>
-              <h2 className="text-2xl lg:text-3xl font-black text-background tracking-tighter leading-none uppercase">{department.name || 'Department'}</h2>
+              <h2 className="text-xl lg:text-2xl font-black text-background tracking-tighter leading-none uppercase">{department.name || 'Department'}</h2>
               <p className="text-sm text-background/40 font-medium leading-relaxed max-w-lg italic">
                 Manage clearance requests and verify student records.
               </p>
@@ -186,14 +186,14 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
          <div className="flex flex-wrap items-center gap-4 relative z-10 w-full sm:w-auto">
           <Button 
             variant="ghost" 
-            className="flex-1 sm:flex-none rounded-xl h-12 px-6 font-black text-[9px] uppercase tracking-widest text-background/60 hover:text-background hover:bg-white/5 transition-all duration-700 border border-white/5 active:scale-95 backdrop-blur-sm"
+            className="flex-1 sm:flex-none rounded-xl h-10 px-6 font-black text-[9px] uppercase tracking-widest text-background/60 hover:text-background hover:bg-white/5 transition-all duration-700 border border-white/5 active:scale-95 backdrop-blur-sm"
             onClick={() => onNavigate('requests')}
           >
              <History className="w-4 h-4 mr-3 opacity-50" />
              View Requests
           </Button>
           <Button 
-            className="flex-1 sm:flex-none rounded-xl bg-primary text-white hover:bg-primary/90 h-12 px-8 font-black text-[10px] uppercase tracking-widest shadow-strong shadow-primary/30 flex items-center gap-4 active:scale-95 transition-all group/btn overflow-hidden relative"
+            className="flex-1 sm:flex-none rounded-xl bg-primary text-white hover:bg-primary/90 h-10 px-8 font-black text-[10px] uppercase tracking-widest shadow-strong shadow-primary/30 flex items-center gap-4 active:scale-95 transition-all group/btn overflow-hidden relative"
             onClick={() => toast.info('Batch approval started.')}
           >
              <Zap className="w-5 h-5 group-hover:scale-110 transition-transform duration-700" />
@@ -210,7 +210,7 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
       </div>
 
       <Card className="border-none shadow-strong rounded-3xl bg-card/60 backdrop-blur-3xl overflow-hidden group">
-        <CardHeader className="p-6 sm:p-8 pb-6 border-b border-foreground/5 relative overflow-hidden">
+        <CardHeader className="p-4 sm:p-6 pb-6 border-b border-foreground/5 relative overflow-hidden">
            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
               <div className="space-y-1">
                  <div className="flex items-center gap-3 text-primary">
@@ -243,10 +243,10 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                  </Select>
               </div>
            </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table className="min-w-[800px]">
+        </CardHeader>        <CardContent className="p-0">
+          {/* Desktop Table View */}
+          <div className="hidden lg:block overflow-hidden">
+            <Table>
             <TableHeader className="bg-muted/10">
                <TableRow className="border-none">
                  <TableHead className="px-8 py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Student</TableHead>
@@ -313,8 +313,8 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                             </div>
                         </TableCell>
                          <TableCell className="px-8 py-3 text-right">
-                           <Button 
-                            className="rounded-xl h-10 px-6 font-black text-[9px] uppercase tracking-widest bg-secondary/80 text-foreground hover:bg-primary hover:text-white transition-all duration-700 active:scale-95 border border-foreground/5 hover:border-transparent"
+                             <Button 
+                               className="rounded-xl h-9 px-6 font-black text-[9px] uppercase tracking-widest bg-secondary/80 text-foreground hover:bg-primary hover:text-white transition-all duration-700 active:scale-95 border border-foreground/5 hover:border-transparent"
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelectedRequest(request);
@@ -355,17 +355,97 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                  </TableRow>
                )}
              </TableBody>
-           </Table>
+            </Table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="lg:hidden p-4 space-y-4">
+            {(recentRequests || [])
+              .filter((request: any) => {
+                const searchLower = searchQuery.toLowerCase();
+                const matchesSearch = 
+                  (request.student?.registration_number?.toLowerCase() || '').includes(searchLower) ||
+                  (request.student?.first_name?.toLowerCase() || '').includes(searchLower);
+                
+                const currentDeptStatus = (request.clearance_status || []).find((ds: any) => 
+                  ds.department_id === currentDeptId || ds.department?.id === currentDeptId
+                );
+                const matchesStatus = statusFilter === 'all' || (currentDeptStatus?.status || 'pending') === statusFilter;
+                return matchesSearch && matchesStatus;
+              })
+              .map((request: any) => {
+                const currentDeptStatus = (request.clearance_status || []).find((ds: any) => 
+                  ds.department_id === currentDeptId || ds.department?.id === currentDeptId
+                );
+                
+                return (
+                  <div 
+                    key={request.id} 
+                    className="bg-card/40 rounded-2xl p-5 border border-foreground/5 space-y-5 hover:border-primary/20 transition-all shadow-soft"
+                    onClick={() => {
+                      setSelectedRequest(request);
+                      setRemarks(currentDeptStatus?.remarks || '');
+                      setDueAmount(currentDeptStatus?.due_amount || 0);
+                      setShowActionDialog(true);
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center font-black text-primary text-xs">
+                          {request.student?.first_name?.[0]}
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-black uppercase tracking-tight">{request.student?.first_name} {request.student?.last_name}</h4>
+                          <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest opacity-40">{request.student?.registration_number}</p>
+                        </div>
+                      </div>
+                      <StatusBadge status={currentDeptStatus?.status || 'pending'} />
+                    </div>
+
+                    <div className="space-y-3 py-3 border-y border-foreground/5">
+                      <div className="flex items-center gap-2">
+                        <GraduationCap className="w-4 h-4 text-primary opacity-40" />
+                        <p className="text-[10px] font-black uppercase tracking-tight truncate">{request.student?.program}</p>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <CalendarDays className="w-4 h-4 text-primary opacity-40" />
+                          <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">
+                            {new Date(request.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                        {currentDeptStatus?.due_amount > 0 && (
+                          <Badge className="bg-amber-100 text-amber-700 border-none text-[8px] font-black uppercase">
+                            PKR {currentDeptStatus.due_amount}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+
+                    <Button 
+                      className="w-full h-11 rounded-xl bg-primary text-white font-black text-[9px] uppercase tracking-widest shadow-strong active:scale-95 transition-all"
+                    >
+                      Manage Identity
+                    </Button>
+                  </div>
+                );
+              })}
+              {recentRequests.length === 0 && (
+                <div className="py-20 text-center opacity-20">
+                  <Activity className="w-12 h-12 mx-auto mb-4" />
+                  <p className="text-[10px] font-black uppercase tracking-widest">No requests found</p>
+                </div>
+              )}
           </div>
         </CardContent>
       </Card>
 
       {/* Request Action Dialog */}
       <Dialog open={showActionDialog} onOpenChange={setShowActionDialog}>
-        <DialogContent className="sm:max-w-[650px] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <DialogContent className="sm:max-w-[650px] rounded-3xl p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 max-h-[90vh] overflow-y-auto custom-scrollbar">
           {selectedRequest && (
             <>
-              <div className="bg-card p-5 sm:p-8 text-foreground relative border-b border-foreground/5">
+              <div className="bg-card p-4 sm:p-6 text-foreground relative border-b border-foreground/5">
                  <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-primary/10 rounded-full -mr-32 -mt-32 blur-[100px]" />
                  
                  <div className="relative z-10 space-y-4">
@@ -378,7 +458,7 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                        </Button>
                     </div>
                     <div className="space-y-0.5">
-                       <h3 className="text-xl font-black tracking-tighter uppercase leading-none">{selectedRequest.student.first_name} {selectedRequest.student.last_name}</h3>
+                       <h3 className="text-lg font-black tracking-tighter uppercase leading-none">{selectedRequest.student.first_name} {selectedRequest.student.last_name}</h3>
                        <div className="flex items-center gap-3 text-muted-foreground/40">
                           <p className="font-black text-[10px] uppercase tracking-widest">Reg #: {selectedRequest.student.registration_number}</p>
                        </div>
@@ -395,7 +475,7 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                     </div>
                  </div>
                </div>
-              <div className="p-6 sm:p-8 space-y-6 bg-background">
+              <div className="p-4 sm:p-6 space-y-6 bg-background">
                 <div className="space-y-6">
                   <div className="flex items-center justify-between px-2">
                      <div className="flex items-center gap-5">
@@ -411,14 +491,14 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                   </div>
                   <Textarea 
                     placeholder="Enter remarks or reasons for decision..." 
-                    className="min-h-[100px] rounded-xl border-none bg-secondary/50 p-6 text-sm font-medium placeholder:text-muted-foreground/20 focus-visible:ring-2 focus-visible:ring-primary/10 transition-all shadow-inner leading-relaxed resize-none"
+                    className="min-h-[80px] rounded-xl border-none bg-secondary/50 p-4 text-sm font-medium placeholder:text-muted-foreground/20 focus-visible:ring-2 focus-visible:ring-primary/10 transition-all shadow-inner leading-relaxed resize-none"
                     value={remarks}
                     onChange={(e) => setRemarks(e.target.value)}
                   />
                 </div>
 
                  <div className="pt-2">
-                   <div className="flex items-center justify-between p-5 bg-secondary/80 rounded-2xl border border-foreground/5 shadow-inner group/dues transition-all duration-700 hover:bg-secondary">
+                   <div className="flex items-center justify-between p-4 bg-secondary/80 rounded-2xl border border-foreground/5 shadow-inner group/dues transition-all duration-700 hover:bg-secondary">
                       <div className="space-y-1.5">
                          <div className="flex items-center gap-3">
                             <div className="p-2.5 bg-primary/10 rounded-xl group-hover/dues:rotate-12 transition-transform duration-700">
@@ -443,7 +523,7 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                     <div className="grid grid-cols-2 gap-4 pt-2">
                       <Button 
                         variant="outline" 
-                        className="h-14 rounded-xl border-destructive/10 text-destructive hover:bg-destructive hover:text-white font-black text-[9px] uppercase tracking-widest flex flex-col items-center justify-center gap-1.5 group transition-all duration-700 relative overflow-hidden"
+                        className="h-11 rounded-xl border-destructive/10 text-destructive hover:bg-destructive hover:text-white font-black text-[9px] uppercase tracking-widest flex flex-col items-center justify-center gap-1.5 group transition-all duration-700 relative overflow-hidden"
                         onClick={() => handleUpdateStatus('rejected')}
                         disabled={submittingAction}
                       >
@@ -451,7 +531,7 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                         <span>Reject</span>
                       </Button>
                       <Button 
-                        className="h-14 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[9px] uppercase tracking-widest flex flex-col items-center justify-center gap-1.5 group shadow-strong transition-all duration-700 relative overflow-hidden"
+                        className="h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[9px] uppercase tracking-widest flex flex-col items-center justify-center gap-1.5 group shadow-strong transition-all duration-700 relative overflow-hidden"
                         onClick={() => handleUpdateStatus('cleared')}
                         disabled={submittingAction}
                       >

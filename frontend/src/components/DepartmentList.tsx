@@ -56,7 +56,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'administrative' }) => {
+export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'administrative' | 'exam' }) => {
   const [allDepartments, setAllDepartments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -65,7 +65,8 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
   const [formData, setFormData] = useState({
      name: '',
      code: '',
-     type: filterType === 'administrative' ? 'administrative' : 'academic',
+     type: filterType === 'exam' ? 'exam' : filterType === 'administrative' ? 'administrative' : 'academic',
+     customType: '',
      email: '',
      phone: ''
   });
@@ -87,8 +88,10 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
 
   const departments = allDepartments.filter(dept => {
     if (!filterType) return true;
+    const isExam = dept.type === 'exam' || dept.contact_info?.custom_type === 'exam';
     if (filterType === 'academic') return dept.type === 'academic';
-    return dept.type !== 'academic'; // administrative/others
+    if (filterType === 'exam') return isExam;
+    return dept.type !== 'academic' && !isExam;
   });
 
   const handleDelete = async (id: string) => {
@@ -109,7 +112,7 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
       const data = {
         name: formData.name,
         code: formData.code,
-        type: formData.type,
+        type: formData.type === 'custom' ? (formData.customType || 'custom') : formData.type,
         contactInfo: {
           email: formData.email,
           phone: formData.phone
@@ -130,11 +133,13 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
     fetchDepartments();
   }, []);
 
-  const pageTitle = filterType === 'academic' ? 'Academic Departments' : filterType === 'administrative' ? 'Administrative Units' : 'Department List';
-  const pageDescription = filterType === 'academic' 
+  const pageTitle = filterType === 'exam' ? 'Exam Department' : filterType === 'academic' ? 'Academic Departments' : filterType === 'administrative' ? 'Administrative Units' : 'Department List';
+  const pageDescription = filterType === 'exam' 
+    ? 'Manage high-privilege Exam Department unit responsible for final degree clearance and dispatch handling.' 
+    : filterType === 'academic' 
     ? 'Manage faculties and academic departments.' 
     : filterType === 'administrative' 
-    ? 'Manage administrative units like Finance, Library, and Transport.'
+    ? 'Manage administrative units like Finance, Library, Transport, and custom named units.'
     : 'View and manage all university departments and units.';
 
   return (
@@ -155,7 +160,7 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
         <Button 
           className="w-full lg:w-auto rounded-lg bg-primary text-white hover:bg-primary/90 h-10 px-5 font-black text-[9px] uppercase tracking-widest shadow-strong shadow-primary/20 flex items-center gap-2 active:scale-95 transition-all group/btn shrink-0"
           onClick={() => {
-            setFormData({ name: '', code: '', type: filterType === 'administrative' ? 'administrative' : 'academic', email: '', phone: '' });
+            setFormData({ name: '', code: '', type: filterType === 'exam' ? 'exam' : filterType === 'administrative' ? 'administrative' : 'academic', customType: '', email: '', phone: '' });
             setIsAddOpen(true);
           }}
         >
@@ -194,11 +199,13 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
                             <DropdownMenuItem 
                              className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3 cursor-pointer"
                              onClick={() => {
+                               const isCustomType = !!dept.contact_info?.custom_type;
                                setSelectedDept(dept);
                                setFormData({
                                  name: dept.name,
                                  code: dept.code,
-                                 type: dept.type || 'academic',
+                                 type: isCustomType ? 'custom' : (dept.type || 'academic'),
+                                 customType: dept.contact_info?.custom_type || '',
                                  email: dept.contact_info?.email || '',
                                  phone: dept.contact_info?.phone || ''
                                });
@@ -222,7 +229,7 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
                  <div className="space-y-0.5 relative z-10">
                     <h3 className="text-sm font-black text-foreground tracking-tight uppercase leading-none group-hover:text-primary transition-colors duration-500">{dept.name}</h3>
                     <Badge variant="outline" className="border-foreground/5 bg-secondary/30 text-[7px] font-black uppercase tracking-widest text-muted-foreground py-0.5 px-2 rounded-full italic">
-                       {dept.type?.replace('_', ' ')}
+                       {dept.contact_info?.custom_type || dept.type?.replace('_', ' ')}
                     </Badge>
                  </div>
               </CardHeader>
@@ -262,11 +269,13 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
                     variant="ghost" 
                     className="w-full h-10 rounded-lg bg-secondary/30 hover:bg-primary hover:text-white font-black text-[8px] uppercase tracking-widest transition-all duration-500 group/cta"
                     onClick={() => {
+                      const isCustomType = !!dept.contact_info?.custom_type;
                       setSelectedDept(dept);
                       setFormData({
                         name: dept.name,
                         code: dept.code,
-                        type: dept.type || 'academic',
+                        type: isCustomType ? 'custom' : (dept.type || 'academic'),
+                        customType: dept.contact_info?.custom_type || '',
                         email: dept.contact_info?.email || '',
                         phone: dept.contact_info?.phone || ''
                       });
@@ -305,7 +314,7 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
               const data = {
                 name: formData.name,
                 code: formData.code,
-                type: formData.type,
+                type: formData.type === 'custom' ? (formData.customType || 'custom') : formData.type,
                 contactInfo: {
                   email: formData.email,
                   phone: formData.phone
@@ -363,7 +372,9 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl border-none shadow-strong p-1 bg-background/95 backdrop-blur-2xl">
-                      {filterType === 'academic' ? (
+                      {filterType === 'exam' ? (
+                        <SelectItem value="exam" className="rounded-lg h-10 font-black text-[8px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Exam Department</SelectItem>
+                      ) : filterType === 'academic' ? (
                         <SelectItem value="academic" className="rounded-lg h-10 font-black text-[8px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Academic Dept</SelectItem>
                       ) : (
                         <>
@@ -382,6 +393,18 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
                   </Select>
                 </div>
               </div>
+              {formData.type === 'custom' && (
+                <div className="space-y-1 animate-in fade-in zoom-in-95 duration-300">
+                  <Label className="text-[8px] font-black uppercase tracking-widest text-muted-foreground ml-1">Name of Department Type</Label>
+                  <Input 
+                    value={formData.customType} 
+                    onChange={(e) => setFormData({...formData, customType: e.target.value})} 
+                    placeholder="e.g., Quality Assurance"
+                    className="h-10 rounded-lg bg-secondary/50 border-none text-sm px-4 focus-visible:ring-2 focus-visible:ring-primary/10 shadow-inner"
+                    required 
+                  />
+                </div>
+              )}
               <div className="space-y-1">
                 <Label className="text-[8px] font-black uppercase tracking-widest text-muted-foreground ml-1">Email</Label>
                 <Input 

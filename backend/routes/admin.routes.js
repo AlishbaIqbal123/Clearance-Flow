@@ -31,7 +31,7 @@ const validate = (req, res, next) => {
 router.use(authenticate);
 
 // Apply authorization middleware selectively
-const hodOrAdmin = authorize('admin', 'hod');
+const hodOrAdmin = authorize('admin', 'hod', 'exam_officer');
 const adminPlus = authorize('admin');
 
 /**
@@ -41,6 +41,9 @@ const adminPlus = authorize('admin');
  */
 router.get('/dashboard', adminPlus, asyncHandler(async (req, res) => {
   console.log('Fetching admin dashboard data...');
+
+  // Get all departments for name mapping
+  const { data: allDepts } = await supabase.from('departments').select('id, name, code').eq('is_active', true);
 
   // Get counts
   const { count: totalStudents } = await supabase.from('student_profiles').select('*', { count: 'exact', head: true }).eq('is_active', true);
@@ -99,52 +102,31 @@ router.get('/dashboard', adminPlus, asyncHandler(async (req, res) => {
     count
   }));
 
-  // Student distribution by department
+  const { count: pendingClearance } = await supabase.from('clearance_requests').select('*', { count: 'exact', head: true }).eq('status', 'submitted');
+  
+  // Calculate dispatchPendingCount from clearance_requests where degree_fulfillment exists and status is not 'completed'
+  const { data: allRequestsForDispatchCount } = await supabase.from('clearance_requests').select('status, degree_fulfillment');
+  const dispatchPendingCount = (allRequestsForDispatchCount || []).filter(req => 
+    req.status !== 'completed' && req.degree_fulfillment && req.degree_fulfillment.method
+  ).length;
+
+  // Department-wise student counts
   const { data: deptStudentStatsRaw } = await supabase
     .from('student_profiles')
-    .select('department_id')
+    .select('department_id, id')
     .eq('is_active', true);
-
-  const academicDepts = (pendingDepts || []).length > 0 ? pendingDepts : (await supabase.from('departments').select('id, name').eq('type', 'academic')).data;
-  
+    
   const deptStudentStatsMap = (deptStudentStatsRaw || []).reduce((acc, curr) => {
-    const dept = (academicDepts || []).find(d => d.id === curr.department_id);
-    if (dept) {
-      acc[dept.name] = (acc[dept.name] || 0) + 1;
-    }
+    const dept = pendingDepts?.find(d => d.id === curr.department_id) || allDepts?.find(d => d.id === curr.department_id);
+    const name = dept?.name || 'Unknown';
+    acc[name] = (acc[name] || 0) + 1;
     return acc;
   }, {});
 
   const departmentStudentStats = Object.entries(deptStudentStatsMap).map(([name, count]) => ({
-    name,
-    count
+    name: name,
+    count: count
   }));
-  
-  // Monthly clearance trend (Mocking calculation for now or using simple select if small)
-  const monthlyTrend = []; // To implement properly later
-
-  // Degree Fulfillment Statistics (Safe retrieval)
-  let dispatchPendingCount = 0;
-  let manualPickupCount = 0;
-  
-  try {
-    const { data: fulfillmentRequests } = await supabase
-      .from('clearance_requests')
-      .select('degree_fulfillment')
-      .not('degree_fulfillment', 'is', null);
-
-    if (fulfillmentRequests) {
-      dispatchPendingCount = fulfillmentRequests.filter(r => 
-        r.degree_fulfillment && r.degree_fulfillment.method === 'dispatch'
-      ).length;
-
-      manualPickupCount = fulfillmentRequests.filter(r => 
-        r.degree_fulfillment && r.degree_fulfillment.method === 'manual'
-      ).length;
-    }
-  } catch (err) {
-    console.error('Fulfillment column likely missing:', err.message);
-  }
 
   res.status(200).json({
     success: true,
@@ -154,22 +136,19 @@ router.get('/dashboard', adminPlus, asyncHandler(async (req, res) => {
         totalDepartments: totalDepartments || 0,
         totalStaff: totalStaff || 0,
         totalClearanceRequests: (requests || []).length,
-        dispatchPendingCount,
-        manualPickupCount
+        totalRequests: (requests || []).length,
+        pendingClearance: pendingClearance || 0,
+        dispatchPendingCount: dispatchPendingCount || 0
       },
-      clearanceStats: {
-        cleared: clearanceMap.cleared || 0,
-        pending: clearanceMap.pending || 0,
-        in_review: clearanceMap.in_review || 0,
-        rejected: clearanceMap.rejected || 0
-      },
+      clearanceStats: clearanceMap,
       recentRequests,
       departmentPendingStats: deptPendingStats,
       departmentStudentStats
-
     }
   });
 }));
+
+
 
 /**
  * @route   GET /api/admin/users
@@ -200,13 +179,21 @@ router.get('/users', adminPlus, asyncHandler(async (req, res) => {
   const deptIds = [...new Set((usersRaw || []).map(u => u.department_id).filter(id => id))];
   const { data: depts } = await supabase
     .from('departments')
-    .select('id, name, code')
+    .select('id, name, code, contact_info')
     .in('id', deptIds);
 
-  const users = (usersRaw || []).map(u => ({
-    ...u,
-    department: depts?.find(d => d.id === u.department_id)
-  }));
+  const users = (usersRaw || []).map(u => {
+    const dept = depts?.find(d => d.id === u.department_id);
+    let mappedRole = u.role;
+    if (u.role === 'department_officer' && dept?.contact_info?.custom_type === 'exam') {
+      mappedRole = 'exam_officer';
+    }
+    return {
+      ...u,
+      role: mappedRole,
+      department: dept
+    };
+  });
 
   res.status(200).json({
     success: true,
@@ -232,7 +219,7 @@ router.post('/users',
     body('lastName').trim().notEmpty().withMessage('Last name is required'),
     body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
     body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
-    body('role').isIn(['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'])
+    body('role').isIn(['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer', 'exam_officer'])
       .withMessage('Invalid role'),
     body('department').optional().notEmpty().withMessage('Valid department ID required'),
     validate
@@ -253,6 +240,8 @@ router.post('/users',
     
     const hashedPassword = await bcrypt.hash(password, 12);
 
+    const dbRole = role === 'exam_officer' ? 'department_officer' : role;
+
     // Create user
     const { data: user, error } = await supabase
       .from('profiles')
@@ -261,7 +250,7 @@ router.post('/users',
         last_name: lastName,
         email: email.toLowerCase(),
         password: hashedPassword,
-        role,
+        role: dbRole,
         department_id: departmentId || department,
         phone,
         is_first_login: true
@@ -299,7 +288,7 @@ router.put('/users/:id',
     body('firstName').optional().trim().notEmpty().withMessage('First name cannot be empty'),
     body('lastName').optional().trim().notEmpty().withMessage('Last name cannot be empty'),
     body('email').optional().isEmail().normalizeEmail().withMessage('Valid email is required'),
-    body('role').optional().isIn(['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer', 'admin'])
+    body('role').optional().isIn(['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer', 'exam_officer', 'admin'])
       .withMessage('Invalid role'),
     body('departmentId').optional().notEmpty().withMessage('Valid department ID required'),
     validate
@@ -329,6 +318,10 @@ router.put('/users/:id',
     // Don't allow password update through this route
     delete updates.password;
     delete updates.id;
+
+    if (updates.role === 'exam_officer') {
+      updates.role = 'department_officer';
+    }
     
     // Sync email with Supabase Auth if it changed
     if (updates.email) {
@@ -426,25 +419,10 @@ router.get('/students', hodOrAdmin, asyncHandler(async (req, res) => {
     .select('*, department:department_id(name, code)', { count: 'exact' })
     .eq('is_active', true);
 
-  // If not admin, only show students who have a clearance request with the user's department
-  if (req.user.role !== 'admin' && req.user.department_id) {
-    const { data: requestIds } = await supabase
-      .from('clearance_status')
-      .select('request_id')
-      .eq('department_id', req.user.department_id);
-    
-    if (requestIds && requestIds.length > 0) {
-      const { data: studentIds } = await supabase
-        .from('clearance_requests')
-        .select('student_id')
-        .in('id', requestIds.map(r => r.request_id));
-      
-      const uniqueStudentIds = [...new Set(studentIds?.map(s => s.student_id))];
-      queryBuilder = queryBuilder.in('id', uniqueStudentIds);
-    } else {
-      // No requests for this department yet
-      queryBuilder = queryBuilder.in('id', ['00000000-0000-0000-0000-000000000000']);
-    }
+  // If not admin/exam_officer, only show students belonging to the user's department
+  const isExamOfficer = req.user.role === 'exam_officer';
+  if (req.user.role !== 'admin' && !isExamOfficer && req.user.department_id) {
+    queryBuilder = queryBuilder.eq('department_id', req.user.department_id);
   }
   
   if (department) queryBuilder = queryBuilder.eq('department_id', department);
@@ -494,7 +472,14 @@ router.post('/students',
   ],
   asyncHandler(async (req, res) => {
     const { firstName, lastName, registrationNumber, email, password, departmentId, program, discipline, batch } = req.body;
-    const department = departmentId;
+    
+    // Enforce department ownership for non-admins
+    let finalDepartmentId = departmentId;
+    if (req.user.role !== 'admin' && req.user.department_id) {
+      finalDepartmentId = req.user.department_id;
+    }
+    
+    const department = finalDepartmentId;
     const finalDiscipline = discipline || program; // Default to program if discipline is not provided
     
     // Check if registration number exists
@@ -685,6 +670,24 @@ router.put('/students/:id', asyncHandler(async (req, res) => {
   const { id } = req.params;
   const updates = { ...req.body };
   
+  // For non-admins, ensure the student belongs to their department
+  if (req.user.role !== 'admin' && req.user.department_id) {
+    const { data: studentCheck } = await supabase
+      .from('student_profiles')
+      .select('department_id')
+      .eq('id', id)
+      .single();
+    
+    if (!studentCheck || studentCheck.department_id !== req.user.department_id) {
+      throw new AppError('Unauthorized: Student does not belong to your department', 403, 'UNAUTHORIZED');
+    }
+    
+    // Prevent non-admins from changing the department
+    delete updates.department_id;
+    delete updates.department;
+    delete updates.departmentId;
+  }
+
   delete updates.password; // Don't update password through this route
   updates.updated_by = req.user.id;
   
@@ -869,8 +872,7 @@ router.post('/departments',
   [
     body('name').trim().notEmpty().withMessage('Department name is required'),
     body('code').trim().notEmpty().withMessage('Department code is required'),
-    body('type').isIn(['academic', 'administrative', 'finance', 'library', 'transport', 'hostel', 'sports', 'medical', 'security', 'custom'])
-      .withMessage('Invalid department type'),
+    body('type').notEmpty().withMessage('Department type is required'),
     validate
   ],
   asyncHandler(async (req, res) => {
@@ -887,14 +889,23 @@ router.post('/departments',
       throw new AppError('Department code already exists', 409, 'CODE_EXISTS');
     }
     
+    const allowedTypes = ['academic', 'administrative', 'finance', 'library', 'transport', 'hostel', 'other'];
+    let dbType = type;
+    let finalContactInfo = contactInfo || {};
+    
+    if (!allowedTypes.includes(dbType)) {
+      dbType = 'other';
+      finalContactInfo.custom_type = type;
+    }
+
     const { data: department, error } = await supabase
       .from('departments')
       .insert({
         name,
         code: code.toUpperCase(),
-        type,
+        type: dbType,
         description,
-        contact_info: contactInfo,
+        contact_info: finalContactInfo,
         clearance_config: clearanceConfig
       })
       .select()
@@ -926,6 +937,13 @@ router.put('/departments/:id', asyncHandler(async (req, res) => {
   if (updates.clearanceConfig) {
     updates.clearance_config = updates.clearanceConfig;
     delete updates.clearanceConfig;
+  }
+
+  const allowedTypes = ['academic', 'administrative', 'finance', 'library', 'transport', 'hostel', 'other'];
+  if (updates.type && !allowedTypes.includes(updates.type)) {
+    if (!updates.contact_info) updates.contact_info = {};
+    updates.contact_info.custom_type = updates.type;
+    updates.type = 'other';
   }
 
   const { data: department, error } = await supabase
@@ -1061,7 +1079,8 @@ router.post('/reset-student-password/:id', asyncHandler(async (req, res) => {
     throw new AppError('Student not found', 404, 'STUDENT_NOT_FOUND');
   }
   
-  const hashedPassword = await bcrypt.hash(student.registration_number, 12);
+  const defaultPassword = 'university123';
+  const hashedPassword = await bcrypt.hash(defaultPassword, 12);
 
   await supabase.from('student_profiles')
     .update({
@@ -1130,26 +1149,233 @@ router.post('/reset-official-password/:id', adminPlus, asyncHandler(async (req, 
  * @access  Admin Only
  */
 router.get('/dispatch-requests',
-  adminOnly,
+  authorize('admin', 'exam_officer'),
   asyncHandler(async (req, res) => {
     // Fetch requests where degree_fulfillment.method is 'dispatch'
     const { data, error } = await supabase
       .from('clearance_requests')
       .select('*, student:student_id(*)')
-      .not('degree_fulfillment', 'is', null)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
 
-    // Filter in JS because Supabase JSONB filtering can be tricky for nested values
-    const dispatchRequests = data.filter(req => 
-      req.degree_fulfillment && req.degree_fulfillment.method === 'dispatch'
+    // Filter in JS: Show if cleared/completed OR if they have selected a fulfillment method
+    const dispatchRequests = (data || []).filter(req => 
+      req.status === 'cleared' || 
+      req.status === 'completed' || 
+      (req.degree_fulfillment && req.degree_fulfillment.method)
     );
 
     res.status(200).json({
       success: true,
       count: dispatchRequests.length,
       data: dispatchRequests
+    });
+  })
+);
+
+/**
+ * @route   PATCH /api/admin/dispatch-requests/:id
+ * @desc    Update degree fulfillment details (address, method, tracking)
+ * @access  Admin, Exam Officer
+ */
+router.patch('/dispatch-requests/:id',
+  authorize('admin', 'exam_officer'),
+  [
+    body('method').optional().isIn(['dispatch', 'manual']),
+    body('address').optional().trim(),
+    body('tracking_number').optional().trim(),
+    body('courier_service').optional().trim(),
+    validate
+  ],
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { method, address, tracking_number, courier_service } = req.body;
+    const staffId = req.user.id;
+
+    const { data: request, error: fetchError } = await supabase
+      .from('clearance_requests')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !request) {
+      throw new AppError('Clearance request not found', 404, 'REQUEST_NOT_FOUND');
+    }
+
+    const degree_fulfillment = request.degree_fulfillment || {};
+    
+    if (method) degree_fulfillment.method = method;
+    if (address !== undefined) degree_fulfillment.address = address;
+    if (tracking_number !== undefined) degree_fulfillment.tracking_number = tracking_number;
+    if (courier_service !== undefined) degree_fulfillment.courier_service = courier_service;
+    
+    degree_fulfillment.updated_at = new Date().toISOString();
+    degree_fulfillment.updated_by = staffId;
+
+    const timeline = request.timeline || [];
+    timeline.push({
+      action: 'fulfillment_updated',
+      performedBy: staffId,
+      performedByModel: 'User',
+      description: `Degree fulfillment details updated by Exam Department.`,
+      timestamp: new Date().toISOString()
+    });
+
+    const { error: updateError } = await supabase
+      .from('clearance_requests')
+      .update({ 
+        degree_fulfillment,
+        timeline
+      })
+      .eq('id', id);
+
+    if (updateError) throw updateError;
+
+    res.status(200).json({
+      success: true,
+      message: 'Degree fulfillment details updated successfully',
+      data: { degree_fulfillment }
+    });
+  })
+);
+
+/**
+ * @route   POST /api/admin/dispatch-requests/:id/notify
+ * @desc    Send notification to student about degree status
+ * @access  Admin, Exam Officer
+ */
+router.post('/dispatch-requests/:id/notify',
+  authorize('admin', 'exam_officer'),
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { type, message } = req.body;
+    const staffId = req.user.id;
+
+    const { data: request, error: fetchError } = await supabase
+      .from('clearance_requests')
+      .select('*, student:student_id(*)')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !request) {
+      throw new AppError('Clearance request not found', 404, 'REQUEST_NOT_FOUND');
+    }
+
+    const comments = request.comments || [];
+    const title = type === 'dispatched' ? 'Degree Dispatched' : 'Degree Ready for Pickup';
+    const defaultMessage = type === 'dispatched' 
+      ? `Your order is dispatched and you will receive soon. Tracking: ${request.degree_fulfillment?.tracking_number || 'Processing'}`
+      : `Please come and pick your degree, it is ready. Please visit the Registrar Office with your ID card.`;
+
+    comments.push({
+      author: staffId,
+      authorName: 'Exam Department',
+      author_model: 'User',
+      message: message || defaultMessage,
+      is_notification: true,
+      title: title,
+      type: type,
+      created_at: new Date().toISOString()
+    });
+
+    const degree_fulfillment = request.degree_fulfillment || {};
+    degree_fulfillment.notification_sent = true;
+    degree_fulfillment.notification_type = type;
+    degree_fulfillment.notified_at = new Date().toISOString();
+
+    const { error: updateError } = await supabase
+      .from('clearance_requests')
+      .update({ 
+        comments,
+        degree_fulfillment
+      })
+      .eq('id', id);
+
+    if (updateError) throw updateError;
+
+    // Send socket notification
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`user:${request.student_id}`).emit('notification', {
+        title,
+        message: message || defaultMessage,
+        type: 'degree_status'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Notification sent to student successfully'
+    });
+  })
+);
+
+/**
+ * @route   POST /api/admin/dispatch-requests/:id/complete
+ * @desc    Mark degree dispatch/collection as completed
+ * @access  Admin, Exam Officer
+ */
+router.post('/dispatch-requests/:id/complete',
+  authorize('admin', 'exam_officer'),
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const staffId = req.user.id;
+
+    const { data: request, error: fetchError } = await supabase
+      .from('clearance_requests')
+      .select('*, student:student_id(*)')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !request) {
+      throw new AppError('Clearance request not found', 404, 'REQUEST_NOT_FOUND');
+    }
+
+    const degree_fulfillment = request.degree_fulfillment || {};
+    degree_fulfillment.status = 'completed';
+    degree_fulfillment.completed_at = new Date().toISOString();
+    degree_fulfillment.completed_by = staffId;
+
+    const timeline = request.timeline || [];
+    timeline.push({
+      action: 'fulfillment_completed',
+      performedBy: staffId,
+      performedByModel: 'User',
+      description: `Degree ${degree_fulfillment.method === 'dispatch' ? 'Dispatched' : 'Collected'} by Exam Department.`,
+      timestamp: new Date().toISOString()
+    });
+
+    const { error: updateError } = await supabase
+      .from('clearance_requests')
+      .update({ 
+        degree_fulfillment,
+        timeline,
+        status: 'fully_cleared' // Final terminal status
+      })
+      .eq('id', id);
+
+    if (updateError) throw updateError;
+
+    // Update student profile to final completed state
+    await supabase.from('student_profiles')
+      .update({ clearance_status: 'fully_cleared' })
+      .eq('id', request.student_id);
+
+    // Notify student
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`user:${request.student_id}`).emit('fulfillment-completed', {
+        requestId: id,
+        method: degree_fulfillment.method,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Degree fulfillment marked as completed',
+      data: { degree_fulfillment }
     });
   })
 );

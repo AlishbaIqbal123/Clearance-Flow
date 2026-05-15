@@ -11,6 +11,7 @@ import { StudentList } from '@/components/StudentList';
 import { DepartmentList } from '@/components/DepartmentList';
 import { OfficialList } from '@/components/OfficialList';
 import { DepartmentProfile } from '@/components/DepartmentProfile';
+import { DepartmentChats } from '@/components/DepartmentChats';
 import { ClearanceRequestList } from '@/components/ClearanceRequestList';
 import { Analytics } from '@/components/Analytics';
 import { MyClearance } from '@/components/MyClearance';
@@ -25,6 +26,18 @@ const App: React.FC = () => {
   const [loading, setLoading] = React.useState(true);
   const [activeTab, setActiveTab] = React.useState('dashboard');
   const [authView, setAuthView] = React.useState<'landing' | 'login' | 'register'>('landing');
+  const [activeRequest, setActiveRequest] = React.useState<any>(null);
+
+  const fetchClearanceStatus = async () => {
+    try {
+      const res = await studentService.getDashboard();
+      if (res.success) {
+        setActiveRequest(res.data.activeRequest);
+      }
+    } catch (err) {
+      console.error('Failed to sync clearance status');
+    }
+  };
 
   React.useEffect(() => {
     const checkAuth = async () => {
@@ -34,6 +47,9 @@ const App: React.FC = () => {
           const res = await authService.getMe();
           if (res.success) {
             setUser(res.data.user);
+            if (res.data.user.role === 'student') {
+              fetchClearanceStatus();
+            }
           } else {
             authService.logout();
           }
@@ -114,13 +130,14 @@ const App: React.FC = () => {
     if (activeTab === 'dashboard') {
       if (user.role === 'admin') return <AdminDashboard onNavigate={setActiveTab} />;
       if (user.role === 'student') return <StudentDashboard onNavigate={setActiveTab} />;
+      if (user.role === 'exam_officer') return <DispatchList />;
       return <DepartmentDashboard onNavigate={setActiveTab} user={user} />;
     }
 
     // Role-specific views
     switch (activeTab) {
       case 'students':
-        if (user.role === 'admin' || user.role === 'hod') return <StudentList />;
+        if (user.role === 'admin' || user.role === 'hod') return <StudentList user={user} />;
         return <div className="p-8 text-center text-slate-400 font-bold uppercase tracking-widest">Access Denied</div>;
 
       case 'academic-depts':
@@ -129,15 +146,20 @@ const App: React.FC = () => {
       case 'admin-depts':
         if (user.role === 'admin') return <DepartmentList filterType="administrative" />;
         return <div className="p-8 text-center text-slate-400 font-bold">ACCESS DENIED</div>;
+      case 'exam-dept':
+        if (user.role === 'admin' || user.role === 'exam_officer') return <DispatchList />;
+        return <div className="p-8 text-center text-slate-400 font-bold">ACCESS DENIED</div>;
       case 'departments':
         if (user.role === 'admin') return <DepartmentList />;
         return <div className="p-8 text-center text-slate-400 font-bold">ACCESS DENIED</div>;
       case 'requests':
         return <ClearanceRequestList user={user} />;
+      case 'dept-chats':
+        return <DepartmentChats user={user} />;
       case 'users':
         return <OfficialList />;
       case 'analytics':
-        return <Analytics />;
+        return <Analytics user={user} />;
       case 'settings':
         return <DepartmentProfile user={user} />;
       case 'admin-clearance':
@@ -146,8 +168,10 @@ const App: React.FC = () => {
         return <MyClearance filterType="academic" />;
       case 'my-clearance':
         return <MyClearance />;
+      case 'degree-allotment':
+        return <StudentDashboard mode="fulfillment" />;
       case 'dispatch':
-        if (user.role === 'admin') return <DispatchList />;
+        if (user.role === 'admin' || user.role === 'exam_officer') return <DispatchList />;
         return <div className="p-8 text-center text-slate-400 font-bold">ACCESS DENIED</div>;
       default:
         return <div className="p-8 text-center text-slate-400 font-bold">VIEW NOT FOUND</div>;
@@ -161,6 +185,7 @@ const App: React.FC = () => {
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
         onLogout={handleLogout}
+        isPhase3Unlocked={activeRequest?.status === 'cleared' || activeRequest?.status === 'fully_cleared'}
       >
         {renderView()}
       </DashboardLayout>

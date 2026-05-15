@@ -12,6 +12,7 @@ const supabase = require('../config/supabase');
 const { authenticate, generateToken } = require('../middleware/auth.middleware');
 const { asyncHandler, AppError } = require('../middleware/error.middleware');
 const appsScript = require('../services/appsScript.service');
+const emailService = require('../services/email.service');
 
 // Validation helper
 const validate = (req, res, next) => {
@@ -78,6 +79,12 @@ router.post('/login',
       throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
     }
 
+    // Dynamically map role for Exam Department staff
+    let effectiveRole = user.role;
+    if (user.role === 'department_officer' && user.department?.contact_info?.custom_type === 'exam') {
+      effectiveRole = 'exam_officer';
+    }
+
     // Create user response object
     const userResponse = {
       id: user.id,
@@ -85,7 +92,7 @@ router.post('/login',
       lastName: user.last_name,
       fullName: `${user.first_name} ${user.last_name}`,
       email: user.email,
-      role: user.role,
+      role: effectiveRole,
       department: user.department,
       avatar: user.avatar_url,
       phone: user.phone,
@@ -96,7 +103,7 @@ router.post('/login',
     const token = generateToken({ 
       id: user.id, 
       userType: 'staff',
-      role: user.role 
+      role: effectiveRole 
     });
 
     res.status(200).json({
@@ -364,6 +371,11 @@ router.get('/me', authenticate, asyncHandler(async (req, res) => {
       isFirstLogin: data.is_first_login,
       userType: 'staff'
     };
+
+    // Dynamically map role for Exam Department staff
+    if (user.role === 'department_officer' && user.department?.contact_info?.custom_type === 'exam') {
+      user.role = 'exam_officer';
+    }
   }
 
   res.status(200).json({
@@ -444,7 +456,8 @@ router.post('/forgot-password',
     const table = type === 'student' ? 'student_profiles' : 'profiles';
 
     // Find user
-    let query = supabase.from(table).select('id, first_name, email, role');
+    const selectFields = type === 'student' ? 'id, first_name, email' : 'id, first_name, email, role';
+    let query = supabase.from(table).select(selectFields);
     
     if (type === 'student' && registrationNumber) {
       query = query.eq('registration_number', registrationNumber.toUpperCase());
@@ -459,23 +472,24 @@ router.post('/forgot-password',
 
     const { data: user } = await query.single();
 
-    if (!user) {
-      // Don't reveal if user exists for security
-      return res.status(200).json({
-        success: true,
-        message: 'If an account exists, a reset link will be sent to the registered email.'
+    if (!user || !user.email) {
+      return res.status(404).json({
+        success: false,
+        message: type === 'student' 
+          ? 'No student account found associated with this registration number.' 
+          : 'No official account found associated with this email address.'
       });
     }
 
     // Mask the email for display (e.g. abc......@gmail.com)
-    const userEmail = user.email || '';
+    const userEmail = user.email;
     const [name, domain] = userEmail.split('@');
-    const maskedEmail = name.length > 3 
+    const maskedEmail = name && domain ? (name.length > 3 
       ? name.substring(0, 3) + '......@' + domain 
-      : name + '......@' + domain;
+      : name + '......@' + domain) : 'abc......@gmail.com';
 
     // Generate token
-    const resetToken = require('crypto').randomBytes(32).toString('hex');
+    const resetToken = require('crypto').randomBytes(3).toString('hex').toUpperCase();
     const resetExpires = new Date(Date.now() + 3600000); // 1 hour
 
     // Save token
@@ -483,12 +497,23 @@ router.post('/forgot-password',
       .from(table)
       .update({
         password_reset_token: resetToken,
-        password_reset_expires: resetExpires
+        password_reset_expires: resetExpires.toISOString()
       })
       .eq('id', user.id);
 
-    // Dispatch email with reset token
+    // Dispatch email with reset token using reliable EmailService (with Ethereal preview fallback)
+    let previewUrl = null;
     try {
+      const emailResult = await emailService.sendPasswordResetEmail(
+        user.email,
+        user.first_name || 'User',
+        resetToken,
+        type
+      );
+      if (emailResult.success && emailResult.previewUrl) {
+        previewUrl = emailResult.previewUrl;
+      }
+
       await appsScript.sendPasswordResetLink({
         email: user.email,
         firstName: user.first_name || 'User',
@@ -497,15 +522,72 @@ router.post('/forgot-password',
       });
       console.log(`Password reset email dispatched to ${user.email} via Apps Script`);
     } catch (emailError) {
-      console.error('Failed to dispatch reset email via Apps Script:', emailError);
-      // We don't throw here to avoid revealing user existence if it failed later, 
-      // but the log will help debug.
+      console.error('Failed to dispatch reset email:', emailError);
+      // We don't throw here to avoid revealing user existence if it failed later
     }
 
     res.status(200).json({
       success: true,
       message: `Password reset instructions have been sent to ${maskedEmail}`,
-      data: { maskedEmail }
+      data: { maskedEmail, previewUrl }
+    });
+  })
+);
+
+/**
+ * @route   POST /api/auth/reset-password
+ * @desc    Reset password using token
+ * @access  Public
+ */
+router.post('/reset-password',
+  [
+    body('token').notEmpty().withMessage('Reset token is required').trim(),
+    body('newPassword').isLength({ min: 8 }).withMessage('New password must be at least 8 characters'),
+    body('type').isIn(['student', 'staff']).withMessage('Valid user type is required'),
+    validate
+  ],
+  asyncHandler(async (req, res) => {
+    const { token, newPassword, type } = req.body;
+    const table = type === 'student' ? 'student_profiles' : 'profiles';
+
+    // Find user with matching token
+    const { data: user, error } = await supabase
+      .from(table)
+      .select('id, password_reset_expires')
+      .eq('password_reset_token', token.trim().toUpperCase())
+      .single();
+
+    if (error || !user) {
+      throw new AppError('Invalid or expired password reset token', 400);
+    }
+
+    // Check expiration
+    if (user.password_reset_expires && new Date(user.password_reset_expires) < new Date()) {
+      throw new AppError('Password reset token has expired', 400);
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    // Update password and clear token fields
+    const { error: updateError } = await supabase
+      .from(table)
+      .update({
+        password: hashedPassword,
+        password_reset_token: null,
+        password_reset_expires: null,
+        is_first_login: false
+      })
+      .eq('id', user.id);
+
+    if (updateError) {
+      console.error('Reset password update error:', updateError);
+      throw new AppError('Failed to reset password', 500);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Password has been successfully reset. You can now login.'
     });
   })
 );

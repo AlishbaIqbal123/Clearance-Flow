@@ -78,7 +78,7 @@ const BentoStatCard = ({ title, value, icon: Icon, color, onClick, description }
   </button>
 );
 
-export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => void }) => {
+export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (tab: string) => void, mode?: 'full' | 'fulfillment' }) => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -87,6 +87,51 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [degreePref, setDegreePref] = useState<{ method: 'dispatch' | 'manual' | '', address: string }>({ method: '', address: '' });
   const [prefSubmitting, setPrefSubmitting] = useState(false);
+
+  const [chatOpenDept, setChatOpenDept] = useState<any>(null);
+  const [messageInput, setMessageInput] = useState('');
+  const [sendingChat, setSendingChat] = useState(false);
+
+  const handleSendChat = async () => {
+    if (!messageInput.trim() || !data?.activeRequest?.id || !chatOpenDept) return;
+    
+    const textToSend = messageInput.trim();
+    const tempMessage = {
+      id: `temp-${Date.now()}`,
+      message: textToSend,
+      author_model: 'Student',
+      department_id: chatOpenDept.department_id,
+      created_at: new Date().toISOString(),
+      authorName: 'You'
+    };
+
+    // Optimistic Update: Add message immediately
+    setData((prev: any) => ({
+      ...prev,
+      activeRequest: {
+        ...prev.activeRequest,
+        comments: [...(prev.activeRequest.comments || []), tempMessage]
+      }
+    }));
+
+    setMessageInput('');
+    setSendingChat(true);
+
+    try {
+      const res = await studentService.sendDepartmentChat(data.activeRequest.id, {
+        departmentId: chatOpenDept.department_id,
+        message: textToSend
+      });
+      if (res.success) {
+        fetchDashboard();
+      }
+    } catch {
+      toast.error('Failed to send message');
+      fetchDashboard(); // Revert/Sync on error
+    } finally {
+      setSendingChat(false);
+    }
+  };
 
   const fetchDashboard = async () => {
     try {
@@ -107,23 +152,14 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
   }, []);
 
   const handleSubmitRequest = async () => {
-    if (!reason) {
-      toast.error('Reason for clearance protocol initiation is required');
-      return;
-    }
     setSubmitting(true);
     try {
-      const res = await studentService.submitRequest({ requestType, reason });
+      const res = await studentService.submitRequest({ 
+        requestType: 'graduation', 
+        reason: 'Initiated by student' 
+      });
       if (res.success) {
-        if (selectedFiles.length > 0) {
-          const formData = new FormData();
-          selectedFiles.forEach(file => formData.append('files', file));
-          await studentService.uploadDocuments(res.data.request.id, formData);
-        }
-        
         toast.success('Clearance protocol successfully initiated across all nodes');
-        setReason('');
-        setSelectedFiles([]);
         fetchDashboard();
       }
     } catch (error: any) {
@@ -132,7 +168,6 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
       setSubmitting(false);
     }
   };
-
   const handleUpdatePreference = async (method: 'dispatch' | 'manual') => {
     if (method === 'dispatch' && !degreePref.address.trim()) {
       toast.error('Shipping address required for dispatch');
@@ -154,6 +189,24 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
       toast.error('Sync failed with fulfillment server');
     } finally {
       setPrefSubmitting(false);
+    }
+  };
+
+  const handleConfirmReceipt = async () => {
+    if (!activeRequest?.id) return;
+    if (!window.confirm('By confirming receipt, you acknowledge that you have physically received your degree and your clearance protocol will be finalized. Continue?')) return;
+
+    try {
+      setSubmitting(true);
+      const res = await studentService.confirmDegreeReceipt(activeRequest.id);
+      if (res.success) {
+        toast.success('Congratulations! Your clearance is fully finalized.');
+        fetchDashboard();
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Confirmation failed');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -185,11 +238,118 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-      {/* Premium Hero Section - Bento Hero */}
-      <div className="relative overflow-hidden rounded-[2rem] bg-foreground p-5 sm:p-8 lg:p-10 shadow-strong group">
+      {mode === 'fulfillment' ? (
+        <div className="space-y-8">
+           <div className="relative overflow-hidden rounded-2xl bg-foreground p-8 shadow-strong group">
+              <div className="absolute top-0 right-0 w-[45%] h-full bg-primary/20 rounded-full -mr-[20%] -mt-[10%] blur-[100px]" />
+              <div className="relative z-10 space-y-2">
+                 <Badge className="bg-primary/20 text-primary border-none font-black text-[8px] uppercase tracking-[0.4em] px-4 py-1 rounded-full backdrop-blur-md mb-2">Phase 3: Degree Allotment</Badge>
+                 <h2 className="text-3xl font-black text-background tracking-tighter uppercase leading-none">Degree Fulfillment Portal</h2>
+                 <p className="text-sm text-background/50 font-medium leading-relaxed italic max-w-2xl">Finalize your degree collection strategy and confirm receipt of your official credentials.</p>
+              </div>
+           </div>
+           
+           {!activeRequest?.degree_fulfillment || Object.keys(activeRequest.degree_fulfillment).length === 0 ? (
+              <div className="animate-in zoom-in-95 slide-in-from-top-12 duration-1000 ease-out">
+                {/* Re-use the existing selection phase UI but without the condition check since it's forced in this mode */}
+                <Card className="border-none shadow-strong rounded-[2.5rem] bg-card/60 backdrop-blur-2xl overflow-hidden relative group">
+                  <div className="flex flex-col lg:flex-row items-center gap-10 p-12 relative z-10">
+                    <div className="w-24 h-24 bg-primary/10 rounded-[2rem] flex items-center justify-center backdrop-blur-xl shadow-soft shrink-0">
+                      <Sparkles className="w-12 h-12 text-primary animate-pulse" />
+                    </div>
+                    <div className="flex-1 text-center lg:text-left space-y-4">
+                      <h3 className="text-3xl font-black tracking-tighter uppercase text-foreground leading-none">Select Fulfillment Strategy</h3>
+                      <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest max-w-xl">
+                        Your departmental clearance is 100% complete. Please choose how you wish to receive your degree.
+                      </p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-6 w-full lg:w-auto">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button className="h-20 px-10 rounded-[1.75rem] bg-primary text-white hover:bg-primary/90 font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 min-w-[240px] shadow-lg shadow-primary/20">
+                            <Truck className="w-6 h-6" />
+                            <div className="text-left">
+                              <span className="block font-black">Dispatch Degree</span>
+                              <span className="block text-[7px] text-white/60 mt-0.5 font-bold">Secure Home Delivery</span>
+                            </div>
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background">
+                          {/* ... existing Dialog content for dispatch ... */}
+                          <div className="bg-foreground p-10 text-white relative">
+                             <div className="absolute top-0 right-0 w-48 h-48 bg-primary/20 rounded-full -mr-24 -mt-24 blur-[100px]" />
+                             <div className="relative z-10 space-y-4">
+                                <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md">
+                                   <MapPin className="w-7 h-7 text-primary" />
+                                </div>
+                                <DialogTitle className="text-3xl font-black tracking-tighter uppercase">Shipping Logistics</DialogTitle>
+                             </div>
+                          </div>
+                          <div className="p-10 space-y-8">
+                             <div className="space-y-4">
+                                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2">Mailing Address</label>
+                                <Textarea 
+                                  placeholder="Enter full shipping address..." 
+                                  className="min-h-[160px] rounded-[2rem] border-none bg-secondary/50 font-bold px-8 py-6 text-base shadow-inner"
+                                  value={degreePref.address}
+                                  onChange={(e) => setDegreePref(prev => ({ ...prev, address: e.target.value }))}
+                                />
+                             </div>
+                             <Button className="w-full h-16 rounded-[2rem] bg-primary text-white font-black text-[11px] uppercase tracking-[0.4em]" onClick={() => handleUpdatePreference('dispatch')}>
+                                Confirm Dispatch Location
+                             </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                      <Button className="h-20 px-10 rounded-[1.75rem] bg-secondary text-foreground hover:bg-secondary/80 font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 min-w-[240px]" onClick={() => handleUpdatePreference('manual')}>
+                        <History className="w-6 h-6 text-primary" />
+                        <div className="text-left">
+                          <span className="block font-black">Manual Pickup</span>
+                          <span className="block text-[7px] text-muted-foreground/60 mt-0.5 font-bold">Collect from Registrar</span>
+                        </div>
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+           ) : (
+              /* Already selected, show current status in fulfillment portal */
+              <div className="animate-in zoom-in-95 slide-in-from-top-12 duration-1000 ease-out">
+                 {/* Re-use existing status section */}
+                 {activeRequest?.degree_fulfillment && (
+                   <Card className={`border-none shadow-strong rounded-[2.5rem] ${activeRequest.status === 'fully_cleared' ? 'bg-foreground' : 'bg-emerald-950'} text-white overflow-hidden relative group p-8 sm:p-12`}>
+                      <div className="flex flex-col lg:flex-row items-center gap-10 relative z-10">
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-emerald-500/20 rounded-[2rem] flex items-center justify-center backdrop-blur-xl">
+                          {activeRequest.status === 'fully_cleared' ? <ShieldCheck className="w-10 h-10 sm:w-12 sm:h-12 text-primary" /> : <Truck className="w-10 h-10 sm:w-12 sm:h-12 text-emerald-400" />}
+                        </div>
+                        <div className="flex-1 text-center lg:text-left space-y-4">
+                           <h3 className="text-3xl font-black tracking-tighter uppercase leading-none">
+                              {activeRequest.status === 'fully_cleared' ? 'Clearance Fully Finalized' : 'Fulfillment in Progress'}
+                           </h3>
+                           <p className="text-sm font-bold text-white/60 uppercase tracking-widest max-w-xl">
+                              {activeRequest.status === 'fully_cleared' 
+                                ? 'Institutional protocol closed. Degree successfully received.' 
+                                : activeRequest.degree_fulfillment.method === 'dispatch' ? `Preparing dispatch to: ${activeRequest.degree_fulfillment.address}` : 'Degree ready for manual pickup.'}
+                           </p>
+                        </div>
+                        {activeRequest.degree_fulfillment.notification_sent && !activeRequest.degree_fulfillment.received_by_student && (
+                          <Button onClick={handleConfirmReceipt} className="h-16 px-10 rounded-[1.75rem] bg-primary text-white font-black text-[10px] uppercase tracking-[0.3em] animate-pulse">
+                             Confirm Receipt
+                          </Button>
+                        )}
+                      </div>
+                   </Card>
+                 )}
+              </div>
+           )}
+        </div>
+      ) : (
+        <>
+          {/* Premium Hero Section - Bento Hero */}
+          <div className="relative overflow-hidden rounded-2xl bg-foreground p-4 sm:p-6 lg:p-8 shadow-strong group">
         {/* Dynamic Effects */}
-        <div className="absolute top-0 right-0 w-[45%] h-full bg-primary/20 rounded-full -mr-[20%] -mt-[10%] blur-[120px] group-hover:scale-125 transition-transform duration-1000" />
-        <div className="absolute bottom-0 left-0 w-[25%] h-[60%] bg-primary/10 rounded-full -ml-[12%] -mb-[12%] blur-[80px]" />
+        <div className="absolute top-0 right-0 w-[45%] h-full bg-primary/20 rounded-full -mr-[20%] -mt-[10%] blur-[100px] group-hover:scale-125 transition-transform duration-1000" />
+        <div className="absolute bottom-0 left-0 w-[25%] h-[60%] bg-primary/10 rounded-full -ml-[12%] -mb-[12%] blur-[60px]" />
         
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 relative z-10">
           <div className="space-y-5 max-w-2xl">
@@ -202,13 +362,19 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                    {[1,2,3].map(i => <div key={i} className="w-1 h-1 bg-primary rounded-full animate-pulse" style={{ animationDelay: `${i*0.2}s` }} />)}
                 </div>
               </div>
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-background tracking-tighter leading-none uppercase">
-                Welcome back,<br /><span className="text-primary italic">{student.first_name || 'Scholar'}</span>
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-black text-background tracking-tighter leading-none uppercase">
+                {activeRequest?.status === 'fully_cleared' ? (
+                  <>Protocol Complete,<br /><span className="text-primary italic">Clearance Finalized</span></>
+                ) : (
+                  <>Welcome back,<br /><span className="text-primary italic">{student.first_name || 'Scholar'}</span></>
+                )}
               </h2>
             </div>
             
             <p className="text-sm text-background/50 font-medium leading-relaxed max-w-xl opacity-80 italic">
-              Easily manage and track your university clearance status in one place.
+              {activeRequest?.status === 'fully_cleared' 
+                ? 'Your clearance protocol is 100% complete. Your degree has been officially allotted and the process is closed.'
+                : 'Easily manage and track your university clearance status in one place.'}
             </p>
 
             <div className="flex flex-wrap gap-3 pt-2">
@@ -229,123 +395,23 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
           </div>
           
           {canSubmitNewRequest && (
-            <Dialog>
-              <DialogTrigger asChild>
-                 <Button className="w-full sm:w-auto bg-primary text-white hover:bg-primary/90 h-12 px-8 rounded-xl font-black text-[9px] uppercase tracking-[0.4em] shadow-strong shadow-primary/20 group shrink-0 active:scale-95 transition-all relative overflow-hidden">
-                  <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
-                  <div className="flex items-center gap-3 relative z-10">
-                    <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-transform">
-                      <Plus className="w-5 h-5" />
-                    </div>
-                    <span>Start Clearance</span>
+            <Button 
+              onClick={handleSubmitRequest}
+              disabled={submitting}
+              className="w-full sm:w-auto bg-primary text-white hover:bg-primary/90 h-10 px-6 rounded-lg font-black text-[9px] uppercase tracking-[0.4em] shadow-strong shadow-primary/20 group shrink-0 active:scale-95 transition-all relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
+              <div className="flex items-center gap-3 relative z-10">
+                {submitting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-transform">
+                    <Plus className="w-5 h-5" />
                   </div>
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-xl rounded-3xl p-0 overflow-hidden border-none shadow-strong bg-background">
-                <div className="bg-primary p-10 text-white relative">
-                  <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-24 -mt-24 blur-[100px]" />
-                  <div className="space-y-3 relative z-10">
-                    <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md">
-                       <Zap className="w-7 h-7 text-white" />
-                    </div>
-                    <DialogTitle className="text-3xl font-black tracking-tighter uppercase leading-none">New Clearance Request</DialogTitle>
-                    <DialogDescription className="text-white/60 font-bold uppercase tracking-widest text-[10px] mt-2">
-                       Start your clearance process across all departments.
-                    </DialogDescription>
-                  </div>
-                </div>
-                <div className="p-10 space-y-8">
-                  <div className="space-y-3">
-                    <label className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2">Clearance Type</label>
-                    <Select value={requestType} onValueChange={setRequestType}>
-                      <SelectTrigger className="h-14 border-none rounded-2xl bg-secondary/50 font-black text-foreground px-6 focus:ring-2 focus:ring-primary/20 text-xs uppercase tracking-widest">
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-[2rem] border-none shadow-strong p-3">
-                        {[
-                          { val: 'graduation', label: 'Academic Graduation Clearance' },
-                          { val: 'withdrawal', label: 'University Withdrawal' },
-                          { val: 'transfer', label: 'Campus Transfer' },
-                          { val: 'semester_end', label: 'Semester End Clearance' }
-                        ].map(opt => (
-                          <SelectItem key={opt.val} value={opt.val} className="rounded-2xl h-14 font-black text-[10px] uppercase tracking-widest focus:bg-primary focus:text-white px-6">{opt.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-4">
-                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2">Reason for Request</label>
-                    <Textarea 
-                      placeholder="Enter reason for starting clearance..." 
-                      className="min-h-[160px] rounded-[2rem] border-none bg-secondary/50 font-bold text-foreground px-8 py-6 focus-visible:ring-2 focus-visible:ring-primary/20 resize-none text-base"
-                      value={reason}
-                      onChange={(e) => setReason(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-4">
-                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2">Supporting Artifacts</label>
-                    <div className="flex flex-col gap-6">
-                      <input 
-                        type="file" 
-                        id="file-upload" 
-                        multiple 
-                        className="hidden" 
-                        onChange={(e) => {
-                          const files = Array.from(e.target.files || []);
-                          setSelectedFiles(prev => [...prev, ...files]);
-                        }}
-                      />
-                      <Button 
-                        variant="ghost" 
-                        className="w-full border-2 border-dashed border-foreground/10 rounded-[2.5rem] h-36 flex flex-col gap-3 hover:border-primary hover:bg-primary/5 transition-all group shadow-inner"
-                        onClick={() => document.getElementById('file-upload')?.click()}
-                      >
-                        <div className="w-14 h-14 bg-secondary rounded-2xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-transform">
-                          <FileText className="w-7 h-7 text-muted-foreground/40 group-hover:text-primary transition-colors" />
-                        </div>
-                        <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.3em]">Drop PDF/JPG Artifacts</span>
-                      </Button>
-                      
-                      {selectedFiles.length > 0 && (
-                        <div className="flex flex-wrap gap-3">
-                          {selectedFiles.map((file, idx) => (
-                            <Badge key={idx} className="pl-6 pr-3 py-3 rounded-2xl bg-primary/5 text-primary border border-primary/10 flex items-center gap-4 font-black text-[10px] uppercase tracking-widest">
-                              <span className="max-w-[180px] truncate">{file.name}</span>
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                className="w-7 h-7 rounded-xl hover:bg-destructive hover:text-white transition-all active:scale-90"
-                                onClick={() => setSelectedFiles(prev => prev.filter((_, i) => i !== idx))}
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </Button>
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="p-6 bg-amber-500/5 rounded-[2rem] flex gap-5 items-start border border-amber-500/10">
-                    <div className="p-3 bg-amber-500/10 rounded-2xl">
-                      <Info className="w-6 h-6 text-amber-500" />
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed font-bold uppercase tracking-tight">
-                      Note: This action will notify all departments. Please make sure your information is correct before starting.
-                    </p>
-                  </div>
-                </div>
-                <DialogFooter className="p-6 sm:p-12 pt-0 flex flex-col sm:flex-row gap-4 sm:gap-6">
-                  <Button variant="ghost" className="h-16 rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest text-muted-foreground px-10 hover:bg-secondary w-full sm:w-auto" onClick={() => {}}>Abort</Button>
-                  <Button 
-                    className="flex-1 bg-primary hover:bg-primary/90 h-16 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.4em] shadow-strong shadow-primary/20 active:scale-95 transition-all"
-                    onClick={handleSubmitRequest}
-                    disabled={submitting}
-                  >
-                    {submitting ? 'Processing Request...' : 'Start Clearance'}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                )}
+                <span>{submitting ? 'Initiating...' : 'Start Clearance'}</span>
+              </div>
+            </Button>
           )}
         </div>
       </div>
@@ -354,14 +420,11 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
       {(activeRequest?.status === 'cleared' || activeRequest?.progress?.percentage === 100) && 
        (!activeRequest?.degree_fulfillment || Object.keys(activeRequest.degree_fulfillment).length === 0) && (
         <div className="animate-in zoom-in-95 slide-in-from-top-12 duration-1000 ease-out">
-          {/* ... existing selection card content ... */}
-          <Card className="border-none shadow-strong rounded-[2.5rem] bg-foreground text-background overflow-hidden relative group">
-            <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[15%] -mt-[10%] blur-[120px] animate-pulse" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 rounded-full -ml-32 -mb-32 blur-[80px]" />
-            
-            <div className="flex flex-col lg:flex-row items-center gap-10 p-8 sm:p-12 relative z-10">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/10 rounded-[2rem] flex items-center justify-center backdrop-blur-xl shadow-soft shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-700">
-                <Sparkles className="w-10 h-10 sm:w-12 sm:h-12 text-primary animate-pulse" />
+          <Card className="border-none shadow-strong rounded-[2.5rem] bg-foreground text-white overflow-hidden relative group">
+            <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[15%] -mt-[10%] blur-[120px]" />
+            <div className="flex flex-col lg:flex-row items-center gap-8 p-6 sm:p-8 relative z-10">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-xl shadow-soft shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-700">
+                <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-primary animate-pulse" />
               </div>
               
               <div className="flex-1 text-center lg:text-left space-y-4">
@@ -377,9 +440,9 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
               <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button className="h-16 sm:h-20 px-10 rounded-[1.75rem] bg-white text-foreground hover:bg-white/90 font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 group/btn min-w-[240px]">
-                      <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center group-hover/btn:scale-110 transition-transform">
-                        <Truck className="w-5 h-5 text-primary" />
+                    <Button className="h-14 sm:h-16 px-8 rounded-2xl bg-white text-foreground hover:bg-white/90 font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 group/btn min-w-[220px]">
+                      <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center group-hover/btn:scale-110 transition-transform">
+                        <Truck className="w-4 h-4 text-primary" />
                       </div>
                       <div className="text-left">
                         <span className="block">Dispatch Degree</span>
@@ -420,12 +483,12 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                 </Dialog>
 
                 <Button 
-                  className="h-16 sm:h-20 px-10 rounded-[1.75rem] bg-white/10 border border-white/20 text-white hover:bg-white hover:text-foreground font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 min-w-[240px]"
+                  className="h-14 sm:h-16 px-8 rounded-2xl bg-white/10 border border-white/20 text-white hover:bg-white hover:text-foreground font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 min-w-[220px]"
                   disabled={prefSubmitting}
                   onClick={() => handleUpdatePreference('manual')}
                 >
-                  <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
-                    <History className="w-5 h-5 text-primary" />
+                  <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center">
+                    <History className="w-4 h-4 text-primary" />
                   </div>
                   <div className="text-left">
                     <span className="block text-white group-hover:text-inherit">Manual Pickup</span>
@@ -438,42 +501,64 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
         </div>
       )}
 
-      {/* Fulfillment Status Section - Appears after Selection */}
+      {/* Fulfillment Status Section - Phase 3 */}
       {activeRequest?.degree_fulfillment && Object.keys(activeRequest.degree_fulfillment).length > 0 && (
         <div className="animate-in zoom-in-95 slide-in-from-top-12 duration-1000 ease-out">
-          <Card className="border-none shadow-strong rounded-[2.5rem] bg-emerald-950 text-white overflow-hidden relative group">
+          <Card className={`border-none shadow-strong rounded-[2.5rem] ${activeRequest.status === 'fully_cleared' ? 'bg-foreground' : 'bg-emerald-950'} text-white overflow-hidden relative group transition-colors duration-700`}>
             <div className="absolute top-0 right-0 w-[40%] h-full bg-emerald-500/20 rounded-full -mr-[15%] -mt-[10%] blur-[120px]" />
             
             <div className="flex flex-col lg:flex-row items-center gap-10 p-8 sm:p-12 relative z-10">
               <div className="w-20 h-20 sm:w-24 sm:h-24 bg-emerald-500/20 rounded-[2rem] flex items-center justify-center backdrop-blur-xl border border-emerald-500/30">
-                <Truck className="w-10 h-10 sm:w-12 sm:h-12 text-emerald-400" />
+                {activeRequest.status === 'fully_cleared' ? <ShieldCheck className="w-10 h-10 sm:w-12 sm:h-12 text-primary" /> : <Truck className="w-10 h-10 sm:w-12 sm:h-12 text-emerald-400" />}
               </div>
               
               <div className="flex-1 text-center lg:text-left space-y-4">
                 <div className="space-y-1">
-                  <Badge className="bg-emerald-500 text-white border-none font-black text-[9px] uppercase tracking-[0.4em] px-4 py-1.5 rounded-full shadow-lg mb-2">Fulfillment in Progress</Badge>
+                  <Badge className={`${activeRequest.status === 'fully_cleared' ? 'bg-primary' : 'bg-emerald-500'} text-white border-none font-black text-[9px] uppercase tracking-[0.4em] px-4 py-1.5 rounded-full shadow-lg mb-2`}>
+                    {activeRequest.status === 'fully_cleared' ? 'PROTOCOL COMPLETE' : 'Phase 3: Degree Fulfillment'}
+                  </Badge>
                   <h3 className="text-3xl font-black tracking-tighter uppercase leading-none">
-                    {activeRequest.degree_fulfillment.method === 'dispatch' ? 'Dispatch Request Sent' : 'Manual Pickup Scheduled'}
+                    {activeRequest.status === 'fully_cleared' 
+                      ? 'Clearance Fully Finalized' 
+                      : activeRequest.degree_fulfillment.method === 'dispatch' ? 'Dispatch Process Active' : 'Manual Pickup Available'}
                   </h3>
                 </div>
                 <p className="text-sm font-bold text-emerald-100/60 uppercase tracking-widest max-w-xl">
-                  {activeRequest.degree_fulfillment.method === 'dispatch' 
-                    ? `Your degree is being prepared for dispatch to: ${activeRequest.degree_fulfillment.address}`
-                    : 'Your degree is available for pickup at the Registrar Office during official hours.'}
+                  {activeRequest.status === 'fully_cleared'
+                    ? `Institutional protocol closed. Degree successfully allotted and received on ${new Date(activeRequest.degree_fulfillment.received_at || Date.now()).toLocaleDateString()}.`
+                    : activeRequest.degree_fulfillment.method === 'dispatch' 
+                      ? `Your degree is being prepared for dispatch to: ${activeRequest.degree_fulfillment.address}`
+                      : 'Your degree is available for pickup at the Registrar Office. Please confirm once you receive it.'}
                 </p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+                {activeRequest.degree_fulfillment.notification_sent && !activeRequest.degree_fulfillment.received_by_student && (
+                  <Button 
+                    className="h-16 sm:h-20 px-10 rounded-[1.75rem] bg-primary text-white hover:bg-primary/90 font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 min-w-[240px] shadow-lg shadow-primary/20 animate-pulse"
+                    onClick={handleConfirmReceipt}
+                    disabled={submitting}
+                  >
+                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                      <CheckCircle2 className="w-5 h-5" />
+                    </div>
+                    <div className="text-left">
+                      <span className="block font-black">Yes, I've Received It</span>
+                      <span className="block text-[7px] text-white/60 mt-0.5 font-bold">Finalize Protocol Now</span>
+                    </div>
+                  </Button>
+                )}
+                
                 <Button 
-                  className="h-16 sm:h-20 px-10 rounded-[1.75rem] bg-white text-emerald-950 hover:bg-emerald-50 font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 min-w-[240px] shadow-lg shadow-emerald-900/20"
+                  className={`h-16 sm:h-20 px-10 rounded-[1.75rem] ${activeRequest.status === 'fully_cleared' ? 'bg-primary/10 text-primary' : 'bg-white text-emerald-950'} hover:opacity-90 font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 min-w-[240px] shadow-lg`}
                   onClick={() => window.location.href = 'mailto:registrar@university.edu?subject=Clearance Fulfillment Inquiry'}
                 >
-                  <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-                    <MessageSquare className="w-5 h-5 text-emerald-600" />
+                  <div className={`w-10 h-10 ${activeRequest.status === 'fully_cleared' ? 'bg-primary/20' : 'bg-emerald-100'} rounded-xl flex items-center justify-center`}>
+                    <MessageSquare className={`w-5 h-5 ${activeRequest.status === 'fully_cleared' ? 'text-primary' : 'text-emerald-600'}`} />
                   </div>
                   <div className="text-left">
-                    <span className="block font-black">Support Center</span>
-                    <span className="block text-[7px] text-emerald-950/40 mt-0.5 font-bold">Contact for Inquiries</span>
+                    <span className="block font-black">Institutional Support</span>
+                    <span className="block text-[7px] opacity-40 mt-0.5 font-bold">Support ID: {activeRequest.id.slice(0, 8)}</span>
                   </div>
                 </Button>
               </div>
@@ -541,19 +626,21 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                   </div>
                 </div>
                 <div className="mt-6 relative h-3 bg-secondary/50 rounded-full overflow-hidden border border-foreground/5 p-0.5">
-                   <div 
-                    className="h-full bg-primary rounded-full transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(var(--primary),0.4)] relative"
-                    style={{ width: `${activeRequest.progress?.percentage || 0}%` }}
-                   >
-                     <div className="absolute inset-0 bg-white/20 shimmer" />
-                   </div>
+                    <div 
+                      className={`h-full transition-all duration-1000 ease-out relative ${activeRequest.status === 'fully_cleared' ? 'bg-primary shadow-[0_0_20px_rgba(var(--primary-rgb),0.5)]' : 'bg-primary'}`} 
+                      style={{ width: `${activeRequest.status === 'fully_cleared' ? 100 : (activeRequest.progress?.percentage || 0)}%` }}
+                     >
+                      <div className="absolute inset-0 bg-white/20 shimmer" />
+                    </div>
                 </div>
               </CardHeader>
               <CardContent className="p-0">
                 <ScrollArea className="h-[500px] sm:h-[600px] px-6 sm:px-10 pb-10">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                     {(Array.isArray(activeRequest.clearance_status) 
-                      ? [...activeRequest.clearance_status].sort((a, b) => {
+                      ? [...activeRequest.clearance_status]
+                          .filter(ds => ds.department?.code !== 'EXD')
+                          .sort((a, b) => {
                           const priority: any = { 'cleared': 1, 'rejected': 2, 'in_review': 3, 'pending': 4 };
                           return priority[a.status] - priority[b.status];
                         })
@@ -564,6 +651,9 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                         s.department?.type === 'academic' || s.status === 'cleared'
                       );
                       const isLocked = isAcademic && !phase1Cleared && ds.status === 'pending';
+                      
+                      const deptComments = (activeRequest.comments || []).filter((c: any) => c.department_id === ds.department_id);
+                      const unreadCount = deptComments.filter((c: any) => c.author_model === 'Staff' && !c.read_by_student).length;
 
                       return (
                         <div key={ds.id} className={`group relative p-5 rounded-2xl border-2 transition-all duration-700 flex flex-col min-h-[180px] ${isLocked ? 'bg-muted/5 border-muted/50 grayscale opacity-40' : 'bg-background/40 border-foreground/5 hover:bg-background hover:shadow-strong hover:border-primary/20'}`}>
@@ -636,6 +726,24 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                                     >
                                       <Mail className="w-4.5 h-4.5" />
                                     </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="w-10 h-10 rounded-2xl text-indigo-500 hover:bg-indigo-500/10 transition-all active:scale-90 relative"
+                                      onClick={() => {
+                                        setChatOpenDept(ds);
+                                        if (unreadCount > 0 && activeRequest.id) {
+                                          studentService.markDepartmentChatRead(activeRequest.id, ds.department_id).then(() => fetchDashboard());
+                                        }
+                                      }}
+                                    >
+                                      <MessageSquare className="w-4.5 h-4.5" />
+                                      {unreadCount > 0 && (
+                                        <Badge className="absolute -top-2 -right-2 bg-destructive text-white border-none rounded-full px-1.5 py-0 text-[8px] font-black animate-pulse shadow-strong min-w-[16px] flex items-center justify-center">
+                                          {unreadCount}
+                                        </Badge>
+                                      )}
+                                    </Button>
                                  </div>
                                  <span className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.3em]">
                                     {ds.department?.type} Department
@@ -663,12 +771,11 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                 </p>
                 {canSubmitNewRequest && (
                   <Button 
+                    disabled={submitting}
                     className="mt-10 bg-primary text-white rounded-2xl px-12 h-16 font-black uppercase tracking-[0.4em] text-[10px] shadow-strong shadow-primary/20 hover:scale-105 transition-all active:scale-95"
-                    onClick={() => {
-                       (document.querySelector('button.shrink-0') as HTMLButtonElement)?.click();
-                    }}
+                    onClick={handleSubmitRequest}
                   >
-                    Start Clearance
+                    {submitting ? 'Initiating...' : 'Start Clearance'}
                   </Button>
                 )}
               </Card>
@@ -774,16 +881,108 @@ export const StudentDashboard = ({ onNavigate }: { onNavigate: (tab: string) => 
                     >
                       <Phone className="w-3.5 h-3.5" />
                     </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="w-7 h-7 rounded-lg text-primary hover:bg-primary/10 opacity-0 group-hover:opacity-100 transition-all duration-500 scale-90 group-hover:scale-100"
+                      onClick={() => {
+                        const activeDept = data?.activeRequest?.clearance_status?.find((s: any) => s.department_id === dept.id);
+                        if (activeDept) {
+                          setChatOpenDept(activeDept);
+                        } else {
+                          toast.error('This department is not part of your current clearance sequence.');
+                        }
+                      }}
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                    </Button>
                   </div>
                 </div>
               ))}
-              <Button variant="link" className="w-full text-[8px] font-black uppercase tracking-[0.4em] text-primary mt-4 hover:no-underline group hover:opacity-70 transition-all" onClick={() => onNavigate('my-clearance')}>
+              <Button variant="link" className="w-full text-[8px] font-black uppercase tracking-[0.4em] text-primary mt-4 hover:no-underline group hover:opacity-70 transition-all" onClick={() => onNavigate?.('my-clearance')}>
                  View All <ChevronRight className="w-3 h-3 ml-1 group-hover:translate-x-1.5 transition-transform" />
               </Button>
             </CardContent>
           </Card>
         </div>
-      </div>
+      )}
+
+      {/* Chat Dialog */}
+      <Dialog open={!!chatOpenDept} onOpenChange={(open) => {
+        if (!open) {
+          setChatOpenDept(null);
+          setMessageInput('');
+        }
+      }}>
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border border-primary/20 bg-background shadow-strong">
+          {chatOpenDept && (() => {
+            const currentComments = (data?.activeRequest?.comments || []).filter((c: any) => c.department_id === chatOpenDept.department_id || !c.department_id);
+            return (
+              <div className="flex flex-col h-[500px]">
+                {/* Header */}
+                <div className="px-6 py-4 bg-primary/5 border-b border-primary/10 flex items-center justify-between shrink-0">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-primary animate-ping" />
+                    <span className="text-xs font-black uppercase tracking-widest text-foreground">
+                      {chatOpenDept.department?.name || 'Department'}
+                    </span>
+                  </div>
+                  <span className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic">
+                    Encrypted Relay
+                  </span>
+                </div>
+
+                {/* Messages Stream */}
+                <div className="p-6 flex-1 overflow-y-auto space-y-4 custom-scrollbar bg-background/30">
+                  {currentComments.length === 0 ? (
+                    <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest italic text-center py-8">
+                      No previous dialogue recorded. Initiate correspondence below.
+                    </p>
+                  ) : (
+                    currentComments.map((msg: any, idx: number) => {
+                      const isStudent = msg.author_model === 'Student';
+                      return (
+                        <div key={msg.id || idx} className={`flex flex-col ${isStudent ? 'items-end' : 'items-start'}`}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/60">
+                              {msg.authorName || (isStudent ? 'You' : 'Officer')}
+                            </span>
+                          </div>
+                          <div className={`px-4 py-3 rounded-2xl max-w-[85%] text-xs font-medium leading-relaxed ${isStudent ? 'bg-primary text-white rounded-br-sm shadow-soft shadow-primary/20' : 'bg-secondary text-foreground rounded-bl-sm border border-foreground/5'}`}>
+                            {msg.message}
+                          </div>
+                          <span className="text-[7px] font-bold text-muted-foreground/40 mt-1 uppercase tracking-widest">
+                            {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                {/* Message Form */}
+                <div className="p-4 bg-card border-t border-foreground/5 flex gap-3 shrink-0">
+                  <input
+                    type="text"
+                    placeholder="Transmit inquiry to department..."
+                    value={messageInput}
+                    onChange={(e) => setMessageInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleSendChat(); }}
+                    className="flex-1 h-12 bg-secondary/40 border-none rounded-xl px-4 text-xs font-bold outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                  <Button
+                    disabled={sendingChat || !messageInput.trim()}
+                    onClick={handleSendChat}
+                    className="h-12 w-12 rounded-xl bg-primary text-white shadow-strong shadow-primary/20 shrink-0 hover:scale-105 active:scale-95 transition-all p-0 flex items-center justify-center"
+                  >
+                    {sendingChat ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  </Button>
+                </div>
+              </div>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

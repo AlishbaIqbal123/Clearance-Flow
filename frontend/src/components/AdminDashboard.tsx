@@ -166,9 +166,9 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-10 duration-1000">
       {/* Premium Dashboard Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 relative overflow-hidden p-5 sm:p-8 lg:p-10 rounded-[2rem] sm:rounded-[2.5rem] bg-foreground group">
-        <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[20%] -mt-[10%] blur-[120px] group-hover:scale-110 transition-transform duration-1000" />
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/10 rounded-full -ml-12 -mb-12 blur-[60px]" />
+      <div className="relative overflow-hidden p-4 sm:p-6 lg:p-8 rounded-2xl bg-foreground group shadow-strong">
+        <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[15%] -mt-[10%] blur-[100px] group-hover:scale-125 transition-transform duration-1000" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 rounded-full -ml-32 -mb-32 blur-[60px]" />
         
         <div className="space-y-6 relative z-10 max-w-3xl">
           <div className="flex flex-col sm:flex-row sm:items-center gap-5">
@@ -182,7 +182,9 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                       {[1,2,3].map(i => <div key={i} className="w-1 h-1 bg-primary rounded-full animate-pulse" style={{ animationDelay: `${i*0.2}s` }} />)}
                    </span>
                 </div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-background tracking-tighter uppercase leading-[0.9]">Admin Dashboard</h1>
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-background tracking-tighter leading-none uppercase">
+                Institutional<br /><span className="text-primary italic">Intelligence Hub</span>
+              </h2>
              </div>
           </div>
           <p className="text-sm lg:text-base text-background/40 font-medium leading-relaxed max-w-2xl italic">
@@ -190,7 +192,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 relative z-10">
+        <div className="flex flex-wrap items-center gap-4 relative z-10 mt-8">
            <Button 
             variant="ghost" 
             className="rounded-2xl h-14 px-8 font-black text-[10px] uppercase tracking-widest text-background/60 hover:text-background hover:bg-white/5 transition-all duration-700 active:scale-95 border border-white/5 backdrop-blur-sm"
@@ -314,7 +316,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         
         {/* Analytics Throughput Card */}
-        <Card className="lg:col-span-2 border-none shadow-strong rounded-[2rem] sm:rounded-[4rem] bg-card/60 backdrop-blur-3xl overflow-hidden group">
+          <Card className="col-span-1 lg:col-span-2 border-none shadow-strong rounded-3xl bg-card/60 backdrop-blur-3xl overflow-hidden group">
           <CardHeader className="p-5 sm:p-8 pb-5 border-b border-foreground/5 relative overflow-hidden">
              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-[80px]" />
              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10">
@@ -526,8 +528,9 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table className="min-w-[800px]">
+          {/* Desktop View */}
+          <div className="hidden lg:block overflow-hidden">
+            <Table>
               <TableHeader className="bg-muted/10">
                 <TableRow className="border-none">
                   <TableHead className="px-8 py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Student</TableHead>
@@ -637,11 +640,57 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
               </TableBody>
             </Table>
           </div>
+
+          {/* Mobile View */}
+          <div className="lg:hidden p-4 space-y-4">
+             {(Array.isArray(recentRequests) ? recentRequests : []).map((request: any) => (
+                <div 
+                  key={request.id} 
+                  className="bg-card/40 rounded-2xl p-5 border border-foreground/5 space-y-5 hover:border-primary/20 transition-all"
+                  onClick={() => { setSelectedRequest(request); setIsDetailsOpen(true); }}
+                >
+                  <div className="flex items-center justify-between">
+                     <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center font-black text-primary text-[10px]">
+                           {request.student?.first_name?.[0]}{request.student?.last_name?.[0]}
+                        </div>
+                        <div>
+                           <p className="text-xs font-black uppercase tracking-tight leading-none">{request.student?.first_name} {request.student?.last_name}</p>
+                           <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest mt-1">{request.student?.registration_number}</p>
+                        </div>
+                     </div>
+                     <StatusBadge status={request.status} />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 py-4 border-y border-foreground/5">
+                     <div className="space-y-1">
+                        <p className="text-[7px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Protocol ID</p>
+                        <code className="text-[9px] font-black text-primary tracking-wider">{request.request_id}</code>
+                     </div>
+                     <div className="space-y-1">
+                        <p className="text-[7px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Timeline</p>
+                        <p className="text-[9px] font-black uppercase">{new Date(request.created_at).toLocaleDateString()}</p>
+                     </div>
+                  </div>
+
+                  <Button className="w-full h-11 rounded-xl bg-foreground text-white font-black text-[9px] uppercase tracking-widest active:scale-95 transition-all">
+                     Audit Details
+                  </Button>
+                </div>
+             ))}
+
+             {recentRequests.length === 0 && (
+                <div className="py-20 text-center opacity-20">
+                   <Activity className="w-12 h-12 mx-auto mb-4" />
+                   <p className="text-[10px] font-black uppercase tracking-widest">Registry Idle</p>
+                </div>
+             )}
+          </div>
         </CardContent>
       </Card>
       {/* Premium Audit Master Console Dialog */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="sm:max-w-[650px] w-[95vw] max-h-[90vh] rounded-[2rem] p-0 overflow-y-auto overflow-x-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 custom-scrollbar">
+        <DialogContent className="sm:max-w-[650px] w-[95vw] max-h-[90vh] rounded-3xl p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 overflow-y-auto custom-scrollbar">
           <div className="bg-foreground p-5 sm:p-8 text-background relative overflow-hidden border-b border-white/5">
             <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/20 rounded-full -mr-48 -mt-48 blur-[100px] pointer-events-none" />
             

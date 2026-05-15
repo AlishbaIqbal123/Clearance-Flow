@@ -105,5 +105,20 @@ export const adminService = {
   getDispatchRequests: async () => {
     const response = await api.get('/admin/dispatch-requests');
     return response.data;
+  },
+
+  completeDispatch: async (id: string) => {
+    const response = await api.post(`/admin/dispatch-requests/${id}/complete`);
+    return response.data;
+  },
+
+  updateDispatchRequest: async (id: string, data: any) => {
+    const response = await api.patch(`/admin/dispatch-requests/${id}`, data);
+    return response.data;
+  },
+
+  notifyDispatchRequest: async (id: string, data: { type: 'ready_for_pickup' | 'dispatched', message?: string }) => {
+    const response = await api.post(`/admin/dispatch-requests/${id}/notify`, data);
+    return response.data;
   }
 };

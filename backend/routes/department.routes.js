@@ -59,14 +59,19 @@ const validate = (req, res, next) => {
  */
 const applySequentialFlow = async (records, currentDept, user) => {
   if (!records || records.length === 0) return [];
-  if (currentDept?.type !== 'academic' || user.role === 'admin') return records;
+  if (user.role === 'admin') return records;
+
+  const isAcademic = currentDept?.type === 'academic';
+  const isExam = currentDept?.code === 'EXD' || currentDept?.contact_info?.custom_type === 'exam';
+
+  if (!isAcademic && !isExam) return records;
 
   const requestIds = records.map(r => r.id);
   
   // Fetch ALL statuses for these requests to check other departments
   const { data: allStatuses, error: statusError } = await supabase
     .from('clearance_status')
-    .select('request_id, status, department:department_id(type, name)')
+    .select('request_id, status, department_id, department:department_id(id, type, name, code, contact_info)')
     .in('request_id', requestIds);
 
   if (statusError) {
@@ -77,16 +82,21 @@ const applySequentialFlow = async (records, currentDept, user) => {
   const filtered = records.filter(r => {
     const statuses = (allStatuses || []).filter(s => s.request_id === r.id);
     
-    // A request is ready for Academic (Phase 2) ONLY if ALL non-academic departments are 'cleared'
-    const phase1Statuses = statuses.filter(s => s.department?.type !== 'academic');
-    const isPhase1Complete = phase1Statuses.length > 0 && phase1Statuses.every(s => s.status === 'cleared');
-    
-    if (!isPhase1Complete) {
-      const pendingPhase1 = phase1Statuses.filter(s => s.status !== 'cleared').map(s => s.department?.name);
-      console.log(`[Sequential Flow] Hiding request ${r.id} for academic. Pending: ${pendingPhase1.join(', ')}`);
+    if (isExam) {
+      // Exam department sees request ONLY if ALL OTHER departments are 'cleared'
+      const otherStatuses = statuses.filter(s => s.department_id !== currentDept.id);
+      const isReadyForExam = otherStatuses.length > 0 && otherStatuses.every(s => s.status === 'cleared');
+      return isReadyForExam;
+    }
+
+    if (isAcademic) {
+      // Academic department sees request ONLY if ALL non-academic departments (Phase 1) are 'cleared'
+      const phase1Statuses = statuses.filter(s => s.department?.type !== 'academic' && s.department?.code !== 'EXD');
+      const isPhase1Complete = phase1Statuses.length > 0 && phase1Statuses.every(s => s.status === 'cleared');
+      return isPhase1Complete;
     }
     
-    return isPhase1Complete;
+    return true;
   });
 
   return filtered;
@@ -108,7 +118,7 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
   // 1. Get current department info
   const { data: currentDept } = await supabase
     .from('departments')
-    .select('type')
+    .select('id, type, code, contact_info')
     .eq('id', departmentId)
     .single();
   
@@ -141,12 +151,15 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
     return acc;
   }, {});
 
-  if (currentDept?.type === 'academic' && !isAdmin && statsRaw?.length > 0) {
+  const isExam = currentDept?.code === 'EXD' || currentDept?.contact_info?.custom_type === 'exam';
+  const isAcademic = currentDept?.type === 'academic';
+
+  if ((isAcademic || isExam) && !isAdmin && statsRaw?.length > 0) {
     // This is expensive but necessary for correct dashboard counts
     const requestIds = statsRaw.map(s => s.request_id);
     const { data: phase1Data } = await supabase
       .from('clearance_status')
-      .select('request_id, status, department:department_id(type)')
+      .select('request_id, status, department_id, department:department_id(id, type, name, code)')
       .in('request_id', requestIds);
 
     if (phase1Data) {
@@ -162,9 +175,17 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
 
       Object.keys(requestsPhase1Status).forEach(rid => {
         const statuses = requestsPhase1Status[rid];
-        const phase1Statuses = statuses.filter(s => s.department?.type !== 'academic');
-        const isPhase1Complete = phase1Statuses.length > 0 && phase1Statuses.every(s => s.status === 'cleared');
-        if (isPhase1Complete) readyRequestIds.add(rid);
+        let isReady = false;
+
+        if (isExam) {
+          const otherStatuses = statuses.filter(s => s.request_id === rid && s.department_id !== currentDept.id);
+          isReady = otherStatuses.length > 0 && otherStatuses.every(s => s.status === 'cleared');
+        } else if (isAcademic) {
+          const phase1Statuses = statuses.filter(s => s.department?.type !== 'academic' && s.department?.code !== 'EXD');
+          isReady = phase1Statuses.length > 0 && phase1Statuses.every(s => s.status === 'cleared');
+        }
+
+        if (isReady) readyRequestIds.add(rid);
       });
 
       statsRaw.forEach(s => {
@@ -336,7 +357,7 @@ router.get('/requests', asyncHandler(async (req, res) => {
     // 1. Get current department info
     const { data: currentDept } = await supabase
       .from('departments')
-      .select('type')
+      .select('id, type, code, contact_info')
       .eq('id', departmentId)
       .single();
 
@@ -584,6 +605,17 @@ router.put('/requests/:id/status',
         status,
         remarks
       });
+
+      // Notify Exam Department when request is fully cleared by all other departments
+      if (newOverallStatus === 'cleared') {
+        io.emit('exam-department-notification', {
+          title: 'Final Clearance Achieved',
+          message: `Student ${request.student?.first_name || 'A student'} has completed all departmental clearances and is now ready for degree processing.`,
+          requestId: id,
+          registrationNumber: request.student?.registration_number,
+          timestamp: new Date().toISOString()
+        });
+      }
     }
     
     // Send email notification via Apps Script
@@ -714,6 +746,114 @@ router.post('/requests/:id/comments',
     res.status(201).json({
       success: true,
       message: 'Comment added successfully',
+      data: { comments }
+    });
+  })
+);
+
+/**
+ * @route   POST /api/departments/requests/:id/department-chat
+ * @desc    Send a chat reply to a student from department
+ * @access  Department Staff
+ */
+router.post('/requests/:id/department-chat',
+  [
+    param('id').isUUID().withMessage('Valid request ID required'),
+    body('message').trim().notEmpty().isLength({ max: 2000 }).withMessage('Message is required'),
+    validate
+  ],
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { message } = req.body;
+    const staffId = req.user.id;
+    const departmentId = req.user.department_id;
+    
+    if (!departmentId && req.user.role !== 'admin') {
+      throw new AppError('No department assigned', 403, 'NO_DEPARTMENT');
+    }
+    
+    const { data: request } = await supabase
+      .from('clearance_requests')
+      .select('student_id, comments')
+      .eq('id', id)
+      .single();
+      
+    if (!request) {
+      throw new AppError('Clearance request not found', 404, 'REQUEST_NOT_FOUND');
+    }
+    
+    const comments = request.comments || [];
+    const newMsg = {
+      id: Date.now().toString(),
+      department_id: departmentId || req.body.departmentId,
+      author: staffId,
+      author_model: 'Staff',
+      authorName: req.user.fullName || 'Department Officer',
+      message,
+      is_internal: false,
+      read_by_student: false,
+      created_at: new Date().toISOString()
+    };
+    comments.push(newMsg);
+    
+    await supabase.from('clearance_requests').update({ comments }).eq('id', id);
+    
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`user:${request.student_id}`).emit('department-chat-msg', {
+        requestId: id,
+        message: newMsg
+      });
+    }
+    
+    res.status(201).json({
+      success: true,
+      message: 'Reply sent successfully',
+      data: { comments }
+    });
+  })
+);
+
+/**
+ * @route   POST /api/departments/requests/:id/mark-chat-read
+ * @desc    Mark student chat messages as read by department staff
+ * @access  Department Staff
+ */
+router.post('/requests/:id/mark-chat-read',
+  [
+    param('id').isUUID().withMessage('Valid request ID required'),
+    validate
+  ],
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const departmentId = req.user.department_id || req.body.departmentId;
+    
+    const { data: request } = await supabase
+      .from('clearance_requests')
+      .select('id, comments')
+      .eq('id', id)
+      .single();
+      
+    if (!request) {
+      throw new AppError('Clearance request not found', 404, 'REQUEST_NOT_FOUND');
+    }
+    
+    let updated = false;
+    const comments = (request.comments || []).map(c => {
+      if (c.department_id === departmentId && c.author_model === 'Student' && !c.read_by_dept) {
+        updated = true;
+        return { ...c, read_by_dept: true };
+      }
+      return c;
+    });
+    
+    if (updated) {
+      await supabase.from('clearance_requests').update({ comments }).eq('id', id);
+    }
+    
+    res.status(200).json({
+      success: true,
+      message: 'Chat marked as read',
       data: { comments }
     });
   })

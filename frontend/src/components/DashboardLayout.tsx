@@ -28,7 +28,10 @@ import {
   ShieldCheck,
   Activity,
   Globe,
-  Truck
+  Truck,
+  MessageSquare,
+  Award,
+  Lock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -59,6 +62,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { authService } from '@/lib/auth.service';
 import { studentService } from '@/lib/student.service';
+import { departmentService } from '@/lib/department.service';
 import api from '@/lib/api';
 
 interface DashboardLayoutProps {
@@ -67,12 +71,14 @@ interface DashboardLayoutProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   onLogout: () => void;
+  isPhase3Unlocked?: boolean;
 }
 
-export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLogout }: DashboardLayoutProps) => {
+export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLogout, isPhase3Unlocked = false }: DashboardLayoutProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
@@ -155,6 +161,29 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
         setNotifications(res.data.data.notifications);
         setUnreadCount(res.data.data.unreadCount);
       }
+
+      // Sync live departmental chat gateways if staff
+      if (user?.role && ['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'].includes(user.role)) {
+        try {
+          const chatRes = await departmentService.getRequests({ limit: 100 });
+          if (chatRes?.success) {
+            const reqs = chatRes.data?.requests || chatRes.data || [];
+            let count = 0;
+            const deptId = user.department_id;
+            reqs.forEach((r: any) => {
+              const comments = r.comments || [];
+              comments.forEach((c: any) => {
+                if (c.author_model === 'Student' && (!c.department_id || c.department_id === deptId) && !c.read_by_dept) {
+                  count++;
+                }
+              });
+            });
+            setUnreadChatCount(count);
+          }
+        } catch (err) {
+          // Silent catch for live status updates
+        }
+      }
     } catch (e) {
       console.error('Failed to fetch notifications');
     }
@@ -226,16 +255,17 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
   };
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'student', 'hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'] },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'student', 'hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer', 'exam_officer'] },
     { id: 'students', label: 'Students', icon: GraduationCap, roles: ['admin', 'hod'] },
     { id: 'academic-depts', label: 'Faculties', icon: Building2, roles: ['admin'] },
     { id: 'admin-depts', label: 'Admin Units', icon: Shield, roles: ['admin'] },
     { id: 'requests', label: 'Requests', icon: FileText, roles: ['admin', 'hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'] },
-    { id: 'settings', label: 'Settings', icon: Settings, roles: ['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'] },
+    { id: 'dept-chats', label: 'Live Chats', icon: MessageSquare, roles: ['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'] },
+    { id: 'settings', label: 'Settings', icon: Settings, roles: ['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer', 'exam_officer'] },
     { id: 'admin-clearance', label: 'Phase 1: Admin', icon: Shield, roles: ['student'] },
     { id: 'academic-clearance', label: 'Phase 2: Academic', icon: Trophy, roles: ['student'] },
+    { id: 'degree-allotment', label: 'Phase 3: Degree', icon: Award, roles: ['student'], isLocked: !isPhase3Unlocked },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, roles: ['admin', 'hod'] },
-    { id: 'dispatch', label: 'Dispatch', icon: Truck, roles: ['admin'] },
     { id: 'users', label: 'Staff List', icon: Users, roles: ['admin'] }
   ];
 
@@ -243,22 +273,20 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
 
   return (
     <div className="min-h-screen bg-background flex flex-col lg:flex-row font-sans selection:bg-primary/10">
-      {/* Premium Sidebar */}
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-72 bg-card/80 backdrop-blur-3xl border-r border-foreground/5 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]
+        fixed inset-y-0 left-0 z-50 w-56 bg-card/80 backdrop-blur-3xl border-r border-foreground/5 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]
         ${isSidebarOpen ? 'translate-x-0 shadow-strong' : '-translate-x-full lg:translate-x-0'}
       `}>
         <div className="flex flex-col h-screen max-h-screen overflow-hidden">
-          {/* COMSATS Branding */}
-          <div className="p-6 sm:p-8 pb-4 flex items-center justify-between shrink-0">
+          <div className="p-4 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3 group cursor-pointer">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center shadow-strong group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 relative overflow-hidden p-1.5 sm:p-2 border border-foreground/5">
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-strong group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 relative overflow-hidden p-1.5 border border-foreground/5">
                 <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity shimmer" />
                 <img src="/logo.png" alt="Logo" className="w-full h-full object-contain relative z-10" />
               </div>
               <div className="space-y-0.5">
-                <span className="font-black text-lg sm:text-xl text-foreground tracking-tighter block uppercase leading-none">CUI Vehari</span>
-                <span className="text-[7px] sm:text-[8px] font-black text-primary uppercase tracking-[0.3em] block italic">Clearance System</span>
+                <span className="font-black text-base sm:text-lg text-foreground tracking-tighter block uppercase leading-none">CUI Vehari</span>
+                <span className="text-[7px] font-black text-primary uppercase tracking-[0.3em] block italic">Clearance System</span>
               </div>
             </div>
             <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-muted-foreground rounded-full hover:bg-muted/50 w-8 h-8">
@@ -272,23 +300,28 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
               {filteredItems.map((item) => {
                 const Icon = item.icon;
                 const active = activeTab === item.id;
+                const isLocked = (item as any).isLocked;
+                
                 return (
                   <button
                     key={item.id}
-                    onClick={() => {
-                      setActiveTab(item.id);
-                      setIsSidebarOpen(false);
-                    }}
+                    onClick={() => !isLocked && setActiveTab(item.id)}
+                    disabled={isLocked}
                     className={`
-                      w-full flex items-center gap-3 px-5 py-4 rounded-2xl text-[12px] font-bold transition-all duration-500 group relative
-                      ${active 
-                        ? 'bg-primary text-white shadow-strong shadow-primary/30 scale-[1.02]' 
-                        : 'text-muted-foreground hover:bg-secondary hover:text-primary'
-                      }
+                      w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-500 group relative overflow-hidden
+                      ${active ? 'bg-primary text-white shadow-strong shadow-primary/20 scale-[1.02]' : 'text-muted-foreground hover:bg-card hover:text-foreground'}
+                      ${isLocked ? 'opacity-30 grayscale cursor-not-allowed' : 'cursor-pointer active:scale-95'}
                     `}
                   >
-                    <Icon className={`w-4 h-4 transition-all duration-500 ${active ? 'text-white' : 'text-muted-foreground group-hover:text-primary group-hover:scale-110'}`} />
-                    <span className="tracking-tight">{item.label}</span>
+                    {active && <div className="absolute inset-0 bg-white/10 shimmer" />}
+                    <Icon className={`w-5 h-5 transition-all duration-700 ${active ? 'scale-110 rotate-3' : 'group-hover:scale-110 group-hover:-rotate-3'} ${isLocked ? 'opacity-50' : ''}`} />
+                    <span className="font-black text-[10px] uppercase tracking-[0.2em] relative z-10">{item.label}</span>
+                    {isLocked && <Lock className="w-3 h-3 ml-auto opacity-50" />}
+                    {item.id === 'dept-chats' && unreadChatCount > 0 && !isLocked && (
+                      <span className="px-2 py-0.5 rounded-full bg-destructive text-white text-[9px] font-black animate-pulse shadow-sm">
+                        {unreadChatCount}
+                      </span>
+                    )}
                     {active && (
                       <div className="absolute right-4 w-1 h-1 bg-white rounded-full animate-pulse shadow-[0_0_10px_white]" />
                     )}
@@ -324,7 +357,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
             <Button 
               variant="ghost"
               onClick={onLogout}
-              className="w-full flex items-center justify-center gap-2 h-11 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] text-destructive hover:bg-destructive/10 hover:text-destructive transition-all group border border-transparent hover:border-destructive/10"
+              className="w-full flex items-center justify-center gap-2 h-9 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] text-destructive hover:bg-destructive/10 hover:text-destructive transition-all group border border-transparent hover:border-destructive/10"
             >
               <LogOut className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
               Sign Out
@@ -334,13 +367,13 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
       </aside>
 
       {/* Main Container Area */}
-      <div className="flex-1 lg:ml-72 flex flex-col min-h-screen relative overflow-hidden">
+      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen relative overflow-hidden">
         {/* Dynamic Background elements - Premium Depth */}
         <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px] pointer-events-none animate-pulse" />
         <div className="absolute bottom-[-10%] left-[-10%] w-[30%] h-[30%] bg-primary/3 rounded-full blur-[100px] pointer-events-none" />
         
         {/* Glass Header */}
-        <header className="sticky top-0 z-40 glass px-4 lg:px-10 py-4 lg:py-6 flex items-center justify-between shadow-soft border-b border-foreground/5">
+        <header className="sticky top-0 z-40 glass px-4 lg:px-8 py-2 lg:py-3 flex items-center justify-between shadow-soft border-b border-foreground/5">
           <div className="flex items-center gap-4 lg:gap-8">
             <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(true)} className="lg:hidden rounded-2xl bg-secondary w-10 h-10 shadow-sm border border-foreground/5 active:scale-95">
               <Menu className="w-5 h-5 text-foreground" />
@@ -351,7 +384,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
                     System Connected <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
                  </p>
               </div>
-              <h1 className="text-2xl lg:text-3xl font-black text-foreground tracking-tighter uppercase leading-none">
+              <h1 className="text-xl lg:text-2xl font-black text-foreground tracking-tighter uppercase leading-none">
                 {menuItems.find(m => m.id === activeTab)?.label || 'Dashboard'}
               </h1>
             </div>
@@ -373,7 +406,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
               variant="ghost" 
               size="icon" 
               onClick={toggleTheme}
-              className="rounded-2xl bg-secondary text-foreground w-12 h-12 hover:bg-primary hover:text-white transition-colors duration-300 shadow-sm border border-foreground/5 active:scale-95"
+              className="rounded-2xl bg-secondary text-foreground w-10 h-10 hover:bg-primary hover:text-white transition-colors duration-300 shadow-sm border border-foreground/5 active:scale-95"
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </Button>
@@ -383,7 +416,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="rounded-2xl bg-secondary text-foreground w-12 h-12 hover:bg-primary hover:text-white transition-all duration-700 relative shadow-sm border border-foreground/5 active:scale-95"
+                  className="rounded-2xl bg-secondary text-foreground w-10 h-10 hover:bg-primary hover:text-white transition-all duration-700 relative shadow-sm border border-foreground/5 active:scale-95"
                 >
                   <Bell className="w-5 h-5" />
                   {unreadCount > 0 && (
@@ -434,7 +467,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="rounded-2xl p-1.5 h-12 bg-secondary hover:bg-secondary/80 border-none flex items-center gap-3 pr-4 transition-all shadow-sm">
+                <Button variant="ghost" className="rounded-xl p-1.5 h-10 bg-secondary hover:bg-secondary/80 border-none flex items-center gap-2 pr-3 transition-all shadow-sm">
                   <Avatar className="w-9 h-9 shadow-soft border border-background">
                     <AvatarFallback className="bg-primary text-white text-[10px] font-black">
                        {user.firstName?.[0]}{user.lastName?.[0]}
@@ -446,7 +479,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-72 mt-6 rounded-[2.5rem] p-4 border-none shadow-strong">
+              <DropdownMenuContent align="end" className="w-72 mt-6 rounded-3xl p-4 border-none shadow-strong">
                 <div className="px-5 py-4 bg-secondary/50 rounded-3xl mb-3 border border-foreground/5">
                   <p className="text-sm font-black text-foreground truncate uppercase tracking-tight">{user.fullName}</p>
                   <p className="text-[10px] font-bold text-muted-foreground truncate mt-1 opacity-70 italic">{user.email}</p>
@@ -477,28 +510,28 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
         </header>
 
         {/* Dynamic Main Content Area - Bento Grid Ready */}
-        <main className="flex-1 p-4 sm:p-8 lg:p-12 relative z-10">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-0 sm:pb-0 lg:pb-0 relative z-10">
           <div className="max-w-[1400px] mx-auto animate-fade-in-up">
             {children}
           </div>
         </main>
 
         {/* Footer info for Academic Authority */}
-        <footer className="p-10 text-center opacity-30">
+        <footer className="pt-2 pb-4 text-center opacity-30 shrink-0">
            <p className="text-[9px] font-black uppercase tracking-[0.5em] text-muted-foreground">web CUIvehari Clearance • SECURE CLEARANCE TERMINAL • 2026</p>
         </footer>
       </div>
 
       {/* Redesigned Dialogs - Premium & Bento Style */}
       <Dialog open={isProfileOpen} onOpenChange={setIsProfileOpen}>
-        <DialogContent className="sm:max-w-[500px] rounded-[2rem] p-0 overflow-hidden border-none shadow-strong">
+        <DialogContent className="sm:max-w-[480px] rounded-3xl p-0 overflow-hidden border-none shadow-strong">
           <div className="absolute top-0 left-0 w-full h-32 bg-primary/5 pointer-events-none" />
           <div className="p-6 sm:p-10 pt-10 sm:pt-12 space-y-5 sm:space-y-8 relative">
             <div className="flex flex-col items-center text-center space-y-5">
               <div className="relative group">
-                <Avatar className="w-24 h-24 sm:w-28 sm:h-28 border-[4px] sm:border-[6px] border-background shadow-strong group-hover:scale-105 transition-all duration-700">
+                <Avatar className="w-20 h-20 sm:w-24 sm:h-24 border-[4px] sm:border-[5px] border-background shadow-strong group-hover:scale-105 transition-all duration-700">
                   <AvatarImage src={user.avatar} />
-                  <AvatarFallback className="bg-primary text-white text-2xl sm:text-4xl font-black">
+                  <AvatarFallback className="bg-primary text-white text-xl sm:text-3xl font-black">
                     {user.firstName?.[0]}{user.lastName?.[0]}
                   </AvatarFallback>
                 </Avatar>
@@ -507,7 +540,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
                 </button>
               </div>
               <div className="space-y-1.5">
-                <DialogTitle className="text-xl sm:text-3xl font-black tracking-tighter uppercase">{user.fullName}</DialogTitle>
+                <DialogTitle className="text-lg sm:text-2xl font-black tracking-tighter uppercase">{user.fullName}</DialogTitle>
                 <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-none px-3 sm:px-5 py-1 sm:py-1.5 rounded-full font-black uppercase tracking-[0.3em] text-[7px] sm:text-[9px] shadow-sm">
                    {user.role?.replace('_', ' ')}
                 </Badge>
@@ -519,7 +552,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
                 <Input 
                   value={profileData.firstName} 
                   onChange={(e) => setProfileData({...profileData, firstName: e.target.value})}
-                  className="h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all px-5 text-sm" 
+                  className="h-10 sm:h-12 rounded-xl bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all px-4 text-sm" 
                 />
               </div>
               <div className="space-y-1.5 sm:space-y-2">
@@ -527,7 +560,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
                 <Input 
                   value={profileData.lastName} 
                   onChange={(e) => setProfileData({...profileData, lastName: e.target.value})}
-                  className="h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all px-5 text-sm" 
+                  className="h-10 sm:h-12 rounded-xl bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all px-4 text-sm" 
                 />
               </div>
               <div className="col-span-1 sm:col-span-2 space-y-1.5 sm:space-y-2">
@@ -537,7 +570,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
                   <Input 
                     value={profileData.email} 
                     onChange={(e) => setProfileData({...profileData, email: e.target.value})}
-                    className="pl-12 sm:pl-14 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm" 
+                    className="pl-12 h-10 sm:h-12 rounded-xl bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm" 
                   />
                 </div>
               </div>
@@ -549,16 +582,16 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
                     value={profileData.phone}
                     onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
                     placeholder="+92 000 0000000"
-                    className="pl-12 sm:pl-14 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm"
+                    className="pl-12 h-10 sm:h-12 rounded-xl bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-sm"
                   />
                 </div>
               </div>
             </div>
           </div>
           <DialogFooter className="p-6 sm:p-10 pt-0 flex flex-col sm:flex-row gap-3 sm:gap-4">
-             <Button variant="ghost" className="h-14 rounded-xl font-black text-[9px] uppercase tracking-widest text-muted-foreground px-8 hover:bg-secondary" onClick={() => setIsProfileOpen(false)}>Abort</Button>
+             <Button variant="ghost" className="h-12 rounded-xl font-black text-[9px] uppercase tracking-widest text-muted-foreground px-8 hover:bg-secondary" onClick={() => setIsProfileOpen(false)}>Abort</Button>
              <Button 
-               className="flex-1 bg-primary hover:bg-primary/90 h-14 rounded-2xl font-black text-[9px] uppercase tracking-[0.3em] shadow-strong shadow-primary/20 transition-all active:scale-95"
+               className="flex-1 bg-primary hover:bg-primary/90 h-12 rounded-xl font-black text-[9px] uppercase tracking-[0.3em] shadow-strong shadow-primary/20 transition-all active:scale-95"
                onClick={saveProfile}
                disabled={savingProfile}
              >
@@ -570,7 +603,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
 
       {/* Account Settings Dialog */}
       <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-        <DialogContent className="sm:max-w-[450px] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong">
+        <DialogContent className="sm:max-w-[450px] rounded-3xl p-0 overflow-hidden border-none shadow-strong">
           <div className="bg-foreground p-8 sm:p-10 text-background relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full -mr-16 -mt-16 blur-[60px]" />
             <DialogTitle className="text-2xl sm:text-3xl font-black tracking-tighter flex items-center gap-4 uppercase">
@@ -617,7 +650,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
             </button>
           </div>
           <DialogFooter className="p-6 sm:p-10 pt-0">
-             <Button variant="ghost" className="w-full text-muted-foreground font-black text-[9px] uppercase tracking-[0.3em] h-14 rounded-2xl hover:bg-secondary" onClick={() => setIsSettingsOpen(false)}>
+             <Button variant="ghost" className="w-full text-muted-foreground font-black text-[9px] uppercase tracking-[0.3em] h-12 rounded-xl hover:bg-secondary" onClick={() => setIsSettingsOpen(false)}>
                Return to Terminal
              </Button>
           </DialogFooter>
@@ -626,7 +659,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
 
       {/* Password Dialog */}
       <Dialog open={isPasswordOpen} onOpenChange={setIsPasswordOpen}>
-        <DialogContent className="sm:max-w-[500px] w-[95vw] rounded-[3.5rem] p-0 overflow-hidden border-none shadow-strong">
+        <DialogContent className="sm:max-w-[500px] w-[95vw] rounded-3xl p-0 overflow-hidden border-none shadow-strong">
           <div className="bg-primary p-8 sm:p-12 text-white relative">
             <div className="absolute bottom-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-24 -mb-24 blur-[80px]" />
             <DialogTitle className="text-2xl sm:text-3xl font-black tracking-tighter flex items-center gap-5 uppercase">
@@ -641,7 +674,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
                 type="password" 
                 value={passwordData.current}
                 onChange={(e) => setPasswordData({...passwordData, current: e.target.value})}
-                className="h-16 rounded-[1.5rem] bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all px-6"
+                className="h-12 rounded-xl bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all px-6"
                 required
               />
             </div>
@@ -651,7 +684,7 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
                 type="password" 
                 value={passwordData.new}
                 onChange={(e) => setPasswordData({...passwordData, new: e.target.value})}
-                className="h-16 rounded-[1.5rem] bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all px-6"
+                className="h-12 rounded-xl bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all px-6"
                 required
               />
             </div>
@@ -661,13 +694,13 @@ export const DashboardLayout = ({ children, user, activeTab, setActiveTab, onLog
                 type="password" 
                 value={passwordData.confirm}
                 onChange={(e) => setPasswordData({...passwordData, confirm: e.target.value})}
-                className="h-16 rounded-[1.5rem] bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all px-6"
+                className="h-12 rounded-xl bg-secondary/50 border-none font-bold text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 transition-all px-6"
                 required
               />
             </div>
             <DialogFooter className="pt-4 gap-6">
-              <Button type="button" variant="ghost" className="h-16 rounded-2xl font-black text-[10px] uppercase tracking-widest text-muted-foreground" onClick={() => { setIsPasswordOpen(false); setIsSettingsOpen(true); }}>Cancel</Button>
-              <Button type="submit" disabled={savingPassword} className="flex-1 bg-primary hover:bg-primary/90 h-16 rounded-3xl font-black text-[10px] uppercase tracking-[0.3em] shadow-strong shadow-primary/20 active:scale-95">
+              <Button type="button" variant="ghost" className="h-12 rounded-xl font-black text-[10px] uppercase tracking-widest text-muted-foreground" onClick={() => { setIsPasswordOpen(false); setIsSettingsOpen(true); }}>Cancel</Button>
+              <Button type="submit" disabled={savingPassword} className="flex-1 bg-primary hover:bg-primary/90 h-12 rounded-xl font-black text-[10px] uppercase tracking-[0.3em] shadow-strong shadow-primary/20 active:scale-95">
                 {savingPassword ? 'Syncing...' : 'Authorize Change'}
               </Button>
             </DialogFooter>

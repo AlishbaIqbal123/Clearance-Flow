@@ -28,7 +28,9 @@ import {
   ChevronRight,
   Info,
   X,
-  UserCircle
+  UserCircle,
+  Award,
+  MoreHorizontal
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -82,7 +84,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-export const StudentList = () => {
+export const StudentList = ({ user, mode }: { user: any, mode?: 'allotment' }) => {
   const [students, setStudents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -100,6 +102,7 @@ export const StudentList = () => {
     departmentId: ''
   });
   const [selectedDeptFilter, setSelectedDeptFilter] = useState('all');
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState(mode === 'allotment' ? 'cleared' : 'all');
   const [departments, setDepartments] = useState<any[]>([]);
 
   const fetchStudents = async () => {
@@ -112,7 +115,13 @@ export const StudentList = () => {
       
       const deptRes = await adminService.getDepartments();
       if (deptRes.success) {
-        setDepartments(deptRes.data.departments || []);
+        let depts = deptRes.data.departments || [];
+        // If HOD/Staff, restrict departments list
+        if (user?.role !== 'admin' && user?.department_id) {
+          depts = depts.filter((d: any) => d.id === user.department_id);
+          setSelectedDeptFilter(user.department_id);
+        }
+        setDepartments(depts);
       }
     } catch (error) {
       toast.error('Failed to load student list');
@@ -136,8 +145,9 @@ export const StudentList = () => {
       (s.batch?.toString() || '').includes(searchLower);
     
     const matchesDept = selectedDeptFilter === 'all' || s.department_id === selectedDeptFilter;
+    const matchesStatus = selectedStatusFilter === 'all' || s.clearance_status === selectedStatusFilter;
     
-    return matchesSearch && matchesDept;
+    return matchesSearch && matchesDept && matchesStatus;
   });
 
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -231,10 +241,12 @@ export const StudentList = () => {
         <div className="space-y-2">
            <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary shadow-soft group">
-                 <Users className="w-5 h-5 relative z-10" />
+                 {mode === 'allotment' ? <Award className="w-5 h-5 relative z-10" /> : <Users className="w-5 h-5 relative z-10" />}
               </div>
               <div className="space-y-0.5">
-                 <h2 className="text-lg font-black text-foreground tracking-tighter uppercase leading-none">Manage Students</h2>
+                 <h2 className="text-lg font-black text-foreground tracking-tighter uppercase leading-none">
+                    {mode === 'allotment' ? 'Degree Allotment Dashboard' : 'Manage Students'}
+                 </h2>
               </div>
            </div>
         </div>
@@ -249,8 +261,13 @@ export const StudentList = () => {
               Export
            </Button>
             <Button 
-               className="rounded-lg bg-primary text-white hover:bg-primary/90 h-10 px-5 font-black text-[9px] uppercase tracking-widest shadow-strong shadow-primary/20 flex items-center gap-2 active:scale-95 transition-all group/btn"
-               onClick={() => setIsAddOpen(true)}
+               className="rounded-lg bg-primary text-white hover:bg-primary/90 h-9 px-5 font-black text-[9px] uppercase tracking-widest shadow-strong shadow-primary/20 flex items-center gap-2 active:scale-95 transition-all group/btn"
+               onClick={() => {
+                 if (user?.role !== 'admin' && user?.department_id) {
+                   setFormData(prev => ({ ...prev, departmentId: user.department_id }));
+                 }
+                 setIsAddOpen(true);
+               }}
             >
               <UserPlus className="w-4 h-4 group-hover:scale-110 transition-transform duration-500" />
               <span>Add Student</span>
@@ -259,7 +276,7 @@ export const StudentList = () => {
       </div>
 
       {/* Student List Section */}
-       <Card className="border-none shadow-strong rounded-2xl bg-card/60 backdrop-blur-3xl overflow-hidden group">
+       <Card className="border-none shadow-strong rounded-xl bg-card/60 backdrop-blur-3xl overflow-hidden group">
         <CardHeader className="p-4 border-b border-foreground/5 relative overflow-hidden">
            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 relative z-10">
               <div className="relative group flex-1">
@@ -271,25 +288,51 @@ export const StudentList = () => {
                    onChange={(e) => setSearch(e.target.value)}
                  />
               </div>
-              <Select value={selectedDeptFilter} onValueChange={setSelectedDeptFilter}>
-                <SelectTrigger className="rounded-lg h-10 w-full lg:w-[220px] font-black text-[9px] uppercase tracking-widest px-4 bg-secondary/50 border-none shadow-inner focus:ring-2 focus:ring-primary/10 transition-all">
+              <Select 
+                value={selectedDeptFilter} 
+                onValueChange={setSelectedDeptFilter}
+                disabled={user?.role !== 'admin'}
+              >
+                <SelectTrigger className="rounded-lg h-10 w-full lg:w-[220px] font-black text-[9px] uppercase tracking-widest px-4 bg-secondary/50 border-none shadow-inner focus:ring-2 focus:ring-primary/10 transition-all disabled:opacity-80">
                    <div className="flex items-center gap-2">
                       <Filter className="w-3.5 h-3.5 text-primary opacity-40" />
                       <SelectValue placeholder="All Departments" />
                    </div>
                 </SelectTrigger>
                 <SelectContent className="rounded-xl border-none shadow-strong p-1 bg-background/95 backdrop-blur-2xl">
-                   <SelectItem value="all" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">All Departments</SelectItem>
+                   {user?.role === 'admin' && (
+                     <SelectItem value="all" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">All Departments</SelectItem>
+                   )}
                    {departments.filter(d => d.type === 'academic').map(dept => (
                      <SelectItem key={dept.id} value={dept.id} className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">{dept.name}</SelectItem>
                    ))}
                 </SelectContent>
               </Select>
+
+              <Select 
+                value={selectedStatusFilter} 
+                onValueChange={setSelectedStatusFilter}
+              >
+                <SelectTrigger className="rounded-lg h-10 w-full lg:w-[180px] font-black text-[9px] uppercase tracking-widest px-4 bg-secondary/50 border-none shadow-inner focus:ring-2 focus:ring-primary/10 transition-all">
+                   <div className="flex items-center gap-2">
+                      <Activity className="w-3.5 h-3.5 text-primary opacity-40" />
+                      <SelectValue placeholder="All Status" />
+                   </div>
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border-none shadow-strong p-1 bg-background/95 backdrop-blur-2xl">
+                  <SelectItem value="all" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">All Status</SelectItem>
+                  <SelectItem value="not_started" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Not Started</SelectItem>
+                  <SelectItem value="pending" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">In Progress</SelectItem>
+                  <SelectItem value="cleared" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Cleared</SelectItem>
+                  <SelectItem value="rejected" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">On Hold</SelectItem>
+                </SelectContent>
+              </Select>
            </div>
          </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table className="min-w-[800px]">
+          {/* Desktop Table View */}
+          <div className="hidden lg:block overflow-hidden">
+            <Table>
               <TableHeader className="bg-muted/10">
                 <TableRow className="border-none">
                   <TableHead className="px-6 py-4 text-[8px] font-black text-muted-foreground uppercase tracking-widest">Student Info</TableHead>
@@ -451,8 +494,8 @@ export const StudentList = () => {
                             </div>
                             <Button 
                               variant="outline" 
-                              className="rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.3em] px-12 h-16 border-foreground/10 hover:border-primary/40 hover:text-primary transition-all active:scale-95" 
-                              onClick={() => { setSearch(''); setSelectedDeptFilter('all'); }}
+                              className="rounded-xl font-black text-[10px] uppercase tracking-[0.3em] px-12 h-12 border-foreground/10 hover:border-primary/40 hover:text-primary transition-all active:scale-95" 
+                              onClick={() => { setSearch(''); setSelectedDeptFilter('all'); setSelectedStatusFilter('all'); }}
                             >
                               Reset Registry Filter
                             </Button>
@@ -465,20 +508,129 @@ export const StudentList = () => {
               </TableBody>
             </Table>
           </div>
+
+          {/* Mobile Card View */}
+          <div className="lg:hidden p-4 space-y-4">
+            {loading ? (
+              <div className="h-96 flex flex-col items-center justify-center gap-8">
+                <Loader2 className="w-12 h-12 text-primary animate-spin" />
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground animate-pulse">Loading Registry...</p>
+              </div>
+            ) : filteredStudents.length > 0 ? (
+              filteredStudents.map((student) => (
+                <div 
+                  key={student.id} 
+                  className="bg-card/50 rounded-2xl p-5 border border-foreground/5 space-y-4 hover:border-primary/20 transition-all shadow-soft"
+                  onClick={() => { setSelectedStudent(student); setIsViewOpen(true); }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center font-black text-primary text-xs">
+                        {student.first_name[0]}{student.last_name[0]}
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-black uppercase tracking-tight">{student.first_name} {student.last_name}</h4>
+                        <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest opacity-40">{student.registration_number}</p>
+                      </div>
+                    </div>
+                    <StatusBadge status={student.clearance_status || 'not_started'} />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 py-2 border-y border-foreground/5">
+                    <div className="space-y-1">
+                      <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Program</p>
+                      <p className="text-[10px] font-black uppercase tracking-tight">{student.program}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Batch</p>
+                      <p className="text-[10px] font-black uppercase tracking-tight">{student.batch}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2">
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="w-9 h-9 rounded-xl bg-secondary/50 text-primary"
+                        onClick={(e) => { e.stopPropagation(); student.email && window.open(`mailto:${student.email}`); }}
+                      >
+                        <Mail className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="w-9 h-9 rounded-xl bg-secondary/50 text-emerald-500"
+                        onClick={(e) => { 
+                          e.stopPropagation();
+                          if (student.phone) {
+                            const clean = student.phone.replace(/\D/g, '');
+                            window.open(`https://wa.me/${clean}`);
+                          }
+                        }}
+                      >
+                        <Phone className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                        <Button variant="ghost" size="icon" className="w-9 h-9 rounded-xl bg-secondary/50">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="rounded-xl w-48 p-1.5 shadow-strong bg-background/95 backdrop-blur-2xl border-none">
+                        <DropdownMenuItem 
+                          className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3"
+                          onClick={() => {
+                            setSelectedStudent(student);
+                            setFormData({
+                              firstName: student.first_name,
+                              lastName: student.last_name,
+                              email: student.email,
+                              registrationNumber: student.registration_number,
+                              program: student.program,
+                              batch: student.batch,
+                              departmentId: student.department_id
+                            });
+                            setIsEditOpen(true);
+                          }}
+                        >
+                          <Edit className="w-3.5 h-3.5 mr-2 opacity-40" />
+                          Edit Student
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-destructive focus:text-white px-3 text-destructive"
+                          onClick={() => setConfirmDeleteId(student.id)}
+                        >
+                          <Trash2 className="w-3.5 h-3.5 mr-2" />
+                          Delete Student
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="h-64 flex flex-col items-center justify-center gap-4 text-center">
+                <Users className="w-12 h-12 text-muted-foreground/10" />
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-40">No students found</p>
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
 
       {/* Enroll/Edit Identity Dialog */}
       <Dialog open={isAddOpen || isEditOpen} onOpenChange={(open) => { if(!open) { setIsAddOpen(false); setIsEditOpen(false); } }}>
-        <DialogContent className="sm:max-w-[550px] w-[95vw] rounded-[2rem] p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 max-h-[90vh] overflow-y-auto custom-scrollbar">
-          <div className={`${isEditOpen ? 'bg-amber-600' : 'bg-primary'} p-6 sm:p-10 text-white relative`}>
+        <DialogContent className="sm:max-w-[550px] w-[95vw] rounded-3xl p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 max-h-[90vh] overflow-y-auto custom-scrollbar">
+          <div className={`${isEditOpen ? 'bg-amber-600' : 'bg-primary'} p-4 sm:p-6 text-white relative`}>
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-24 -mt-24 blur-[80px]" />
             <div className="relative z-10 space-y-4">
                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-md">
                   {isEditOpen ? <Edit className="w-5 h-5 sm:w-6 sm:h-6" /> : <UserPlus className="w-5 h-5 sm:w-6 sm:h-6" />}
                </div>
                <div className="space-y-1">
-                  <DialogTitle className="text-xl sm:text-2xl font-black tracking-tighter uppercase leading-none">
+                  <DialogTitle className="text-lg sm:text-xl font-black tracking-tighter uppercase leading-none">
                     {isEditOpen ? 'Update Student' : 'Add New Student'}
                   </DialogTitle>
                   <DialogDescription className="text-white/60 font-black text-[8px] sm:text-[9px] uppercase tracking-widest mt-1 italic">
@@ -487,7 +639,7 @@ export const StudentList = () => {
                </div>
             </div>
           </div>
-          <form onSubmit={isEditOpen ? handleUpdate : handleCreate} className="p-6 space-y-4">
+          <form onSubmit={isEditOpen ? handleUpdate : handleCreate} className="p-4 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <Label className="text-[8px] font-black uppercase tracking-widest text-muted-foreground ml-1">First Name</Label>
@@ -535,8 +687,9 @@ export const StudentList = () => {
                 <Select 
                   value={formData.departmentId} 
                   onValueChange={(val) => setFormData({...formData, departmentId: val})}
+                  disabled={user?.role !== 'admin'}
                 >
-                  <SelectTrigger className="h-10 rounded-lg bg-secondary/50 border-none font-black text-[9px] uppercase tracking-widest px-4 shadow-inner">
+                  <SelectTrigger className="h-10 rounded-lg bg-secondary/50 border-none font-black text-[9px] uppercase tracking-widest px-4 shadow-inner disabled:opacity-80">
                     <SelectValue placeholder="Select Dept" />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl border-none shadow-strong p-1 bg-background/95 backdrop-blur-2xl">
@@ -571,10 +724,10 @@ export const StudentList = () => {
             </div>
             
             <DialogFooter className="pt-4 gap-3">
-              <Button type="button" variant="ghost" className="h-10 rounded-lg font-black text-[9px] uppercase tracking-widest text-muted-foreground px-6 hover:bg-secondary transition-all" onClick={() => { setIsAddOpen(false); setIsEditOpen(false); }}>
+              <Button type="button" variant="ghost" className="h-9 rounded-lg font-black text-[9px] uppercase tracking-widest text-muted-foreground px-6 hover:bg-secondary transition-all" onClick={() => { setIsAddOpen(false); setIsEditOpen(false); }}>
                 Cancel
               </Button>
-              <Button type="submit" className={`flex-1 rounded-xl h-11 font-black text-[9px] uppercase tracking-widest shadow-strong transition-all active:scale-95 ${isEditOpen ? 'bg-amber-600 shadow-amber-500/20' : 'bg-primary shadow-primary/20'}`}>
+              <Button type="submit" className={`flex-1 rounded-xl h-10 font-black text-[9px] uppercase tracking-widest shadow-strong transition-all active:scale-95 ${isEditOpen ? 'bg-amber-600 shadow-amber-500/20' : 'bg-primary shadow-primary/20'}`}>
                 {isEditOpen ? 'Update Student' : 'Add Student'}
               </Button>
             </DialogFooter>
@@ -584,16 +737,16 @@ export const StudentList = () => {
 
       {/* View Student Details Dialog */}
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <DialogContent className="sm:max-w-[550px] w-[95vw] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 max-h-[90vh] overflow-y-auto custom-scrollbar">
-          <div className="bg-card p-8 sm:p-10 text-foreground relative border-b border-foreground/5">
+        <DialogContent className="sm:max-w-[550px] w-[95vw] rounded-3xl p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 max-h-[90vh] overflow-y-auto custom-scrollbar">
+          <div className="bg-card p-5 sm:p-7 text-foreground relative border-b border-foreground/5">
             <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-primary/20 rounded-full -mr-32 -mt-32 blur-[100px]" />
             
             <div className="relative z-10 space-y-6 text-center flex flex-col items-center">
-               <div className="w-24 h-24 bg-white/5 rounded-[2rem] backdrop-blur-3xl flex items-center justify-center border border-white/10 shadow-2xl relative">
+               <div className="w-20 h-20 bg-white/5 rounded-2xl backdrop-blur-3xl flex items-center justify-center border border-white/10 shadow-2xl relative">
                   <span className="text-4xl font-black text-primary relative z-10 tracking-tighter">{selectedStudent?.first_name?.[0]}{selectedStudent?.last_name?.[0]}</span>
                </div>
                <div className="space-y-2">
-                  <DialogTitle className="text-2xl font-black tracking-tighter uppercase leading-none">{selectedStudent?.first_name} {selectedStudent?.last_name}</DialogTitle>
+                  <DialogTitle className="text-xl font-black tracking-tighter uppercase leading-none">{selectedStudent?.first_name} {selectedStudent?.last_name}</DialogTitle>
                   <p className="text-background/40 font-black text-[10px] uppercase tracking-widest">ID: {selectedStudent?.registration_number}</p>
                </div>
                <div className="flex items-center gap-3">
@@ -602,7 +755,7 @@ export const StudentList = () => {
             </div>
           </div>
           {selectedStudent && (
-             <div className="p-6 sm:p-10 space-y-8 bg-card/40 backdrop-blur-3xl">
+             <div className="p-4 sm:p-6 space-y-8 bg-card/40 backdrop-blur-3xl">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
                   { label: 'Email Address', value: selectedStudent.email, icon: Mail },
@@ -620,9 +773,9 @@ export const StudentList = () => {
                   </div>
                 ))}
               </div>
-              <div className="flex gap-4 pt-4">
+               <div className="flex gap-4 pt-4">
                 <Button
-                  className="flex-1 bg-primary text-white hover:bg-primary/90 rounded-xl h-14 font-black text-[10px] uppercase tracking-widest shadow-strong shadow-primary/20 transition-all active:scale-95 gap-3 group/btn overflow-hidden relative"
+                  className="flex-1 bg-primary text-white hover:bg-primary/90 rounded-xl h-11 font-black text-[10px] uppercase tracking-widest shadow-strong shadow-primary/20 transition-all active:scale-95 gap-3 group/btn overflow-hidden relative"
                   onClick={() => selectedStudent.email && window.open(`mailto:${selectedStudent.email}`)}
                 >
                   <Mail className="w-4 h-4" /> 
@@ -630,7 +783,7 @@ export const StudentList = () => {
                 </Button>
                 <Button
                   variant="outline"
-                  className="flex-1 rounded-xl h-14 font-black text-[10px] uppercase tracking-widest border-foreground/10 hover:border-emerald-500 hover:text-emerald-500 hover:bg-emerald-500/5 transition-all active:scale-95 gap-3 group/btn"
+                  className="flex-1 rounded-xl h-11 font-black text-[10px] uppercase tracking-widest border-foreground/10 hover:border-emerald-500 hover:text-emerald-500 hover:bg-emerald-500/5 transition-all active:scale-95 gap-3 group/btn"
                   onClick={() => {
                     if (selectedStudent.phone) {
                       const clean = selectedStudent.phone.replace(/\D/g, '');
