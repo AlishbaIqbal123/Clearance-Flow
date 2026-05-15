@@ -103,7 +103,12 @@ router.get('/dashboard', adminPlus, asyncHandler(async (req, res) => {
   }));
 
   const { count: pendingClearance } = await supabase.from('clearance_requests').select('*', { count: 'exact', head: true }).eq('status', 'submitted');
-  const { count: dispatchPendingCount } = await supabase.from('dispatch_log').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+  
+  // Calculate dispatchPendingCount from clearance_requests where degree_fulfillment exists and status is not 'completed'
+  const { data: allRequestsForDispatchCount } = await supabase.from('clearance_requests').select('status, degree_fulfillment');
+  const dispatchPendingCount = (allRequestsForDispatchCount || []).filter(req => 
+    req.status !== 'completed' && req.degree_fulfillment && req.degree_fulfillment.method
+  ).length;
 
   // Department-wise student counts
   const { data: deptStudentStatsRaw } = await supabase
@@ -1154,15 +1159,83 @@ router.get('/dispatch-requests',
 
     if (error) throw error;
 
-    // Filter in JS because Supabase JSONB filtering can be tricky for nested values
+    // Filter in JS: Show if cleared/completed OR if they have selected a fulfillment method
     const dispatchRequests = (data || []).filter(req => 
-      req.status === 'cleared' || req.status === 'completed'
+      req.status === 'cleared' || 
+      req.status === 'completed' || 
+      (req.degree_fulfillment && req.degree_fulfillment.method)
     );
 
     res.status(200).json({
       success: true,
       count: dispatchRequests.length,
       data: dispatchRequests
+    });
+  })
+);
+
+/**
+ * @route   PATCH /api/admin/dispatch-requests/:id
+ * @desc    Update degree fulfillment details (address, method, tracking)
+ * @access  Admin, Exam Officer
+ */
+router.patch('/dispatch-requests/:id',
+  authorize('admin', 'exam_officer'),
+  [
+    body('method').optional().isIn(['dispatch', 'manual']),
+    body('address').optional().trim(),
+    body('tracking_number').optional().trim(),
+    body('courier_service').optional().trim(),
+    validate
+  ],
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { method, address, tracking_number, courier_service } = req.body;
+    const staffId = req.user.id;
+
+    const { data: request, error: fetchError } = await supabase
+      .from('clearance_requests')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !request) {
+      throw new AppError('Clearance request not found', 404, 'REQUEST_NOT_FOUND');
+    }
+
+    const degree_fulfillment = request.degree_fulfillment || {};
+    
+    if (method) degree_fulfillment.method = method;
+    if (address !== undefined) degree_fulfillment.address = address;
+    if (tracking_number !== undefined) degree_fulfillment.tracking_number = tracking_number;
+    if (courier_service !== undefined) degree_fulfillment.courier_service = courier_service;
+    
+    degree_fulfillment.updated_at = new Date().toISOString();
+    degree_fulfillment.updated_by = staffId;
+
+    const timeline = request.timeline || [];
+    timeline.push({
+      action: 'fulfillment_updated',
+      performedBy: staffId,
+      performedByModel: 'User',
+      description: `Degree fulfillment details updated by Exam Department.`,
+      timestamp: new Date().toISOString()
+    });
+
+    const { error: updateError } = await supabase
+      .from('clearance_requests')
+      .update({ 
+        degree_fulfillment,
+        timeline
+      })
+      .eq('id', id);
+
+    if (updateError) throw updateError;
+
+    res.status(200).json({
+      success: true,
+      message: 'Degree fulfillment details updated successfully',
+      data: { degree_fulfillment }
     });
   })
 );

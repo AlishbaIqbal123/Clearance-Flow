@@ -216,6 +216,7 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
                   <TableHead className="px-6 py-4 font-black text-muted-foreground uppercase text-[8px] tracking-widest">Identity & Sequence</TableHead>
                   <TableHead className="py-4 font-black text-muted-foreground uppercase text-[8px] tracking-widest">Student Profile</TableHead>
                   <TableHead className="py-4 font-black text-muted-foreground uppercase text-[8px] tracking-widest">Protocol Status</TableHead>
+                  <TableHead className="py-4 font-black text-muted-foreground uppercase text-[8px] tracking-widest">Fulfillment</TableHead>
                   <TableHead className="py-4 font-black text-muted-foreground uppercase text-[8px] tracking-widest">Node Authorization</TableHead>
                   <TableHead className="px-6 text-right text-[8px] font-black text-muted-foreground uppercase tracking-widest">Directives</TableHead>
                 </TableRow>
@@ -281,6 +282,22 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
                       </TableCell>
                       <TableCell>
                         <StatusBadge status={req.status} />
+                      </TableCell>
+                      <TableCell>
+                        {req.degree_fulfillment ? (
+                          <div className="flex items-center gap-2">
+                            <Badge className={`${req.degree_fulfillment.method === 'dispatch' ? 'bg-indigo-50 text-indigo-600' : 'bg-orange-50 text-orange-600'} border-none font-black text-[7px] uppercase px-2 py-1 rounded-md`}>
+                              {req.degree_fulfillment.method}
+                            </Badge>
+                            {req.degree_fulfillment.method === 'dispatch' && (
+                              <span className="text-[7px] font-black text-muted-foreground uppercase truncate max-w-[100px]" title={req.degree_fulfillment.address}>
+                                {req.degree_fulfillment.address?.substring(0, 15)}...
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-[7px] font-black text-muted-foreground/30 uppercase tracking-widest italic">TBD</span>
+                        )}
                       </TableCell>
                       <TableCell>
                         <div className="flex -space-x-3">

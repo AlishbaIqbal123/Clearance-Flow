@@ -110,5 +110,10 @@ export const adminService = {
   completeDispatch: async (id: string) => {
     const response = await api.post(`/admin/dispatch-requests/${id}/complete`);
     return response.data;
+  },
+
+  updateDispatchRequest: async (id: string, data: any) => {
+    const response = await api.patch(`/admin/dispatch-requests/${id}`, data);
+    return response.data;
   }
 };

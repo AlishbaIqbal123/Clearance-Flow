@@ -45,6 +45,14 @@ export const DispatchList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editForm, setEditForm] = useState({
+    method: 'manual',
+    address: '',
+    tracking_number: '',
+    courier_service: ''
+  });
 
 
   const fetchDispatchRequests = async () => {
@@ -64,6 +72,24 @@ export const DispatchList = () => {
   useEffect(() => {
     fetchDispatchRequests();
   }, []);
+
+  const handleUpdateDispatch = async () => {
+    if (!selectedRequest) return;
+    
+    try {
+      setIsSubmitting(true);
+      const res = await adminService.updateDispatchRequest(selectedRequest.id, editForm);
+      if (res.success) {
+        toast.success('Dispatch details updated successfully');
+        setIsEditOpen(false);
+        fetchDispatchRequests();
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to update dispatch');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleCompleteDispatch = async (req: any) => {
     if (!req.degree_fulfillment) {
@@ -350,6 +376,94 @@ export const DispatchList = () => {
         </div>
       </Card>
 
+      {/* Manage Details Dialog (CRUD) */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="sm:max-w-[600px] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background">
+          <div className="bg-foreground p-8 text-background relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full -mr-32 -mt-32 blur-[80px]" />
+            <div className="relative z-10 flex items-center gap-6">
+              <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center text-primary backdrop-blur-xl border border-white/5">
+                <Truck className="w-8 h-8" />
+              </div>
+              <div>
+                <Badge className="bg-primary text-white border-none rounded-full px-4 py-1 text-[8px] font-black uppercase tracking-[0.4em] mb-2">Manage Logistics</Badge>
+                <DialogTitle className="text-2xl font-black tracking-tighter uppercase leading-none">Edit Fulfillment Data</DialogTitle>
+              </div>
+            </div>
+          </div>
+          
+          <div className="p-8 space-y-8 bg-card/40 backdrop-blur-3xl">
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest pl-4">Collection Method</label>
+                  <select 
+                    className="w-full h-14 bg-secondary/50 border-none rounded-2xl px-6 font-bold text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all uppercase"
+                    value={editForm.method}
+                    onChange={(e) => setEditForm({ ...editForm, method: e.target.value })}
+                  >
+                    <option value="manual">Manual Pickup</option>
+                    <option value="dispatch">Home Dispatch</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest pl-4">Courier Service</label>
+                  <Input 
+                    className="h-14 bg-secondary/50 border-none rounded-2xl px-6 font-bold text-sm focus:ring-2 focus:ring-primary/20 uppercase"
+                    placeholder="e.g. TCS, Leopard, FedEx"
+                    value={editForm.courier_service}
+                    onChange={(e) => setEditForm({ ...editForm, courier_service: e.target.value })}
+                    disabled={editForm.method === 'manual'}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest pl-4">Dispatch Address</label>
+                <textarea 
+                  className="w-full min-h-[100px] bg-secondary/50 border-none rounded-[2rem] p-6 font-bold text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all uppercase resize-none"
+                  placeholder="Enter full mailing address..."
+                  value={editForm.address}
+                  onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                  disabled={editForm.method === 'manual'}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest pl-4">Tracking Number</label>
+                <div className="relative">
+                  <Input 
+                    className="h-14 bg-secondary/50 border-none rounded-2xl pl-14 font-bold text-sm focus:ring-2 focus:ring-primary/20 uppercase tracking-[0.2em]"
+                    placeholder="TRK-XXXX-XXXX"
+                    value={editForm.tracking_number}
+                    onChange={(e) => setEditForm({ ...editForm, tracking_number: e.target.value })}
+                    disabled={editForm.method === 'manual'}
+                  />
+                  <Package className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground opacity-40" />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <Button 
+                variant="ghost" 
+                className="h-14 flex-1 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:bg-secondary/80" 
+                onClick={() => setIsEditOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button 
+                className="h-14 flex-1 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-[10px] uppercase tracking-[0.2em] shadow-strong shadow-primary/20"
+                onClick={handleUpdateDispatch}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Changes'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* View Details Dialog */}
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
         <DialogContent className="sm:max-w-[600px] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background">
@@ -385,17 +499,17 @@ export const DispatchList = () => {
               </div>
             </div>
 
-            {/* Address Info */}
+            {/* Address & Tracking Info */}
             <div className="space-y-4">
-              <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Dispatch Coordinates</h4>
-              <div className="p-8 bg-white rounded-[2.5rem] border border-foreground/5 shadow-soft space-y-4">
+              <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Fulfillment Status</h4>
+              <div className="p-8 bg-white rounded-[2.5rem] border border-foreground/5 shadow-soft space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
                     <MapPin className="w-5 h-5 text-primary" />
                   </div>
                   <div className="space-y-2">
                     <p className="text-base font-bold text-foreground leading-relaxed uppercase italic">
-                      {selectedRequest?.degree_fulfillment?.method === 'manual' ? 'Manual Collection (Registrar Pickup)' : (selectedRequest?.degree_fulfillment?.address || 'N/A')}
+                      {selectedRequest?.degree_fulfillment?.method === 'manual' ? 'Manual Collection (Registrar Pickup)' : (selectedRequest?.degree_fulfillment?.address || 'Awaiting Selection')}
                     </p>
                     <div className="flex items-center gap-2 text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">
                       <Package className="w-3.5 h-3.5" />
@@ -403,6 +517,18 @@ export const DispatchList = () => {
                     </div>
                   </div>
                 </div>
+
+                {selectedRequest?.degree_fulfillment?.tracking_number && (
+                  <div className="flex items-start gap-4 pt-6 border-t border-foreground/5">
+                    <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center shrink-0">
+                      <Truck className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.4em]">Tracking: {selectedRequest.degree_fulfillment.courier_service || 'Standard'}</p>
+                      <p className="text-base font-black text-emerald-600 tracking-[0.2em] uppercase">{selectedRequest.degree_fulfillment.tracking_number}</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -412,7 +538,9 @@ export const DispatchList = () => {
                 <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">Selection Date</p>
                 <div className="flex items-center gap-2 text-sm font-black uppercase">
                   <Calendar className="w-4 h-4 text-primary" />
-                  {selectedRequest && new Date(selectedRequest.degree_fulfillment?.selected_at).toLocaleDateString()}
+                  {selectedRequest?.degree_fulfillment?.selected_at 
+                    ? new Date(selectedRequest.degree_fulfillment.selected_at).toLocaleDateString()
+                    : 'N/A'}
                 </div>
               </div>
               <div className="p-5 bg-secondary/30 rounded-2xl border border-foreground/5 space-y-1">
@@ -424,15 +552,30 @@ export const DispatchList = () => {
               </div>
             </div>
 
-            <DialogFooter className="pt-4">
+            <div className="flex gap-4">
               <Button 
                 variant="ghost" 
-                className="h-12 rounded-xl px-10 font-black text-[10px] uppercase tracking-[0.4em] text-muted-foreground hover:bg-secondary/80 w-full" 
+                className="h-14 flex-1 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:bg-secondary/80" 
                 onClick={() => setIsViewOpen(false)}
               >
-                Close View
+                Close
               </Button>
-            </DialogFooter>
+              <Button 
+                className="h-14 flex-1 rounded-2xl bg-foreground text-white hover:bg-primary transition-all font-black text-[10px] uppercase tracking-[0.2em]"
+                onClick={() => {
+                  setEditForm({
+                    method: selectedRequest?.degree_fulfillment?.method || 'manual',
+                    address: selectedRequest?.degree_fulfillment?.address || '',
+                    tracking_number: selectedRequest?.degree_fulfillment?.tracking_number || '',
+                    courier_service: selectedRequest?.degree_fulfillment?.courier_service || ''
+                  });
+                  setIsViewOpen(false);
+                  setIsEditOpen(true);
+                }}
+              >
+                Manage Logistics
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
