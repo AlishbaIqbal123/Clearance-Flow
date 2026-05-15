@@ -322,9 +322,11 @@ export const StudentList = ({ user, mode }: { user: any, mode?: 'allotment' }) =
                 <SelectContent className="rounded-xl border-none shadow-strong p-1 bg-background/95 backdrop-blur-2xl">
                   <SelectItem value="all" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">All Status</SelectItem>
                   <SelectItem value="not_started" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Not Started</SelectItem>
-                  <SelectItem value="pending" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">In Progress</SelectItem>
+                  <SelectItem value="submitted" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Submitted</SelectItem>
+                  <SelectItem value="in_progress" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">In Progress</SelectItem>
+                  <SelectItem value="partially_cleared" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Partially Cleared</SelectItem>
                   <SelectItem value="cleared" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Cleared</SelectItem>
-                  <SelectItem value="rejected" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">On Hold</SelectItem>
+                  <SelectItem value="rejected" className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3">Rejected</SelectItem>
                 </SelectContent>
               </Select>
            </div>

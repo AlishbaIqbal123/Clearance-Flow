@@ -832,6 +832,71 @@ router.post('/requests/:id/department-chat',
     };
     comments.push(newMsg);
     
+    // Check for "DONE" protocol command from Exam Department
+    const isDoneProtocol = message.trim().toUpperCase() === 'DONE' || message.trim().toUpperCase() === 'DONE PROTOCOL';
+    
+    if (isDoneProtocol) {
+      // Get department code to verify if it's the Exam Department (EXD)
+      const { data: currentDept } = await supabase
+        .from('departments')
+        .select('code')
+        .eq('id', departmentId || req.body.departmentId)
+        .single();
+        
+      if (currentDept && (currentDept.code === 'EXD' || currentDept.code === 'EXAM')) {
+        // Update department status to cleared
+        await supabase.from('clearance_status')
+          .update({
+            status: 'cleared',
+            cleared_by: staffId,
+            cleared_at: new Date().toISOString()
+          })
+          .eq('request_id', id)
+          .eq('department_id', departmentId || req.body.departmentId);
+          
+        // Recalculate overall progress and status
+        const { data: allStatuses } = await supabase
+          .from('clearance_status')
+          .select('status')
+          .eq('request_id', id);
+          
+        const totalDepts = allStatuses?.length || 0;
+        const clearedDepts = allStatuses?.filter(s => s.status === 'cleared').length || 0;
+        const rejectedDepts = allStatuses?.filter(s => s.status === 'rejected').length || 0;
+        
+        let newStatus = 'in_progress';
+        if (rejectedDepts > 0) newStatus = 'rejected';
+        else if (clearedDepts === totalDepts && totalDepts > 0) newStatus = 'cleared';
+        else if (clearedDepts > 0) newStatus = 'partially_cleared';
+        
+        await supabase.from('clearance_requests')
+          .update({ 
+            status: newStatus,
+            progress: {
+              totalDepartments: totalDepts,
+              clearedDepartments: clearedDepts,
+              percentage: totalDepts === 0 ? 0 : Math.round((clearedDepts / totalDepts) * 100)
+            }
+          })
+          .eq('id', id);
+          
+        // Sync with student profile
+        await supabase.from('student_profiles')
+          .update({ clearance_status: newStatus })
+          .eq('id', request.student_id);
+          
+        const io = req.app.get('io');
+        if (io) {
+           io.to(`user:${request.student_id}`).emit('clearance-status-changed', {
+             requestId: id,
+             departmentId: departmentId || req.body.departmentId,
+             status: 'cleared',
+             remarks: 'Protocol completed via command'
+           });
+        }
+      }
+    }
+    
     await supabase.from('clearance_requests').update({ comments }).eq('id', id);
     
     const io = req.app.get('io');
@@ -844,7 +909,7 @@ router.post('/requests/:id/department-chat',
     
     res.status(201).json({
       success: true,
-      message: 'Reply sent successfully',
+      message: isDoneProtocol ? 'Reply sent and protocol completed' : 'Reply sent successfully',
       data: { comments }
     });
   })

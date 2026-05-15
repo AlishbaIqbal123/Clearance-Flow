@@ -61,6 +61,24 @@ export const StatusBadge = ({ status, size = 'md', showIcon = true }: StatusBadg
           icon: PauseCircle,
           label: 'On Hold'
         };
+      case 'partially_cleared':
+        return { 
+          className: 'bg-cyan-500/10 text-cyan-600 border-cyan-500/10 hover:bg-cyan-500/20', 
+          icon: History,
+          label: 'Partially Cleared'
+        };
+      case 'in_progress':
+        return { 
+          className: 'bg-indigo-500/10 text-indigo-600 border-indigo-500/10 hover:bg-indigo-500/20', 
+          icon: Activity,
+          label: 'In Progress'
+        };
+      case 'not_started':
+        return { 
+          className: 'bg-muted text-muted-foreground/60 border-muted hover:bg-muted/50', 
+          icon: Clock,
+          label: 'Not Started'
+        };
       case 'submitted':
       case 'active':
         return { 
