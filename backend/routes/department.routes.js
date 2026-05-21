@@ -290,7 +290,7 @@ router.get('/profile', asyncHandler(async (req, res) => {
  * @access  Department Staff (HOD or Admin)
  */
 router.put('/profile',
-  authorize('admin', 'hod', 'finance_officer', 'library_officer', 'transport_officer'),
+  authorize('admin', 'hod', 'finance_officer', 'library_officer', 'transport_officer', 'department_officer', 'exam_officer'),
   asyncHandler(async (req, res) => {
     const departmentId = req.user.department_id || req.body.departmentId;
     

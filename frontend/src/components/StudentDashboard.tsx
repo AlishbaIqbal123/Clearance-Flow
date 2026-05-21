@@ -240,12 +240,12 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
       {mode === 'fulfillment' ? (
         <div className="space-y-8">
-           <div className="relative overflow-hidden rounded-2xl bg-foreground p-8 shadow-strong group">
+           <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-8 shadow-strong group">
               <div className="absolute top-0 right-0 w-[45%] h-full bg-primary/20 rounded-full -mr-[20%] -mt-[10%] blur-[100px]" />
               <div className="relative z-10 space-y-2">
                  <Badge className="bg-primary/20 text-primary border-none font-black text-[8px] uppercase tracking-[0.4em] px-4 py-1 rounded-full backdrop-blur-md mb-2">Phase 3: Degree Allotment</Badge>
-                 <h2 className="text-3xl font-black text-background tracking-tighter uppercase leading-none">Degree Fulfillment Portal</h2>
-                 <p className="text-sm text-background/50 font-medium leading-relaxed italic max-w-2xl">Finalize your degree collection strategy and confirm receipt of your official credentials.</p>
+                 <h2 className="text-3xl font-black text-foreground tracking-tighter uppercase leading-none">Degree Fulfillment Portal</h2>
+                 <p className="text-sm text-muted-foreground font-medium leading-relaxed italic max-w-2xl">Finalize your degree collection strategy and confirm receipt of your official credentials.</p>
               </div>
            </div>
            
@@ -276,10 +276,10 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background">
                           {/* ... existing Dialog content for dispatch ... */}
-                          <div className="bg-foreground p-10 text-white relative">
+                          <div className="bg-card border-b border-border/50 p-10 text-foreground relative">
                              <div className="absolute top-0 right-0 w-48 h-48 bg-primary/20 rounded-full -mr-24 -mt-24 blur-[100px]" />
                              <div className="relative z-10 space-y-4">
-                                <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md">
+                                <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center backdrop-blur-md">
                                    <MapPin className="w-7 h-7 text-primary" />
                                 </div>
                                 <DialogTitle className="text-3xl font-black tracking-tighter uppercase">Shipping Logistics</DialogTitle>
@@ -301,7 +301,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
                           </div>
                         </DialogContent>
                       </Dialog>
-                      <Button className="h-20 px-10 rounded-[1.75rem] bg-secondary text-foreground hover:bg-secondary/80 font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 min-w-[240px]" onClick={() => handleUpdatePreference('manual')}>
+                      <Button className="h-20 px-10 rounded-[1.75rem] bg-secondary border border-border text-foreground hover:bg-secondary/80 font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 min-w-[240px]" onClick={() => handleUpdatePreference('manual')}>
                         <History className="w-6 h-6 text-primary" />
                         <div className="text-left">
                           <span className="block font-black">Manual Pickup</span>
@@ -317,16 +317,16 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
               <div className="animate-in zoom-in-95 slide-in-from-top-12 duration-1000 ease-out">
                  {/* Re-use existing status section */}
                  {activeRequest?.degree_fulfillment && (
-                   <Card className={`border-none shadow-strong rounded-[2.5rem] ${activeRequest.status === 'fully_cleared' ? 'bg-foreground' : 'bg-emerald-950'} text-white overflow-hidden relative group p-8 sm:p-12`}>
+                   <Card className={`border-none shadow-strong rounded-[2.5rem] ${activeRequest.status === 'fully_cleared' ? 'bg-card border border-border/50 text-foreground' : 'bg-emerald-950 text-white'} overflow-hidden relative group p-8 sm:p-12`}>
                       <div className="flex flex-col lg:flex-row items-center gap-10 relative z-10">
-                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-emerald-500/20 rounded-[2rem] flex items-center justify-center backdrop-blur-xl">
+                        <div className={`w-20 h-20 sm:w-24 sm:h-24 ${activeRequest.status === 'fully_cleared' ? 'bg-primary/10' : 'bg-emerald-500/20'} rounded-[2rem] flex items-center justify-center backdrop-blur-xl`}>
                           {activeRequest.status === 'fully_cleared' ? <ShieldCheck className="w-10 h-10 sm:w-12 sm:h-12 text-primary" /> : <Truck className="w-10 h-10 sm:w-12 sm:h-12 text-emerald-400" />}
                         </div>
                         <div className="flex-1 text-center lg:text-left space-y-4">
                            <h3 className="text-3xl font-black tracking-tighter uppercase leading-none">
                               {activeRequest.status === 'fully_cleared' ? 'Clearance Fully Finalized' : 'Fulfillment in Progress'}
                            </h3>
-                           <p className="text-sm font-bold text-white/60 uppercase tracking-widest max-w-xl">
+                           <p className={`text-sm font-bold ${activeRequest.status === 'fully_cleared' ? 'text-muted-foreground' : 'text-white/60'} uppercase tracking-widest max-w-xl`}>
                               {activeRequest.status === 'fully_cleared' 
                                 ? 'Clearance process completed. Degree successfully received.' 
                                 : activeRequest.degree_fulfillment.method === 'dispatch' ? `Preparing dispatch to: ${activeRequest.degree_fulfillment.address}` : 'Degree ready for manual pickup.'}
@@ -346,7 +346,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
       ) : (
         <>
           {/* Premium Hero Section - Bento Hero */}
-          <div className="relative overflow-hidden rounded-2xl bg-foreground p-4 sm:p-6 lg:p-8 shadow-strong group">
+          <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-4 sm:p-6 lg:p-8 shadow-strong group">
         {/* Dynamic Effects */}
         <div className="absolute top-0 right-0 w-[45%] h-full bg-primary/20 rounded-full -mr-[20%] -mt-[10%] blur-[100px] group-hover:scale-125 transition-transform duration-1000" />
         <div className="absolute bottom-0 left-0 w-[25%] h-[60%] bg-primary/10 rounded-full -ml-[12%] -mb-[12%] blur-[60px]" />
@@ -362,7 +362,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
                    {[1,2,3].map(i => <div key={i} className="w-1 h-1 bg-primary rounded-full animate-pulse" style={{ animationDelay: `${i*0.2}s` }} />)}
                 </div>
               </div>
-              <h2 className="text-lg sm:text-xl lg:text-2xl font-black text-background tracking-tighter leading-none uppercase">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground tracking-tighter leading-none uppercase">
                 {activeRequest?.status === 'fully_cleared' ? (
                   <>Clearance Complete,<br /><span className="text-primary italic">Clearance Finalized</span></>
                 ) : (
@@ -371,7 +371,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
               </h2>
             </div>
             
-            <p className="text-sm text-background/50 font-medium leading-relaxed max-w-xl opacity-80 italic">
+            <p className="text-sm text-muted-foreground font-medium leading-relaxed max-w-xl opacity-80 italic">
               {activeRequest?.status === 'fully_cleared' 
                 ? 'Your clearance process is 100% complete. Your degree has been officially allotted and the process is closed.'
                 : 'Easily manage and track your university clearance status in one place.'}
@@ -383,11 +383,11 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
                 { label: 'ID', value: student.registration_number, icon: Shield },
                 { label: 'Batch', value: student.batch, icon: History }
               ].map((tag, i) => (
-                <div key={i} className="flex items-center gap-3 bg-background/5 backdrop-blur-2xl border border-background/10 px-4 py-2 rounded-xl hover:bg-background/10 transition-colors">
+                <div key={i} className="flex items-center gap-3 bg-secondary border border-border px-4 py-2 rounded-xl hover:bg-secondary/80 transition-colors">
                   <tag.icon className="w-3.5 h-3.5 text-primary" />
                   <div className="flex flex-col">
-                     <span className="text-[7px] font-black text-background/30 uppercase tracking-widest leading-none mb-1">{tag.label}</span>
-                     <span className="text-[10px] font-black text-background uppercase tracking-tight">{tag.value}</span>
+                     <span className="text-[7px] font-black text-muted-foreground/50 uppercase tracking-widest leading-none mb-1">{tag.label}</span>
+                     <span className="text-[10px] font-black text-foreground uppercase tracking-tight">{tag.value}</span>
                   </div>
                 </div>
               ))}
@@ -420,10 +420,10 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
       {(activeRequest?.status === 'cleared' || activeRequest?.progress?.percentage === 100) && 
        (!activeRequest?.degree_fulfillment || Object.keys(activeRequest.degree_fulfillment).length === 0) && (
         <div className="animate-in zoom-in-95 slide-in-from-top-12 duration-1000 ease-out">
-          <Card className="border-none shadow-strong rounded-[2.5rem] bg-foreground text-white overflow-hidden relative group">
+          <Card className="border-none shadow-strong rounded-[2.5rem] bg-card border border-border/50 text-foreground overflow-hidden relative group">
             <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[15%] -mt-[10%] blur-[120px]" />
             <div className="flex flex-col lg:flex-row items-center gap-8 p-6 sm:p-8 relative z-10">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-xl shadow-soft shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-700">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary/10 rounded-2xl flex items-center justify-center backdrop-blur-xl shadow-soft shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-700">
                 <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-primary animate-pulse" />
               </div>
               
@@ -432,7 +432,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
                   <Badge className="bg-primary text-white border-none font-black text-[9px] uppercase tracking-[0.4em] px-4 py-1.5 rounded-full shadow-lg mb-2">Final Fulfillment</Badge>
                   <h3 className="text-3xl font-black tracking-tighter uppercase leading-none">Your Degree is Ready</h3>
                 </div>
-                <p className="text-sm font-bold text-white/60 uppercase tracking-widest max-w-xl">
+                <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest max-w-xl">
                   Congratulations! All clearance requirements have been satisfied. Select your preferred method of degree collection.
                 </p>
               </div>
@@ -440,18 +440,18 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
               <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button className="h-14 sm:h-16 px-8 rounded-2xl bg-white text-foreground hover:bg-white/90 font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 group/btn min-w-[220px]">
-                      <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center group-hover/btn:scale-110 transition-transform">
-                        <Truck className="w-4 h-4 text-primary" />
+                    <Button className="h-14 sm:h-16 px-8 rounded-2xl bg-primary text-white hover:bg-primary/95 font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 group/btn min-w-[220px] shadow-lg shadow-primary/10">
+                      <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center group-hover/btn:scale-110 transition-transform">
+                        <Truck className="w-4 h-4 text-white" />
                       </div>
                       <div className="text-left">
                         <span className="block">Dispatch Degree</span>
-                        <span className="block text-[7px] opacity-40 mt-0.5">Secure Home Delivery</span>
+                        <span className="block text-[7px] text-white/70 mt-0.5">Secure Home Delivery</span>
                       </div>
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background">
-                    <div className="bg-foreground p-10 text-white relative">
+                    <div className="bg-card border-b border-border/50 p-10 text-foreground relative">
                        <div className="absolute top-0 right-0 w-48 h-48 bg-primary/20 rounded-full -mr-24 -mt-24 blur-[100px]" />
                        <div className="relative z-10 space-y-4">
                           <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md">
@@ -483,7 +483,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
                 </Dialog>
 
                 <Button 
-                  className="h-14 sm:h-16 px-8 rounded-2xl bg-white/10 border border-white/20 text-white hover:bg-white hover:text-foreground font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 min-w-[220px]"
+                  className="h-14 sm:h-16 px-8 rounded-2xl bg-secondary border border-border text-foreground hover:bg-secondary/80 font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-4 min-w-[220px]"
                   disabled={prefSubmitting}
                   onClick={() => handleUpdatePreference('manual')}
                 >
@@ -491,8 +491,8 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
                     <History className="w-4 h-4 text-primary" />
                   </div>
                   <div className="text-left">
-                    <span className="block text-white group-hover:text-inherit">Manual Pickup</span>
-                    <span className="block text-[7px] text-white/40 group-hover:text-inherit/40 mt-0.5">Collect from Registrar</span>
+                    <span className="block text-foreground">Manual Pickup</span>
+                    <span className="block text-[7px] text-muted-foreground mt-0.5">Collect from Registrar</span>
                   </div>
                 </Button>
               </div>
@@ -504,17 +504,17 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
       {/* Fulfillment Status Section - Phase 3 */}
       {activeRequest?.degree_fulfillment && Object.keys(activeRequest.degree_fulfillment).length > 0 && (
         <div className="animate-in zoom-in-95 slide-in-from-top-12 duration-1000 ease-out">
-          <Card className={`border-none shadow-strong rounded-[2.5rem] ${activeRequest.status === 'fully_cleared' ? 'bg-foreground' : 'bg-emerald-950'} text-white overflow-hidden relative group transition-colors duration-700`}>
+          <Card className={`border-none shadow-strong rounded-[2.5rem] ${activeRequest.status === 'fully_cleared' ? 'bg-card border border-border/50 text-foreground' : 'bg-emerald-950 text-white'} overflow-hidden relative group transition-colors duration-700`}>
             <div className="absolute top-0 right-0 w-[40%] h-full bg-emerald-500/20 rounded-full -mr-[15%] -mt-[10%] blur-[120px]" />
             
             <div className="flex flex-col lg:flex-row items-center gap-10 p-8 sm:p-12 relative z-10">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-emerald-500/20 rounded-[2rem] flex items-center justify-center backdrop-blur-xl border border-emerald-500/30">
+              <div className={`w-20 h-20 sm:w-24 sm:h-24 ${activeRequest.status === 'fully_cleared' ? 'bg-primary/10 border border-primary/20' : 'bg-emerald-500/20 border border-emerald-500/30'} rounded-[2rem] flex items-center justify-center backdrop-blur-xl`}>
                 {activeRequest.status === 'fully_cleared' ? <ShieldCheck className="w-10 h-10 sm:w-12 sm:h-12 text-primary" /> : <Truck className="w-10 h-10 sm:w-12 sm:h-12 text-emerald-400" />}
               </div>
               
               <div className="flex-1 text-center lg:text-left space-y-4">
                 <div className="space-y-1">
-                  <Badge className={`${activeRequest.status === 'fully_cleared' ? 'bg-primary' : 'bg-emerald-500'} text-white border-none font-black text-[9px] uppercase tracking-[0.4em] px-4 py-1.5 rounded-full shadow-lg mb-2`}>
+                  <Badge className={`${activeRequest.status === 'fully_cleared' ? 'bg-primary text-white' : 'bg-emerald-500 text-white'} border-none font-black text-[9px] uppercase tracking-[0.4em] px-4 py-1.5 rounded-full shadow-lg mb-2`}>
                     {activeRequest.status === 'fully_cleared' ? 'CLEARANCE COMPLETE' : 'Phase 3: Degree Delivery'}
                   </Badge>
                   <h3 className="text-3xl font-black tracking-tighter uppercase leading-none">
@@ -523,7 +523,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
                       : activeRequest.degree_fulfillment.method === 'dispatch' ? 'Dispatch Process Active' : 'Manual Pickup Available'}
                   </h3>
                 </div>
-                <p className="text-sm font-bold text-emerald-100/60 uppercase tracking-widest max-w-xl">
+                <p className={`text-sm font-bold ${activeRequest.status === 'fully_cleared' ? 'text-muted-foreground' : 'text-emerald-100/60'} uppercase tracking-widest max-w-xl`}>
                   {activeRequest.status === 'fully_cleared'
                     ? `Clearance process completed. Degree successfully allotted and received on ${new Date(activeRequest.degree_fulfillment.received_at || Date.now()).toLocaleDateString()}.`
                     : activeRequest.degree_fulfillment.method === 'dispatch' 
@@ -814,22 +814,22 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
         {/* Right Bento Column */}
         <div className="space-y-12">
           {/* Portal Support Card */}
-          <Card className="border-none shadow-strong rounded-[2rem] bg-foreground overflow-hidden group">
+          <Card className="border-none shadow-strong rounded-[2rem] bg-card border border-border/50 text-foreground overflow-hidden group">
             <CardContent className="p-6 sm:p-8 relative">
               <div className="absolute top-0 right-0 w-64 h-64 bg-primary/30 rounded-full -mr-32 -mt-32 blur-[120px] group-hover:scale-125 transition-transform duration-1000" />
               <div className="space-y-5 relative z-10">
-                <div className="w-12 h-12 bg-background/5 rounded-xl flex items-center justify-center border border-background/10 backdrop-blur-md">
+                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20 backdrop-blur-md">
                    <MessageSquare className="w-6 h-6 text-primary" />
                 </div>
                 <div className="space-y-1.5">
-                  <CardTitle className="text-background text-xl font-black tracking-tighter uppercase leading-none">Support</CardTitle>
-                  <CardDescription className="text-background/40 font-bold uppercase tracking-[0.2em] text-[9px] leading-relaxed italic">
+                  <CardTitle className="text-foreground text-xl font-black tracking-tighter uppercase leading-none">Support</CardTitle>
+                  <CardDescription className="text-muted-foreground font-bold uppercase tracking-[0.2em] text-[9px] leading-relaxed italic">
                     Need help? Contact the IT help desk for any technical issues.
                   </CardDescription>
                  </div>
                  <div className="space-y-3 pt-2">
                    <Button 
-                    className="w-full bg-background text-foreground border-none hover:bg-background/90 rounded-xl h-12 font-black text-[9px] uppercase tracking-[0.3em] shadow-strong transition-all active:scale-95"
+                    className="w-full bg-primary text-white hover:bg-primary/95 rounded-xl h-12 font-black text-[9px] uppercase tracking-[0.3em] shadow-strong transition-all active:scale-95"
                     onClick={() => window.open('mailto:it.support@comsats.edu.pk')}
                    >
                       <Mail className="w-4 h-4 mr-3" />
@@ -837,7 +837,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
                    </Button>
                    <Button 
                     variant="ghost" 
-                    className="w-full text-background/40 hover:text-background hover:bg-background/5 rounded-xl h-12 font-black text-[9px] uppercase tracking-[0.2em] transition-all"
+                    className="w-full text-muted-foreground hover:text-foreground hover:bg-secondary rounded-xl h-12 font-black text-[9px] uppercase tracking-[0.2em] transition-all"
                     onClick={() => toast.info('Loading Instructions...')}
                    >
                       <ExternalLink className="w-4 h-4 mr-3" />

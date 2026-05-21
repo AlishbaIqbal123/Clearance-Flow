@@ -105,7 +105,8 @@ router.put('/profile',
       // Update Supabase Auth email if it changed
       // Note: This usually triggers a confirmation email depending on Supabase settings
       try {
-        await supabase.auth.updateUser({ email: newEmail });
+        const { error: authError } = await supabase.auth.admin.updateUserById(userId, { email: newEmail });
+        if (authError) console.error('Auth email update error:', authError);
       } catch (authError) {
         console.error('Auth email update error:', authError);
         // We continue anyway to update the profile table, 
@@ -165,7 +166,7 @@ router.put('/change-password',
     const { newPassword } = req.body;
     
     // Supabase Auth handles password change
-    const { error } = await supabase.auth.updateUser({
+    const { error } = await supabase.auth.admin.updateUserById(req.user.id, {
       password: newPassword
     });
     
