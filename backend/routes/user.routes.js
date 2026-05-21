@@ -205,13 +205,14 @@ router.get('/notifications', asyncHandler(async (req, res) => {
       comments.forEach(c => {
         if (c.is_notification && c.author_model !== 'Student') {
           notifications.push({
-            id: `${req_data.id}-${c.created_at}`,
+            id: `${req_data.id}|${c.created_at}`,
             title: c.title || 'System Notification',
             description: c.message,
             time: new Date(c.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             date: new Date(c.created_at).toLocaleDateString(),
             requestId: req_data.id,
-            type: c.type || 'system_update'
+            type: c.type || 'system_update',
+            read: c.read_by_student === true
           });
         }
       });
@@ -246,14 +247,15 @@ router.get('/notifications', asyncHandler(async (req, res) => {
             const targetDeptId = c.target_department_id || (c.author_model === 'Student' ? c.department_id : null);
             if (c.is_notification && targetDeptId && String(targetDeptId) === String(profile.department_id)) {
               notifications.push({
-                id: `${req_data.id}-${c.created_at}`,
+                id: `${req_data.id}|${c.created_at}`,
                 title: 'Form Submitted',
                 description: c.message,
                 time: new Date(c.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                 date: new Date(c.created_at).toLocaleDateString(),
                 requestId: req_data.id,
                 studentId: req_data.student_id,
-                type: 'form_submission'
+                type: 'form_submission',
+                read: c.read_by_dept === true
               });
             }
           });
@@ -269,7 +271,7 @@ router.get('/notifications', asyncHandler(async (req, res) => {
     success: true,
     data: {
       notifications: notifications.slice(0, 10), // Limit to recent 10
-      unreadCount: notifications.length
+      unreadCount: notifications.filter(n => !n.read).length
     }
   });
 }));
@@ -281,8 +283,47 @@ router.get('/notifications', asyncHandler(async (req, res) => {
  */
 router.put('/notifications/:id/read', asyncHandler(async (req, res) => {
   const { id } = req.params;
+  const userType = req.user.userType;
   
-  // TODO: Implement notification system
+  const [requestId, createdAt] = id.split('|');
+  if (!requestId || !createdAt) {
+    throw new AppError('Invalid notification ID format', 400, 'INVALID_ID');
+  }
+
+  // Fetch the clearance request to update its comments
+  const { data: request, error: fetchError } = await supabase
+    .from('clearance_requests')
+    .select('comments')
+    .eq('id', requestId)
+    .single();
+
+  if (fetchError || !request) {
+    throw new AppError('Clearance request not found', 404, 'REQUEST_NOT_FOUND');
+  }
+
+  const comments = request.comments || [];
+  let updated = false;
+
+  const updatedComments = comments.map(c => {
+    if (c.is_notification && c.created_at === createdAt) {
+      if (userType === 'student') {
+        c.read_by_student = true;
+      } else {
+        c.read_by_dept = true;
+      }
+      updated = true;
+    }
+    return c;
+  });
+
+  if (updated) {
+    const { error: updateError } = await supabase
+      .from('clearance_requests')
+      .update({ comments: updatedComments })
+      .eq('id', requestId);
+
+    if (updateError) throw updateError;
+  }
   
   res.status(200).json({
     success: true,

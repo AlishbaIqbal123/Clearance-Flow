@@ -31,7 +31,8 @@ import {
   Truck,
   MessageSquare,
   Award,
-  Lock
+  Lock,
+  Check
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -210,6 +211,20 @@ export const DashboardLayout = ({
       }
     } catch (e) {
       console.error('Failed to fetch notifications');
+    }
+  };
+
+  const handleMarkAsRead = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const res = await api.put(`/users/notifications/${id}/read`);
+      if (res.data.success) {
+        toast.success('Notification marked as read');
+        fetchNotifications();
+      }
+    } catch (err) {
+      console.error('Failed to mark notification as read');
+      toast.error('Failed to mark notification as read');
     }
   };
 
@@ -475,12 +490,15 @@ export const DashboardLayout = ({
                     </div>
                   ) : (
                     notifications.map(n => (
-                      <div key={n.id} className="p-5 rounded-3xl hover:bg-secondary transition-all cursor-pointer group border border-transparent hover:border-foreground/5">
+                      <div 
+                        key={n.id} 
+                        className={`p-5 rounded-3xl hover:bg-secondary transition-all cursor-pointer group border border-transparent hover:border-foreground/5 relative ${n.read ? 'opacity-50' : ''}`}
+                      >
                         <div className="flex items-start gap-4">
-                           <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary transition-all duration-500 group-hover:scale-110 group-hover:bg-primary group-hover:text-white shadow-soft">
+                           <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:scale-110 shadow-soft ${n.read ? 'bg-secondary text-muted-foreground' : 'bg-primary/5 text-primary group-hover:bg-primary group-hover:text-white'}`}>
                               <FileText className="w-5.5 h-5.5" />
                            </div>
-                           <div className="flex-1 space-y-1">
+                           <div className="flex-1 space-y-1 pr-8">
                               <p className="text-sm font-black text-foreground leading-tight tracking-tight">{n.title}</p>
                               <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed font-medium">{n.description}</p>
                               <div className="flex items-center gap-2 pt-1.5">
@@ -489,6 +507,17 @@ export const DashboardLayout = ({
                               </div>
                            </div>
                         </div>
+                        {!n.read && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="absolute top-4 right-4 w-8 h-8 rounded-xl bg-primary/5 text-primary hover:bg-primary hover:text-white active:scale-95 transition-all opacity-0 group-hover:opacity-100 duration-300"
+                            onClick={(e) => handleMarkAsRead(n.id, e)}
+                            title="Mark as read"
+                          >
+                            <Check className="w-4.5 h-4.5" />
+                          </Button>
+                        )}
                       </div>
                     ))
                   )}
