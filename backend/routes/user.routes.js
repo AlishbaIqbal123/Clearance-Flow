@@ -203,7 +203,7 @@ router.get('/notifications', asyncHandler(async (req, res) => {
     (requests || []).forEach(req_data => {
       const comments = req_data.comments || [];
       comments.forEach(c => {
-        if (c.is_notification) {
+        if (c.is_notification && c.author_model !== 'Student') {
           notifications.push({
             id: `${req_data.id}-${c.created_at}`,
             title: c.title || 'System Notification',
@@ -243,7 +243,8 @@ router.get('/notifications', asyncHandler(async (req, res) => {
         (requests || []).forEach(req_data => {
           const comments = req_data.comments || [];
           comments.forEach(c => {
-            if (c.is_notification && c.target_department_id && String(c.target_department_id) === String(profile.department_id)) {
+            const targetDeptId = c.target_department_id || (c.author_model === 'Student' ? c.department_id : null);
+            if (c.is_notification && targetDeptId && String(targetDeptId) === String(profile.department_id)) {
               notifications.push({
                 id: `${req_data.id}-${c.created_at}`,
                 title: 'Form Submitted',

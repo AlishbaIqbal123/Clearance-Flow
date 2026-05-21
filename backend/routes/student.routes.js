@@ -978,6 +978,7 @@ router.post('/clearance-request/:id/submit-form',
       is_internal: false,
       is_notification: true,
       department_id: departmentId, // Standardized key
+      target_department_id: departmentId, // Target department identifier for notification queries
       read_by_dept: false,
       created_at: new Date().toISOString()
     });
