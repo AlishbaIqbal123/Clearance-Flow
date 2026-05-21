@@ -78,7 +78,7 @@ const BentoStatCard = ({ title, value, icon: Icon, color, onClick, description }
   </button>
 );
 
-export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (tab: string) => void, mode?: 'full' | 'fulfillment' }) => {
+export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onNavigate?: (tab: string) => void, mode?: 'full' | 'fulfillment', onRefresh?: () => void }) => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -139,6 +139,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
       const res = await studentService.getDashboard();
       if (res.success) {
         setData(res.data);
+        if (onRefresh) onRefresh();
       }
     } catch {
       toast.error('Failed to synchronize clearance data');
@@ -149,7 +150,21 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
 
   useEffect(() => {
     fetchDashboard();
-  }, []);
+
+    // Auto-refresh student dashboard every 15 seconds to pull new staff updates
+    const interval = setInterval(() => {
+      studentService.getDashboard()
+        .then(res => {
+          if (res.success) {
+            setData(res.data);
+            if (onRefresh) onRefresh();
+          }
+        })
+        .catch(err => console.error('Dashboard auto-refresh failed', err));
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [onRefresh]);
 
   const handleSubmitRequest = async () => {
     setSubmitting(true);
@@ -647,9 +662,9 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
                       : []
                     ).map((ds: any) => {
                       const isAcademic = ds.department?.type === 'academic';
-                      const phase1Cleared = activeRequest.clearance_status.every((s: any) => 
-                        s.department?.type === 'academic' || s.status === 'cleared'
-                      );
+                       const phase1Cleared = (activeRequest.clearance_status || [])
+                         .filter((s: any) => s.department?.type !== 'academic' && s.department?.code !== 'EXD')
+                         .every((s: any) => s.status === 'cleared');
                       const isLocked = isAcademic && !phase1Cleared && ds.status === 'pending';
                       
                       const deptComments = (activeRequest.comments || []).filter((c: any) => c.department_id === ds.department_id);

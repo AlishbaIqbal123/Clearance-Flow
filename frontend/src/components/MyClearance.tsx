@@ -54,9 +54,10 @@ const DepartmentCard = ({
   }, [comments]);
 
   const isAcademic = dept.department?.type === 'academic';
-  const phase1Cleared = (allStatuses || []).every((s: any) => 
-    s.department?.type === 'academic' || s.status === 'cleared'
-  );
+  // Phase 1 is cleared when ALL non-academic, non-EXD departments are 'cleared'
+  const phase1Cleared = (allStatuses || [])
+    .filter((s: any) => s.department?.type !== 'academic' && s.department?.code !== 'EXD')
+    .every((s: any) => s.status === 'cleared');
 
   // Synthesize comments to include the latest official remark if it's not already in the stream
   const deptId = String(dept.department_id || dept.department?.id || '');
@@ -535,7 +536,7 @@ const DepartmentCard = ({
   );
 };
 
-export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'academic' }) => {
+export const MyClearance = ({ filterType, onRefresh }: { filterType?: 'administrative' | 'academic', onRefresh?: () => void }) => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -544,7 +545,10 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
     setRefreshing(true);
     try {
       const res = await studentService.getDashboard();
-      if (res.success) setData(res.data);
+      if (res.success) {
+        setData(res.data);
+        if (onRefresh) onRefresh();
+      }
     } catch {
       toast.error('Failed to load clearance data');
     } finally {
@@ -553,7 +557,23 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
     }
   };
 
-  useEffect(() => { fetchClearanceData(); }, []);
+  useEffect(() => {
+    fetchClearanceData();
+
+    // Auto-refresh every 15 seconds so sidebar phases stay in sync
+    const interval = setInterval(() => {
+      studentService.getDashboard()
+        .then(res => {
+          if (res.success) {
+            setData(res.data);
+            if (onRefresh) onRefresh();
+          }
+        })
+        .catch(err => console.error('Clearance auto-refresh failed', err));
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [onRefresh]);
 
   if (loading) {
     return (

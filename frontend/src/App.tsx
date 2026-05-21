@@ -132,7 +132,7 @@ const App: React.FC = () => {
   const renderView = () => {
     if (activeTab === 'dashboard') {
       if (user.role === 'admin') return <AdminDashboard onNavigate={setActiveTab} />;
-      if (user.role === 'student') return <StudentDashboard onNavigate={setActiveTab} />;
+      if (user.role === 'student') return <StudentDashboard onNavigate={setActiveTab} onRefresh={fetchClearanceStatus} />;
       if (user.role === 'exam_officer') return <DispatchList />;
       return <DepartmentDashboard onNavigate={setActiveTab} user={user} />;
     }
@@ -166,13 +166,13 @@ const App: React.FC = () => {
       case 'settings':
         return <DepartmentProfile user={user} />;
       case 'admin-clearance':
-        return <MyClearance filterType="administrative" />;
+        return <MyClearance filterType="administrative" onRefresh={fetchClearanceStatus} />;
       case 'academic-clearance':
-        return <MyClearance filterType="academic" />;
+        return <MyClearance filterType="academic" onRefresh={fetchClearanceStatus} />;
       case 'my-clearance':
-        return <MyClearance />;
+        return <MyClearance onRefresh={fetchClearanceStatus} />;
       case 'degree-allotment':
-        return <StudentDashboard mode="fulfillment" />;
+        return <StudentDashboard mode="fulfillment" onRefresh={fetchClearanceStatus} />;
       case 'dispatch':
         if (user.role === 'admin' || user.role === 'exam_officer') return <DispatchList />;
         return <div className="p-8 text-center text-slate-400 font-bold">ACCESS DENIED</div>;
