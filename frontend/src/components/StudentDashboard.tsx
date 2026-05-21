@@ -662,8 +662,8 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                       : []
                     ).map((ds: any) => {
                       const isAcademic = ds.department?.type === 'academic';
-                       const phase1Cleared = (activeRequest.clearance_status || [])
-                         .filter((s: any) => s.department?.type !== 'academic' && s.department?.code !== 'EXD')
+                        const phase1Cleared = (activeRequest.clearance_status || [])
+                         .filter((s: any) => s.department != null && s.department?.type !== 'academic' && s.department?.code !== 'EXD')
                          .every((s: any) => s.status === 'cleared');
                       const isLocked = isAcademic && !phase1Cleared && ds.status === 'pending';
                       

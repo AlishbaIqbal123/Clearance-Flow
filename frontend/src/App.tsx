@@ -192,7 +192,7 @@ const App: React.FC = () => {
     activeRequest && 
     clearanceStatuses.length > 0 && 
     clearanceStatuses
-      .filter((s: any) => s.department?.type !== 'academic' && s.department?.code !== 'EXD')
+      .filter((s: any) => s.department != null && s.department?.type !== 'academic' && s.department?.code !== 'EXD')
       .every((s: any) => s.status === 'cleared');
 
   // Phase 3 (Degree): Unlocked if ALL departments (including Phase 2 Academic) are 'cleared'
@@ -200,7 +200,7 @@ const App: React.FC = () => {
   const isPhase3Unlocked = isPhase2Unlocked && 
     clearanceStatuses.length > 0 &&
     clearanceStatuses
-      .filter((s: any) => s.department?.type === 'academic')
+      .filter((s: any) => s.department != null && s.department?.type === 'academic')
       .every((s: any) => s.status === 'cleared');
 
   return (

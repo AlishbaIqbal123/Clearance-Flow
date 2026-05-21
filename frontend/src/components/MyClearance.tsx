@@ -54,9 +54,9 @@ const DepartmentCard = ({
   }, [comments]);
 
   const isAcademic = dept.department?.type === 'academic';
-  // Phase 1 is cleared when ALL non-academic, non-EXD departments are 'cleared'
+  // Phase 1 is cleared when ALL non-academic, non-EXD, non-null departments are 'cleared'
   const phase1Cleared = (allStatuses || [])
-    .filter((s: any) => s.department?.type !== 'academic' && s.department?.code !== 'EXD')
+    .filter((s: any) => s.department != null && s.department?.type !== 'academic' && s.department?.code !== 'EXD')
     .every((s: any) => s.status === 'cleared');
 
   // Synthesize comments to include the latest official remark if it's not already in the stream
