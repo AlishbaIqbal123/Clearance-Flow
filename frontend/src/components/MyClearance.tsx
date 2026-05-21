@@ -203,13 +203,13 @@ const DepartmentCard = ({
               </div>
               <div className="space-y-0.5">
                 <h3 className={`font-black text-lg tracking-tight uppercase leading-none transition-colors ${isActive ? 'text-primary' : 'text-foreground'}`}>
-                  {dept.department_id === student.department_id ? student.discipline : (dept.department?.name || `Node ${index + 1}`)}
+                  {dept.department_id === student.department_id ? student.discipline : (dept.department?.name || `Department ${index + 1}`)}
                 </h3>
                 <div className="flex items-center gap-3">
                    <Badge variant="outline" className={`rounded-md px-3 py-0.5 text-[8px] font-black uppercase tracking-[0.2em] border-none shadow-soft ${isAcademic ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted-foreground opacity-60'}`}>
                       {isAcademic ? 'Academic Unit' : 'Administrative Unit'}
                    </Badge>
-                   <span className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-30 italic">Sequential Node {index + 1}</span>
+                   <span className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-30 italic">Department {index + 1}</span>
                 </div>
               </div>
             </div>
@@ -631,7 +631,7 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
               variant="outline" 
               onClick={() => {
                 if (!data?.activeRequest) {
-                  toast.error('No active clearance protocol found');
+                  toast.error('No active clearance request found');
                   return;
                 }
                 const promise = new Promise((resolve) => {
@@ -795,11 +795,11 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
                     </div>
                     <div className="space-y-1 text-center sm:text-left">
                        <p className={`font-black text-2xl tracking-tight leading-none uppercase ${(progress.percentage === 100 || isPhase3Ready) ? 'text-foreground' : 'text-muted-foreground/20'}`}>
-                        {isFullyCleared ? 'Protocol Complete' : isPhase3Ready ? 'Ready for Phase 3' : 'Pending'}
+                        {isFullyCleared ? 'Clearance Complete' : isPhase3Ready ? 'Ready for Phase 3' : 'Pending'}
                       </p>
                       <p className={`text-sm font-medium italic leading-relaxed max-w-xl ${(progress.percentage === 100 || isPhase3Ready) ? 'text-muted-foreground' : 'text-muted-foreground/10'}`}>
                         {isFullyCleared
-                          ? 'Institutional protocol closed. Your degree has been successfully processed.'
+                          ? 'Clearance process completed. Your degree has been successfully processed.'
                           : isPhase3Ready
                           ? 'All departments have approved your request. Please proceed to the Degree Allotment tab.'
                           : 'Final clearance will be available once all departments have approved.'}
@@ -844,12 +844,12 @@ export const MyClearance = ({ filterType }: { filterType?: 'administrative' | 'a
                     reason: 'Initiated by student' 
                   });
                   toast.promise(promise, {
-                    loading: 'Initializing clearance protocol...',
+                    loading: 'Initializing clearance request...',
                     success: () => {
                       fetchClearanceData();
-                      return 'Protocol sequence initiated successfully!';
+                      return 'Clearance request submitted successfully!';
                     },
-                    error: 'Failed to initiate protocol. Please contact registry.'
+                    error: 'Failed to submit clearance request. Please contact registry.'
                   });
                 }}
                >

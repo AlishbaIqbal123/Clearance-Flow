@@ -176,7 +176,7 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onBackToHome,
     <div className="h-screen w-screen overflow-hidden flex bg-background font-sans selection:bg-primary/20">
       
       {/* Editorial Left Architecture (Fixed) */}
-      <div className="hidden lg:flex w-[30%] xl:w-[35%] h-full bg-[#006633] relative overflow-hidden flex-col justify-between p-12 xl:p-16 text-white shrink-0">
+      <div className="hidden lg:flex w-[30%] xl:w-[35%] h-full bg-[#1F5FAF] relative overflow-hidden flex-col justify-between p-12 xl:p-16 text-white shrink-0">
         <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-black/20" />
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/5 rounded-full blur-[160px] -mr-80 -mt-80 animate-pulse" />
         
@@ -213,7 +213,7 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onBackToHome,
                 <span className="text-white/20 italic">Registry</span>
               </h2>
               <p className="text-white/70 text-sm xl:text-base font-medium leading-relaxed max-w-xs italic border-l-2 border-white/20 pl-6">
-                Official enrollment node for the Clearance Hub.
+                Official enrollment portal for Clearance.
               </p>
             </div>
           </div>
@@ -225,7 +225,7 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onBackToHome,
                  <ShieldCheck className="w-5 h-5 text-white/40 group-hover:text-white" />
               </div>
               <div className="space-y-0.5">
-                 <h4 className="text-white font-bold text-xs uppercase tracking-tight leading-none">Secured Matrix</h4>
+                 <h4 className="text-white font-bold text-xs uppercase tracking-tight leading-none">Secured Portal</h4>
                  <p className="text-white/20 text-[8px] font-black uppercase tracking-[0.4em] mt-0.5">V2.0.4</p>
               </div>
            </div>
@@ -240,7 +240,7 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onBackToHome,
                <h1 className="text-3xl xl:text-4xl font-black text-foreground tracking-tighter uppercase leading-none">Account<br /><span className="text-primary italic">Registration</span></h1>
                <div className="flex items-center gap-3">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                  <p className="text-muted-foreground text-[8px] font-bold uppercase tracking-[0.3em] opacity-40">System Enrollment Protocol Active</p>
+                  <p className="text-muted-foreground text-[8px] font-bold uppercase tracking-[0.3em] opacity-40">System Enrollment Active</p>
                </div>
             </div>
 
@@ -347,7 +347,7 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onBackToHome,
                   )}
                 </Button>
                 <p className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-[0.3em] italic text-center sm:text-left leading-relaxed">
-                  Institutional data protection protocol active.<br />All transactions encrypted.
+                  University data protection active.<br />All transactions encrypted.
                 </p>
               </div>
             </form>

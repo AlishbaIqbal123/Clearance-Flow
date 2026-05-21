@@ -6,77 +6,80 @@
 
 @layer base {
   :root {
-    /* Premium Light Theme - Academic & Professional */
-    --background: 40 10% 98%; /* #FAFAF8 */
-    --foreground: 224 71% 4%;
-    
+    /* COMSATS University Islamabad — Light Theme (Blue Primary, Purple Accent) */
+    /* Primary: Royal Blue #0A4EA3 | Accent/Secondary: Deep Purple #5C2D91 */
+    --background: 213 30% 98%;        /* near-white with a faint blue tint */
+    --foreground: 213 60% 10%;        /* very dark blue for text */
+
     --card: 0 0% 100%;
-    --card-foreground: 224 71% 4%;
-    
+    --card-foreground: 213 60% 10%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 224 71% 4%;
-    
-    /* CUIvehari Institutional Green - Enhanced for Visibility */
-    --primary: 158 100% 20%; /* #006633 - Deep Academic Green */
+    --popover-foreground: 213 60% 10%;
+
+    /* Royal Blue — logo inner circle (made richer/darker for higher visibility) */
+    --primary: 213 90% 33%;           /* #0A4EA3 */
     --primary-foreground: 0 0% 100%;
-    
-    --secondary: 158 20% 97%;
-    --secondary-foreground: 158 100% 20%;
-    
-    --muted: 150 10% 94%;
-    --muted-foreground: 150 5% 45%;
-    
-    --accent: 150 20% 94%;
-    --accent-foreground: 150 100% 20%;
-    
+
+    /* Deep Purple — logo outer ring (used in very few points) */
+    --secondary: 268 53% 96%;         /* light purple shade */
+    --secondary-foreground: 268 53% 30%;
+
+    --muted: 213 20% 94%;
+    --muted-foreground: 213 25% 35%;
+
+    --accent: 268 53% 96%;
+    --accent-foreground: 268 53% 30%;
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 20% 98%;
-    
-    --border: 150 10% 90%;
-    --input: 150 10% 90%;
-    --ring: 150 100% 20%;
-    
-    --radius: 1.25rem; /* Standardized modern roundedness */
-    
+
+    --border: 213 20% 88%;
+    --input: 213 20% 88%;
+    --ring: 213 90% 33%;
+
+    --radius: 1.25rem;
+
     /* Design Tokens for Elevation & Depth */
     --shadow-soft: 0 2px 4px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.03);
-    --shadow-strong: 0 20px 40px -12px rgba(0, 0, 0, 0.1);
-    --shadow-glow: 0 0 20px rgba(0, 102, 51, 0.1);
+    --shadow-strong: 0 20px 40px -12px rgba(31, 95, 175, 0.15);
+    --shadow-glow: 0 0 24px rgba(31, 95, 175, 0.12);
   }
 
   .dark {
-    /* Deep Navy Dark Theme - Vercel/Linear Level Polish */
-    --background: 226 23% 7%; /* #0F1117 */
-    --foreground: 210 20% 98%;
-    
-    --card: 226 23% 9%;
-    --card-foreground: 210 20% 98%;
-    
-    --popover: 226 23% 9%;
-    --popover-foreground: 210 20% 98%;
-    
-    --primary: 150 100% 35%; /* Slightly brighter green for dark mode */
+    /* COMSATS University Islamabad — Dark Theme */
+    --background: 213 40% 6%;         /* very dark blue-navy */
+    --foreground: 210 20% 96%;
+
+    --card: 213 35% 9%;
+    --card-foreground: 210 20% 96%;
+
+    --popover: 213 35% 9%;
+    --popover-foreground: 210 20% 96%;
+
+    /* Brightened blue for dark-mode legibility (vibrant & highly visible) */
+    --primary: 213 95% 60%;           /* #3B86FF */
     --primary-foreground: 0 0% 100%;
-    
-    --secondary: 226 23% 15%;
-    --secondary-foreground: 210 20% 98%;
-    
-    --muted: 226 23% 15%;
-    --muted-foreground: 215 20.2% 65.1%;
-    
-    --accent: 226 23% 15%;
-    --accent-foreground: 210 20% 98%;
-    
-    --destructive: 0 62.8% 30.6%;
+
+    --secondary: 268 30% 14%;         /* dark purple background shade */
+    --secondary-foreground: 268 58% 78%;
+
+    --muted: 213 25% 16%;
+    --muted-foreground: 213 20% 70%;
+
+    --accent: 268 30% 14%;
+    --accent-foreground: 268 58% 78%;
+
+    --destructive: 0 62.8% 40%;
     --destructive-foreground: 210 20% 98%;
-    
-    --border: 226 23% 18%;
-    --input: 226 23% 18%;
-    --ring: 150 100% 35%;
-    
-    --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-    --shadow-strong: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    --shadow-glow: 0 0 30px rgba(0, 102, 51, 0.2);
+
+    --border: 213 25% 19%;
+    --input: 213 25% 19%;
+    --ring: 213 95% 60%;
+
+    --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --shadow-strong: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+    --shadow-glow: 0 0 32px rgba(31, 95, 175, 0.28);
   }
 
   * {
@@ -85,7 +88,7 @@
   }
   
   body {
-    background-color: #f8fafc !important; /* Explicit light grey background */
+    background-color: hsl(var(--background)) !important; /* COMSATS brand background */
   }
 
   h1, h2, h3, h4, h5, h6 {

@@ -151,7 +151,7 @@ export const DispatchList = () => {
     return (
       <div className="h-[60vh] flex flex-col items-center justify-center gap-6">
         <Loader2 className="w-12 h-12 text-primary animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground">Mapping Shipping Logistics...</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground">Loading Delivery Records...</p>
       </div>
     );
   }
@@ -175,7 +175,7 @@ export const DispatchList = () => {
             </div>
           </div>
           <p className="text-sm text-white/40 font-medium max-w-xl leading-relaxed italic uppercase tracking-widest text-[10px]">
-            Formal management for student fulfillment preferences and institutional logistics notifications.
+            Formal management for student delivery preferences and delivery notifications.
           </p>
         </div>
 
@@ -341,7 +341,7 @@ export const DispatchList = () => {
                               ? 'bg-emerald-500 text-white' 
                               : 'bg-foreground text-white hover:bg-primary'
                           }`}
-                          title="Complete Protocol"
+                          title="Complete Clearance"
                           onClick={() => handleCompleteDispatch(req)}
                           disabled={!req.degree_fulfillment || req.status === 'fully_cleared' || req.status === 'completed'}
                         >
@@ -664,9 +664,9 @@ export const DispatchList = () => {
               </div>
             </div>
 
-            {/* Protocol Controls */}
+            {/* Clearance Controls */}
             <div className="space-y-3 pt-2">
-              <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Protocol Controls</h4>
+              <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Clearance Controls</h4>
               <div className="grid grid-cols-1 gap-4">
                   <Button 
                     className={`h-20 rounded-[2rem] transition-all font-black text-[12px] uppercase tracking-[0.4em] flex items-center justify-center gap-6 group shadow-xl ${
@@ -685,8 +685,8 @@ export const DispatchList = () => {
                        <PackageCheck className="w-5 h-5" />
                     </div>
                     <div className="flex flex-col items-start gap-1">
-                      <span>{selectedRequest?.status === 'fully_cleared' || selectedRequest?.status === 'completed' ? 'Degree Received & Clear' : 'Student Received Degree'}</span>
-                      <span className="text-[8px] opacity-40 font-bold tracking-widest uppercase">Institutional Final Clearance Protocol</span>
+                      <span>{selectedRequest?.status === 'fully_cleared' || selectedRequest?.status === 'completed' ? 'Degree Handed Over' : 'Confirm Degree Handover'}</span>
+                      <span className="text-[8px] opacity-40 font-bold tracking-widest uppercase">University Final Clearance</span>
                     </div>
                   </Button>
               </div>

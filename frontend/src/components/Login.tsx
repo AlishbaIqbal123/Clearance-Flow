@@ -234,7 +234,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
         {activePortal === 'student' ? (
           <div className="h-full w-full flex animate-in fade-in duration-700">
             {/* Left: Design Area (for Student) */}
-            <div className="hidden lg:flex w-[45%] h-full bg-[#006633] relative overflow-hidden flex-col justify-center p-12 xl:p-20">
+            <div className="hidden lg:flex w-[45%] h-full bg-[#1F5FAF] relative overflow-hidden flex-col justify-center p-12 xl:p-20">
                <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-black/20" />
                <div className="absolute top-0 left-0 w-full h-full opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
                <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-white/5 rounded-full blur-[120px]" />
@@ -294,7 +294,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
                     
                     <div className="space-y-2">
                        <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase leading-none">Welcome<br /><span className="text-primary italic">Back</span></h1>
-                       <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest opacity-40">System Access Protocol Required</p>
+                       <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest opacity-40">Access Credentials Required</p>
                     </div>
                   </div>
 
@@ -314,7 +314,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
 
                     <div className="space-y-2 group">
                       <div className="flex justify-between items-center px-2">
-                        <label className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em] group-focus-within:text-primary transition-colors">Secret Key</label>
+                        <label className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em] group-focus-within:text-primary transition-colors">Password</label>
                         <button 
                           type="button"
                           onClick={() => setShowForgotDialog(true)}
@@ -346,11 +346,11 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
                       {loading ? (
                          <div className="flex items-center gap-3">
                             <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Authenticating...</span>
+                            <span>Signing In...</span>
                          </div>
                       ) : (
                          <div className="flex items-center gap-3">
-                            <span>Authorize</span>
+                            <span>Sign In</span>
                             <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-500" />
                          </div>
                       )}
@@ -359,9 +359,9 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
 
                   <div className="pt-6 border-t border-foreground/5 text-center space-y-4">
                     <p className="text-muted-foreground text-[9px] font-black uppercase tracking-[0.3em]">
-                      New student? <button onClick={onRegisterClick} className="text-primary hover:underline ml-2 underline-offset-4">Registry</button>
+                      New student? <button onClick={onRegisterClick} className="text-primary hover:underline ml-2 underline-offset-4">Register</button>
                     </p>
-                    <div className="inline-block px-3 py-1 rounded-full bg-primary/5 text-primary text-[8px] font-black uppercase tracking-[0.2em] opacity-40">
+                    <div className="inline-block px-3 py-1 rounded-full bg-[#5C2D91]/10 text-[#5C2D91] text-[8px] font-black uppercase tracking-[0.2em]">
                       SYS: V2.0.4 - ENCRYPTED
                     </div>
                   </div>
@@ -390,7 +390,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
                     </div>
                     
                     <div className="space-y-2">
-                       <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase leading-none">Authority<br /><span className="text-primary italic">Terminal</span></h1>
+                       <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase leading-none">Authority<br /><span className="text-primary italic">Portal</span></h1>
                        <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest opacity-40">Administrative Clearance Hub</p>
                     </div>
                   </div>
@@ -411,7 +411,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
                     </div>
                     <div className="space-y-2 group">
                       <div className="flex justify-between items-center px-2">
-                         <label className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em] group-focus-within:text-primary transition-colors">Access Key</label>
+                         <label className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em] group-focus-within:text-primary transition-colors">Password</label>
                          <button 
                            type="button"
                            onClick={() => setShowForgotDialog(true)}
@@ -439,8 +439,8 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
                       </div>
                     </div>
                     <Button disabled={loading} className="w-full h-14 bg-foreground hover:opacity-90 text-background rounded-xl font-black text-[11px] uppercase tracking-[0.5em] shadow-strong transition-all active:scale-95 group/btn overflow-hidden relative">
-                       {loading ? "Syncing..." : "Establish Link"}
-                    </Button>
+                        {loading ? "Signing In..." : "Sign In"}
+                     </Button>
                   </form>
                   
                   <div className="flex items-center justify-center gap-8 pt-6 opacity-20 grayscale hover:grayscale-0 transition-all duration-1000">
@@ -462,17 +462,17 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
                    </div>
                    <div className="space-y-6">
                      <h2 className="text-5xl xl:text-6xl font-black tracking-tighter leading-[0.9] uppercase">Clearance Head<br /><span className="italic opacity-20">Portal</span></h2>
-                     <p className="text-slate-400 text-lg xl:text-xl font-medium leading-relaxed max-w-xs italic border-l-2 border-primary/20 pl-6">
-                       Secure administrative oversight for university clearance nodes.
-                     </p>
+                      <p className="text-slate-400 text-lg xl:text-xl font-medium leading-relaxed max-w-xs italic border-l-2 border-primary/20 pl-6">
+                        Secure administrative oversight for university clearance departments.
+                      </p>
                    </div>
                 </div>
 
                 <div className="relative z-10 space-y-6 mt-16">
-                   <div className="flex items-center gap-3 text-slate-500 font-black text-[10px] uppercase tracking-[0.4em] italic">
-                      <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.8)] animate-pulse" />
-                      Matrix Node Active
-                   </div>
+                    <div className="flex items-center gap-3 text-slate-500 font-black text-[10px] uppercase tracking-[0.4em] italic">
+                       <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.8)] animate-pulse" />
+                       System Online
+                    </div>
                    <div className="flex gap-3">
                       {[1,2,3,4].map(i => (
                         <div key={i} className="w-10 h-1 bg-white/5 rounded-full overflow-hidden">
@@ -522,7 +522,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
               <form onSubmit={handleCompleteReset} className="space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-500">
                 <div className="p-6 bg-emerald-500/5 rounded-3xl border border-emerald-500/10 space-y-3">
                   <p className="text-xs font-medium text-foreground leading-relaxed italic">
-                    We've dispatched a recovery secret to your registered email:
+                    We've dispatched a recovery code to your registered email:
                   </p>
                   <div className="flex items-center justify-between gap-4 bg-white/50 dark:bg-black/20 p-3 rounded-2xl border border-foreground/5 shadow-inner flex-wrap">
                     <div className="flex items-center gap-3">
@@ -546,13 +546,13 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
                 <div className="space-y-4">
                   <div className="flex items-center gap-4 text-muted-foreground/40 font-black text-[9px] uppercase tracking-[0.3em]">
                     <div className="flex-1 h-px bg-foreground/5" />
-                    Enter Recovery Secret
+                    Enter Recovery Code
                     <div className="flex-1 h-px bg-foreground/5" />
                   </div>
                   
                   <div className="space-y-3">
                     <div className="space-y-1.5 group">
-                      <label className="text-[9px] font-black text-primary uppercase tracking-[0.3em] ml-2">Secret Token</label>
+                      <label className="text-[9px] font-black text-primary uppercase tracking-[0.3em] ml-2">Recovery Code</label>
                       <div className="relative">
                         <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                         <Input 
@@ -605,7 +605,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
                     disabled={isResetting}
                     className="w-full bg-primary hover:bg-primary/90 text-white h-12 rounded-xl font-black text-[10px] uppercase tracking-[0.4em] shadow-strong active:scale-95 transition-all"
                   >
-                    {isResetting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Define New Access Secret"}
+                    {isResetting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Set New Password"}
                   </Button>
                   <Button 
                     type="button"
@@ -657,7 +657,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
                   <div className="p-6 bg-secondary/30 rounded-3xl border border-foreground/5 flex items-center gap-4">
                     <ShieldAlert className="w-6 h-6 text-primary opacity-40" />
                     <p className="text-[9px] font-black text-muted-foreground/60 uppercase tracking-widest leading-relaxed">
-                      A reset link will be dispatched only to the account registered within the institutional matrix.
+                      A reset link will be dispatched only to the account registered within the institutional portal.
                     </p>
                   </div>
                 </div>
@@ -668,7 +668,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
                     disabled={recoveryLoading}
                     className="w-full bg-primary hover:bg-primary/90 h-12 rounded-2xl font-black text-[9px] uppercase tracking-[0.4em] shadow-strong shadow-primary/20 active:scale-95 transition-all"
                   >
-                    {recoveryLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Dispatch Reset Link"}
+                    {recoveryLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Send Reset Link"}
                   </Button>
                   <Button 
                     type="button"
@@ -676,7 +676,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
                     className="h-14 rounded-xl font-black text-[9px] uppercase tracking-widest text-muted-foreground px-8 hover:bg-secondary" 
                     onClick={() => setShowForgotDialog(false)}
                   >
-                    Abort Recovery
+                    Cancel
                   </Button>
                 </div>
               </form>

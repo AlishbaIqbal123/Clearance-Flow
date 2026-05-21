@@ -13,7 +13,6 @@ import {
   MousePointer2,
   Lock,
   ChevronRight,
-  Sparkles,
   BarChart3,
   MessageSquare,
   Linkedin,
@@ -37,6 +36,7 @@ interface LandingProps {
 
 export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick }) => {
   const [isDark, setIsDark] = useState(document.documentElement.classList.contains('dark'));
+  const [loadSpline, setLoadSpline] = useState(false);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
@@ -60,6 +60,14 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
     }
   }, [isDark]);
 
+  useEffect(() => {
+    // Delay mounting Spline iframe by a small timeout to let the main UI load first
+    const timer = setTimeout(() => {
+      setLoadSpline(true);
+    }, 1000); // 1s delay
+    return () => clearTimeout(timer);
+  }, []);
+
   const toggleTheme = () => {
     React.startTransition(() => {
       setIsDark(prev => !prev);
@@ -69,11 +77,28 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/20 overflow-x-hidden">
       
-      {/* Dynamic Background Mesh */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-0 right-0 w-[80vw] h-[80vh] bg-primary/5 rounded-full blur-[150px] -mr-[30vw] -mt-[20vh] animate-pulse" />
-        <div className="absolute bottom-0 left-0 w-[60vw] h-[60vh] bg-blue-500/5 rounded-full blur-[150px] -ml-[20vw] -mb-[10vh]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-grid-white/[0.02] dark:bg-grid-white/[0.01]" />
+      {/* Dynamic Background 3D Spline Scene */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-95 dark:opacity-85 transition-opacity duration-1000">
+        {loadSpline ? (
+          <iframe
+            src="https://my.spline.design/fly-c9caeb420b51b17f859f24f7a0ff36e5/"
+            className="w-full h-full border-none scale-105 invert dark:invert-0 transition-opacity duration-1000"
+            title="Spline 3D Scene"
+            allow="keyboard-map"
+            loading="lazy"
+            style={{
+              pointerEvents: 'none',
+            }}
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-[#1F5FAF]/10 via-[#1F5FAF]/5 to-transparent animate-pulse" />
+        )}
+        {/* Royal Blue (#1F5FAF) dominant overlay with Deep Purple (#5C2D91) as a subtle accent to match CUI Vehari logo */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1F5FAF]/40 via-[#1F5FAF]/15 to-[#5C2D91]/10 mix-blend-color" />
+        <div className="absolute inset-0 bg-[#1F5FAF]/10 dark:bg-[#1F5FAF]/5 mix-blend-overlay" />
+        
+        {/* Fade to background transition */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background" />
       </div>
 
       {/* Navigation */}
@@ -103,7 +128,7 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
             onClick={onLoginClick}
             className="text-[10px] font-black uppercase tracking-[0.3em] hover:text-primary transition-colors hidden md:block"
           >
-            Terminal Access
+            Portal Access
           </button>
           
           <Button 
@@ -118,11 +143,6 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
       {/* Hero Section */}
       <section className="relative pt-40 pb-20 md:pt-60 md:pb-40 px-6 md:px-12">
         <div className="max-w-7xl mx-auto relative z-10 text-center space-y-12">
-          <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-primary/5 border border-primary/10 text-primary animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <Sparkles className="w-4 h-4" />
-            <span className="text-[10px] font-black uppercase tracking-[0.4em]">Integrated University Lifecycle Management</span>
-          </div>
-          
           <div className="relative">
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-[-0.04em] uppercase leading-[0.85] text-balance animate-in fade-in slide-in-from-bottom-8 duration-1000">
               Future<br />
@@ -135,8 +155,8 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
           </div>
           
           <p className="max-w-2xl mx-auto text-muted-foreground text-lg md:text-xl font-medium leading-relaxed italic animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-200">
-            Redefining the administrative landscape. A seamless, high-velocity digital 
-            matrix for students, faculty, and university authorities.
+            Redefining the administrative landscape. A seamless, high-speed digital 
+            portal for students, faculty, and university authorities.
           </p>
           
           <div className="flex flex-col sm:flex-row items-center gap-4 pt-8 animate-in fade-in slide-in-from-bottom-16 duration-1000 delay-300 w-full justify-center">
@@ -170,18 +190,18 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
             <div className="space-y-4 max-w-xl relative">
               <h3 className="text-3xl md:text-5xl font-black tracking-tighter uppercase leading-none">Automated<br /><span className="text-primary italic">Verification</span></h3>
               <p className="text-muted-foreground text-lg font-medium leading-relaxed italic">
-                Our core engine utilizes advanced node-based verification to process clearance 
-                requests with sub-second latency, ensuring students never have to wait.
+                Our core engine utilizes advanced department-based verification to process clearance 
+                requests with zero delay, ensuring students never have to wait.
               </p>
             </div>
             <div className="flex gap-10 pt-4">
               <div className="space-y-1">
                 <p className="text-3xl font-black text-primary tracking-tighter">98.5%</p>
-                <p className="text-[9px] font-black uppercase tracking-widest opacity-40 italic">Accuracy Matrix</p>
+                <p className="text-[9px] font-black uppercase tracking-widest opacity-40 italic">Accuracy Rate</p>
               </div>
               <div className="space-y-1">
                 <p className="text-3xl font-black text-primary tracking-tighter">0.5s</p>
-                <p className="text-[9px] font-black uppercase tracking-widest opacity-40 italic">Sync Latency</p>
+                <p className="text-[9px] font-black uppercase tracking-widest opacity-40 italic">Sync Speed</p>
               </div>
             </div>
           </div>
@@ -191,7 +211,7 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
                <ShieldCheck className="w-7 h-7" />
             </div>
             <div className="space-y-4">
-              <h3 className="text-3xl font-black tracking-tighter uppercase leading-none">Secure<br />Protocol</h3>
+              <h3 className="text-3xl font-black tracking-tighter uppercase leading-none">Secure<br />System</h3>
               <p className="text-white/70 text-base font-medium leading-relaxed italic">
                 Encrypted institutional data layers protecting every student record and administrative action.
               </p>
@@ -200,14 +220,14 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
 
           <div className="md:col-span-4 bento-card p-8 space-y-6 group bg-blue-500 text-white border-none shadow-strong shadow-blue-500/20">
              <Layers className="w-10 h-10 text-white opacity-40" />
-             <h4 className="text-xl font-black uppercase tracking-tight">Multi-Node Matrix</h4>
+             <h4 className="text-xl font-black uppercase tracking-tight">Multi-Department System</h4>
              <p className="text-white/80 text-xs font-medium italic">Synchronized across Academic, Finance, and Library departments.</p>
           </div>
 
           <div className="md:col-span-8 bento-card p-8 flex flex-col md:flex-row items-center gap-8 group hover:bg-secondary/10 transition-colors">
              <div className="flex-1 space-y-4 text-center md:text-left">
                 <h3 className="text-3xl font-black tracking-tighter uppercase leading-none">Direct<br /><span className="text-primary italic">Communication</span></h3>
-                <p className="text-muted-foreground text-xs font-medium leading-relaxed italic">Integrated WhatsApp and Email protocols for instant departmental feedback.</p>
+                <p className="text-muted-foreground text-xs font-medium leading-relaxed italic">Integrated WhatsApp and Email notifications for instant departmental feedback.</p>
              </div>
              <div className="w-full md:w-auto h-32 aspect-video bg-background rounded-2xl border border-foreground/5 shadow-inner flex items-center justify-center p-6 overflow-hidden">
                 <div className="flex gap-3 animate-[pulse_3s_infinite]">
@@ -320,8 +340,8 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
             <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-primary">Ecosystem</h5>
             <ul className="space-y-4 text-[11px] font-bold uppercase tracking-widest opacity-60">
               <li className="hover:text-primary cursor-pointer transition-colors">Clearance Hub</li>
-              <li className="hover:text-primary cursor-pointer transition-colors">Department Node</li>
-              <li className="hover:text-primary cursor-pointer transition-colors">Admin Terminal</li>
+              <li className="hover:text-primary cursor-pointer transition-colors">Department Portal</li>
+              <li className="hover:text-primary cursor-pointer transition-colors">Admin Portal</li>
               <li className="hover:text-primary cursor-pointer transition-colors">Logistics</li>
             </ul>
           </div>
@@ -329,7 +349,7 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
           <div className="space-y-6">
             <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-primary">Legal</h5>
             <ul className="space-y-4 text-[11px] font-bold uppercase tracking-widest opacity-60">
-              <li className="hover:text-primary cursor-pointer transition-colors">Privacy Protocol</li>
+              <li className="hover:text-primary cursor-pointer transition-colors">Privacy Policy</li>
               <li className="hover:text-primary cursor-pointer transition-colors">Security Audit</li>
               <li className="hover:text-primary cursor-pointer transition-colors">Data Ethics</li>
             </ul>
@@ -350,7 +370,7 @@ export const Landing: React.FC<LandingProps> = ({ onLoginClick, onRegisterClick 
 
         <div className="max-w-7xl mx-auto pt-20 flex flex-col md:flex-row items-center justify-between gap-8 opacity-20 border-t border-foreground/5 mt-20">
           <div className="text-[9px] font-black uppercase tracking-[0.4em]">
-            © 2026 web CUIvehari Clearance • TERMINAL V3.0.0
+            © 2026 web CUIvehari Clearance • PORTAL V3.0.0
           </div>
           <div className="flex gap-12 grayscale">
             <Activity className="w-5 h-5" />

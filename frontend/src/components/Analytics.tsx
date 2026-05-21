@@ -34,7 +34,7 @@ export const Analytics = ({ user }: { user: any }) => {
         setData(res.data);
       }
     } catch (error) {
-      console.error('Telemetry sync failed');
+      console.error('Dashboard data sync failed');
     } finally {
       setLoading(false);
     }
@@ -118,7 +118,7 @@ export const Analytics = ({ user }: { user: any }) => {
         ]);
 
         doc.setFontSize(14);
-        doc.text('DEPARTMENT EFFICIENCY MATRIX', 15, (doc as any).lastAutoTable.finalY + 15);
+        doc.text('DEPARTMENT EFFICIENCY STATUS', 15, (doc as any).lastAutoTable.finalY + 15);
 
         (doc as any).autoTable({
           startY: (doc as any).lastAutoTable.finalY + 20,
@@ -192,7 +192,7 @@ export const Analytics = ({ user }: { user: any }) => {
       bg: 'bg-amber-500/10' 
     },
     { 
-      title: 'Completed Nodes', 
+      title: 'Completed Departments', 
       value: (data?.statusBreakdown?.cleared || 0).toLocaleString(), 
       change: 'Audit Verified', 
       icon: CheckCircle2, 
@@ -210,7 +210,7 @@ export const Analytics = ({ user }: { user: any }) => {
   ];
 
   const departmentPerformance: DepartmentStat[] = (data?.departmentPerformance || []).slice(0, 5).map((d: any) => ({
-    name: d.name || 'Unknown Node',
+    name: d.name || 'Unknown Department',
     progress: d.clearanceRate || 0,
     status: (d.clearanceRate || 0) > 80 ? 'GOOD' : (d.clearanceRate || 0) > 50 ? 'MODERATE' : 'BUSY',
     color: (d.clearanceRate || 0) > 80 ? 'bg-emerald-500' : (d.clearanceRate || 0) > 50 ? 'bg-amber-500' : 'bg-primary'
@@ -219,7 +219,7 @@ export const Analytics = ({ user }: { user: any }) => {
   const recentTrends = [
     { label: 'Total Requests', value: `${data?.summary?.totalRequests || 0} Units`, trend: 'up' },
     { label: 'Staff Count', value: `${data?.summary?.totalStaff || 0} Members`, trend: 'up' },
-    { label: 'Departments', value: `${data?.summary?.totalDepartments || 0} Nodes`, trend: 'up' }
+    { label: 'Departments', value: `${data?.summary?.totalDepartments || 0} Departments`, trend: 'up' }
   ];
 
   if (loading && !data) {
@@ -229,7 +229,7 @@ export const Analytics = ({ user }: { user: any }) => {
            <div className="w-16 h-16 border-4 border-primary/10 border-t-primary rounded-2xl animate-spin" />
            <Activity className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-primary" />
         </div>
-        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em]">Calibrating Matrix Pulse...</p>
+        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em]">Calibrating Dashboard...</p>
       </div>
     );
   }
@@ -316,7 +316,7 @@ export const Analytics = ({ user }: { user: any }) => {
                   <Building className="w-4.5 h-4.5 sm:w-5 h-5" />
                </div>
                <div className="space-y-0.5">
-                  <CardTitle className="text-base sm:text-lg font-black tracking-tighter uppercase leading-none">Efficiency Matrix</CardTitle>
+                  <CardTitle className="text-base sm:text-lg font-black tracking-tighter uppercase leading-none">Department Efficiency</CardTitle>
                   <CardDescription className="font-black text-[8px] uppercase tracking-[0.3em] opacity-40 mt-0.5 italic">Real-time department performance.</CardDescription>
                </div>
             </div>
@@ -366,7 +366,7 @@ export const Analytics = ({ user }: { user: any }) => {
                       <TrendingUp className="w-4.5 h-4.5 sm:w-5 h-5" />
                    </div>
                    <div className="space-y-0.5">
-                      <CardTitle className="text-base sm:text-lg font-black tracking-tighter uppercase leading-none">Matrix Pulse</CardTitle>
+                      <CardTitle className="text-base sm:text-lg font-black tracking-tighter uppercase leading-none">System Pulse</CardTitle>
                       <p className="text-background/40 font-black text-[8px] uppercase tracking-[0.4em] italic">Trend Analysis.</p>
                    </div>
                 </div>
@@ -393,8 +393,8 @@ export const Analytics = ({ user }: { user: any }) => {
                     <Database className="w-7 h-7 sm:w-8 sm:h-8" />
                  </div>
                  <div className="space-y-2 sm:space-y-3">
-                    <h3 className="text-xl sm:text-2xl font-black tracking-tighter uppercase leading-none">Matrix Audit</h3>
-                    <p className="text-white/60 text-[10px] sm:text-xs font-medium leading-relaxed italic">Generate and export comprehensive institutional performance analytics.</p>
+                    <h3 className="text-xl sm:text-2xl font-black tracking-tighter uppercase leading-none">System Report</h3>
+                    <p className="text-white/60 text-[10px] sm:text-xs font-medium leading-relaxed italic">Generate and export comprehensive clearance performance reports.</p>
                  </div>
                  <Button 
                     onClick={exportToPDF}
@@ -443,7 +443,7 @@ export const Analytics = ({ user }: { user: any }) => {
                    </div>
                    <div className="space-y-0.5">
                      <CardTitle className="text-base sm:text-lg font-black tracking-tighter uppercase leading-none">Recent Pending</CardTitle>
-                     <CardDescription className="font-black text-[8px] uppercase tracking-[0.3em] opacity-40 mt-0.5 italic">High priority clearance nodes.</CardDescription>
+                     <CardDescription className="font-black text-[8px] uppercase tracking-[0.3em] opacity-40 mt-0.5 italic">High priority clearance requests.</CardDescription>
                    </div>
                  </div>
                </CardHeader>
@@ -487,9 +487,9 @@ export const Analytics = ({ user }: { user: any }) => {
                    <Badge className="bg-primary/10 text-primary border-none rounded-full px-4 py-1 text-[8px] font-black uppercase tracking-[0.4em]">Audit Trail</Badge>
                    <span className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-[0.4em]">Active Pulse</span>
                 </div>
-                <h3 className="text-lg sm:text-xl font-black tracking-tighter uppercase leading-none">Predictive Sequence Modeling</h3>
+                <h3 className="text-lg sm:text-xl font-black tracking-tighter uppercase leading-none">Clearance Status Modeling</h3>
                 <p className="text-[10px] sm:text-xs text-muted-foreground font-medium leading-relaxed italic opacity-60">
-                   Institutional telemetry indicates a 14% increase in clearance velocity.
+                   System reports indicate a 14% increase in clearance speed.
                 </p>
              </div>
              <div className="flex flex-col items-center gap-1 px-6 py-4 bg-card rounded-2xl border border-foreground/5 shadow-soft shrink-0">

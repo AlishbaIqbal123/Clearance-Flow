@@ -122,7 +122,7 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
     });
 
     toast.promise(promise, {
-      loading: 'Generating official clearance protocol...',
+      loading: 'Generating official clearance slip...',
       success: 'Clearance slip downloaded successfully!',
       error: 'Failed to generate slip'
     });
@@ -213,12 +213,12 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
               <Table>
               <TableHeader className="bg-muted/10">
                 <TableRow className="border-none">
-                  <TableHead className="px-6 py-4 font-black text-muted-foreground uppercase text-[8px] tracking-widest">Identity & Sequence</TableHead>
+                  <TableHead className="px-6 py-4 font-black text-muted-foreground uppercase text-[8px] tracking-widest">Request Details</TableHead>
                   <TableHead className="py-4 font-black text-muted-foreground uppercase text-[8px] tracking-widest">Student Profile</TableHead>
-                  <TableHead className="py-4 font-black text-muted-foreground uppercase text-[8px] tracking-widest">Protocol Status</TableHead>
-                  <TableHead className="py-4 font-black text-muted-foreground uppercase text-[8px] tracking-widest">Fulfillment</TableHead>
-                  <TableHead className="py-4 font-black text-muted-foreground uppercase text-[8px] tracking-widest">Node Authorization</TableHead>
-                  <TableHead className="px-6 text-right text-[8px] font-black text-muted-foreground uppercase tracking-widest">Directives</TableHead>
+                  <TableHead className="py-4 font-black text-muted-foreground uppercase text-[8px] tracking-widest">Clearance Status</TableHead>
+                  <TableHead className="py-4 font-black text-muted-foreground uppercase text-[8px] tracking-widest">Delivery</TableHead>
+                  <TableHead className="py-4 font-black text-muted-foreground uppercase text-[8px] tracking-widest">Department Approvals</TableHead>
+                  <TableHead className="px-6 text-right text-[8px] font-black text-muted-foreground uppercase tracking-widest">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -238,14 +238,14 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
                   ))
                 ) : filteredRequests.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="h-[300px] text-center px-6">
+                    <TableCell colSpan={6} className="h-[300px] text-center px-6">
                       <div className="flex flex-col items-center justify-center gap-6">
                         <div className="w-20 h-20 bg-muted/10 rounded-2xl flex items-center justify-center shadow-inner group/empty">
                            <FileSearch className="w-10 h-10 text-muted-foreground/10 group-hover:text-primary/20 transition-all duration-1000" />
                         </div>
                         <div className="space-y-1">
                            <p className="text-lg font-black text-foreground uppercase tracking-tight">No Requests</p>
-                           <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Adjust filter to see protocols.</p>
+                           <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Adjust filter to see requests.</p>
                         </div>
                         <Button variant="outline" onClick={() => {setSearchTerm(''); setStatusFilter('all');}} className="rounded-lg font-black text-[9px] uppercase tracking-widest px-6 h-10 border-foreground/10 hover:border-primary/40 transition-all">Reset Filter</Button>
                       </div>
@@ -472,14 +472,14 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
                        <ShieldCheck className="w-6 h-6" />
                     </div>
                     <div className="space-y-0.5">
-                       <Badge className="bg-primary text-white border-none rounded-full px-3 py-1 text-[8px] font-black uppercase tracking-widest">Protocol ID</Badge>
+                       <Badge className="bg-primary text-white border-none rounded-full px-3 py-1 text-[8px] font-black uppercase tracking-widest">Request ID</Badge>
                        <p className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-widest mt-0.5">{selectedRequest?.request_type?.replace('_', ' ')}</p>
                     </div>
                  </div>
                  <DialogTitle className="text-lg sm:text-xl font-black tracking-tighter uppercase leading-none">{selectedRequest?.request_id}</DialogTitle>
               </div>
               <div className="text-left sm:text-right space-y-1">
-                 <p className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-widest">Protocol Status</p>
+                 <p className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-widest">Clearance Status</p>
                  {selectedRequest && <StatusBadge status={selectedRequest.status} size="lg" />}
               </div>
               <Button variant="ghost" size="icon" className="absolute top-0 right-0 -mt-2 -mr-2 text-muted-foreground/40 hover:text-foreground hover:bg-muted rounded-xl w-10 h-10 transition-all" onClick={() => setIsDetailsOpen(false)}>
@@ -538,12 +538,12 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
                        <Layers className="w-5 h-5 text-primary" />
                     </div>
                     <div className="space-y-0.5">
-                       <h4 className="text-base font-black text-foreground tracking-tight uppercase">Node Verifications</h4>
+                       <h4 className="text-base font-black text-foreground tracking-tight uppercase">Department Verifications</h4>
                     </div>
                  </div>
                  <div className="flex items-center gap-2 bg-secondary/80 px-4 py-2 rounded-xl border border-foreground/5">
                     <span className="text-sm font-black text-foreground tracking-tight">{selectedRequest?.clearance_status?.length || 0}</span>
-                    <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Nodes</span>
+                    <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Departments</span>
                  </div>
               </div>
               
@@ -584,7 +584,7 @@ export const ClearanceRequestList = ({ user }: { user: any }) => {
                   className="h-9 bg-primary text-white hover:bg-primary/90 rounded-xl px-6 font-black text-[9px] uppercase tracking-widest flex-[2] shadow-strong shadow-primary/20 group transition-all relative overflow-hidden"
                   onClick={() => selectedRequest && handleDownloadSlip(selectedRequest)}
                 >
-                  <span>Download Protocol Slip</span>
+                  <span>Download Clearance Slip</span>
                   <ArrowUpRight className="ml-2 w-4 h-4 group-hover:scale-110" />
                 </Button>
              </div>

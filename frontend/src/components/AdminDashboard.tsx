@@ -123,7 +123,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
         setData(res.data);
       }
     } catch (error: any) {
-      toast.error('Failed to load institutional telemetry');
+      toast.error('Failed to load institutional dashboard data');
     } finally {
       setLoading(false);
     }
@@ -214,7 +214,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
             className="rounded-2xl h-14 px-8 font-black text-[10px] uppercase tracking-widest text-background/60 hover:text-background hover:bg-white/5 transition-all duration-700 active:scale-95 border border-white/5 backdrop-blur-sm"
             onClick={() => {
               if (!data) {
-                toast.error('No telemetry data available for export');
+                toast.error('No report data available for export');
                 return;
               }
               const promise = new Promise((resolve) => {
@@ -422,7 +422,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                        <span className="text-[11px] font-black text-muted-foreground/20 w-8 group-hover:text-primary transition-colors duration-500">0{index + 1}</span>
                        <div className="space-y-1">
                           <span className="text-base font-black text-foreground tracking-tight group-hover:text-primary transition-colors duration-500 uppercase">{dept.department?.name || dept.departmentName}</span>
-                          <p className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-widest">{dept.department?.code || 'NODE'}</p>
+                          <p className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-widest">{dept.department?.code || 'DEPT'}</p>
                        </div>
                     </div>
                     <Badge className="bg-secondary text-foreground rounded-xl font-black text-[11px] px-4 py-1.5 shadow-soft border border-foreground/5">{dept.count}</Badge>
@@ -679,10 +679,10 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 py-4 border-y border-foreground/5">
-                     <div className="space-y-1">
-                        <p className="text-[7px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Protocol ID</p>
-                        <code className="text-[9px] font-black text-primary tracking-wider">{request.request_id}</code>
-                     </div>
+                      <div className="space-y-1">
+                         <p className="text-[7px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Clearance ID</p>
+                         <code className="text-[9px] font-black text-primary tracking-wider">{request.request_id}</code>
+                      </div>
                      <div className="space-y-1">
                         <p className="text-[7px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Timeline</p>
                         <p className="text-[9px] font-black uppercase">{new Date(request.created_at).toLocaleDateString()}</p>
@@ -824,7 +824,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
             
             <div className="pt-4">
                <Button variant="ghost" className="h-10 rounded-xl px-8 font-black text-[9px] uppercase tracking-[0.4em] text-muted-foreground hover:bg-secondary/80 w-full border border-foreground/5" onClick={() => setIsDetailsOpen(false)}>
-                 Close Protocol
+                 Close Details
                </Button>
             </div>
           </div>

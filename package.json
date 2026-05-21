@@ -2,8 +2,8 @@
   "name": "university-clearance-system",
   "version": "1.0.0",
   "scripts": {
-    "build": "npm install --prefix frontend && npm run build --prefix frontend && rm -rf public && mkdir public && cp -rv frontend/dist/* public/",
-    "vercel-build": "npm install --prefix frontend && npm run build --prefix frontend && rm -rf public && mkdir public && cp -rv frontend/dist/* public/"
+    "build": "npm install --prefix frontend && npm run build --prefix frontend",
+    "vercel-build": "npm install --prefix frontend && npm run build --prefix frontend"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

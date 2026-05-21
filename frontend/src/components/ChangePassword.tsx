@@ -38,7 +38,7 @@ export const ChangePassword = ({ onSuccess }: ChangePasswordProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      toast.error('Identity verification mismatch');
+      toast.error('Passwords do not match');
       return;
     }
     setLoading(true);
@@ -49,7 +49,7 @@ export const ChangePassword = ({ onSuccess }: ChangePasswordProps) => {
         confirmPassword
       });
       if (response.success) {
-        toast.success('Security matrix updated successfully');
+        toast.success('Security settings updated successfully');
         onSuccess();
       }
     } catch (error: any) {
@@ -79,10 +79,10 @@ export const ChangePassword = ({ onSuccess }: ChangePasswordProps) => {
              </div>
           </div>
           <div className="space-y-2">
-             <h2 className="text-4xl font-black text-foreground tracking-tighter uppercase leading-none">Security Protocol</h2>
+             <h2 className="text-4xl font-black text-foreground tracking-tighter uppercase leading-none">Security Settings</h2>
              <div className="flex items-center justify-center gap-4">
                 <Badge className="bg-primary/10 text-primary border-none rounded-full px-5 py-1.5 text-[10px] font-black uppercase tracking-[0.4em]">Credentials Update</Badge>
-                <p className="text-muted-foreground/40 font-black text-[10px] uppercase tracking-[0.4em]">Matrix v4.2</p>
+                <p className="text-muted-foreground/40 font-black text-[10px] uppercase tracking-[0.4em]">Portal v3.0</p>
              </div>
           </div>
           <p className="text-lg text-muted-foreground font-medium max-w-md mx-auto leading-relaxed italic">
@@ -94,23 +94,23 @@ export const ChangePassword = ({ onSuccess }: ChangePasswordProps) => {
           <CardHeader className="p-8 pb-0">
              <div className="flex items-center gap-4 text-primary mb-2">
                 <Fingerprint className="w-6 h-6" />
-                <CardTitle className="text-xl font-black uppercase tracking-tighter">Identity Matrix</CardTitle>
+                <CardTitle className="text-xl font-black uppercase tracking-tighter">Verify Identity</CardTitle>
              </div>
-             <CardDescription className="text-sm font-black uppercase tracking-widest opacity-40">Choose a high-entropy key with at least 8 unique identifiers.</CardDescription>
+             <CardDescription className="text-sm font-black uppercase tracking-widest opacity-40">Choose a strong password with at least 8 characters.</CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="p-8 space-y-10">
               <div className="grid grid-cols-1 gap-8">
                 {/* Current Key Input */}
                 <div className="space-y-3 group/input">
-                  <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within/input:text-primary transition-colors">Current Access Key</label>
+                  <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within/input:text-primary transition-colors">Current Password</label>
                   <div className="relative">
                     <div className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground/30 group-focus-within/input:text-primary transition-colors">
                        <Lock className="w-full h-full" />
                     </div>
                     <Input 
                       type={showCurrent ? "text" : "password"} 
-                      placeholder="Temporary Key" 
+                      placeholder="Temporary Password" 
                       className="pl-16 pr-16 h-14 bg-background/50 border-none rounded-xl font-black px-8 text-lg shadow-inner focus-visible:ring-primary/20 transition-all"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
@@ -129,14 +129,14 @@ export const ChangePassword = ({ onSuccess }: ChangePasswordProps) => {
                 {/* New Key & Confirm Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-3 group/input">
-                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within/input:text-primary transition-colors">New Matrix Key</label>
+                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within/input:text-primary transition-colors">New Password</label>
                     <div className="relative">
                       <div className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground/30 group-focus-within/input:text-primary transition-colors">
                          <Key className="w-full h-full" />
                       </div>
                       <Input 
                         type={showNew ? "text" : "password"} 
-                        placeholder="Secure Key" 
+                        placeholder="Secure Password" 
                         className="pl-16 pr-16 h-14 bg-background/50 border-none rounded-xl font-black px-8 text-lg shadow-inner focus-visible:ring-primary/20 transition-all"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
@@ -152,14 +152,14 @@ export const ChangePassword = ({ onSuccess }: ChangePasswordProps) => {
                     </div>
                   </div>
                   <div className="space-y-3 group/input">
-                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within/input:text-primary transition-colors">Verify Key</label>
+                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2 group-focus-within/input:text-primary transition-colors">Confirm Password</label>
                     <div className="relative">
                       <div className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground/30 group-focus-within/input:text-primary transition-colors">
                          <Shield className="w-full h-full" />
                       </div>
                       <Input 
                         type={showConfirm ? "text" : "password"} 
-                        placeholder="Confirm Key" 
+                        placeholder="Confirm Password" 
                         className="pl-16 pr-16 h-14 bg-background/50 border-none rounded-xl font-black px-8 text-lg shadow-inner focus-visible:ring-primary/20 transition-all"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
@@ -177,11 +177,11 @@ export const ChangePassword = ({ onSuccess }: ChangePasswordProps) => {
                 </div>
               </div>
 
-              {/* Entropy Validation Matrix */}
+              {/* Password Strength Requirements */}
               <div className="p-6 bg-secondary/30 rounded-2xl border border-foreground/5 space-y-6">
                 <div className="flex items-center gap-4 text-primary">
                    <Activity className="w-5 h-5" />
-                   <span className="text-[10px] font-black uppercase tracking-[0.5em]">Entropy Analysis</span>
+                   <span className="text-[10px] font-black uppercase tracking-[0.5em]">Password Strength</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-4">
                   {requirements.map((req, idx) => (

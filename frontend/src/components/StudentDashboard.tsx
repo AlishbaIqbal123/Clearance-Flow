@@ -140,8 +140,8 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
       if (res.success) {
         setData(res.data);
       }
-    } catch (error: any) {
-      toast.error('Failed to synchronize terminal data');
+    } catch {
+      toast.error('Failed to synchronize clearance data');
     } finally {
       setLoading(false);
     }
@@ -159,7 +159,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
         reason: 'Initiated by student' 
       });
       if (res.success) {
-        toast.success('Clearance protocol successfully initiated across all nodes');
+        toast.success('Clearance request successfully initiated across all departments');
         fetchDashboard();
       }
     } catch (error: any) {
@@ -182,11 +182,11 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
       });
 
       if (res.success) {
-        toast.success('Fulfillment strategy recorded');
+        toast.success('Delivery preference saved');
         fetchDashboard();
       }
-    } catch (error) {
-      toast.error('Sync failed with fulfillment server');
+    } catch {
+      toast.error('Failed to update delivery preference');
     } finally {
       setPrefSubmitting(false);
     }
@@ -194,7 +194,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
 
   const handleConfirmReceipt = async () => {
     if (!activeRequest?.id) return;
-    if (!window.confirm('By confirming receipt, you acknowledge that you have physically received your degree and your clearance protocol will be finalized. Continue?')) return;
+    if (!window.confirm('By confirming receipt, you acknowledge that you have physically received your degree and your clearance process will be completed. Continue?')) return;
 
     try {
       setSubmitting(true);
@@ -328,7 +328,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
                            </h3>
                            <p className="text-sm font-bold text-white/60 uppercase tracking-widest max-w-xl">
                               {activeRequest.status === 'fully_cleared' 
-                                ? 'Institutional protocol closed. Degree successfully received.' 
+                                ? 'Clearance process completed. Degree successfully received.' 
                                 : activeRequest.degree_fulfillment.method === 'dispatch' ? `Preparing dispatch to: ${activeRequest.degree_fulfillment.address}` : 'Degree ready for manual pickup.'}
                            </p>
                         </div>
@@ -364,16 +364,16 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
               </div>
               <h2 className="text-lg sm:text-xl lg:text-2xl font-black text-background tracking-tighter leading-none uppercase">
                 {activeRequest?.status === 'fully_cleared' ? (
-                  <>Protocol Complete,<br /><span className="text-primary italic">Clearance Finalized</span></>
+                  <>Clearance Complete,<br /><span className="text-primary italic">Clearance Finalized</span></>
                 ) : (
-                  <>Welcome back,<br /><span className="text-primary italic">{student.first_name || 'Scholar'}</span></>
+                  <>Ready for Delivery,<br /><span className="text-primary italic">Select Option Below</span></>
                 )}
               </h2>
             </div>
             
             <p className="text-sm text-background/50 font-medium leading-relaxed max-w-xl opacity-80 italic">
               {activeRequest?.status === 'fully_cleared' 
-                ? 'Your clearance protocol is 100% complete. Your degree has been officially allotted and the process is closed.'
+                ? 'Your clearance process is 100% complete. Your degree has been officially allotted and the process is closed.'
                 : 'Easily manage and track your university clearance status in one place.'}
             </p>
 
@@ -433,7 +433,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
                   <h3 className="text-3xl font-black tracking-tighter uppercase leading-none">Your Degree is Ready</h3>
                 </div>
                 <p className="text-sm font-bold text-white/60 uppercase tracking-widest max-w-xl">
-                  Congratulations! All clearance protocols have been satisfied. Select your preferred method of degree collection.
+                  Congratulations! All clearance requirements have been satisfied. Select your preferred method of degree collection.
                 </p>
               </div>
 
@@ -515,7 +515,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
               <div className="flex-1 text-center lg:text-left space-y-4">
                 <div className="space-y-1">
                   <Badge className={`${activeRequest.status === 'fully_cleared' ? 'bg-primary' : 'bg-emerald-500'} text-white border-none font-black text-[9px] uppercase tracking-[0.4em] px-4 py-1.5 rounded-full shadow-lg mb-2`}>
-                    {activeRequest.status === 'fully_cleared' ? 'PROTOCOL COMPLETE' : 'Phase 3: Degree Fulfillment'}
+                    {activeRequest.status === 'fully_cleared' ? 'CLEARANCE COMPLETE' : 'Phase 3: Degree Delivery'}
                   </Badge>
                   <h3 className="text-3xl font-black tracking-tighter uppercase leading-none">
                     {activeRequest.status === 'fully_cleared' 
@@ -525,7 +525,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
                 </div>
                 <p className="text-sm font-bold text-emerald-100/60 uppercase tracking-widest max-w-xl">
                   {activeRequest.status === 'fully_cleared'
-                    ? `Institutional protocol closed. Degree successfully allotted and received on ${new Date(activeRequest.degree_fulfillment.received_at || Date.now()).toLocaleDateString()}.`
+                    ? `Clearance process completed. Degree successfully allotted and received on ${new Date(activeRequest.degree_fulfillment.received_at || Date.now()).toLocaleDateString()}.`
                     : activeRequest.degree_fulfillment.method === 'dispatch' 
                       ? `Your degree is being prepared for dispatch to: ${activeRequest.degree_fulfillment.address}`
                       : 'Your degree is available for pickup at the Registrar Office. Please confirm once you receive it.'}
@@ -544,7 +544,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
                     </div>
                     <div className="text-left">
                       <span className="block font-black">Yes, I've Received It</span>
-                      <span className="block text-[7px] text-white/60 mt-0.5 font-bold">Finalize Protocol Now</span>
+                      <span className="block text-[7px] text-white/60 mt-0.5 font-bold">Finalize Clearance Now</span>
                     </div>
                   </Button>
                 )}
@@ -721,7 +721,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
                                       onClick={() => {
                                          const em = ds.department?.contact_info?.email || ds.department?.email;
                                          if (em) window.location.href = `mailto:${em}`;
-                                         else toast.error('Email endpoint not configured');
+                                         else toast.error('Email address not configured');
                                       }}
                                     >
                                       <Mail className="w-4.5 h-4.5" />
@@ -813,7 +813,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
 
         {/* Right Bento Column */}
         <div className="space-y-12">
-          {/* Terminal Support Card */}
+          {/* Portal Support Card */}
           <Card className="border-none shadow-strong rounded-[2rem] bg-foreground overflow-hidden group">
             <CardContent className="p-6 sm:p-8 relative">
               <div className="absolute top-0 right-0 w-64 h-64 bg-primary/30 rounded-full -mr-32 -mt-32 blur-[120px] group-hover:scale-125 transition-transform duration-1000" />
@@ -930,7 +930,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
                     </span>
                   </div>
                   <span className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic">
-                    Encrypted Relay
+                    Support Channel
                   </span>
                 </div>
 
@@ -938,7 +938,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full' }: { onNavigate?: (
                 <div className="p-6 flex-1 overflow-y-auto space-y-4 custom-scrollbar bg-background/30">
                   {currentComments.length === 0 ? (
                     <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest italic text-center py-8">
-                      No previous dialogue recorded. Initiate correspondence below.
+                      No previous messages. Send a message below.
                     </p>
                   ) : (
                     currentComments.map((msg: any, idx: number) => {

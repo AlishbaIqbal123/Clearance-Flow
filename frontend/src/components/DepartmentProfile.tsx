@@ -57,7 +57,7 @@ export const DepartmentProfile = ({ user }: { user: any }) => {
       }
     } catch (error: any) {
       console.error('Fetch error:', error);
-      toast.error('Failed to load institutional node parameters');
+      toast.error('Failed to load department settings');
     } finally {
       setLoading(false);
     }
@@ -77,11 +77,11 @@ export const DepartmentProfile = ({ user }: { user: any }) => {
         contactInfo: deptData.contact_info
       });
       if (res.success) {
-        toast.success('Node configuration persisted');
+        toast.success('Department settings saved');
       }
     } catch (error: any) {
       console.error('Save error:', error);
-      toast.error(error.response?.data?.message || 'Failed to update node configuration');
+      toast.error(error.response?.data?.message || 'Failed to update department settings');
     } finally {
       setSaving(false);
     }
@@ -97,8 +97,8 @@ export const DepartmentProfile = ({ user }: { user: any }) => {
            </div>
         </div>
         <div className="space-y-2 text-center">
-           <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground animate-pulse">Syncing Node Matrix...</p>
-           <p className="text-[8px] font-bold text-muted-foreground/40 uppercase tracking-widest italic">Authenticating Institutional Registry</p>
+           <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground animate-pulse">Syncing Department Settings...</p>
+           <p className="text-[8px] font-bold text-muted-foreground/40 uppercase tracking-widest italic">Authenticating Department Portal</p>
         </div>
       </div>
     );
@@ -122,9 +122,9 @@ export const DepartmentProfile = ({ user }: { user: any }) => {
                  <h2 className="text-xl font-black text-foreground tracking-tighter uppercase leading-none">Department Settings</h2>
               </div>
            </div>
-           <p className="text-sm text-muted-foreground font-medium max-w-xl leading-relaxed italic">
-             Defining institutional communication endpoints and administrative visibility protocols for academic synchronization.
-           </p>
+            <p className="text-sm text-muted-foreground font-medium max-w-xl leading-relaxed italic">
+              Define department contact details and visibility settings for student clearance.
+            </p>
         </div>
         
         <Button 
@@ -184,7 +184,7 @@ export const DepartmentProfile = ({ user }: { user: any }) => {
                         contact_info: { ...deptData?.contact_info, secondary_email: e.target.value }
                       })}
                       className="pl-10 h-10 rounded-xl border-none bg-secondary/50 focus:bg-card focus:ring-4 focus:ring-primary/10 font-bold text-foreground transition-all duration-500 shadow-inner relative z-10 text-xs" 
-                      placeholder="registrar.node@univ.edu"
+                      placeholder="registrar@univ.edu"
                     />
                   </div>
                 </div>
@@ -458,10 +458,10 @@ export const DepartmentProfile = ({ user }: { user: any }) => {
                 <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-xl group-hover:rotate-12 transition-transform duration-700 shadow-strong shadow-black/20">
                    <Building2 className="w-6 h-6 text-white" />
                 </div>
-                <div className="space-y-0.5">
-                   <p className="text-white font-black text-sm uppercase tracking-tighter leading-none">Node Registry</p>
-                   <p className="text-white/50 text-[8px] font-black uppercase tracking-[0.3em]">Department Code</p>
-                </div>
+                 <div className="space-y-0.5">
+                    <p className="text-white font-black text-sm uppercase tracking-tighter leading-none">Department Settings</p>
+                    <p className="text-white/50 text-[8px] font-black uppercase tracking-[0.3em]">Department Code</p>
+                 </div>
                 <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center group-hover:scale-125 transition-transform duration-700">
                    <ArrowUpRight className="w-4 h-4 text-white" />
                 </div>
@@ -478,7 +478,7 @@ export const DepartmentProfile = ({ user }: { user: any }) => {
           </div>
           <div className="space-y-0.5 text-left">
             <h4 className="text-sm font-black text-foreground tracking-tighter uppercase leading-none">Security Registry</h4>
-            <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest opacity-40">Changes require node authorization</p>
+            <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest opacity-40">Changes require authorization</p>
           </div>
         </div>
         <Button 

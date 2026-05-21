@@ -526,19 +526,19 @@ export const DashboardLayout = ({
                   onClick={() => setIsProfileOpen(true)}
                 >
                   <User className="w-5 h-5 mr-4 opacity-50" />
-                  System Profile
+                  My Profile
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   className="rounded-2xl h-14 font-black text-[10px] uppercase tracking-widest focus:bg-primary focus:text-white cursor-pointer px-6 mb-1"
                   onClick={() => setIsSettingsOpen(true)}
                 >
                   <Settings className="w-5 h-5 mr-4 opacity-50" />
-                  Terminal Settings
+                  Portal Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-foreground/5 mx-3 my-2" />
                 <DropdownMenuItem className="rounded-2xl h-14 font-black text-[10px] uppercase tracking-widest text-destructive focus:bg-destructive focus:text-white cursor-pointer px-6" onClick={onLogout}>
                   <LogOut className="w-5 h-5 mr-4 opacity-50" />
-                  Terminate Session
+                  Logout Session
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -554,7 +554,7 @@ export const DashboardLayout = ({
 
         {/* Footer info for Academic Authority */}
         <footer className="pt-2 pb-4 text-center opacity-30 shrink-0">
-           <p className="text-[9px] font-black uppercase tracking-[0.5em] text-muted-foreground">web CUIvehari Clearance • SECURE CLEARANCE TERMINAL • 2026</p>
+           <p className="text-[9px] font-black uppercase tracking-[0.5em] text-muted-foreground">web CUIvehari Clearance • SECURE CLEARANCE PORTAL • 2026</p>
         </footer>
       </div>
 
@@ -584,7 +584,7 @@ export const DashboardLayout = ({
             </div>
              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
               <div className="space-y-1.5 sm:space-y-2">
-                <Label className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-2">Identity One</Label>
+                <Label className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-2">First Name</Label>
                 <Input 
                   value={profileData.firstName} 
                   onChange={(e) => setProfileData({...profileData, firstName: e.target.value})}
@@ -592,7 +592,7 @@ export const DashboardLayout = ({
                 />
               </div>
               <div className="space-y-1.5 sm:space-y-2">
-                <Label className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-2">Identity Two</Label>
+                <Label className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-2">Last Name</Label>
                 <Input 
                   value={profileData.lastName} 
                   onChange={(e) => setProfileData({...profileData, lastName: e.target.value})}
@@ -600,7 +600,7 @@ export const DashboardLayout = ({
                 />
               </div>
               <div className="col-span-1 sm:col-span-2 space-y-1.5 sm:space-y-2">
-                <Label className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-2">Secure Endpoint</Label>
+                <Label className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-2">Email Address</Label>
                 <div className="relative">
                   <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input 
@@ -611,7 +611,7 @@ export const DashboardLayout = ({
                 </div>
               </div>
               <div className="col-span-1 sm:col-span-2 space-y-1.5 sm:space-y-2">
-                <Label className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-2">Contact Trace</Label>
+                <Label className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-2">Phone Number</Label>
                 <div className="relative">
                   <Phone className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input 
@@ -625,13 +625,13 @@ export const DashboardLayout = ({
             </div>
           </div>
           <DialogFooter className="p-6 sm:p-10 pt-0 flex flex-col sm:flex-row gap-3 sm:gap-4">
-             <Button variant="ghost" className="h-12 rounded-xl font-black text-[9px] uppercase tracking-widest text-muted-foreground px-8 hover:bg-secondary" onClick={() => setIsProfileOpen(false)}>Abort</Button>
+             <Button variant="ghost" className="h-12 rounded-xl font-black text-[9px] uppercase tracking-widest text-muted-foreground px-8 hover:bg-secondary" onClick={() => setIsProfileOpen(false)}>Cancel</Button>
              <Button 
                className="flex-1 bg-primary hover:bg-primary/90 h-12 rounded-xl font-black text-[9px] uppercase tracking-[0.3em] shadow-strong shadow-primary/20 transition-all active:scale-95"
                onClick={saveProfile}
                disabled={savingProfile}
              >
-               {savingProfile ? 'Processing...' : 'Authorize Updates'}
+               {savingProfile ? 'Saving...' : 'Save Changes'}
              </Button>
           </DialogFooter>
         </DialogContent>
@@ -659,8 +659,8 @@ export const DashboardLayout = ({
                   <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                 </div>
                 <div className="text-left space-y-0.5">
-                  <p className="text-sm font-black uppercase tracking-tight">Security Protocol</p>
-                  <p className="text-[8px] font-bold opacity-60 uppercase tracking-widest">Visibility & Cryptography</p>
+                  <p className="text-sm font-black uppercase tracking-tight">Security Settings</p>
+                  <p className="text-[8px] font-bold opacity-60 uppercase tracking-widest">Visibility & Security</p>
                 </div>
               </div>
               <div className="w-10 h-10 rounded-full border border-foreground/10 flex items-center justify-center group-hover:border-white/20">
@@ -676,8 +676,8 @@ export const DashboardLayout = ({
                   <Key className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                 </div>
                 <div className="text-left space-y-0.5">
-                  <p className="text-sm font-black uppercase tracking-tight">Credentials</p>
-                  <p className="text-[8px] font-bold opacity-60 uppercase tracking-widest">Access Keys & Authentication</p>
+                  <p className="text-sm font-black uppercase tracking-tight">Password</p>
+                  <p className="text-[8px] font-bold opacity-60 uppercase tracking-widest">Change Password</p>
                 </div>
               </div>
               <div className="w-10 h-10 rounded-full border border-foreground/10 flex items-center justify-center group-hover:border-white/20">
@@ -687,7 +687,7 @@ export const DashboardLayout = ({
           </div>
           <DialogFooter className="p-6 sm:p-10 pt-0">
              <Button variant="ghost" className="w-full text-muted-foreground font-black text-[9px] uppercase tracking-[0.3em] h-12 rounded-xl hover:bg-secondary" onClick={() => setIsSettingsOpen(false)}>
-               Return to Terminal
+               Return to Portal
              </Button>
           </DialogFooter>
         </DialogContent>
@@ -705,7 +705,7 @@ export const DashboardLayout = ({
           </div>
           <form onSubmit={handlePasswordChange} className="p-6 sm:p-12 space-y-6 sm:space-y-8">
             <div className="space-y-3">
-              <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-2">Current Key</Label>
+              <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-2">Current Password</Label>
               <Input 
                 type="password" 
                 value={passwordData.current}
@@ -715,7 +715,7 @@ export const DashboardLayout = ({
               />
             </div>
             <div className="space-y-3">
-              <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-2">New Secret</Label>
+              <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-2">New Password</Label>
               <Input 
                 type="password" 
                 value={passwordData.new}
@@ -725,7 +725,7 @@ export const DashboardLayout = ({
               />
             </div>
             <div className="space-y-3">
-              <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-2">Verify Secret</Label>
+              <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-2">Confirm Password</Label>
               <Input 
                 type="password" 
                 value={passwordData.confirm}
@@ -737,7 +737,7 @@ export const DashboardLayout = ({
             <DialogFooter className="pt-4 gap-6">
               <Button type="button" variant="ghost" className="h-12 rounded-xl font-black text-[10px] uppercase tracking-widest text-muted-foreground" onClick={() => { setIsPasswordOpen(false); setIsSettingsOpen(true); }}>Cancel</Button>
               <Button type="submit" disabled={savingPassword} className="flex-1 bg-primary hover:bg-primary/90 h-12 rounded-xl font-black text-[10px] uppercase tracking-[0.3em] shadow-strong shadow-primary/20 active:scale-95">
-                {savingPassword ? 'Syncing...' : 'Authorize Change'}
+                {savingPassword ? 'Saving...' : 'Save Password'}
               </Button>
             </DialogFooter>
           </form>
