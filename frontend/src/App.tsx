@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Toaster, toast } from 'sonner';
+import { Toaster } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Login } from '@/components/Login';
 import { Register } from '@/components/Register';
@@ -110,7 +111,7 @@ const App: React.FC = () => {
             onBack={() => setAuthView('landing')}
           />
         )}
-        <Toaster position="top-right" expand={true} richColors />
+        <Toaster position="top-center" expand={true} richColors />
       </>
     );
   }
@@ -123,7 +124,7 @@ const App: React.FC = () => {
           toast.success('Security update complete. Please login again.');
           handleLogout();
         }} />
-        <Toaster position="top-right" expand={true} richColors />
+        <Toaster position="top-center" expand={true} richColors />
       </>
     );
   }
@@ -215,9 +216,7 @@ const App: React.FC = () => {
       >
         {renderView()}
       </DashboardLayout>
-      <Toaster position="top-right" expand={true} richColors toastOptions={{
-        style: { borderRadius: '1.25rem', border: 'none', boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.05)' },
-      }} />
+      <Toaster position="top-center" expand={true} richColors />
     </>
   );
 }
