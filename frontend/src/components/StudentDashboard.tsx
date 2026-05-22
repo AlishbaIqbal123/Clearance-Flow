@@ -78,6 +78,63 @@ const BentoStatCard = ({ title, value, icon: Icon, color, onClick, description }
   </button>
 );
 
+const PhaseAccordion = ({
+  phase,
+  label,
+  cleared,
+  count,
+  clearedCount,
+  defaultOpen,
+  children,
+}: {
+  phase: string;
+  label: string;
+  cleared: boolean;
+  count: number;
+  clearedCount: number;
+  defaultOpen: boolean;
+  children: React.ReactNode;
+}) => {
+  const [open, setOpen] = useState(defaultOpen);
+
+  return (
+    <div className={`rounded-2xl border-2 overflow-hidden transition-all duration-500 ${cleared ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-foreground/8 bg-background/30'}`}>
+      {/* Accordion Header */}
+      <button
+        type="button"
+        className="w-full flex items-center justify-between px-6 py-4 gap-4 hover:bg-foreground/5 transition-colors duration-200"
+        onClick={() => setOpen(o => !o)}
+      >
+        <div className="flex items-center gap-4">
+          <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${cleared ? 'bg-emerald-500/20' : 'bg-primary/10'}`}>
+            {cleared
+              ? <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              : <Activity className="w-4 h-4 text-primary animate-pulse" />
+            }
+          </div>
+          <div className="text-left">
+            <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.4em] leading-none mb-0.5">{phase}</p>
+            <h4 className={`text-sm font-black uppercase tracking-tight leading-none ${cleared ? 'text-emerald-500' : 'text-foreground'}`}>{label}</h4>
+          </div>
+        </div>
+        <div className="flex items-center gap-4 shrink-0">
+          <span className={`text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${cleared ? 'bg-emerald-500/15 text-emerald-500' : 'bg-secondary text-muted-foreground'}`}>
+            {cleared ? `✓ Completed` : `${clearedCount}/${count} cleared`}
+          </span>
+          <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform duration-300 ${open ? 'rotate-90' : ''}`} />
+        </div>
+      </button>
+
+      {/* Collapsible Content */}
+      {open && (
+        <div className="px-6 pb-6 pt-2 animate-in fade-in slide-in-from-top-2 duration-300">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onNavigate?: (tab: string) => void, mode?: 'full' | 'fulfillment', onRefresh?: () => void }) => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -649,129 +706,206 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                     </div>
                 </div>
               </CardHeader>
-              <CardContent className="p-0">
-                <ScrollArea className="h-[500px] sm:h-[600px] px-6 sm:px-10 pb-10">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-                    {(Array.isArray(activeRequest.clearance_status) 
-                      ? [...activeRequest.clearance_status]
-                          .filter(ds => ds.department?.code !== 'EXD')
-                          .sort((a, b) => {
-                          const priority: any = { 'cleared': 1, 'rejected': 2, 'in_review': 3, 'pending': 4 };
-                          return priority[a.status] - priority[b.status];
-                        })
-                      : []
-                    ).map((ds: any) => {
-                      const isAcademic = ds.department?.type === 'academic';
-                        const phase1Cleared = (activeRequest.clearance_status || [])
-                         .filter((s: any) => s.department != null && s.department?.type !== 'academic' && s.department?.code !== 'EXD')
-                         .every((s: any) => s.status === 'cleared');
-                      const isLocked = isAcademic && !phase1Cleared && ds.status === 'pending';
-                      
-                      const deptComments = (activeRequest.comments || []).filter((c: any) => c.department_id === ds.department_id);
-                      const unreadCount = deptComments.filter((c: any) => c.author_model === 'Staff' && !c.read_by_student).length;
+                {/* Phase-grouped accordion layout */}
+                {(() => {
+                  const allStatuses = Array.isArray(activeRequest.clearance_status)
+                    ? activeRequest.clearance_status.filter((ds: any) => ds.department?.code !== 'EXD')
+                    : [];
 
-                      return (
-                        <div key={ds.id} className={`group relative p-5 rounded-2xl border-2 transition-all duration-700 flex flex-col min-h-[180px] ${isLocked ? 'bg-muted/5 border-muted/50 grayscale opacity-40' : 'bg-background/40 border-foreground/5 hover:bg-background hover:shadow-strong hover:border-primary/20'}`}>
-                          <div className="flex items-start justify-between mb-5">
-                            <div className="flex items-center gap-3">
-                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-soft ${isLocked ? 'bg-muted/20' : 'bg-secondary/50'}`}>
-                                 <Zap className={`w-5 h-5 ${isLocked ? 'text-muted-foreground' : 'text-primary'} ${ds.status === 'in_review' ? 'animate-pulse' : ''}`} />
-                              </div>
-                              <div className="min-w-0">
-                                <h4 className="text-xs font-black text-foreground truncate group-hover:text-primary transition-colors uppercase tracking-tight leading-tight">
-                                  {getDeptDisplayName(ds.department_id, ds.department?.name || 'Department')}
-                                </h4>
-                                <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.3em] mt-1 opacity-50">{ds.department?.code || 'DEPT'}</p>
-                              </div>
+                  const adminDepts = allStatuses
+                    .filter((ds: any) => ds.department?.type !== 'academic')
+                    .sort((a: any, b: any) => {
+                      const p: any = { cleared: 1, rejected: 2, in_review: 3, pending: 4 };
+                      return p[a.status] - p[b.status];
+                    });
+
+                  const academicDepts = allStatuses
+                    .filter((ds: any) => ds.department?.type === 'academic')
+                    .sort((a: any, b: any) => {
+                      const p: any = { cleared: 1, rejected: 2, in_review: 3, pending: 4 };
+                      return p[a.status] - p[b.status];
+                    });
+
+                  const phase1Cleared = adminDepts.length > 0 && adminDepts.every((s: any) => s.status === 'cleared');
+                  const phase2Cleared = phase1Cleared && academicDepts.length > 0 && academicDepts.every((s: any) => s.status === 'cleared');
+
+                  const renderCard = (ds: any) => {
+                    const isAcademic = ds.department?.type === 'academic';
+                    const cardPhase1Cleared = (activeRequest.clearance_status || [])
+                      .filter((s: any) => s.department != null && s.department?.type !== 'academic' && s.department?.code !== 'EXD')
+                      .every((s: any) => s.status === 'cleared');
+                    const isLocked = isAcademic && !cardPhase1Cleared && ds.status === 'pending';
+
+                    const deptComments = (activeRequest.comments || []).filter((c: any) => c.department_id === ds.department_id);
+                    const unreadCount = deptComments.filter((c: any) => c.author_model === 'Staff' && !c.read_by_student).length;
+
+                    return (
+                      <div key={ds.id} className={`group relative p-5 rounded-2xl border-2 transition-all duration-700 flex flex-col min-h-[180px] ${isLocked ? 'bg-muted/5 border-muted/50 grayscale opacity-40' : 'bg-background/40 border-foreground/5 hover:bg-background hover:shadow-strong hover:border-primary/20'}`}>
+                        <div className="flex items-start justify-between mb-5">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-soft ${isLocked ? 'bg-muted/20' : 'bg-secondary/50'}`}>
+                               <Zap className={`w-5 h-5 ${isLocked ? 'text-muted-foreground' : 'text-primary'} ${ds.status === 'in_review' ? 'animate-pulse' : ''}`} />
                             </div>
-                            <div className="absolute top-6 right-6">
-                                {isLocked ? (
-                                   <StatusBadge status="locked" size="sm" />
-                                ) : (
-                                   <StatusBadge status={ds.status} size="sm" />
-                                 )}
+                            <div className="min-w-0">
+                              <h4 className="text-xs font-black text-foreground truncate group-hover:text-primary transition-colors uppercase tracking-tight leading-tight">
+                                {getDeptDisplayName(ds.department_id, ds.department?.name || 'Department')}
+                              </h4>
+                              <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.3em] mt-1 opacity-50">{ds.department?.code || 'DEPT'}</p>
                             </div>
                           </div>
-
-                          {isLocked ? (
-                             <div className="flex-1 flex flex-col justify-center bg-muted/10 rounded-[2rem] p-6 border border-dashed border-muted/50">
-                                <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest text-center leading-relaxed">
-                                  Wait for administrative<br />phase 1 authorization
-                                </p>
-                             </div>
-                          ) : (
-                            <div className="flex-1 flex flex-col">
-                              {(ds.remarks || ds.due_amount > 0) && (
-                                <div className={`p-5 rounded-[1.75rem] border-none mb-6 ${ds.status === 'rejected' ? 'bg-destructive/5' : 'bg-secondary/30'}`}>
-                                  {ds.due_amount > 0 && (
-                                     <p className="text-[11px] font-black text-destructive uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
-                                       <TrendingUp className="w-3.5 h-3.5" />
-                                       Obligation: Rs. {ds.due_amount.toLocaleString()}
-                                     </p>
-                                  )}
-                                  {ds.remarks && (
-                                    <p className="text-xs text-muted-foreground font-bold italic leading-relaxed opacity-70">"{ds.remarks}"</p>
-                                  )}
-                                </div>
-                              )}
-                              
-                              <div className="mt-auto flex items-center justify-between pt-6 border-t border-foreground/5">
-                                 <div className="flex gap-3">
-                                    <Button 
-                                      variant="ghost" 
-                                      size="icon" 
-                                      className="w-10 h-10 rounded-2xl text-emerald-500 hover:bg-emerald-500/10 transition-all active:scale-90"
-                                      onClick={() => {
-                                         const wa = ds.department?.contact_info?.whatsapp_number;
-                                         if (wa) window.open(`https://wa.me/${wa.replace(/\D/g, '')}`, '_blank');
-                                         else toast.error('WhatsApp not available');
-                                      }}
-                                    >
-                                      <Phone className="w-4.5 h-4.5" />
-                                    </Button>
-                                    <Button 
-                                      variant="ghost" 
-                                      size="icon" 
-                                      className="w-10 h-10 rounded-2xl text-primary hover:bg-primary/10 transition-all active:scale-90"
-                                      onClick={() => {
-                                         const em = ds.department?.contact_info?.email || ds.department?.email;
-                                         if (em) window.location.href = `mailto:${em}`;
-                                         else toast.error('Email address not configured');
-                                      }}
-                                    >
-                                      <Mail className="w-4.5 h-4.5" />
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="w-10 h-10 rounded-2xl text-indigo-500 hover:bg-indigo-500/10 transition-all active:scale-90 relative"
-                                      onClick={() => {
-                                        setChatOpenDept(ds);
-                                        if (unreadCount > 0 && activeRequest.id) {
-                                          studentService.markDepartmentChatRead(activeRequest.id, ds.department_id).then(() => fetchDashboard());
-                                        }
-                                      }}
-                                    >
-                                      <MessageSquare className="w-4.5 h-4.5" />
-                                      {unreadCount > 0 && (
-                                        <Badge className="absolute -top-2 -right-2 bg-destructive text-white border-none rounded-full px-1.5 py-0 text-[8px] font-black animate-pulse shadow-strong min-w-[16px] flex items-center justify-center">
-                                          {unreadCount}
-                                        </Badge>
-                                      )}
-                                    </Button>
-                                 </div>
-                                 <span className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.3em]">
-                                    {ds.department?.type} Department
-                                 </span>
-                              </div>
-                            </div>
-                          )}
+                          <div className="absolute top-6 right-6">
+                            {isLocked ? <StatusBadge status="locked" size="sm" /> : <StatusBadge status={ds.status} size="sm" />}
+                          </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                </ScrollArea>
-              </CardContent>
+
+                        {isLocked ? (
+                          <div className="flex-1 flex flex-col justify-center bg-muted/10 rounded-[2rem] p-6 border border-dashed border-muted/50">
+                            <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest text-center leading-relaxed">
+                              Wait for administrative<br />phase 1 authorization
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="flex-1 flex flex-col">
+                            {(ds.remarks || ds.due_amount > 0) && (
+                              <div className={`p-5 rounded-[1.75rem] border-none mb-6 ${ds.status === 'rejected' ? 'bg-destructive/5' : 'bg-secondary/30'}`}>
+                                {ds.due_amount > 0 && (
+                                  <p className="text-[11px] font-black text-destructive uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
+                                    <TrendingUp className="w-3.5 h-3.5" />
+                                    Obligation: Rs. {ds.due_amount.toLocaleString()}
+                                  </p>
+                                )}
+                                {ds.remarks && (
+                                  <p className="text-xs text-muted-foreground font-bold italic leading-relaxed opacity-70">"{ds.remarks}"</p>
+                                )}
+                              </div>
+                            )}
+                            <div className="mt-auto flex items-center justify-between pt-6 border-t border-foreground/5">
+                              <div className="flex gap-3">
+                                <Button variant="ghost" size="icon" className="w-10 h-10 rounded-2xl text-emerald-500 hover:bg-emerald-500/10 transition-all active:scale-90"
+                                  onClick={() => { const wa = ds.department?.contact_info?.whatsapp_number; if (wa) window.open(`https://wa.me/${wa.replace(/\D/g, '')}`, '_blank'); else toast.error('WhatsApp not available'); }}>
+                                  <Phone className="w-4.5 h-4.5" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="w-10 h-10 rounded-2xl text-primary hover:bg-primary/10 transition-all active:scale-90"
+                                  onClick={() => { const em = ds.department?.contact_info?.email || ds.department?.email; if (em) window.location.href = `mailto:${em}`; else toast.error('Email address not configured'); }}>
+                                  <Mail className="w-4.5 h-4.5" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="w-10 h-10 rounded-2xl text-indigo-500 hover:bg-indigo-500/10 transition-all active:scale-90 relative"
+                                  onClick={() => { setChatOpenDept(ds); if (unreadCount > 0 && activeRequest.id) { studentService.markDepartmentChatRead(activeRequest.id, ds.department_id).then(() => fetchDashboard()); } }}>
+                                  <MessageSquare className="w-4.5 h-4.5" />
+                                  {unreadCount > 0 && (
+                                    <Badge className="absolute -top-2 -right-2 bg-destructive text-white border-none rounded-full px-1.5 py-0 text-[8px] font-black animate-pulse shadow-strong min-w-[16px] flex items-center justify-center">
+                                      {unreadCount}
+                                    </Badge>
+                                  )}
+                                </Button>
+                              </div>
+                              <span className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.3em]">
+                                {ds.department?.type} Department
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  };
+
+                  return (
+                    <div className="space-y-6 pt-4 pb-6">
+                      {/* ── Phase 1: Administrative ── */}
+                      <PhaseAccordion
+                        phase="Phase 1"
+                        label="Administrative Clearance"
+                        cleared={phase1Cleared}
+                        count={adminDepts.length}
+                        clearedCount={adminDepts.filter((d: any) => d.status === 'cleared').length}
+                        defaultOpen={!phase1Cleared}
+                      >
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {adminDepts.map(renderCard)}
+                        </div>
+                      </PhaseAccordion>
+
+                      {/* ── Phase 2: Academic ── */}
+                      {phase1Cleared && (
+                        <PhaseAccordion
+                          phase="Phase 2"
+                          label="Academic Clearance"
+                          cleared={phase2Cleared}
+                          count={academicDepts.length}
+                          clearedCount={academicDepts.filter((d: any) => d.status === 'cleared').length}
+                          defaultOpen={!phase2Cleared}
+                        >
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {academicDepts.map(renderCard)}
+                          </div>
+                        </PhaseAccordion>
+                      )}
+
+                      {/* ── Inline Degree Option when Phase 2 complete ── */}
+                      {phase2Cleared && (!activeRequest?.degree_fulfillment || Object.keys(activeRequest.degree_fulfillment).length === 0) && (
+                        <div className="animate-in zoom-in-95 fade-in duration-700">
+                          <div className="rounded-2xl border-2 border-primary/20 bg-primary/5 p-6 flex flex-col sm:flex-row items-center gap-6">
+                            <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+                              <Sparkles className="w-6 h-6 text-primary animate-pulse" />
+                            </div>
+                            <div className="flex-1 text-center sm:text-left">
+                              <Badge className="bg-primary text-white border-none font-black text-[8px] uppercase tracking-[0.4em] px-3 py-1 rounded-full mb-2">Final Step</Badge>
+                              <h4 className="text-sm font-black text-foreground uppercase tracking-tight">Your Degree is Ready — Choose Collection Method</h4>
+                              <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mt-1">All clearance requirements satisfied. Select below or visit the Degree Allotment section.</p>
+                            </div>
+                            <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button className="h-11 px-6 rounded-xl bg-primary text-white hover:bg-primary/90 font-black text-[9px] uppercase tracking-[0.3em] flex items-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-all">
+                                    <Truck className="w-4 h-4" /> Dispatch
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background">
+                                  <div className="bg-card border-b border-border/50 p-10 text-foreground relative">
+                                    <div className="absolute top-0 right-0 w-48 h-48 bg-primary/20 rounded-full -mr-24 -mt-24 blur-[100px]" />
+                                    <div className="relative z-10 space-y-4">
+                                      <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md">
+                                        <MapPin className="w-7 h-7 text-primary" />
+                                      </div>
+                                      <DialogTitle className="text-3xl font-black tracking-tighter uppercase">Shipping Logistics</DialogTitle>
+                                      <DialogDescription className="text-muted-foreground font-bold uppercase tracking-widest text-[9px]">Provide your official residence address for secure degree dispatch.</DialogDescription>
+                                    </div>
+                                  </div>
+                                  <div className="p-10 space-y-8">
+                                    <div className="space-y-4">
+                                      <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] ml-2">Mailing Address</label>
+                                      <Textarea
+                                        placeholder="Enter full shipping address with postal code..."
+                                        className="min-h-[160px] rounded-[2rem] border-none bg-secondary/50 font-bold text-foreground px-8 py-6 focus-visible:ring-2 focus-visible:ring-primary/20 resize-none text-base shadow-inner"
+                                        value={degreePref.address}
+                                        onChange={(e) => setDegreePref(prev => ({ ...prev, address: e.target.value }))}
+                                      />
+                                    </div>
+                                    <Button
+                                      className="w-full h-16 rounded-[2rem] bg-primary hover:bg-primary/90 text-white font-black text-[11px] uppercase tracking-[0.4em] shadow-strong shadow-primary/20 transition-all active:scale-95"
+                                      disabled={prefSubmitting}
+                                      onClick={() => handleUpdatePreference('dispatch')}
+                                    >
+                                      {prefSubmitting ? 'Securing Transit...' : 'Confirm Dispatch Location'}
+                                    </Button>
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+                              <Button
+                                className="h-11 px-6 rounded-xl bg-secondary border border-border text-foreground hover:bg-secondary/80 font-black text-[9px] uppercase tracking-[0.3em] flex items-center gap-2 active:scale-95 transition-all"
+                                disabled={prefSubmitting}
+                                onClick={() => handleUpdatePreference('manual')}
+                              >
+                                <History className="w-4 h-4 text-primary" /> Manual Pickup
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
             </Card>
           ) : (
             <div className="space-y-10">
