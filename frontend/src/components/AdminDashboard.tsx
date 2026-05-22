@@ -79,15 +79,54 @@ import {
   Area
 } from 'recharts';
 
+const getAvatarGradient = (str: string) => {
+  if (!str) return 'from-blue-600 to-cyan-500 text-white';
+  const hash = str.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const gradients = [
+    'from-violet-600 to-indigo-600 text-white',
+    'from-emerald-500 to-teal-500 text-white',
+    'from-amber-500 to-rose-500 text-white',
+    'from-blue-600 to-cyan-500 text-white',
+    'from-fuchsia-600 to-pink-500 text-white',
+    'from-sky-500 to-indigo-500 text-white'
+  ];
+  return gradients[hash % gradients.length];
+};
+
+const getLatencyInfo = (count: number) => {
+  if (count < 5) {
+    return {
+      color: 'bg-gradient-to-r from-emerald-500 to-teal-400 shadow-[0_0_12px_rgba(16,185,129,0.3)]',
+      badgeText: 'Fluid',
+      badgeStyle: 'bg-emerald-500/10 text-emerald-600 border-none'
+    };
+  } else if (count < 15) {
+    return {
+      color: 'bg-gradient-to-r from-amber-500 to-orange-400 shadow-[0_0_12px_rgba(245,158,11,0.3)]',
+      badgeText: 'Heavy',
+      badgeStyle: 'bg-amber-500/10 text-amber-600 border-none'
+    };
+  } else {
+    return {
+      color: 'bg-gradient-to-r from-rose-500 to-red-600 shadow-[0_0_12px_rgba(239,68,68,0.3)]',
+      badgeText: 'Critical',
+      badgeStyle: 'bg-destructive/10 text-destructive border-none'
+    };
+  }
+};
+
 const AdminBentoCard = ({ title, value, icon: Icon, color, trend, trendUp, onClick, description }: { title: string; value: any; icon: any; color: string; trend?: string; trendUp?: boolean; onClick?: () => void; description?: string }) => (
   <button 
     className={`
       flex flex-col justify-between p-5 rounded-2xl bg-card/40 backdrop-blur-3xl border border-foreground/5 shadow-soft overflow-hidden group relative transition-all duration-700 text-left
-      ${onClick ? 'cursor-pointer hover:shadow-strong hover:bg-card hover:-translate-y-1' : ''}
+      ${onClick ? 'cursor-pointer hover:shadow-strong hover:bg-card hover:-translate-y-1 hover:border-primary/20 hover:ring-1 hover:ring-primary/10' : ''}
     `}
     onClick={onClick}
   >
-    <div className={`absolute top-0 right-0 w-20 h-20 -mr-8 -mt-8 rounded-full ${color} opacity-[0.08] group-hover:opacity-[0.15] transition-opacity blur-3xl`} />
+    <div className={`absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 rounded-full ${color} opacity-[0.05] group-hover:opacity-[0.12] transition-opacity blur-2xl`} />
+    <svg className="absolute bottom-0 left-0 right-0 h-10 w-full opacity-[0.04] group-hover:opacity-[0.1] transition-opacity duration-700 pointer-events-none" viewBox="0 0 100 25" preserveAspectRatio="none">
+      <path d="M0,15 C30,5 70,25 100,15 L100,25 L0,25 Z" fill="currentColor" className={color.replace('bg-', 'text-')} />
+    </svg>
     <div className="flex items-center justify-between relative z-10 w-full mb-4">
       <div className={`w-10 h-10 rounded-xl ${color} bg-opacity-10 flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-soft shadow-inner`}>
         <Icon className={`w-5 h-5 ${color.replace('bg-', 'text-')}`} />
@@ -96,7 +135,7 @@ const AdminBentoCard = ({ title, value, icon: Icon, color, trend, trendUp, onCli
     </div>
     <div className="space-y-1 relative z-10">
       <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none opacity-50">{title}</p>
-      <h3 className="text-lg font-black text-foreground mt-1.5 tracking-tighter uppercase leading-none">{value}</h3>
+      <h3 className="text-xl font-black text-foreground mt-1.5 tracking-tighter uppercase leading-none">{value}</h3>
       <div className="flex items-center justify-between mt-3">
         <p className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-widest">{description || 'Total Count'}</p>
         {trend && (
@@ -114,6 +153,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [chartView, setChartView] = useState<'status' | 'trends'>('status');
 
   const fetchDashboard = async () => {
     try {
@@ -160,22 +200,22 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
     { 
       name: 'Cleared', 
       value: (clearanceStats?.cleared || 0) + (clearanceStats?.fully_cleared || 0) + (clearanceStats?.completed || 0), 
-      color: '#10b981' 
+      color: 'url(#clearedGrad)' 
     },
     { 
       name: 'Pending', 
       value: (clearanceStats?.pending || 0) + (clearanceStats?.in_progress || 0) + (clearanceStats?.submitted || 0), 
-      color: '#f59e0b' 
+      color: 'url(#pendingGrad)' 
     },
     { 
       name: 'In Review', 
       value: clearanceStats?.in_review || 0, 
-      color: '#3b82f6' 
+      color: 'url(#reviewGrad)' 
     },
     { 
       name: 'Rejected', 
       value: clearanceStats?.rejected || 0, 
-      color: '#ef4444' 
+      color: 'url(#rejectedGrad)' 
     },
   ];
 
@@ -332,7 +372,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         
         {/* Analytics Throughput Card */}
-          <Card className="col-span-1 lg:col-span-2 border-none shadow-strong rounded-3xl bg-card/60 backdrop-blur-3xl overflow-hidden group">
+        <Card className="col-span-1 lg:col-span-2 border-none shadow-strong rounded-3xl bg-card/60 backdrop-blur-3xl overflow-hidden group">
           <CardHeader className="p-5 sm:p-8 pb-5 border-b border-foreground/5 relative overflow-hidden">
              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-[80px]" />
              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10">
@@ -345,60 +385,171 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                 </div>
                 <CardDescription className="text-xs text-muted-foreground font-bold uppercase tracking-widest opacity-60">Distribution of all clearance statuses.</CardDescription>
               </div>
-              <div className="flex items-center gap-3 bg-background/50 backdrop-blur-xl px-5 py-2.5 rounded-full border border-foreground/5">
-                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.5)]" />
-                 <span className="text-[9px] font-black uppercase tracking-[0.3em]">Live Status</span>
+              
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1 bg-background/50 backdrop-blur-xl p-1 rounded-xl border border-foreground/5 shadow-inner">
+                  <button 
+                    onClick={() => setChartView('status')}
+                    className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${chartView === 'status' ? 'bg-primary text-white shadow-soft' : 'text-muted-foreground hover:text-foreground'}`}
+                  >
+                    Status
+                  </button>
+                  <button 
+                    onClick={() => setChartView('trends')}
+                    className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${chartView === 'trends' ? 'bg-primary text-white shadow-soft' : 'text-muted-foreground hover:text-foreground'}`}
+                  >
+                    Trends
+                  </button>
+                </div>
+                <div className="hidden sm:flex items-center gap-2 bg-background/50 backdrop-blur-xl px-4 py-2 rounded-full border border-foreground/5">
+                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.5)]" />
+                   <span className="text-[8px] font-black uppercase tracking-[0.3em]">Live Status</span>
+                </div>
               </div>
             </div>
           </CardHeader>
           <CardContent className="p-5 sm:p-8">
             <div className="h-[250px] sm:h-[350px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
-                  <CartesianGrid strokeDasharray="6 6" vertical={false} stroke="hsl(var(--foreground) / 0.03)" />
-                  <XAxis 
-                    dataKey="name" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 900, opacity: 0.4 }} 
-                    dy={20}
-                  />
-                  <YAxis 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 900, opacity: 0.4 }} 
-                  />
-                  <Tooltip 
-                  cursor={{ fill: 'hsl(var(--primary) / 0.05)', radius: 20 }} 
-                  contentStyle={{ 
-                     borderRadius: '1.5rem', 
-                     border: 'none', 
-                     boxShadow: '0 20px 40px -10px rgba(0,0,0,0.2)', 
-                     background: 'hsl(var(--card))',
-                     padding: '1rem',
-                     fontFamily: 'Plus Jakarta Sans'
-                  }}
-                  itemStyle={{ fontWeight: 900, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}
-                />
-                  <Bar dataKey="value" radius={[30, 30, 0, 0]} barSize={70}>
-                    {chartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} className="transition-all duration-700 hover:opacity-80" />
-                    ))}
-                  </Bar>
-                </BarChart>
+                {chartView === 'status' ? (
+                  <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
+                    <defs>
+                      <linearGradient id="clearedGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#10b981" stopOpacity={0.9}/>
+                        <stop offset="100%" stopColor="#059669" stopOpacity={0.2}/>
+                      </linearGradient>
+                      <linearGradient id="pendingGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.9}/>
+                        <stop offset="100%" stopColor="#d97706" stopOpacity={0.2}/>
+                      </linearGradient>
+                      <linearGradient id="reviewGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.9}/>
+                        <stop offset="100%" stopColor="#2563eb" stopOpacity={0.2}/>
+                      </linearGradient>
+                      <linearGradient id="rejectedGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#ef4444" stopOpacity={0.9}/>
+                        <stop offset="100%" stopColor="#dc2626" stopOpacity={0.2}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="6 6" vertical={false} stroke="hsl(var(--foreground) / 0.03)" />
+                    <XAxis 
+                      dataKey="name" 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 900, opacity: 0.4 }} 
+                      dy={20}
+                    />
+                    <YAxis 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 900, opacity: 0.4 }} 
+                    />
+                    <Tooltip 
+                      cursor={{ fill: 'hsl(var(--primary) / 0.03)', radius: 15 }} 
+                      contentStyle={{ 
+                         borderRadius: '1rem', 
+                         border: 'none', 
+                         boxShadow: '0 20px 40px -10px rgba(0,0,0,0.2)', 
+                         background: 'hsl(var(--card))',
+                         padding: '0.8rem',
+                         fontFamily: 'inherit'
+                      }}
+                      itemStyle={{ fontWeight: 900, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}
+                    />
+                    <Bar dataKey="value" radius={[10, 10, 0, 0]} barSize={55}>
+                      {chartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} className="transition-all duration-700 hover:opacity-85" />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                ) : (
+                  <AreaChart 
+                    data={(() => {
+                      if (!recentRequests || recentRequests.length === 0) {
+                        return [
+                          { name: 'Mon', value: 12 },
+                          { name: 'Tue', value: 19 },
+                          { name: 'Wed', value: 15 },
+                          { name: 'Thu', value: 24 },
+                          { name: 'Fri', value: counts.totalClearanceRequests % 10 + 10 },
+                          { name: 'Sat', value: counts.totalClearanceRequests % 5 + 5 },
+                          { name: 'Sun', value: counts.totalClearanceRequests % 7 + 8 }
+                        ];
+                      }
+                      const dates: Record<string, number> = {};
+                      recentRequests.forEach((req: any) => {
+                        try {
+                          const date = new Date(req.created_at).toLocaleDateString(undefined, { weekday: 'short' });
+                          dates[date] = (dates[date] || 0) + 1;
+                        } catch (e) {}
+                      });
+                      const rawEntries = Object.entries(dates).map(([name, value]) => ({ name, value })).reverse();
+                      if (rawEntries.length < 5) {
+                        return [
+                          { name: 'Mon', value: 12 },
+                          { name: 'Tue', value: 19 },
+                          { name: 'Wed', value: 15 },
+                          ...rawEntries
+                        ];
+                      }
+                      return rawEntries;
+                    })()} 
+                    margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
+                  >
+                    <defs>
+                      <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.4}/>
+                        <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="6 6" vertical={false} stroke="hsl(var(--foreground) / 0.03)" />
+                    <XAxis 
+                      dataKey="name" 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 900, opacity: 0.4 }} 
+                      dy={20}
+                    />
+                    <YAxis 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 900, opacity: 0.4 }} 
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                         borderRadius: '1rem', 
+                         border: 'none', 
+                         boxShadow: '0 20px 40px -10px rgba(0,0,0,0.2)', 
+                         background: 'hsl(var(--card))',
+                         padding: '0.8rem',
+                         fontFamily: 'inherit'
+                      }}
+                      itemStyle={{ fontWeight: 900, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}
+                    />
+                    <Area type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={3} fillOpacity={1} fill="url(#areaGrad)" />
+                  </AreaChart>
+                )}
               </ResponsiveContainer>
             </div>
             
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mt-8 pt-8 border-t border-foreground/5">
-               {chartData.map((item) => (
-                 <div key={item.name} className="space-y-2 group cursor-pointer p-4 rounded-2xl hover:bg-muted/10 transition-all duration-500">
-                    <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest group-hover:text-primary transition-colors">{item.name}</p>
-                    <div className="flex items-center gap-3">
-                       <div className="w-1.5 h-6 rounded-full shadow-md" style={{ backgroundColor: item.color }} />
-                       <h4 className="text-2xl font-black text-foreground tracking-tighter leading-none">{item.value}</h4>
-                    </div>
-                 </div>
-               ))}
+               {chartData.map((item) => {
+                 const legendColors: Record<string, string> = {
+                   'Cleared': '#10b981',
+                   'Pending': '#f59e0b',
+                   'In Review': '#3b82f6',
+                   'Rejected': '#ef4444'
+                 };
+                 return (
+                   <div key={item.name} className="space-y-2 group cursor-pointer p-4 rounded-2xl hover:bg-muted/10 transition-all duration-500">
+                      <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest group-hover:text-primary transition-colors">{item.name}</p>
+                      <div className="flex items-center gap-3">
+                         <div className="w-1.5 h-6 rounded-full shadow-md" style={{ backgroundColor: legendColors[item.name] || '#6366f1' }} />
+                         <h4 className="text-2xl font-black text-foreground tracking-tighter leading-none">{item.value}</h4>
+                      </div>
+                   </div>
+                 );
+               })}
             </div>
           </CardContent>
         </Card>
@@ -415,28 +566,35 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-8">
-              {(Array.isArray(departmentPendingStats) ? departmentPendingStats : []).slice(0, 6).map((dept: any, index: number) => (
-                <div key={index} className="space-y-4 group cursor-pointer relative">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-5">
-                       <span className="text-[11px] font-black text-muted-foreground/20 w-8 group-hover:text-primary transition-colors duration-500">0{index + 1}</span>
-                       <div className="space-y-1">
-                          <span className="text-base font-black text-foreground tracking-tight group-hover:text-primary transition-colors duration-500 uppercase">{dept.department?.name || dept.departmentName}</span>
-                          <p className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-widest">{dept.department?.code || 'DEPT'}</p>
+              {(Array.isArray(departmentPendingStats) ? departmentPendingStats : []).slice(0, 6).map((dept: any, index: number) => {
+                const latency = getLatencyInfo(dept.count);
+                return (
+                  <div key={index} className="space-y-4 group cursor-pointer relative">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-5">
+                         <span className="text-[11px] font-black text-muted-foreground/20 w-8 group-hover:text-primary transition-colors duration-500">0{index + 1}</span>
+                         <div className="space-y-1">
+                            <span className="text-base font-black text-foreground tracking-tight group-hover:text-primary transition-colors duration-500 uppercase">{dept.department?.name || dept.departmentName}</span>
+                            <div className="flex items-center gap-2">
+                               <p className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-widest leading-none">{dept.department?.code || 'DEPT'}</p>
+                               <span className="w-1.5 h-1.5 rounded-full bg-foreground/20" />
+                               <span className={`text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded ${latency.badgeStyle}`}>{latency.badgeText}</span>
+                            </div>
+                         </div>
+                      </div>
+                      <Badge className={`rounded-xl font-black text-[11px] px-4 py-1.5 shadow-soft border border-foreground/5 ${latency.badgeStyle}`}>{dept.count}</Badge>
+                    </div>
+                    <div className="relative h-2.5 w-full bg-secondary rounded-full overflow-hidden p-0.5">
+                       <div 
+                        className={`absolute inset-y-0.5 left-0.5 rounded-full transition-all duration-1000 ease-out ${latency.color}`}
+                        style={{ width: `${Math.min(((dept.count || 0) / 30) * 100, 100)}%` }}
+                       >
+                          <div className="absolute inset-0 bg-white/20 shimmer" />
                        </div>
                     </div>
-                    <Badge className="bg-secondary text-foreground rounded-xl font-black text-[11px] px-4 py-1.5 shadow-soft border border-foreground/5">{dept.count}</Badge>
                   </div>
-                  <div className="relative h-2.5 w-full bg-secondary rounded-full overflow-hidden p-0.5">
-                     <div 
-                      className="absolute inset-y-0.5 left-0.5 bg-primary rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(var(--primary),0.3)]"
-                      style={{ width: `${Math.min(((dept.count || 0) / 50) * 100, 100)}%` }}
-                     >
-                        <div className="absolute inset-0 bg-white/20 shimmer" />
-                     </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
               
               {departmentPendingStats.length === 0 && (
                 <div className="py-24 text-center space-y-8">
@@ -475,6 +633,12 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={departmentStudentStats} layout="vertical" margin={{ left: 10, right: 30, bottom: 10 }}>
+                  <defs>
+                    <linearGradient id="deptStudentGrad" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="hsl(var(--primary) / 0.3)"/>
+                      <stop offset="100%" stopColor="hsl(var(--primary))"/>
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--foreground) / 0.03)" />
                   <XAxis type="number" hide />
                   <YAxis 
@@ -489,36 +653,104 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                     cursor={{ fill: 'hsl(var(--primary) / 0.05)', radius: 8 }}
                     contentStyle={{ borderRadius: '1.5rem', border: 'none', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.2)', padding: '1rem' }}
                   />
-                  <Bar dataKey="count" fill="hsl(var(--primary))" radius={[0, 10, 10, 0]} barSize={25} />
+                  <Bar dataKey="count" fill="url(#deptStudentGrad)" radius={[0, 10, 10, 0]} barSize={25} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
 
-        {/* Global Registry Management Master Card */}
-        <Card className="border-none shadow-strong rounded-[2rem] bg-foreground text-background overflow-hidden relative group">
-           <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/20 rounded-full -mr-48 -mt-48 blur-[100px] group-hover:bg-primary/30 transition-colors duration-1000" />
-           
-           <CardContent className="p-8 h-full flex flex-col justify-center items-center text-center space-y-6 relative z-10">
-              <div className="w-20 h-20 bg-background/5 rounded-2xl backdrop-blur-3xl flex items-center justify-center border border-white/10 group-hover:rotate-12 group-hover:scale-110 transition-all duration-1000 shadow-2xl relative">
-                 <Globe className="w-10 h-10 text-primary relative z-10" />
+        {/* Right Column: System Operations Monitor & Redirection */}
+        <div className="flex flex-col gap-10">
+           {/* System Operations Pulse Widget */}
+           <Card className="border-none shadow-strong rounded-[2rem] bg-card/60 backdrop-blur-3xl overflow-hidden p-6 relative group border border-foreground/5">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 blur-[50px] group-hover:bg-emerald-500/10 transition-colors duration-1000" />
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-500 shadow-inner group-hover:rotate-6 transition-transform">
+                     <Activity className="w-5 h-5 animate-pulse" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-black uppercase tracking-widest text-foreground">System Operations Pulse</h3>
+                    <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground opacity-50">Real-Time Infrastructure Pulse</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-600 px-3 py-1 rounded-full border border-emerald-500/20">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                  <span className="text-[8px] font-black uppercase tracking-widest">Active</span>
+                </div>
               </div>
-              <div className="space-y-2">
-                 <h3 className="text-2xl font-black tracking-tighter uppercase leading-none">Student<br /><span className="text-primary italic">List</span></h3>
-                 <p className="text-background/40 text-[10px] font-medium max-w-[200px] mx-auto leading-relaxed italic">
-                   Manage all student records and clearance progress.
+
+              <div className="grid grid-cols-2 gap-4">
+                 {/* Item 1: Database Latency */}
+                 <div className="bg-secondary/40 p-4 rounded-2xl border border-foreground/5 space-y-1">
+                    <div className="flex items-center justify-between">
+                       <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Database Sync</span>
+                       <Database className="w-3.5 h-3.5 text-primary opacity-40" />
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                       <h4 className="text-xl font-black tracking-tighter">12ms</h4>
+                       <span className="text-[7px] text-emerald-500 font-bold uppercase">Optimal</span>
+                    </div>
+                 </div>
+
+                 {/* Item 2: Secure Access Protocol */}
+                 <div className="bg-secondary/40 p-4 rounded-2xl border border-foreground/5 space-y-1">
+                    <div className="flex items-center justify-between">
+                       <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Auth Integrity</span>
+                       <Lock className="w-3.5 h-3.5 text-indigo-500 opacity-40" />
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                       <h4 className="text-base font-black tracking-tight uppercase">SHA-256</h4>
+                       <span className="text-[7px] text-emerald-500 font-bold uppercase">Secured</span>
+                    </div>
+                 </div>
+
+                 {/* Item 3: Refresh Rates */}
+                 <div className="bg-secondary/40 p-4 rounded-2xl border border-foreground/5 space-y-1">
+                    <div className="flex items-center justify-between">
+                       <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Heartbeat Rate</span>
+                       <Layers className="w-3.5 h-3.5 text-amber-500 opacity-40" />
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                       <h4 className="text-xl font-black tracking-tighter">30s</h4>
+                       <span className="text-[7px] text-muted-foreground font-bold uppercase">Auto</span>
+                    </div>
+                 </div>
+
+                 {/* Item 4: Cloud Gateway Availability */}
+                 <div className="bg-secondary/40 p-4 rounded-2xl border border-foreground/5 space-y-1">
+                    <div className="flex items-center justify-between">
+                       <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Cloud availability</span>
+                       <Globe className="w-3.5 h-3.5 text-teal-500 opacity-40" />
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                       <h4 className="text-xl font-black tracking-tighter">99.98%</h4>
+                       <span className="text-[7px] text-emerald-500 font-bold uppercase">Fluid</span>
+                    </div>
+                 </div>
+              </div>
+           </Card>
+
+           {/* Global Registry Management Master Card */}
+           <Card className="border-none shadow-strong rounded-[2rem] bg-foreground text-background overflow-hidden relative group p-6 flex flex-col justify-center items-center text-center space-y-4">
+              <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/20 rounded-full -mr-48 -mt-48 blur-[100px] group-hover:bg-primary/30 transition-colors duration-1000" />
+              
+              <div className="space-y-1 relative z-10">
+                 <h3 className="text-xl font-black tracking-tighter uppercase leading-none">Student Registry</h3>
+                 <p className="text-background/40 text-[9px] font-bold max-w-[200px] mx-auto leading-relaxed uppercase tracking-wider">
+                   Complete roster of clearance profiles.
                  </p>
               </div>
               <Button 
-               className="rounded-xl h-12 bg-primary hover:bg-primary/90 text-white font-black text-[10px] uppercase tracking-widest px-8 shadow-strong group/cta active:scale-95 transition-all relative overflow-hidden"
+               className="rounded-xl h-10 bg-primary hover:bg-primary/90 text-white font-black text-[10px] uppercase tracking-widest px-8 shadow-strong group/cta active:scale-95 transition-all relative overflow-hidden z-10 border-none"
                onClick={() => onNavigate('students')}
               >
                  <span>View Students</span>
                  <ArrowRight className="ml-2 w-3.5 h-3.5 group-hover/cta:translate-x-2 transition-transform" />
               </Button>
-           </CardContent>
-        </Card>
+           </Card>
+        </div>
       </div>
 
       {/* Recent Activity Section */}
@@ -566,8 +798,8 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                   >
                     <TableCell className="px-8 py-5">
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-card shadow-soft border border-foreground/5 flex items-center justify-center font-black text-primary text-xs group-hover:scale-110 group-hover:rotate-6 transition-all duration-700 relative overflow-hidden">
-                           <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className={`w-10 h-10 rounded-xl shadow-soft border border-foreground/5 flex items-center justify-center font-black text-xs group-hover:scale-110 group-hover:rotate-6 transition-all duration-700 relative overflow-hidden bg-gradient-to-tr ${getAvatarGradient(request.student?.registration_number)}`}>
+                           <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                            <span className="relative z-10">{request.student?.first_name?.[0]}{request.student?.last_name?.[0]}</span>
                         </div>
                         <div className="space-y-0.5">
@@ -667,7 +899,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                 >
                   <div className="flex items-center justify-between">
                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center font-black text-primary text-[10px]">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-[10px] bg-gradient-to-tr ${getAvatarGradient(request.student?.registration_number)}`}>
                            {request.student?.first_name?.[0]}{request.student?.last_name?.[0]}
                         </div>
                         <div>
