@@ -39,6 +39,12 @@ export const Analytics = ({ user }: { user: any }) => {
   const [isExporting, setIsExporting] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'departments' | 'cohorts'>('overview');
 
+  // Aggregated status counts for database compatibility
+  const clearedCount = (data?.statusBreakdown?.cleared || 0) + (data?.statusBreakdown?.fully_cleared || 0) + (data?.statusBreakdown?.completed || 0);
+  const pendingCount = (data?.statusBreakdown?.pending || 0) + (data?.statusBreakdown?.in_progress || 0) + (data?.statusBreakdown?.submitted || 0);
+  const reviewCount = (data?.statusBreakdown?.in_review || 0);
+  const rejectedCount = (data?.statusBreakdown?.rejected || 0);
+
   const fetchAnalytics = async () => {
     try {
       const res = await analyticsService.getOverview();
@@ -154,11 +160,11 @@ export const Analytics = ({ user }: { user: any }) => {
       doc.setTextColor(15, 23, 42);
       doc.setFontSize(13);
       doc.setFont('helvetica', 'bold');
-      doc.text(String(data?.statusBreakdown?.pending || 0), 15 + cardWidth + 6, cardY + 15);
+      doc.text(String(pendingCount), 15 + cardWidth + 6, cardY + 15);
       
       // Card 3: Clearance Rate
       const totalRequests = data?.summary?.totalRequests || 0;
-      const clearedRequests = data?.statusBreakdown?.cleared || 0;
+      const clearedRequests = clearedCount;
       const clearanceRate = totalRequests > 0 ? Math.round((clearedRequests / totalRequests) * 100) : 0;
       
       doc.setFillColor(209, 250, 229); // Emerald-50 background
@@ -180,10 +186,10 @@ export const Analytics = ({ user }: { user: any }) => {
       const summaryData = [
         ['Total Roster Students', data?.summary?.totalStudents || 0],
         ['Total Clearance Requests Issued', data?.summary?.totalRequests || 0],
-        ['Cleared Requests (Completed)', data?.statusBreakdown?.cleared || 0],
-        ['Pending Requests (In Queue)', data?.statusBreakdown?.pending || 0],
-        ['In Review status', data?.statusBreakdown?.in_review || 0],
-        ['Rejected Requests', data?.statusBreakdown?.rejected || 0]
+        ['Cleared Requests (Completed)', clearedCount],
+        ['Pending Requests (In Queue)', pendingCount],
+        ['In Review status', reviewCount],
+        ['Rejected Requests', rejectedCount]
       ];
 
       autoTable(doc, {
@@ -289,14 +295,14 @@ export const Analytics = ({ user }: { user: any }) => {
     { 
       title: 'Active Requests', 
       value: (data?.summary?.totalRequests || 0).toLocaleString(), 
-      change: `+${data?.statusBreakdown?.pending || 0}`, 
+      change: `+${pendingCount}`, 
       icon: Clock, 
       color: 'text-amber-500', 
       bg: 'bg-amber-500/10' 
     },
     { 
       title: 'Completed Departments', 
-      value: (data?.statusBreakdown?.cleared || 0).toLocaleString(), 
+      value: clearedCount.toLocaleString(), 
       change: 'Audit Verified', 
       icon: CheckCircle2, 
       color: 'text-emerald-500', 
@@ -332,7 +338,7 @@ export const Analytics = ({ user }: { user: any }) => {
 
   // Calculate congestion percentage
   const totalReq = data?.summary?.totalRequests || 0;
-  const pendingReq = data?.statusBreakdown?.pending || 0;
+  const pendingReq = pendingCount;
   const congestionPct = totalReq > 0 ? Math.round((pendingReq / totalReq) * 100) : 0;
 
   const getCongestionDetails = (pct: number) => {
@@ -373,10 +379,10 @@ export const Analytics = ({ user }: { user: any }) => {
 
   // Chart data formatting
   const pieChartData = [
-    { name: 'Cleared', value: (data?.statusBreakdown?.cleared || 0), fill: 'url(#clearedColor)' },
-    { name: 'Pending', value: (data?.statusBreakdown?.pending || 0), fill: 'url(#pendingColor)' },
-    { name: 'In Review', value: (data?.statusBreakdown?.in_review || 0), fill: 'url(#reviewColor)' },
-    { name: 'Rejected', value: (data?.statusBreakdown?.rejected || 0), fill: 'url(#rejectedColor)' }
+    { name: 'Cleared', value: clearedCount, fill: 'url(#clearedColor)' },
+    { name: 'Pending', value: pendingCount, fill: 'url(#pendingColor)' },
+    { name: 'In Review', value: reviewCount, fill: 'url(#reviewColor)' },
+    { name: 'Rejected', value: rejectedCount, fill: 'url(#rejectedColor)' }
   ].filter(item => item.value > 0);
 
   return (
