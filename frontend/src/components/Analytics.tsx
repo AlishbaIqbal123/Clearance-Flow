@@ -545,6 +545,7 @@ export const Analytics = ({ user }: { user: any }) => {
                           outerRadius={85}
                           paddingAngle={pieChartData.length > 1 ? 6 : 0}
                           dataKey="value"
+                          stroke="none"
                         >
                           {pieChartData.map((entry, index) => (
                             <Cell key={`cell-${index}`} className="focus:outline-none transition-transform hover:scale-105 duration-300" />
