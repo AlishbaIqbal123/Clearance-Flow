@@ -117,7 +117,7 @@ export const adminService = {
     return response.data;
   },
 
-  notifyDispatchRequest: async (id: string, data: { type: 'ready_for_pickup' | 'dispatched', message?: string }) => {
+  notifyDispatchRequest: async (id: string, data: { type: 'ready_for_pickup' | 'dispatched' | 'custom', title?: string, message?: string }) => {
     const response = await api.post(`/admin/dispatch-requests/${id}/notify`, data);
     return response.data;
   }

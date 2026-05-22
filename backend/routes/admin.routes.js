@@ -1267,10 +1267,17 @@ router.post('/dispatch-requests/:id/notify',
     }
 
     const comments = request.comments || [];
-    const title = type === 'dispatched' ? 'Degree Dispatched' : 'Degree Ready for Pickup';
+    let title = req.body.title || 'Exam Department Update';
+    if (!req.body.title) {
+      if (type === 'dispatched') title = 'Degree Dispatched';
+      else if (type === 'ready_for_pickup') title = 'Degree Ready for Pickup';
+    }
+
     const defaultMessage = type === 'dispatched' 
       ? `Your order is dispatched and you will receive soon. Tracking: ${request.degree_fulfillment?.tracking_number || 'Processing'}`
-      : `Please come and pick your degree, it is ready. Please visit the Registrar Office with your ID card.`;
+      : type === 'ready_for_pickup'
+        ? `Please come and pick your degree, it is ready. Please visit the Registrar Office with your ID card.`
+        : '';
 
     comments.push({
       author: staffId,
@@ -1283,17 +1290,19 @@ router.post('/dispatch-requests/:id/notify',
       created_at: new Date().toISOString()
     });
 
-    const degree_fulfillment = request.degree_fulfillment || {};
-    degree_fulfillment.notification_sent = true;
-    degree_fulfillment.notification_type = type;
-    degree_fulfillment.notified_at = new Date().toISOString();
+    const updateData = { comments };
+
+    if (type === 'dispatched' || type === 'ready_for_pickup') {
+      const degree_fulfillment = request.degree_fulfillment || {};
+      degree_fulfillment.notification_sent = true;
+      degree_fulfillment.notification_type = type;
+      degree_fulfillment.notified_at = new Date().toISOString();
+      updateData.degree_fulfillment = degree_fulfillment;
+    }
 
     const { error: updateError } = await supabase
       .from('clearance_requests')
-      .update({ 
-        comments,
-        degree_fulfillment
-      })
+      .update(updateData)
       .eq('id', id);
 
     if (updateError) throw updateError;
@@ -1304,7 +1313,7 @@ router.post('/dispatch-requests/:id/notify',
       io.to(`user:${request.student_id}`).emit('notification', {
         title,
         message: message || defaultMessage,
-        type: 'degree_status'
+        type: type === 'dispatched' || type === 'ready_for_pickup' ? 'degree_status' : 'exam_custom_notification'
       });
     }
 

@@ -58,6 +58,8 @@ export const DispatchList = () => {
     tracking_number: '',
     courier_service: ''
   });
+  const [customTitle, setCustomTitle] = useState('');
+  const [customMessage, setCustomMessage] = useState('');
 
 
   const fetchDispatchRequests = async () => {
@@ -96,14 +98,35 @@ export const DispatchList = () => {
     }
   };
 
-  const handleNotify = async (type: 'ready_for_pickup' | 'dispatched', requestOverride?: any) => {
+  const handleNotify = async (
+    type: 'ready_for_pickup' | 'dispatched' | 'custom',
+    requestOverride?: any,
+    messageOverride?: string,
+    titleOverride?: string
+  ) => {
     const target = requestOverride || selectedRequest;
     if (!target) return;
     
     try {
-      const res = await adminService.notifyDispatchRequest(target.id, { type });
+      const payload: any = { type };
+      
+      if (type === 'custom') {
+        payload.title = titleOverride || customTitle || 'Exam Department Update';
+        payload.message = messageOverride || customMessage;
+      } else {
+        if (messageOverride) payload.message = messageOverride;
+        if (titleOverride) payload.title = titleOverride;
+      }
+
+      const res = await adminService.notifyDispatchRequest(target.id, payload);
       if (res.success) {
-        toast.success(`Student notified: ${type === 'dispatched' ? 'Degree Dispatched' : 'Ready for Pickup'}`);
+        toast.success(
+          type === 'custom' 
+            ? 'Custom notification sent to student'
+            : `Student notified: ${type === 'dispatched' ? 'Degree Dispatched' : 'Ready for Pickup'}`
+        );
+        setCustomTitle('');
+        setCustomMessage('');
         setIsViewOpen(false);
         fetchDispatchRequests();
       }
@@ -323,14 +346,20 @@ export const DispatchList = () => {
                           variant="ghost"
                           size="icon"
                           className="h-12 w-12 rounded-xl hover:bg-amber-500/10 hover:text-amber-600 transition-all shadow-soft"
-                          title={req.degree_fulfillment?.method === 'dispatch' ? "Notify: Degree Dispatched" : "Notify: Ready for Pickup"}
+                          title="Notify Student"
                           onClick={() => {
                             if (!req.degree_fulfillment?.method) {
                                 setSelectedRequest(req);
                                 setIsViewOpen(true);
                                 return;
                             }
-                            handleNotify(req.degree_fulfillment.method === 'dispatch' ? 'dispatched' : 'ready_for_pickup', req);
+                            const customMsg = window.prompt("Enter a custom notification message (or leave blank to send the standard status update):");
+                            if (customMsg === null) return; // User cancelled
+                            if (customMsg.trim()) {
+                              handleNotify('custom', req, customMsg.trim());
+                            } else {
+                              handleNotify(req.degree_fulfillment.method === 'dispatch' ? 'dispatched' : 'ready_for_pickup', req);
+                            }
                           }}
                         >
                           <BellRing className={`w-5 h-5 ${req.degree_fulfillment?.notification_sent ? 'text-amber-500' : ''}`} />
@@ -638,29 +667,58 @@ export const DispatchList = () => {
                 </div>
                 <div>
                   <p className="text-xs font-black uppercase tracking-widest text-primary">Student Alert System</p>
-                  <p className="text-[8px] font-bold text-muted-foreground uppercase">Send official portal notification</p>
+                  <p className="text-[8px] font-bold text-muted-foreground uppercase">Send official status or custom notifications</p>
                 </div>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-4">
-                {selectedRequest?.degree_fulfillment?.method === 'dispatch' ? (
+              <div className="space-y-4 pt-2 border-t border-primary/10">
+                <p className="text-[9px] font-black uppercase text-primary/70 tracking-widest">Official Status Alerts</p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  {selectedRequest?.degree_fulfillment?.method === 'dispatch' ? (
+                    <Button 
+                      className="h-14 flex-1 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest flex items-center gap-3"
+                      onClick={() => handleNotify('dispatched')}
+                      disabled={!selectedRequest?.degree_fulfillment?.tracking_number}
+                    >
+                      <Send className="w-4 h-4" />
+                      Notify: Degree Dispatched
+                    </Button>
+                  ) : (
+                    <Button 
+                      className="h-14 flex-1 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-black text-[10px] uppercase tracking-widest flex items-center gap-3"
+                      onClick={() => handleNotify('ready_for_pickup')}
+                    >
+                      <Send className="w-4 h-4" />
+                      Notify: Ready for Pickup
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-3 pt-4 border-t border-primary/10">
+                <p className="text-[9px] font-black uppercase text-primary/70 tracking-widest">Custom Announcement / Alert</p>
+                <div className="space-y-3">
+                  <Input
+                    placeholder="Alert Title (e.g., Exam Department Update)"
+                    className="h-12 bg-secondary/50 border-none rounded-xl px-4 text-xs font-bold focus:ring-2 focus:ring-primary/20"
+                    value={customTitle}
+                    onChange={(e) => setCustomTitle(e.target.value)}
+                  />
+                  <textarea
+                    placeholder="Enter custom message details..."
+                    className="w-full min-h-[80px] bg-secondary/50 border-none rounded-xl p-4 text-xs font-bold focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
+                    value={customMessage}
+                    onChange={(e) => setCustomMessage(e.target.value)}
+                  />
                   <Button 
-                    className="h-14 flex-1 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest flex items-center gap-3"
-                    onClick={() => handleNotify('dispatched')}
-                    disabled={!selectedRequest?.degree_fulfillment?.tracking_number}
+                    className="h-12 w-full rounded-xl bg-primary hover:bg-primary/90 text-white font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3"
+                    onClick={() => handleNotify('custom')}
+                    disabled={!customMessage.trim()}
                   >
                     <Send className="w-4 h-4" />
-                    Notify: Degree Dispatched
+                    Send Custom Alert
                   </Button>
-                ) : (
-                  <Button 
-                    className="h-14 flex-1 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-black text-[10px] uppercase tracking-widest flex items-center gap-3"
-                    onClick={() => handleNotify('ready_for_pickup')}
-                  >
-                    <Send className="w-4 h-4" />
-                    Notify: Ready for Pickup
-                  </Button>
-                )}
+                </div>
               </div>
             </div>
 
