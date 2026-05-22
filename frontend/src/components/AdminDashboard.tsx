@@ -182,13 +182,13 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-10 duration-1000">
       {/* Premium Dashboard Header */}
-      <div className="relative overflow-hidden p-4 sm:p-6 lg:p-8 rounded-2xl bg-foreground group shadow-strong">
+      <div className="relative overflow-hidden p-4 sm:p-6 lg:p-8 rounded-2xl bg-card border border-foreground/5 group shadow-strong">
         <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[15%] -mt-[10%] blur-[100px] group-hover:scale-125 transition-transform duration-1000" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 rounded-full -ml-32 -mb-32 blur-[60px]" />
         
         <div className="space-y-6 relative z-10 max-w-3xl">
           <div className="flex flex-col sm:flex-row sm:items-center gap-5">
-             <div className="w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center text-primary backdrop-blur-xl border border-white/5 shadow-2xl group-hover:rotate-6 transition-all duration-700 shrink-0">
+             <div className="w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center text-primary backdrop-blur-xl border border-foreground/5 shadow-2xl group-hover:rotate-6 transition-all duration-700 shrink-0">
                 <Database className="w-7 h-7" />
              </div>
              <div className="space-y-1.5">
@@ -198,12 +198,12 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                       {[1,2,3].map(i => <div key={i} className="w-1 h-1 bg-primary rounded-full animate-pulse" style={{ animationDelay: `${i*0.2}s` }} />)}
                    </span>
                 </div>
-                <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-background tracking-tighter leading-none uppercase">
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-foreground tracking-tighter leading-none uppercase">
                 Institutional<br /><span className="text-primary italic">Intelligence Hub</span>
               </h2>
              </div>
           </div>
-          <p className="text-sm lg:text-base text-background/40 font-medium leading-relaxed max-w-2xl italic">
+          <p className="text-sm lg:text-base text-muted-foreground font-medium leading-relaxed max-w-2xl italic">
              Central management for student clearance, department records, and staff access across the university.
           </p>
         </div>
@@ -211,7 +211,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
         <div className="flex flex-wrap items-center gap-4 relative z-10 mt-8">
            <Button 
             variant="ghost" 
-            className="rounded-2xl h-14 px-8 font-black text-[10px] uppercase tracking-widest text-background/60 hover:text-background hover:bg-white/5 transition-all duration-700 active:scale-95 border border-white/5 backdrop-blur-sm"
+            className="rounded-2xl h-14 px-8 font-black text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-all duration-700 active:scale-95 border border-foreground/5 backdrop-blur-sm"
             onClick={() => {
               if (!data) {
                 toast.error('No report data available for export');
