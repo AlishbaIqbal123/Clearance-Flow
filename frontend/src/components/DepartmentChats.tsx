@@ -86,9 +86,23 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
     };
   }, []);
 
-  // Auto scroll to bottom of selected chat stream
+  // Auto scroll to bottom of selected chat stream without scrolling the parent window/body
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current) {
+      const viewport = messagesEndRef.current.closest('[data-slot="scroll-area-viewport"]') || 
+                       messagesEndRef.current.closest('[data-radix-scroll-area-viewport]') ||
+                       messagesEndRef.current.parentElement;
+      if (viewport) {
+        if (typeof viewport.scrollTo === 'function') {
+          viewport.scrollTo({
+            top: viewport.scrollHeight,
+            behavior: 'smooth'
+          });
+        } else {
+          viewport.scrollTop = viewport.scrollHeight;
+        }
+      }
+    }
   };
 
   useEffect(() => {
