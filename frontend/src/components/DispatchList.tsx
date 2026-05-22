@@ -231,7 +231,7 @@ export const DispatchList = () => {
       </div>
 
       {/* Main Content */}
-      <Card className="border-none shadow-strong rounded-[2.5rem] bg-white/40 backdrop-blur-3xl overflow-hidden">
+      <Card className="border-none shadow-strong rounded-[2.5rem] bg-card/40 border border-foreground/5 backdrop-blur-3xl overflow-hidden">
         <div className="p-10 border-b border-foreground/5 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
@@ -257,10 +257,10 @@ export const DispatchList = () => {
             <TableBody>
               {filteredRequests.length > 0 ? (
                 filteredRequests.map((req) => (
-                  <TableRow key={req.id} className="group border-b border-foreground/5 hover:bg-white/50 transition-colors">
+                  <TableRow key={req.id} className="group border-b border-foreground/5 hover:bg-secondary/40 dark:hover:bg-secondary/20 transition-colors">
                     <TableCell className="py-8 px-10">
                       <div className="flex items-center gap-5">
-                        <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center font-black text-primary text-sm shadow-soft group-hover:scale-110 transition-transform">
+                        <div className="w-12 h-12 bg-gradient-to-br from-primary/10 to-primary/20 dark:from-primary/20 dark:to-primary/30 border border-primary/10 dark:border-primary/20 rounded-2xl flex items-center justify-center font-black text-primary text-sm shadow-soft group-hover:scale-110 transition-transform">
                           {req.student?.first_name?.charAt(0) || 'S'}
                         </div>
                         <div>
@@ -276,25 +276,25 @@ export const DispatchList = () => {
                     <TableCell className="py-8 px-6 text-center">
                       <div className="flex flex-col items-center gap-2">
                         {req.degree_fulfillment?.method === 'dispatch' ? (
-                          <Badge className="bg-indigo-50 text-indigo-600 border-none font-black text-[8px] uppercase tracking-widest px-3 py-1">Dispatch</Badge>
+                          <Badge className="bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400 border border-transparent dark:border-indigo-800/30 font-black text-[8px] uppercase tracking-widest px-3 py-1">Dispatch</Badge>
                         ) : req.degree_fulfillment?.method === 'manual' ? (
-                          <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[8px] uppercase tracking-widest px-3 py-1">Manual</Badge>
+                          <Badge className="bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border border-transparent dark:border-emerald-800/30 font-black text-[8px] uppercase tracking-widest px-3 py-1">Manual</Badge>
                         ) : (
                           <Badge variant="outline" className="text-[8px] font-black uppercase tracking-widest opacity-30">TBD</Badge>
                         )}
                         
                         {req.status === 'fully_cleared' || req.status === 'completed' ? (
-                          <div className="flex items-center gap-1 text-[8px] font-black text-blue-600 uppercase">
+                          <div className="flex items-center gap-1 text-[8px] font-black text-blue-600 dark:text-blue-400 uppercase">
                             <PackageCheck className="w-3 h-3" />
                             Done
                           </div>
                         ) : req.degree_fulfillment ? (
-                          <div className="flex items-center gap-1 text-[8px] font-black text-emerald-600 uppercase">
+                          <div className="flex items-center gap-1 text-[8px] font-black text-emerald-600 dark:text-emerald-400 uppercase">
                             <CheckCircle2 className="w-3 h-3" />
                             Ready
                           </div>
                         ) : (
-                          <div className="flex items-center gap-1 text-[8px] font-black text-amber-600 uppercase">
+                          <div className="flex items-center gap-1 text-[8px] font-black text-amber-600 dark:text-amber-400 uppercase">
                             <AlertCircle className="w-3 h-3" />
                             Wait
                           </div>
@@ -345,7 +345,7 @@ export const DispatchList = () => {
                         <Button 
                           variant="ghost"
                           size="icon"
-                          className="h-12 w-12 rounded-xl hover:bg-amber-500/10 hover:text-amber-600 transition-all shadow-soft"
+                          className="h-12 w-12 rounded-xl hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 transition-all shadow-soft"
                           title="Notify Student"
                           onClick={() => {
                             if (!req.degree_fulfillment?.method) {
@@ -368,7 +368,7 @@ export const DispatchList = () => {
                           className={`h-12 w-12 rounded-xl transition-all shadow-soft group/action ${
                             req.status === 'fully_cleared' || req.status === 'completed' 
                               ? 'bg-emerald-500 text-white' 
-                              : 'bg-foreground text-white hover:bg-primary'
+                              : 'bg-foreground text-background hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white'
                           }`}
                           title="Complete Clearance"
                           onClick={() => handleCompleteDispatch(req)}
@@ -404,7 +404,7 @@ export const DispatchList = () => {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center font-black text-primary text-sm">
+                    <div className="w-12 h-12 bg-gradient-to-br from-primary/10 to-primary/20 dark:from-primary/20 dark:to-primary/30 border border-primary/10 dark:border-primary/20 rounded-2xl flex items-center justify-center font-black text-primary text-sm shadow-soft">
                       {req.student?.first_name?.charAt(0)}
                     </div>
                     <div>
@@ -433,11 +433,11 @@ export const DispatchList = () => {
                     <div className="space-y-1">
                       <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.4em]">Status</p>
                       {req.status === 'completed' ? (
-                        <Badge className="bg-blue-50 text-blue-600 border-none font-black text-[8px] uppercase px-3 py-1.5 rounded-full">Complete</Badge>
+                        <Badge className="bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 border border-transparent dark:border-blue-800/30 font-black text-[8px] uppercase px-3 py-1.5 rounded-full">Complete</Badge>
                       ) : !req.degree_fulfillment ? (
-                        <Badge className="bg-amber-50 text-amber-600 border-none font-black text-[8px] uppercase px-3 py-1.5 rounded-full">Pending</Badge>
+                        <Badge className="bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 border border-transparent dark:border-amber-800/30 font-black text-[8px] uppercase px-3 py-1.5 rounded-full">Pending</Badge>
                       ) : (
-                        <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[8px] uppercase px-3 py-1.5 rounded-full">Ready</Badge>
+                        <Badge className="bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border border-transparent dark:border-emerald-800/30 font-black text-[8px] uppercase px-3 py-1.5 rounded-full">Ready</Badge>
                       )}
                     </div>
                     <div className="space-y-1 text-right">
@@ -453,7 +453,7 @@ export const DispatchList = () => {
 
                 <div className="flex items-center gap-3">
                   <Button 
-                    className="flex-1 h-12 rounded-2xl bg-foreground text-white hover:bg-primary transition-all font-black text-[10px] uppercase tracking-widest"
+                    className="flex-1 h-12 rounded-2xl bg-foreground text-background hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white transition-all font-black text-[10px] uppercase tracking-widest"
                     onClick={() => handleCompleteDispatch(req)}
                     disabled={!req.degree_fulfillment}
                   >
@@ -592,7 +592,7 @@ export const DispatchList = () => {
             <div className="space-y-3">
               <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Recipient Identity</h4>
               <div className="flex items-center gap-4 p-5 bg-secondary/50 rounded-[2rem] border border-foreground/5">
-                <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center font-black text-primary text-xl">
+                <div className="w-14 h-14 bg-gradient-to-br from-primary/10 to-primary/20 dark:from-primary/20 dark:to-primary/30 border border-primary/10 dark:border-primary/20 rounded-2xl flex items-center justify-center font-black text-primary text-xl">
                   {selectedRequest?.student?.first_name?.charAt(0)}
                 </div>
                 <div>
@@ -609,7 +609,7 @@ export const DispatchList = () => {
             {/* Address & Tracking Info */}
             <div className="space-y-3">
               <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Fulfillment Status</h4>
-              <div className="p-6 bg-white rounded-[2.5rem] border border-foreground/5 shadow-soft space-y-4">
+              <div className="p-6 bg-card/60 dark:bg-card/30 rounded-[2.5rem] border border-foreground/5 shadow-soft space-y-4">
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
                     <MapPin className="w-5 h-5 text-primary" />
