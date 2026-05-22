@@ -820,7 +820,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                         clearedCount={adminDepts.filter((d: any) => d.status === 'cleared').length}
                         defaultOpen={!phase1Cleared}
                       >
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 gap-6">
                           {adminDepts.map(renderCard)}
                         </div>
                       </PhaseAccordion>
@@ -835,7 +835,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                           clearedCount={academicDepts.filter((d: any) => d.status === 'cleared').length}
                           defaultOpen={!phase2Cleared}
                         >
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="grid grid-cols-1 gap-6">
                             {academicDepts.map(renderCard)}
                           </div>
                         </PhaseAccordion>
