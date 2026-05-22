@@ -1137,6 +1137,44 @@ router.post('/clearance-request/:id/confirm-receipt',
       created_at: new Date().toISOString()
     });
 
+    // Automatically mark the Exam department as cleared
+    const { data: examDept } = await supabase
+      .from('departments')
+      .select('id')
+      .or('code.eq.EXD,code.eq.EXAM')
+      .single();
+
+    if (examDept) {
+      await supabase
+        .from('clearance_status')
+        .update({
+          status: 'cleared',
+          cleared_at: new Date().toISOString(),
+          remarks: 'Confirmed received by student. Protocol completed.'
+        })
+        .eq('request_id', id)
+        .eq('department_id', examDept.id);
+    }
+
+    // Recalculate progress
+    const { data: allStatusesForProgress } = await supabase
+      .from('clearance_status')
+      .select('status')
+      .eq('request_id', id);
+
+    const totalDepartments = allStatusesForProgress?.length || 0;
+    const clearedDeptsCount = allStatusesForProgress?.filter(s => s.status === 'cleared').length || 0;
+    const rejectedDeptsCount = allStatusesForProgress?.filter(s => s.status === 'rejected').length || 0;
+    const pendingDeptsCount = totalDepartments - clearedDeptsCount - rejectedDeptsCount;
+
+    const progress = {
+      percentage: totalDepartments > 0 ? Math.round((clearedDeptsCount / totalDepartments) * 100) : 0,
+      totalDepartments,
+      clearedDepartments: clearedDeptsCount,
+      pendingDepartments: pendingDeptsCount,
+      rejectedDepartments: rejectedDeptsCount
+    };
+
     // Mark as fully cleared
     const { error: updateError } = await supabase
       .from('clearance_requests')
@@ -1144,7 +1182,8 @@ router.post('/clearance-request/:id/confirm-receipt',
         degree_fulfillment,
         timeline,
         comments,
-        status: 'fully_cleared' // New final state
+        status: 'fully_cleared', // New final state
+        progress
       })
       .eq('id', id);
 

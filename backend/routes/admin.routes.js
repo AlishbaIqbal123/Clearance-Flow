@@ -1370,12 +1370,32 @@ router.post('/dispatch-requests/:id/complete',
         .eq('department_id', examDept.id);
     }
 
+    // Recalculate progress
+    const { data: allStatusesForProgress } = await supabase
+      .from('clearance_status')
+      .select('status')
+      .eq('request_id', id);
+
+    const totalDepartments = allStatusesForProgress?.length || 0;
+    const clearedDeptsCount = allStatusesForProgress?.filter(s => s.status === 'cleared').length || 0;
+    const rejectedDeptsCount = allStatusesForProgress?.filter(s => s.status === 'rejected').length || 0;
+    const pendingDeptsCount = totalDepartments - clearedDeptsCount - rejectedDeptsCount;
+
+    const progress = {
+      percentage: totalDepartments > 0 ? Math.round((clearedDeptsCount / totalDepartments) * 100) : 0,
+      totalDepartments,
+      clearedDepartments: clearedDeptsCount,
+      pendingDepartments: pendingDeptsCount,
+      rejectedDepartments: rejectedDeptsCount
+    };
+
     const { error: updateError } = await supabase
       .from('clearance_requests')
       .update({ 
         degree_fulfillment,
         timeline,
         status: 'fully_cleared', // Final terminal status
+        progress,
         updated_at: new Date().toISOString()
       })
       .eq('id', id);
