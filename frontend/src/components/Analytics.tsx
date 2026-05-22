@@ -12,8 +12,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { analyticsService } from '@/lib/analytics.service';
 import { toast } from 'sonner';
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { 
   PieChart, 
   Pie, 
@@ -70,15 +70,15 @@ export const Analytics = ({ user }: { user: any }) => {
       doc.setLineWidth(1);
       doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
       
-      // Institutional Branding
-      doc.setFillColor(15, 23, 42); // Sleek Dark Slate / Indigo primary
+      // Institutional Branding Banner
+      doc.setFillColor(15, 23, 42); // Sleek Dark Slate
       doc.rect(5, 5, pageWidth - 10, 35, 'F');
       
       // Header Accent line
       doc.setFillColor(37, 99, 235); // Accent Primary Blue
       doc.rect(5, 40, pageWidth - 10, 2, 'F');
 
-      // Logo (Placeholder for drawing)
+      // Logo drawing
       try {
         const logoImg = new Image();
         logoImg.src = '/logo.png';
@@ -92,27 +92,89 @@ export const Analytics = ({ user }: { user: any }) => {
       }
 
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(20);
+      doc.setFontSize(18);
       doc.setFont('helvetica', 'bold');
-      doc.text('CUI VEHARI | CLEARANCE SYSTEM', 42, 23);
+      doc.text('COMSATS UNIVERSITY ISLAMABAD', 42, 20);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(147, 197, 253); // Blue-300
+      doc.text('VEHARI CAMPUS | ONLINE CLEARANCE PORTAL', 42, 26);
       
-      doc.setFontSize(9);
+      doc.setFontSize(8);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(156, 163, 175);
-      doc.text(`INSTITUTIONAL PERFORMANCE AUDIT - GENERATED ON ${new Date().toLocaleDateString()}`, 42, 31);
+      doc.text(`INSTITUTIONAL PERFORMANCE AUDIT REPORT - GENERATED ON ${new Date().toLocaleDateString('en-PK', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`, 42, 32);
       
-      // Report Info
+      // Report Metadata Info Block
       doc.setTextColor(15, 23, 42);
-      doc.setFontSize(13);
+      doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
       doc.text('ANALYTICS SYSTEM OVERVIEW', 15, 58);
       
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      doc.text(`Audited By: ${user?.firstName} ${user?.lastName} (${user?.role?.toUpperCase()})`, 15, 65);
+      doc.text(`Audited By: ${user?.firstName} ${user?.lastName} (${user?.role?.toUpperCase()})`, 15, 64);
       if (user?.department?.name) {
-        doc.text(`Administrative Unit: ${user.department.name}`, 15, 71);
+        doc.text(`Administrative Unit: ${user.department.name}`, 15, 70);
       }
+
+      // Modern KPI Metric Cards - Side by Side
+      const cardWidth = 58;
+      const cardHeight = 20;
+      const cardY = 76;
+      
+      // Card 1: Total Students
+      doc.setFillColor(248, 250, 252); // Slate-50 background
+      doc.setDrawColor(226, 232, 240); // Slate-200 border
+      doc.setLineWidth(0.5);
+      doc.roundedRect(15, cardY, cardWidth, cardHeight, 2, 2, 'FD');
+      doc.setFillColor(15, 23, 42); // Top dark accent line
+      doc.rect(15, cardY, cardWidth, 1.2, 'F');
+      
+      doc.setTextColor(100, 116, 139);
+      doc.setFontSize(7.5);
+      doc.setFont('helvetica', 'bold');
+      doc.text('TOTAL ROSTER STUDENTS', 18, cardY + 7);
+      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      doc.text(String(data?.summary?.totalStudents || 0), 18, cardY + 15);
+      
+      // Card 2: Active Requests
+      doc.setFillColor(254, 243, 199); // Amber-50 background
+      doc.setDrawColor(252, 211, 77); // Amber-300 border
+      doc.roundedRect(15 + cardWidth + 3, cardY, cardWidth, cardHeight, 2, 2, 'FD');
+      doc.setFillColor(245, 158, 11); // Top amber accent line
+      doc.rect(15 + cardWidth + 3, cardY, cardWidth, 1.2, 'F');
+      
+      doc.setTextColor(180, 83, 9); // Amber-800
+      doc.setFontSize(7.5);
+      doc.setFont('helvetica', 'bold');
+      doc.text('ACTIVE QUEUE COUNT', 15 + cardWidth + 6, cardY + 7);
+      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      doc.text(String(data?.statusBreakdown?.pending || 0), 15 + cardWidth + 6, cardY + 15);
+      
+      // Card 3: Clearance Rate
+      const totalRequests = data?.summary?.totalRequests || 0;
+      const clearedRequests = data?.statusBreakdown?.cleared || 0;
+      const clearanceRate = totalRequests > 0 ? Math.round((clearedRequests / totalRequests) * 100) : 0;
+      
+      doc.setFillColor(209, 250, 229); // Emerald-50 background
+      doc.setDrawColor(110, 231, 183); // Emerald-300 border
+      doc.roundedRect(15 + (cardWidth + 3) * 2, cardY, cardWidth, cardHeight, 2, 2, 'FD');
+      doc.setFillColor(16, 185, 129); // Top emerald accent line
+      doc.rect(15 + (cardWidth + 3) * 2, cardY, cardWidth, 1.2, 'F');
+      
+      doc.setTextColor(4, 120, 87); // Emerald-800
+      doc.setFontSize(7.5);
+      doc.setFont('helvetica', 'bold');
+      doc.text('OVERALL CLEARANCE RATE', 15 + (cardWidth + 3) * 2 + 3, cardY + 7);
+      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${clearanceRate}%`, 15 + (cardWidth + 3) * 2 + 3, cardY + 15);
 
       // Summary Table
       const summaryData = [
@@ -124,12 +186,12 @@ export const Analytics = ({ user }: { user: any }) => {
         ['Rejected Requests', data?.statusBreakdown?.rejected || 0]
       ];
 
-      (doc as any).autoTable({
-        startY: 78,
+      autoTable(doc, {
+        startY: 102,
         head: [['Performance Indicator', 'System Count']],
         body: summaryData,
         theme: 'striped',
-        headStyles: { fillStyle: [15, 23, 42], fontSize: 10, fontStyle: 'bold' },
+        headStyles: { fillColor: [15, 23, 42], fontSize: 10, fontStyle: 'bold' },
         bodyStyles: { fontSize: 9 },
         alternateRowStyles: { fillOpacity: 0.04 },
         margin: { left: 15, right: 15 }
@@ -146,16 +208,17 @@ export const Analytics = ({ user }: { user: any }) => {
         ]);
 
         const nextY = (doc as any).lastAutoTable.finalY + 15;
-        doc.setFontSize(13);
+        doc.setTextColor(15, 23, 42);
+        doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');
         doc.text('DEPARTMENT EFFICIENCY INDEX', 15, nextY);
 
-        (doc as any).autoTable({
+        autoTable(doc, {
           startY: nextY + 6,
           head: [['Department Name', 'Clearance Rate', 'Total Requests', 'Cleared', 'Pending']],
           body: deptData,
           theme: 'grid',
-          headStyles: { fill: [37, 99, 235], fontSize: 9, fontStyle: 'bold' },
+          headStyles: { fillColor: [37, 99, 235], fontSize: 9, fontStyle: 'bold' },
           bodyStyles: { fontSize: 8.5 },
           margin: { left: 15, right: 15 }
         });
@@ -172,16 +235,16 @@ export const Analytics = ({ user }: { user: any }) => {
         doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
 
         doc.setTextColor(15, 23, 42);
-        doc.setFontSize(13);
+        doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');
         doc.text('STUDENT COHORT DISTRIBUTION (PENDING CLEARANCE)', 15, 20);
 
-        (doc as any).autoTable({
+        autoTable(doc, {
           startY: 26,
           head: [['Cohort / Academic Year', 'Active Queue Count']],
           body: batchData,
           theme: 'striped',
-          headStyles: { fill: [15, 23, 42], fontSize: 9, fontStyle: 'bold' },
+          headStyles: { fillColor: [15, 23, 42], fontSize: 9, fontStyle: 'bold' },
           bodyStyles: { fontSize: 9 },
           margin: { left: 15, right: 15 }
         });
@@ -194,14 +257,14 @@ export const Analytics = ({ user }: { user: any }) => {
         doc.setFontSize(8);
         doc.setTextColor(148, 163, 184);
         doc.text(
-          `CONFIDENTIAL: CUI Vehari Institutional Document | Page ${i} of ${totalPages}`,
+          `CONFIDENTIAL: COMSATS University Islamabad (Vehari) | Page ${i} of ${totalPages}`,
           pageWidth / 2,
           pageHeight - 12,
           { align: 'center' }
         );
       }
 
-      doc.save(`CUI_Clearance_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+      doc.save(`CUI_Vehari_Clearance_Report_${new Date().toISOString().split('T')[0]}.pdf`);
       toast.success('Audit report generated successfully');
     } catch (error) {
       console.error('PDF Generation Error:', error);
