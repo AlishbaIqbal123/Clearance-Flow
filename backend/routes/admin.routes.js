@@ -989,7 +989,7 @@ router.delete('/departments/:id', asyncHandler(async (req, res) => {
   
   const { error } = await supabase
     .from('departments')
-    .update({ is_active: false, updated_by: req.user.id })
+    .update({ is_active: false })
     .eq('id', id);
   
   if (error) {
