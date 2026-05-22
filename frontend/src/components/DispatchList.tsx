@@ -182,28 +182,28 @@ export const DispatchList = () => {
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-10 duration-1000">
       {/* Header Section */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 p-10 rounded-[2.5rem] bg-foreground text-white relative overflow-hidden group">
-        <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[15%] -mt-[10%] blur-[120px]" />
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 p-10 rounded-[2.5rem] bg-card border border-foreground/5 text-foreground relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/10 rounded-full -mr-[15%] -mt-[10%] blur-[120px] pointer-events-none" />
         
         <div className="relative z-10 space-y-4">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/5 shadow-2xl group-hover:scale-110 transition-transform duration-700">
+            <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/5 shadow-2xl group-hover:scale-110 transition-transform duration-700">
               <Award className="w-7 h-7 text-primary" />
             </div>
             <div className="space-y-1">
               <Badge className="bg-primary text-white border-none font-black text-[9px] uppercase tracking-[0.4em] px-4 py-1 rounded-full shadow-lg">Official Portal</Badge>
-              <h2 className="text-3xl font-black tracking-tighter uppercase leading-none">
+              <h2 className="text-3xl font-black tracking-tighter uppercase leading-none text-foreground">
                 Degree <span className="text-primary italic">Allotment & Logistics</span>
               </h2>
             </div>
           </div>
-          <p className="text-sm text-white/40 font-medium max-w-xl leading-relaxed italic uppercase tracking-widest text-[10px]">
+          <p className="text-sm text-muted-foreground font-medium max-w-xl leading-relaxed italic uppercase tracking-widest text-[10px]">
             Formal management for student delivery preferences and delivery notifications.
           </p>
         </div>
 
         <div className="relative z-10 flex flex-wrap gap-4">
-          <div className="flex bg-white/10 p-1.5 rounded-2xl backdrop-blur-md shadow-inner border border-white/5">
+          <div className="flex bg-secondary/50 p-1.5 rounded-2xl border border-foreground/5 shadow-inner backdrop-blur-md">
             {['all', 'pending', 'ready', 'done'].map((status) => (
               <button
                 key={status}
@@ -211,7 +211,7 @@ export const DispatchList = () => {
                 className={`px-6 py-3 rounded-xl font-black text-[9px] uppercase tracking-[0.2em] transition-all ${
                   statusFilter === status 
                     ? 'bg-primary text-white shadow-lg' 
-                    : 'text-white/40 hover:text-white/60'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 {status}
@@ -219,10 +219,10 @@ export const DispatchList = () => {
             ))}
           </div>
           <div className="relative group/search">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within/search:text-primary transition-colors" />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/40 group-focus-within/search:text-primary transition-colors" />
             <Input 
               placeholder="Search logistics..." 
-              className="h-16 w-[280px] pl-16 rounded-2xl border-none bg-white/10 text-white font-bold placeholder:text-white/20 focus-visible:ring-2 focus-visible:ring-primary/40 backdrop-blur-md shadow-inner"
+              className="h-16 w-[280px] pl-16 rounded-2xl border-none bg-secondary/50 text-foreground font-bold placeholder:text-muted-foreground/40 focus-visible:ring-2 focus-visible:ring-primary/40 shadow-inner"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
