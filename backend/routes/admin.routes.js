@@ -164,7 +164,8 @@ router.get('/users', adminPlus, asyncHandler(async (req, res) => {
   let queryBuilder = supabase
     .from('profiles')
     .select('*, department:department_id(name, code)', { count: 'exact' })
-    .neq('role', 'admin');
+    .neq('role', 'admin')
+    .eq('is_active', true);
   
   if (role) queryBuilder = queryBuilder.eq('role', role);
   if (department) queryBuilder = queryBuilder.eq('department_id', department);
@@ -857,6 +858,7 @@ router.get('/departments', hodOrAdmin, asyncHandler(async (req, res) => {
   const { data: departments, error } = await supabase
     .from('departments')
     .select('*')
+    .eq('is_active', true)
     .order('name');
   
   if (error) throw error;
