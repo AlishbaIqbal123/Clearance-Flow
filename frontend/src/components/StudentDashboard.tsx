@@ -984,14 +984,81 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                       <Mail className="w-4 h-4 mr-3" />
                       Contact Desk
                    </Button>
-                   <Button 
-                    variant="ghost" 
-                    className="w-full text-muted-foreground hover:text-foreground hover:bg-secondary rounded-xl h-12 font-black text-[9px] uppercase tracking-[0.2em] transition-all"
-                    onClick={() => toast.info('Loading Instructions...')}
-                   >
-                      <ExternalLink className="w-4 h-4 mr-3" />
-                      View Instructions
-                   </Button>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button 
+                         variant="ghost" 
+                         className="w-full text-muted-foreground hover:text-foreground hover:bg-secondary rounded-xl h-12 font-black text-[9px] uppercase tracking-[0.2em] transition-all"
+                        >
+                           <ExternalLink className="w-4 h-4 mr-3" />
+                           View Instructions
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background">
+                        <div className="relative">
+                          {/* Banner background decor */}
+                          <div className="bg-gradient-to-br from-primary to-primary/80 p-8 text-white relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-xl" />
+                            <div className="space-y-1 relative z-10">
+                              <DialogTitle className="text-3xl font-black tracking-tighter uppercase">Clearance Process</DialogTitle>
+                              <DialogDescription className="text-white/70 font-bold uppercase tracking-widest text-[9px]">
+                                Step-by-Step Instructions for Students
+                              </DialogDescription>
+                            </div>
+                          </div>
+
+                          <div className="p-8 space-y-6">
+                            <div className="space-y-4">
+                              <div className="flex gap-4">
+                                <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-black text-sm shrink-0">1</div>
+                                <div className="space-y-1">
+                                  <h4 className="font-black text-sm uppercase tracking-tight text-foreground">Initiate Request</h4>
+                                  <p className="text-xs text-muted-foreground leading-relaxed">
+                                    Click the "Apply for Clearance" button in the Dashboard status card (if not yet submitted) to initiate your clearance request.
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex gap-4">
+                                <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-black text-sm shrink-0">2</div>
+                                <div className="space-y-1">
+                                  <h4 className="font-black text-sm uppercase tracking-tight text-foreground">Department-wise Approvals</h4>
+                                  <p className="text-xs text-muted-foreground leading-relaxed">
+                                    Your request will progress through 7 verified clearances (Administrative and Academic units). Keep track of each status on your dashboard.
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex gap-4">
+                                <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-black text-sm shrink-0">3</div>
+                                <div className="space-y-1">
+                                  <h4 className="font-black text-sm uppercase tracking-tight text-foreground">Resolve Pending Dues</h4>
+                                  <p className="text-xs text-muted-foreground leading-relaxed">
+                                    If a department flags your request as "Pending Dues", click on the Live Chat icon next to that department to contact the officer and resolve the issue.
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex gap-4">
+                                <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-black text-sm shrink-0">4</div>
+                                <div className="space-y-1">
+                                  <h4 className="font-black text-sm uppercase tracking-tight text-foreground">Logistic Details</h4>
+                                  <p className="text-xs text-muted-foreground leading-relaxed">
+                                    Once fully cleared, submit your dispatch preference (Courier Address or Manual Pickup) to the Degree Allotment (Exam) department.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="bg-secondary/40 rounded-2xl p-4 border border-foreground/5 text-center">
+                              <p className="text-[10px] text-muted-foreground leading-relaxed font-bold uppercase tracking-tight">
+                                For further support, contact the IT help desk using the support button.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                 </div>
               </div>
             </CardContent>
