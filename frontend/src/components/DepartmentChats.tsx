@@ -77,12 +77,40 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
   }, [user, view]);
 
   useEffect(() => {
-    // Disable body scrolling when the DepartmentChats component is mounted
-    const originalStyle = window.getComputedStyle(document.body).overflow;
+    // Lock both body and document element heights/overflows to 100vh to prevent window shifting
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalBodyHeight = document.body.style.height;
+    const originalBodyMaxHeight = document.body.style.maxHeight;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+    const originalHtmlHeight = document.documentElement.style.height;
+    const originalHtmlMaxHeight = document.documentElement.style.maxHeight;
+
     document.body.style.overflow = 'hidden';
+    document.body.style.height = '100vh';
+    document.body.style.maxHeight = '100vh';
+    document.documentElement.style.overflow = 'hidden';
+    document.documentElement.style.height = '100vh';
+    document.documentElement.style.maxHeight = '100vh';
+
+    // Reset scroll to top-left to avoid sticky offset when tab loads
+    window.scrollTo(0, 0);
+
+    const handleScroll = () => {
+      if (window.scrollY !== 0 || window.scrollX !== 0) {
+        window.scrollTo(0, 0);
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
     return () => {
-      // Re-enable body scrolling when unmounted
-      document.body.style.overflow = originalStyle || 'unset';
+      // Restore original scroll and document layout configurations on unmount
+      window.removeEventListener('scroll', handleScroll);
+      document.body.style.overflow = originalBodyOverflow || '';
+      document.body.style.height = originalBodyHeight || '';
+      document.body.style.maxHeight = originalBodyMaxHeight || '';
+      document.documentElement.style.overflow = originalHtmlOverflow || '';
+      document.documentElement.style.height = originalHtmlHeight || '';
+      document.documentElement.style.maxHeight = originalHtmlMaxHeight || '';
     };
   }, []);
 
