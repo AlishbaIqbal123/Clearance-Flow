@@ -139,7 +139,7 @@ export const DispatchList = () => {
       req.student?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       req.student?.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       req.student?.registration_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      req.degree_fulfillment?.address?.toLowerCase().includes(searchTerm.toLowerCase());
+      (req.degree_fulfillment?.address || '').toLowerCase().includes(searchTerm.toLowerCase());
     
     if (statusFilter === 'all') return matchesSearch;
     
