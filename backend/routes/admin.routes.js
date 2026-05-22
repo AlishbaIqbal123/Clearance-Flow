@@ -835,7 +835,7 @@ router.delete('/students/:id', asyncHandler(async (req, res) => {
   
   const { error } = await supabase
     .from('student_profiles')
-    .update({ is_active: false, updated_by: req.user.id })
+    .update({ is_active: false })
     .eq('id', id);
   
   if (error) {
