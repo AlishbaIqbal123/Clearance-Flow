@@ -543,7 +543,7 @@ export const Analytics = ({ user }: { user: any }) => {
                           cy="50%"
                           innerRadius={60}
                           outerRadius={85}
-                          paddingAngle={6}
+                          paddingAngle={pieChartData.length > 1 ? 6 : 0}
                           dataKey="value"
                         >
                           {pieChartData.map((entry, index) => (
