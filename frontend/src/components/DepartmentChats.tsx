@@ -76,6 +76,16 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
     return () => clearInterval(interval);
   }, [user, view]);
 
+  useEffect(() => {
+    // Disable body scrolling when the DepartmentChats component is mounted
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      // Re-enable body scrolling when unmounted
+      document.body.style.overflow = originalStyle || 'unset';
+    };
+  }, []);
+
   // Auto scroll to bottom of selected chat stream
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -252,7 +262,7 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-1000 flex flex-col h-[calc(100vh-140px)]">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-1000 flex flex-col h-[calc(100vh-160px)] sm:h-[calc(100vh-150px)] lg:h-[calc(100vh-140px)]">
       {/* Premium Integrated Header section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
         <div className="space-y-1">
@@ -327,7 +337,7 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
           </div>
 
           {/* List streams */}
-          <ScrollArea className="flex-1 px-3 py-2">
+          <ScrollArea className="flex-1 min-h-0 px-3 py-2">
             {loading && threads.length === 0 ? (
               <div className="p-8 text-center space-y-4">
                 <Loader2 className="w-6 h-6 text-primary animate-spin mx-auto" />
@@ -481,7 +491,7 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
           ) : (
             <>
               {/* Sticky Top Header */}
-              <div className="px-6 py-4 glass border-b border-foreground/5 flex items-center justify-between gap-4 sticky top-0 z-20 shadow-soft">
+              <div className="px-6 py-4 glass border-b border-foreground/5 flex items-center justify-between gap-4 relative z-20 shrink-0 shadow-soft">
                 <div className="flex items-center gap-3">
                   {/* Back button for mobile */}
                   <Button 
@@ -518,7 +528,7 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
               </div>
 
               {/* Chat Stream Area */}
-              <ScrollArea className="flex-1 p-6 bg-gradient-to-b from-background/10 via-background/30 to-background/50">
+              <ScrollArea className="flex-1 min-h-0 p-6 bg-gradient-to-b from-background/10 via-background/30 to-background/50">
                 <div className="max-w-3xl mx-auto space-y-4">
                   {selectedThread.deptComments?.length === 0 && optimisticMessages.length === 0 ? (
                     <div className="text-center py-12 space-y-3">
