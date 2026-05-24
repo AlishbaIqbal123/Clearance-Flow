@@ -118,7 +118,7 @@ const getLatencyInfo = (count: number) => {
 const AdminBentoCard = ({ title, value, icon: Icon, color, trend, trendUp, onClick, description }: { title: string; value: any; icon: any; color: string; trend?: string; trendUp?: boolean; onClick?: () => void; description?: string }) => (
   <button 
     className={`
-      flex flex-col justify-between p-5 rounded-2xl bg-card/40 backdrop-blur-3xl border border-foreground/5 shadow-soft overflow-hidden group relative transition-all duration-700 text-left
+      flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-card/40 backdrop-blur-3xl border border-foreground/5 shadow-soft overflow-hidden group relative transition-all duration-700 text-left
       ${onClick ? 'cursor-pointer hover:shadow-strong hover:bg-card hover:-translate-y-1 hover:border-primary/20 hover:ring-1 hover:ring-primary/10' : ''}
     `}
     onClick={onClick}
@@ -154,6 +154,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [chartView, setChartView] = useState<'status' | 'trends'>('status');
+  const [dashboardView, setDashboardView] = useState<'operations' | 'registry'>('operations');
 
   const fetchDashboard = async () => {
     try {
@@ -220,7 +221,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
   ];
 
   return (
-    <div className="space-y-6 lg:space-y-5 sm:space-y-8 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+    <div className="space-y-4 lg:space-y-3.5 sm:space-y-6 animate-in fade-in slide-in-from-bottom-10 duration-1000">
       {/* Premium Dashboard Header */}
       <div className="relative overflow-hidden p-4 sm:p-6 lg:p-6 rounded-2xl bg-card border border-foreground/5 group shadow-strong">
         <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[15%] -mt-[10%] blur-[100px] group-hover:scale-125 transition-transform duration-1000" />
@@ -330,7 +331,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
       )}
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-4 sm:gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 sm:gap-6">
         <AdminBentoCard 
           title="Total Students" 
           value={counts.totalStudents.toLocaleString()} 
@@ -369,7 +370,31 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-6 sm:gap-10">
+      {/* View Switcher for Desktop to eliminate scrolling */}
+      <div className="hidden lg:flex items-center gap-3 p-1.5 bg-card/60 backdrop-blur-3xl rounded-2xl border border-foreground/5 max-w-md w-full shadow-soft my-2">
+        <button
+          onClick={() => setDashboardView('operations')}
+          className={`flex-1 py-2 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${
+            dashboardView === 'operations'
+              ? 'bg-primary text-white shadow-strong shadow-primary/20'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted/10'
+          }`}
+        >
+          Operations Hub
+        </button>
+        <button
+          onClick={() => setDashboardView('registry')}
+          className={`flex-1 py-2 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${
+            dashboardView === 'registry'
+              ? 'bg-primary text-white shadow-strong shadow-primary/20'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted/10'
+          }`}
+        >
+          Registry & Activity
+        </button>
+      </div>
+
+      <div className={`grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-6 sm:gap-10 ${dashboardView === 'operations' ? 'lg:grid' : 'lg:hidden'} grid`}>
         
         {/* Analytics Throughput Card */}
         <Card className="col-span-1 lg:col-span-2 border-none shadow-strong rounded-3xl bg-card/60 backdrop-blur-3xl overflow-hidden group">
@@ -619,7 +644,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
       </div>
 
       {/* Registry Density & Institutional Control */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-6 sm:gap-10">
+      <div className={`grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-6 sm:gap-10 ${dashboardView === 'registry' ? 'lg:grid' : 'lg:hidden'} grid`}>
         <Card className="border-none shadow-strong rounded-[2rem] bg-card/60 backdrop-blur-3xl overflow-hidden">
           <CardHeader className="p-4 lg:p-4 border-b border-foreground/5 bg-primary/5">
             <div className="flex items-center gap-4 text-primary">
@@ -754,7 +779,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
       </div>
 
       {/* Recent Activity Section */}
-      <Card className="border-none shadow-strong rounded-[2rem] bg-card/60 backdrop-blur-3xl overflow-hidden">
+      <Card className={`border-none shadow-strong rounded-[2rem] bg-card/60 backdrop-blur-3xl overflow-hidden ${dashboardView === 'registry' ? 'lg:block' : 'lg:hidden'} block`}>
         <CardHeader className="p-6 pb-4 flex flex-col lg:flex-row lg:items-center justify-between border-b border-foreground/5 gap-6">
           <div className="space-y-1">
             <div className="flex items-center gap-3 text-primary">
@@ -775,9 +800,9 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
              </Button>
           </div>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent className="p-0 max-h-[350px] lg:max-h-[calc(100vh-26rem)] overflow-y-auto custom-scrollbar">
           {/* Desktop View */}
-          <div className="hidden lg:block overflow-hidden">
+          <div className="hidden lg:block">
             <Table>
               <TableHeader className="bg-muted/10">
                 <TableRow className="border-none">

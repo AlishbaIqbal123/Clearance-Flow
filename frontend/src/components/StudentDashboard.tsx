@@ -58,7 +58,7 @@ import { studentService } from '@/lib/student.service';
 const BentoStatCard = ({ title, value, icon: Icon, color, onClick, description }: { title: string; value: any; icon: any; color: string; onClick?: () => void; description?: string }) => (
   <button 
     className={`
-      flex flex-col justify-between p-5 rounded-2xl bg-card/40 backdrop-blur-md border border-foreground/5 shadow-soft overflow-hidden group relative transition-all duration-700
+      flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-card/40 backdrop-blur-md border border-foreground/5 shadow-soft overflow-hidden group relative transition-all duration-700
       ${onClick ? 'cursor-pointer hover:shadow-strong hover:bg-card hover:-translate-y-1.5' : ''}
     `}
     onClick={onClick}
@@ -309,7 +309,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+    <div className="space-y-4 lg:space-y-3 sm:space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-1000">
       {mode === 'fulfillment' ? (
         <div className="space-y-8">
            <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-8 shadow-strong group">
@@ -640,7 +640,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
       )}
 
       {/* Bento Grid Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-4 sm:gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 sm:gap-6">
         <BentoStatCard 
           title="Overall Status" 
           value={student.clearance_status?.replace('_', ' ').toUpperCase() || 'NOT STARTED'} 
@@ -675,9 +675,9 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-6 sm:gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-3.5 sm:gap-8">
         {/* Active Clearance Status - Main Bento Piece */}
-        <div className="lg:col-span-2 space-y-6 lg:space-y-5 sm:space-y-8">
+        <div className="lg:col-span-2 space-y-4 lg:space-y-3 sm:space-y-6">
           {activeRequest ? (
             <Card className="border-none shadow-strong rounded-3xl overflow-hidden bg-card/60 backdrop-blur-2xl">
               <CardHeader className="p-4 sm:p-5 pb-4">
@@ -740,67 +740,67 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                     const unreadCount = deptComments.filter((c: any) => c.author_model === 'Staff' && !c.read_by_student).length;
 
                     return (
-                      <div key={ds.id} className={`group relative p-4 lg:p-4 sm:p-5 rounded-2xl border-2 transition-all duration-700 flex flex-col lg:min-h-[145px] min-h-[180px] ${isLocked ? 'bg-muted/5 border-muted/50 grayscale opacity-40' : 'bg-background/40 border-foreground/5 hover:bg-background hover:shadow-strong hover:border-primary/20'}`}>
-                        <div className="flex items-start justify-between mb-3 lg:mb-3 sm:mb-5">
+                      <div key={ds.id} className={`group relative p-3 sm:p-4 rounded-2xl border-2 transition-all duration-700 flex flex-col lg:min-h-[110px] min-h-[140px] ${isLocked ? 'bg-muted/5 border-muted/50 grayscale opacity-40' : 'bg-background/40 border-foreground/5 hover:bg-background hover:shadow-strong hover:border-primary/20'}`}>
+                        <div className="flex items-start justify-between mb-2 sm:mb-3">
                           <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-soft ${isLocked ? 'bg-muted/20' : 'bg-secondary/50'}`}>
-                               <Zap className={`w-5 h-5 ${isLocked ? 'text-muted-foreground' : 'text-primary'} ${ds.status === 'in_review' ? 'animate-pulse' : ''}`} />
+                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-soft ${isLocked ? 'bg-muted/20' : 'bg-secondary/50'}`}>
+                               <Zap className={`w-4 h-4 ${isLocked ? 'text-muted-foreground' : 'text-primary'} ${ds.status === 'in_review' ? 'animate-pulse' : ''}`} />
                             </div>
                             <div className="min-w-0">
-                              <h4 className="text-xs font-black text-foreground truncate group-hover:text-primary transition-colors uppercase tracking-tight leading-tight">
+                              <h4 className="text-[11px] font-black text-foreground truncate group-hover:text-primary transition-colors uppercase tracking-tight leading-tight">
                                 {getDeptDisplayName(ds.department_id, ds.department?.name || 'Department')}
                               </h4>
-                              <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.3em] mt-1 opacity-50">{ds.department?.code || 'DEPT'}</p>
+                              <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.3em] mt-0.5 opacity-50">{ds.department?.code || 'DEPT'}</p>
                             </div>
                           </div>
-                          <div className="absolute top-6 right-6">
+                          <div className="absolute top-4 right-4">
                             {isLocked ? <StatusBadge status="locked" size="sm" /> : <StatusBadge status={ds.status} size="sm" />}
                           </div>
                         </div>
 
                         {isLocked ? (
-                          <div className="flex-1 flex flex-col justify-center bg-muted/10 rounded-[2rem] p-6 border border-dashed border-muted/50">
-                            <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest text-center leading-relaxed">
+                          <div className="flex-1 flex flex-col justify-center bg-muted/10 rounded-xl p-4 border border-dashed border-muted/50">
+                            <p className="text-[8px] text-muted-foreground font-black uppercase tracking-widest text-center leading-relaxed">
                               Wait for administrative<br />phase 1 authorization
                             </p>
                           </div>
                         ) : (
                           <div className="flex-1 flex flex-col">
                             {(ds.remarks || ds.due_amount > 0) && (
-                              <div className={`p-3 lg:p-3 sm:p-5 rounded-[1.75rem] border-none mb-3 lg:mb-3 sm:mb-6 ${ds.status === 'rejected' ? 'bg-destructive/5' : 'bg-secondary/30'}`}>
+                              <div className={`p-2 rounded-xl border-none mb-2 sm:mb-3 ${ds.status === 'rejected' ? 'bg-destructive/5' : 'bg-secondary/30'}`}>
                                 {ds.due_amount > 0 && (
-                                  <p className="text-[11px] font-black text-destructive uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
-                                    <TrendingUp className="w-3.5 h-3.5" />
+                                  <p className="text-[9px] font-black text-destructive uppercase tracking-[0.2em] mb-1 flex items-center gap-1.5">
+                                    <TrendingUp className="w-3 h-3" />
                                     Obligation: Rs. {ds.due_amount.toLocaleString()}
                                   </p>
                                 )}
                                 {ds.remarks && (
-                                  <p className="text-xs text-muted-foreground font-bold italic leading-relaxed opacity-70">"{ds.remarks}"</p>
+                                  <p className="text-[10px] text-muted-foreground font-bold italic leading-relaxed opacity-70">"{ds.remarks}"</p>
                                 )}
                               </div>
                             )}
-                            <div className="mt-auto flex items-center justify-between pt-3 lg:pt-3 sm:pt-6 border-t border-foreground/5">
-                              <div className="flex gap-3">
-                                <Button variant="ghost" size="icon" className="w-10 h-10 rounded-2xl text-emerald-500 hover:bg-emerald-500/10 transition-all active:scale-90"
+                            <div className="mt-auto flex items-center justify-between pt-2 border-t border-foreground/5">
+                              <div className="flex gap-2">
+                                <Button variant="ghost" size="icon" className="w-8 h-8 rounded-xl text-emerald-500 hover:bg-emerald-500/10 transition-all active:scale-90"
                                   onClick={() => { const wa = ds.department?.contact_info?.whatsapp_number; if (wa) window.open(`https://wa.me/${wa.replace(/\D/g, '')}`, '_blank'); else toast.error('WhatsApp not available'); }}>
-                                  <Phone className="w-4.5 h-4.5" />
+                                  <Phone className="w-3.5 h-3.5" />
                                 </Button>
-                                <Button variant="ghost" size="icon" className="w-10 h-10 rounded-2xl text-primary hover:bg-primary/10 transition-all active:scale-90"
+                                <Button variant="ghost" size="icon" className="w-8 h-8 rounded-xl text-primary hover:bg-primary/10 transition-all active:scale-90"
                                   onClick={() => { const em = ds.department?.contact_info?.email || ds.department?.email; if (em) window.location.href = `mailto:${em}`; else toast.error('Email address not configured'); }}>
-                                  <Mail className="w-4.5 h-4.5" />
+                                  <Mail className="w-3.5 h-3.5" />
                                 </Button>
-                                <Button variant="ghost" size="icon" className="w-10 h-10 rounded-2xl text-indigo-500 hover:bg-indigo-500/10 transition-all active:scale-90 relative"
+                                <Button variant="ghost" size="icon" className="w-8 h-8 rounded-xl text-indigo-500 hover:bg-indigo-500/10 transition-all active:scale-90 relative"
                                   onClick={() => { setChatOpenDept(ds); if (unreadCount > 0 && activeRequest.id) { studentService.markDepartmentChatRead(activeRequest.id, ds.department_id).then(() => fetchDashboard()); } }}>
-                                  <MessageSquare className="w-4.5 h-4.5" />
+                                  <MessageSquare className="w-3.5 h-3.5" />
                                   {unreadCount > 0 && (
-                                    <Badge className="absolute -top-2 -right-2 bg-destructive text-white border-none rounded-full px-1.5 py-0 text-[8px] font-black animate-pulse shadow-strong min-w-[16px] flex items-center justify-center">
+                                    <Badge className="absolute -top-1.5 -right-1.5 bg-destructive text-white border-none rounded-full px-1 py-0 text-[7px] font-black animate-pulse shadow-strong min-w-[12px] flex items-center justify-center">
                                       {unreadCount}
                                     </Badge>
                                   )}
                                 </Button>
                               </div>
-                              <span className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.3em]">
-                                {ds.department?.type} Department
+                              <span className="text-[7px] font-black text-muted-foreground/30 uppercase tracking-[0.2em]">
+                                {ds.department?.type}
                               </span>
                             </div>
                           </div>
@@ -810,7 +810,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                   };
 
                   return (
-                    <div className="space-y-3 lg:space-y-3 sm:space-y-6 pt-2 lg:pt-2 sm:pt-4 pb-3 lg:pb-3 sm:pb-6">
+                    <div className="space-y-3 pt-2 pb-3">
                       {/* ── Phase 1: Administrative ── */}
                       <PhaseAccordion
                         phase="Phase 1"
@@ -820,7 +820,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                         clearedCount={adminDepts.filter((d: any) => d.status === 'cleared').length}
                         defaultOpen={!phase1Cleared}
                       >
-                        <div className="grid grid-cols-1 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                           {adminDepts.map(renderCard)}
                         </div>
                       </PhaseAccordion>
@@ -835,7 +835,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                           clearedCount={academicDepts.filter((d: any) => d.status === 'cleared').length}
                           defaultOpen={!phase2Cleared}
                         >
-                          <div className="grid grid-cols-1 gap-6">
+                          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                             {academicDepts.map(renderCard)}
                           </div>
                         </PhaseAccordion>

@@ -386,7 +386,7 @@ export const Analytics = ({ user }: { user: any }) => {
   ].filter(item => item.value > 0);
 
   return (
-    <div className="space-y-6 lg:space-y-4 sm:space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 lg:pb-10 pb-20">
+    <div className="space-y-4 lg:space-y-3.5 sm:space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-1000 lg:pb-10 pb-20">
       {/* Editorial Header Section */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-4 sm:gap-10">
         <div className="space-y-2 lg:space-y-1.5">
@@ -472,9 +472,9 @@ export const Analytics = ({ user }: { user: any }) => {
 
       {/* Overview View */}
       {activeTab === 'overview' && (
-        <div className="space-y-6 lg:space-y-5 sm:space-y-8 animate-in fade-in duration-500">
+        <div className="space-y-4 lg:space-y-3.5 sm:space-y-6 animate-in fade-in duration-500">
           {/* Hero Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-3.5 sm:gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-3.5 sm:gap-6">
             {stats.map((stat, i) => (
               <Card key={i} className="border-none shadow-soft rounded-2xl group hover:-translate-y-1 transition-all duration-700 bg-card/60 backdrop-blur-3xl overflow-hidden border border-foreground/5 relative">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12 blur-2xl group-hover:bg-primary/10 transition-colors duration-700" />
@@ -720,7 +720,7 @@ export const Analytics = ({ user }: { user: any }) => {
                 <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Efficiency Rankings</span>
               </div>
             </CardHeader>
-            <CardContent className="p-4 lg:p-4 space-y-4 lg:space-y-3 sm:space-y-6">
+            <CardContent className="p-4 lg:p-4 space-y-4 lg:space-y-3 sm:space-y-6 max-h-[450px] lg:max-h-[calc(100vh-22rem)] overflow-y-auto custom-scrollbar">
               {sortedDepts.map((dept, index) => {
                 let badgeContent = null;
                 let trophyColor = 'text-muted-foreground/20';
@@ -845,7 +845,7 @@ export const Analytics = ({ user }: { user: any }) => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="p-0">
+              <CardContent className="p-0 max-h-[350px] lg:max-h-[calc(100vh-22rem)] overflow-y-auto custom-scrollbar">
                 <div className="divide-y divide-foreground/5">
                   {data.recentPending.map((req: any, i: number) => (
                     <div key={i} className="p-5 flex items-center justify-between hover:bg-primary/5 transition-colors group/req">

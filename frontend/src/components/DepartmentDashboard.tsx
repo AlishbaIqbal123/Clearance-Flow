@@ -70,7 +70,7 @@ import { StatusBadge } from './StatusBadge';
 const StatCard = ({ title, value, icon: Icon, color, onClick, description }: { title: string; value: any; icon: any; color: string; onClick?: () => void; description?: string }) => (
   <button 
     className={`
-      flex flex-col justify-between p-5 rounded-2xl bg-card/40 backdrop-blur-3xl border border-foreground/5 shadow-soft overflow-hidden group relative transition-all duration-700 text-left
+      flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-card/40 backdrop-blur-3xl border border-foreground/5 shadow-soft overflow-hidden group relative transition-all duration-700 text-left
       ${onClick ? 'cursor-pointer hover:shadow-strong hover:bg-card hover:-translate-y-1' : ''}
     `}
     onClick={onClick}
@@ -163,7 +163,7 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
   const currentDeptId = department.id || user?.department_id;
 
   return (
-    <div className="space-y-6 lg:space-y-4 sm:space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+    <div className="space-y-4 lg:space-y-3.5 sm:space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-1000">
       {/* Department Hero */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-6 sm:gap-10 relative overflow-hidden p-4 sm:p-6 lg:p-6 rounded-3xl bg-foreground group">
         <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[15%] -mt-[5%] blur-3xl group-hover:scale-110 transition-transform duration-1000" />
@@ -202,7 +202,7 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-3.5 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-3.5 sm:gap-4">
         <StatCard title="Pending" value={stats.pending} icon={Clock} color="bg-amber-500" description="Awaiting Review" onClick={() => setStatusFilter('pending')} />
         <StatCard title="In Review" value={stats.inReview} icon={FileText} color="bg-blue-600" description="Under Investigation" onClick={() => setStatusFilter('in_review')} />
         <StatCard title="Cleared" value={stats.cleared} icon={ShieldCheck} color="bg-emerald-600" description="Approved" onClick={() => setStatusFilter('cleared')} />
@@ -243,9 +243,10 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                  </Select>
               </div>
            </div>
-        </CardHeader>        <CardContent className="p-0">
+        </CardHeader>
+        <CardContent className="p-0 max-h-[450px] lg:max-h-[calc(100vh-22rem)] overflow-y-auto custom-scrollbar">
           {/* Desktop Table View */}
-          <div className="hidden lg:block overflow-hidden">
+          <div className="hidden lg:block">
             <Table>
             <TableHeader className="bg-muted/10">
                <TableRow className="border-none">
