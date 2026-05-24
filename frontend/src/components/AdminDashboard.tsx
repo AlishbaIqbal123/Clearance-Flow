@@ -19,34 +19,17 @@ import {
   Sparkles,
   Zap,
   ArrowUpRight,
-  Activity,
   ShieldCheck,
   Building,
   ChevronRight,
   LayoutGrid,
-  Search,
   Download,
-  CalendarDays,
-  History,
-  ShieldAlert,
-  Globe,
   Database,
-  Lock,
   Layers,
-  Truck,
-  MapPin
+  Truck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -58,14 +41,6 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { adminService } from '@/lib/admin.service';
 import { StatusBadge } from './StatusBadge';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
 import { 
   BarChart, 
   Bar, 
@@ -151,8 +126,6 @@ const AdminBentoCard = ({ title, value, icon: Icon, color, trend, trendUp, onCli
 export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => void }) => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedRequest, setSelectedRequest] = useState<any>(null);
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [chartView, setChartView] = useState<'status' | 'trends'>('status');
 
   const fetchDashboard = async () => {
@@ -617,316 +590,6 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
           </div>
         </Card>
       </div>
-
-      {/* Recent Activity Section */}
-      <Card className="border-none shadow-strong rounded-[2rem] bg-card/60 backdrop-blur-3xl overflow-hidden">
-        <CardHeader className="p-6 pb-4 flex flex-col lg:flex-row lg:items-center justify-between border-b border-foreground/5 gap-6">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3 text-primary">
-               <div className="p-1.5 bg-primary/10 rounded-lg">
-                  <Activity className="w-4 h-4" />
-               </div>
-               <CardTitle className="text-xl font-black tracking-tighter uppercase leading-none">Recent Activity</CardTitle>
-            </div>
-            <CardDescription className="text-xs text-muted-foreground font-bold uppercase tracking-widest opacity-60">Latest clearance requests across campus.</CardDescription>
-          </div>
-          <div className="flex flex-wrap gap-4">
-             <div className="relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-all duration-500" />
-                <Input placeholder="Search student..." className="pl-12 h-12 w-full lg:w-64 rounded-xl bg-secondary/50 border-none font-black text-[10px] uppercase tracking-widest placeholder:text-muted-foreground/30 focus-visible:ring-2 focus-visible:ring-primary/20 transition-all shadow-inner" />
-             </div>
-             <Button variant="outline" className="rounded-xl border-foreground/10 font-black text-[10px] uppercase tracking-widest px-6 h-12 shadow-soft hover:bg-card hover:border-primary/20 transition-all active:scale-95">
-               View History
-             </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0 max-h-[350px] lg:max-h-[calc(100vh-26rem)] overflow-y-auto custom-scrollbar">
-          {/* Desktop View */}
-          <div className="hidden lg:block">
-            <Table>
-              <TableHeader className="bg-muted/10">
-                <TableRow className="border-none">
-                  <TableHead className="px-8 py-3 lg:py-2.5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Student</TableHead>
-                  <TableHead className="py-3 lg:py-2.5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Request ID</TableHead>
-                  <TableHead className="py-3 lg:py-2.5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Type</TableHead>
-                  <TableHead className="py-3 lg:py-2.5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Status</TableHead>
-                  <TableHead className="py-3 lg:py-2.5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Date</TableHead>
-                  <TableHead className="py-3 lg:py-2.5 text-right px-8 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {(Array.isArray(recentRequests) ? recentRequests : []).map((request: any) => (
-                  <TableRow 
-                    key={request.id} 
-                    className="group hover:bg-muted/10 transition-all duration-500 border-foreground/5 cursor-pointer"
-                    onClick={() => { setSelectedRequest(request); setIsDetailsOpen(true); }}
-                  >
-                    <TableCell className="px-8 py-3 lg:py-2">
-                      <div className="flex items-center gap-4">
-                        <div className={`w-10 h-10 rounded-xl shadow-soft border border-foreground/5 flex items-center justify-center font-black text-xs group-hover:scale-110 group-hover:rotate-6 transition-all duration-700 relative overflow-hidden bg-gradient-to-tr ${getAvatarGradient(request.student?.registration_number)}`}>
-                           <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                           <span className="relative z-10">{request.student?.first_name?.[0]}{request.student?.last_name?.[0]}</span>
-                        </div>
-                        <div className="space-y-0.5">
-                          <p className="text-sm font-black text-foreground tracking-tight group-hover:text-primary transition-colors duration-500 uppercase">{request.student?.first_name} {request.student?.last_name}</p>
-                          <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest opacity-50">{request.student?.registration_number}</p>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="py-3 lg:py-2">
-                      <div className="inline-flex items-center gap-3 bg-secondary/80 backdrop-blur-md px-5 py-2.5 rounded-2xl border border-foreground/5 group-hover:border-primary/20 transition-all">
-                         <Lock className="w-3.5 h-3.5 text-primary opacity-40" />
-                         <code className="text-[10px] font-black text-primary tracking-[0.2em]">
-                           {request.request_id}
-                         </code>
-                      </div>
-                    </TableCell>
-                    <TableCell className="py-3 lg:py-2">
-                      <div className="flex items-center gap-4">
-                         <div className="w-2 h-2 rounded-full bg-primary shadow-lg" />
-                         <span className="font-black text-[10px] text-muted-foreground uppercase tracking-[0.2em]">{request.request_type?.replace('_', ' ')}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="py-3 lg:py-2">
-                      <StatusBadge status={request.status} />
-                    </TableCell>
-                    <TableCell className="py-3 lg:py-2">
-                      <div className="space-y-2">
-                         <div className="flex items-center gap-3 text-foreground font-black text-[10px] uppercase tracking-widest">
-                            <CalendarDays className="w-4 h-4 text-primary opacity-40" />
-                            {new Date(request.created_at).toLocaleDateString()}
-                         </div>
-                         <div className="flex items-center gap-3 text-muted-foreground font-black text-[9px] uppercase tracking-widest pl-7 opacity-40">
-                            <Clock className="w-3.5 h-3.5" />
-                            {new Date(request.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right px-8 py-3 lg:py-2">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="w-10 h-10 rounded-xl hover:bg-card hover:shadow-strong transition-all duration-500 active:scale-90 border border-transparent hover:border-foreground/5">
-                            <MoreVertical className="w-5 h-5 text-muted-foreground" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="rounded-2xl w-56 border-none shadow-strong p-2 bg-background/95 backdrop-blur-2xl animate-in zoom-in-95 duration-300">
-                           <DropdownMenuItem 
-                            className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4 cursor-pointer"
-                            onClick={() => { setSelectedRequest(request); setIsDetailsOpen(true); }}
-                           >
-                              <FileText className="w-4 h-4 mr-3 opacity-40" /> View Details
-                           </DropdownMenuItem>
-                           <DropdownMenuItem 
-                            className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-4 cursor-pointer mt-1"
-                            onClick={() => { setSelectedRequest(request); setIsDetailsOpen(true); }}
-                           >
-                              <History className="w-4 h-4 mr-3 opacity-40" /> Request History
-                           </DropdownMenuItem>
-                           <DropdownMenuItem 
-                            className="rounded-xl h-12 font-black text-[9px] uppercase tracking-widest focus:bg-destructive focus:text-white px-4 cursor-pointer mt-1 text-destructive"
-                            onClick={() => toast.info('Revoke functionality coming soon')}
-                           >
-                              <ShieldAlert className="w-4 h-4 mr-3" /> Revoke
-                           </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                
-                {recentRequests.length === 0 && (
-                   <TableRow>
-                     <TableCell colSpan={6} className="h-96 text-center px-12">
-                        <div className="flex flex-col items-center justify-center gap-10">
-                           <div className="w-32 h-32 bg-muted/10 rounded-[3.5rem] flex items-center justify-center shadow-inner relative overflow-hidden group/empty">
-                              <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover/empty:opacity-100 transition-opacity" />
-                              <Activity className="w-16 h-16 text-muted-foreground/10 group-hover:text-primary/20 transition-all duration-700" />
-                           </div>
-                           <div className="space-y-3">
-                              <p className="text-2xl font-black text-foreground uppercase tracking-tight">Stream Idle</p>
-                              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.5em] opacity-40 italic">Waiting for institutional sequence initiation...</p>
-                           </div>
-                        </div>
-                     </TableCell>
-                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-
-          {/* Mobile View */}
-          <div className="lg:hidden p-4 space-y-4">
-             {(Array.isArray(recentRequests) ? recentRequests : []).map((request: any) => (
-                <div 
-                  key={request.id} 
-                  className="bg-card/40 rounded-2xl p-5 border border-foreground/5 space-y-5 hover:border-primary/20 transition-all"
-                  onClick={() => { setSelectedRequest(request); setIsDetailsOpen(true); }}
-                >
-                  <div className="flex items-center justify-between">
-                     <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-[10px] bg-gradient-to-tr ${getAvatarGradient(request.student?.registration_number)}`}>
-                           {request.student?.first_name?.[0]}{request.student?.last_name?.[0]}
-                        </div>
-                        <div>
-                           <p className="text-xs font-black uppercase tracking-tight leading-none">{request.student?.first_name} {request.student?.last_name}</p>
-                           <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest mt-1">{request.student?.registration_number}</p>
-                        </div>
-                     </div>
-                     <StatusBadge status={request.status} />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 py-4 border-y border-foreground/5">
-                      <div className="space-y-1">
-                         <p className="text-[7px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Clearance ID</p>
-                         <code className="text-[9px] font-black text-primary tracking-wider">{request.request_id}</code>
-                      </div>
-                     <div className="space-y-1">
-                        <p className="text-[7px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Timeline</p>
-                        <p className="text-[9px] font-black uppercase">{new Date(request.created_at).toLocaleDateString()}</p>
-                     </div>
-                  </div>
-
-                  <Button className="w-full h-11 rounded-xl bg-foreground text-white font-black text-[9px] uppercase tracking-widest active:scale-95 transition-all">
-                     Audit Details
-                  </Button>
-                </div>
-             ))}
-
-             {recentRequests.length === 0 && (
-                <div className="py-20 text-center opacity-20">
-                   <Activity className="w-12 h-12 mx-auto mb-4" />
-                   <p className="text-[10px] font-black uppercase tracking-widest">Registry Idle</p>
-                </div>
-             )}
-          </div>
-        </CardContent>
-      </Card>
-      {/* Premium Audit Master Console Dialog */}
-      <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="sm:max-w-[650px] w-[95vw] max-h-[90vh] rounded-3xl p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 overflow-y-auto custom-scrollbar">
-          <div className="bg-foreground p-5 sm:p-8 text-background relative overflow-hidden border-b border-white/5">
-            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/20 rounded-full -mr-48 -mt-48 blur-[100px] pointer-events-none" />
-            
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
-              <div className="space-y-4">
-                 <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center text-primary backdrop-blur-xl border border-white/5">
-                       <ShieldCheck className="w-6 h-6" />
-                    </div>
-                    <div className="space-y-0.5">
-                       <Badge className="bg-primary text-white border-none rounded-full px-4 py-1 text-[8px] font-black uppercase tracking-[0.4em]">Audit Request</Badge>
-                       <p className="text-[9px] font-black text-background/30 uppercase tracking-[0.5em]">{selectedRequest?.request_type?.replace('_', ' ')}</p>
-                    </div>
-                 </div>
-                 <DialogTitle className="text-xl sm:text-2xl font-black tracking-tighter uppercase leading-none">{selectedRequest?.request_id}</DialogTitle>
-              </div>
-              <div className="text-left sm:text-right space-y-2">
-                 <p className="text-[8px] sm:text-[10px] font-black text-background/30 uppercase tracking-[0.5em]">Overall Status</p>
-                 {selectedRequest && <StatusBadge status={selectedRequest.status} size="lg" />}
-              </div>
-            </div>
-          </div>
-          
-          <div className="p-5 sm:p-8 space-y-6 bg-card/40 backdrop-blur-3xl">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-              <div className="space-y-4 p-5 sm:p-6 bg-secondary/50 rounded-2xl sm:rounded-3xl border border-foreground/5 group hover:bg-secondary transition-all duration-700">
-                <div className="flex items-center gap-4">
-                   <div className="p-3 bg-primary/10 rounded-xl group-hover:rotate-12 transition-transform duration-700">
-                      <Users className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-                   </div>
-                   <div className="space-y-0.5">
-                      <p className="text-[9px] sm:text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Primary Identity</p>
-                   </div>
-                </div>
-                <div className="space-y-2.5 pl-4 border-l-4 border-primary/20">
-                   <p className="text-lg sm:text-xl font-black text-foreground leading-none tracking-tight uppercase">{selectedRequest?.student?.first_name} {selectedRequest?.student?.last_name}</p>
-                   <p className="text-[9px] sm:text-[11px] font-black text-muted-foreground uppercase tracking-[0.4em] opacity-60">{selectedRequest?.student?.registration_number}</p>
-                </div>
-              </div>
-              
-              <div className="space-y-4 p-6 bg-secondary/50 rounded-3xl border border-foreground/5 group hover:bg-secondary transition-all duration-700">
-                <div className="flex items-center gap-4">
-                   <div className="p-3.5 bg-primary/10 rounded-xl group-hover:scale-110 transition-transform duration-700">
-                      <Activity className="w-6 h-6 text-primary" />
-                   </div>
-                   <div className="space-y-0.5">
-                      <p className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.4em]">Timeline</p>
-                   </div>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-card rounded-xl border border-foreground/5 shadow-soft">
-                   <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Initialized</span>
-                   <span className="text-xs font-black uppercase">{selectedRequest && new Date(selectedRequest.created_at).toLocaleDateString()}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Fulfillment Intelligence */}
-            {selectedRequest?.degree_fulfillment && (
-              <div className="p-6 bg-primary/5 rounded-[2rem] border-2 border-primary/10 space-y-5 animate-in slide-in-from-top-4 duration-700">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-white shadow-strong shadow-primary/20">
-                      <Truck className="w-6 h-6" />
-                    </div>
-                    <div className="space-y-1">
-                      <Badge className="bg-primary/20 text-primary border-none rounded-full px-3 py-0.5 text-[7px] font-black uppercase tracking-widest">Fulfillment Strategy</Badge>
-                      <h4 className="text-xl font-black tracking-tighter uppercase leading-none">
-                        {selectedRequest.degree_fulfillment.method === 'dispatch' ? 'Secure Dispatch' : 'Manual Collection'}
-                      </h4>
-                    </div>
-                  </div>
-                </div>
-                
-                {selectedRequest.degree_fulfillment.method === 'dispatch' && (
-                  <div className="p-6 bg-card rounded-2xl border border-foreground/5 shadow-soft space-y-3">
-                    <div className="flex items-center gap-2 text-[9px] font-black text-muted-foreground uppercase tracking-widest opacity-40">
-                      <MapPin className="w-3.5 h-3.5" />
-                      Dispatch Coordinates
-                    </div>
-                    <p className="text-sm font-bold text-foreground leading-relaxed">
-                      {selectedRequest.degree_fulfillment.address}
-                    </p>
-                  </div>
-                )}
-                
-                {selectedRequest.degree_fulfillment.method === 'manual' && (
-                  <div className="flex items-center gap-3 p-5 bg-card rounded-2xl border border-foreground/5 shadow-soft">
-                    <div className="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-500">
-                      <ShieldCheck className="w-4 h-4" />
-                    </div>
-                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
-                      Student will collect physically from Registrar
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            <div className="space-y-4 pt-2">
-               <h4 className="text-lg font-black text-foreground tracking-tight uppercase">Department Pulse</h4>
-               <div className="grid grid-cols-1 gap-3 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
-                 {(selectedRequest?.clearance_status || []).map((cs: any) => (
-                   <div key={cs.id} className="flex items-center justify-between p-4 bg-secondary/50 rounded-2xl border border-foreground/5">
-                     <div className="flex items-center gap-4">
-                       <div className="w-10 h-10 rounded-xl bg-card border border-foreground/5 flex items-center justify-center text-primary font-black text-[10px]">
-                         {cs.department?.code}
-                       </div>
-                       <p className="text-xs font-black text-foreground uppercase">{cs.department?.name}</p>
-                     </div>
-                     <StatusBadge status={cs.status} />
-                   </div>
-                 ))}
-               </div>
-            </div>
-            
-            <div className="pt-4">
-               <Button variant="ghost" className="h-10 rounded-xl px-8 font-black text-[9px] uppercase tracking-[0.4em] text-muted-foreground hover:bg-secondary/80 w-full border border-foreground/5" onClick={() => setIsDetailsOpen(false)}>
-                 Close Details
-               </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
