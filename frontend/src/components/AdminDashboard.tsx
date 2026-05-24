@@ -93,28 +93,28 @@ const getLatencyInfo = (count: number) => {
 const AdminBentoCard = ({ title, value, icon: Icon, color, trend, trendUp, onClick, description }: { title: string; value: any; icon: any; color: string; trend?: string; trendUp?: boolean; onClick?: () => void; description?: string }) => (
   <button 
     className={`
-      flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-card/40 backdrop-blur-3xl border border-foreground/5 shadow-soft overflow-hidden group relative transition-all duration-700 text-left
-      ${onClick ? 'cursor-pointer hover:shadow-strong hover:bg-card hover:-translate-y-1 hover:border-primary/20 hover:ring-1 hover:ring-primary/10' : ''}
+      flex flex-col justify-between p-3.5 sm:p-4 rounded-xl bg-card/40 backdrop-blur-3xl border border-foreground/5 shadow-soft overflow-hidden group relative transition-all duration-700 text-left
+      ${onClick ? 'cursor-pointer hover:shadow-strong hover:bg-card hover:-translate-y-0.5 hover:border-primary/20 hover:ring-1 hover:ring-primary/10' : ''}
     `}
     onClick={onClick}
   >
-    <div className={`absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 rounded-full ${color} opacity-[0.05] group-hover:opacity-[0.12] transition-opacity blur-2xl`} />
-    <svg className="absolute bottom-0 left-0 right-0 h-10 w-full opacity-[0.04] group-hover:opacity-[0.1] transition-opacity duration-700 pointer-events-none" viewBox="0 0 100 25" preserveAspectRatio="none">
+    <div className={`absolute top-0 right-0 w-20 h-20 -mr-8 -mt-8 rounded-full ${color} opacity-[0.05] group-hover:opacity-[0.12] transition-opacity blur-xl`} />
+    <svg className="absolute bottom-0 left-0 right-0 h-8 w-full opacity-[0.04] group-hover:opacity-[0.1] transition-opacity duration-700 pointer-events-none" viewBox="0 0 100 25" preserveAspectRatio="none">
       <path d="M0,15 C30,5 70,25 100,15 L100,25 L0,25 Z" fill="currentColor" className={color.replace('bg-', 'text-')} />
     </svg>
-    <div className="flex items-center justify-between relative z-10 w-full mb-4">
-      <div className={`w-10 h-10 rounded-xl ${color} bg-opacity-10 flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-soft shadow-inner`}>
-        <Icon className={`w-5 h-5 ${color.replace('bg-', 'text-')}`} />
+    <div className="flex items-center justify-between relative z-10 w-full mb-2.5">
+      <div className={`w-8.5 h-8.5 rounded-lg ${color} bg-opacity-10 flex items-center justify-center transition-all duration-700 group-hover:scale-105 shadow-soft shadow-inner`}>
+        <Icon className={`w-4 h-4 ${color.replace('bg-', 'text-')}`} />
       </div>
-      {onClick && <ArrowUpRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-500" />}
+      {onClick && <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-500" />}
     </div>
-    <div className="space-y-1 relative z-10">
-      <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none opacity-50">{title}</p>
-      <h3 className="text-xl font-black text-foreground mt-1.5 tracking-tighter uppercase leading-none">{value}</h3>
-      <div className="flex items-center justify-between mt-3">
-        <p className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-widest">{description || 'Total Count'}</p>
+    <div className="space-y-0.5 relative z-10">
+      <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none opacity-50">{title}</p>
+      <h3 className="text-lg font-black text-foreground mt-1.5 tracking-tighter uppercase leading-none">{value}</h3>
+      <div className="flex items-center justify-between mt-2.5">
+        <p className="text-[7px] font-bold text-muted-foreground/60 uppercase tracking-widest">{description || 'Total Count'}</p>
         {trend && (
-           <Badge variant="outline" className={`border-none rounded-lg px-2 py-0.5 font-black text-[8px] uppercase tracking-widest ${trendUp ? 'bg-emerald-500/10 text-emerald-600' : 'bg-destructive/10 text-destructive'}`}>
+           <Badge variant="outline" className={`border-none rounded-md px-1.5 py-0.5 font-black text-[7px] uppercase tracking-widest ${trendUp ? 'bg-emerald-500/10 text-emerald-600' : 'bg-destructive/10 text-destructive'}`}>
               {trend}
            </Badge>
         )}
@@ -193,38 +193,22 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
   ];
 
   return (
-    <div className="space-y-4 lg:space-y-3.5 sm:space-y-6 animate-in fade-in slide-in-from-bottom-10 duration-1000">
-      {/* Premium Dashboard Header */}
-      <div className="relative overflow-hidden p-4 sm:p-6 lg:p-6 rounded-2xl bg-card border border-foreground/5 group shadow-strong">
-        <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[15%] -mt-[10%] blur-[100px] group-hover:scale-125 transition-transform duration-1000" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 rounded-full -ml-32 -mb-32 blur-[60px]" />
-        
-        <div className="space-y-4 lg:space-y-3 sm:space-y-5 relative z-10 max-w-3xl">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-5">
-             <div className="w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center text-primary backdrop-blur-xl border border-foreground/5 shadow-2xl group-hover:rotate-6 transition-all duration-700 shrink-0">
-                <Database className="w-7 h-7" />
-             </div>
-             <div className="space-y-1.5">
-                <div className="flex items-center gap-3">
-                   <Badge className="bg-primary/20 text-primary border-none font-black text-[9px] uppercase tracking-[0.4em] px-4 py-1 rounded-full backdrop-blur-md">Admin Section</Badge>
-                   <span className="flex gap-1">
-                      {[1,2,3].map(i => <div key={i} className="w-1 h-1 bg-primary rounded-full animate-pulse" style={{ animationDelay: `${i*0.2}s` }} />)}
-                   </span>
-                </div>
-                <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-foreground tracking-tighter leading-none uppercase">
-                Institutional<br /><span className="text-primary italic">Intelligence Hub</span>
-              </h2>
-             </div>
+    <div className="space-y-3 lg:space-y-2.5 sm:space-y-4 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+      {/* Premium Dashboard Header (Slim & Compact) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card/40 backdrop-blur-md p-4 rounded-2xl border border-foreground/5 relative z-10 shadow-soft">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary border border-foreground/5 shadow-inner">
+             <Database className="w-5 h-5" />
           </div>
-          <p className="text-sm lg:text-base text-muted-foreground font-medium leading-relaxed max-w-2xl italic">
-             Central management for student clearance, department records, and staff access across the university.
-          </p>
+          <div>
+             <h2 className="text-sm font-black tracking-tight uppercase leading-none">Institutional Intelligence Overview</h2>
+             <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none mt-1 opacity-60">Manage students, departments, and clearance requests</p>
+          </div>
         </div>
-
-        <div className="flex flex-wrap items-center gap-4 relative z-10 mt-8">
+        <div className="flex items-center gap-2">
            <Button 
             variant="ghost" 
-            className="rounded-2xl h-14 px-8 font-black text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-all duration-700 active:scale-95 border border-foreground/5 backdrop-blur-sm"
+            className="rounded-xl h-10 px-4 font-black text-[9px] uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-all active:scale-95 border border-foreground/5 backdrop-blur-sm"
             onClick={() => {
               if (!data) {
                 toast.error('No report data available for export');
@@ -245,58 +229,56 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
               });
             }}
            >
-             <Download className="w-4 h-4 mr-3" />
-             Export Report
+             <Download className="w-3.5 h-3.5 mr-2" />
+             Export
            </Button>
            <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button className="rounded-2xl bg-primary text-white hover:bg-primary/90 h-12 px-8 font-black text-[10px] uppercase tracking-widest shadow-strong shadow-primary/30 flex items-center gap-3 active:scale-95 transition-all group/btn overflow-hidden relative">
+                <Button className="rounded-xl bg-primary text-white hover:bg-primary/90 h-10 px-5 font-black text-[9px] uppercase tracking-widest shadow-soft shadow-primary/20 flex items-center gap-2 active:scale-95 transition-all group/btn overflow-hidden relative">
                   <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
-                  <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform duration-700" />
-                  <span className="hidden sm:inline">Add New</span>
-                  <span className="sm:hidden">Add</span>
+                  <Plus className="w-3.5 h-3.5 group-hover:rotate-90 transition-transform duration-700" />
+                  <span>Add New</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-80 rounded-[3rem] border-none shadow-strong p-5 bg-background/95 backdrop-blur-3xl animate-in zoom-in-95 duration-500">
-                <DropdownMenuItem className="rounded-[1.5rem] h-16 font-black text-[10px] uppercase tracking-[0.2em] focus:bg-primary focus:text-white px-8 cursor-pointer transition-all" onClick={() => onNavigate('students')}>
-                  <Users className="w-5 h-5 mr-5 opacity-50" />
-                  Enroll New Student
+              <DropdownMenuContent align="end" className="w-64 rounded-3xl border-none shadow-strong p-3 bg-background/95 backdrop-blur-3xl animate-in zoom-in-95 duration-300">
+                <DropdownMenuItem className="rounded-2xl h-12 font-black text-[9px] uppercase tracking-[0.1em] focus:bg-primary focus:text-white px-5 cursor-pointer transition-all" onClick={() => onNavigate('students')}>
+                  <Users className="w-4 h-4 mr-4 opacity-50" />
+                  Enroll Student
                 </DropdownMenuItem>
-                <DropdownMenuItem className="rounded-[1.5rem] h-16 font-black text-[10px] uppercase tracking-[0.2em] focus:bg-primary focus:text-white px-8 cursor-pointer mt-3 transition-all" onClick={() => onNavigate('departments')}>
-                  <Building2 className="w-5 h-5 mr-5 opacity-50" />
-                  Add New Department
+                <DropdownMenuItem className="rounded-2xl h-12 font-black text-[9px] uppercase tracking-[0.1em] focus:bg-primary focus:text-white px-5 cursor-pointer mt-1.5 transition-all" onClick={() => onNavigate('departments')}>
+                  <Building2 className="w-4 h-4 mr-4 opacity-50" />
+                  Add Department
                 </DropdownMenuItem>
-                <DropdownMenuItem className="rounded-[1.5rem] h-16 font-black text-[10px] uppercase tracking-[0.2em] focus:bg-primary focus:text-white px-8 cursor-pointer mt-3 transition-all" onClick={() => onNavigate('users')}>
-                  <UserPlus className="w-5 h-5 mr-5 opacity-50" />
-                  Authorize Official Access
+                <DropdownMenuItem className="rounded-2xl h-12 font-black text-[9px] uppercase tracking-[0.1em] focus:bg-primary focus:text-white px-5 cursor-pointer mt-1.5 transition-all" onClick={() => onNavigate('users')}>
+                  <UserPlus className="w-4 h-4 mr-4 opacity-50" />
+                  Authorize Access
                 </DropdownMenuItem>
               </DropdownMenuContent>
            </DropdownMenu>
         </div>
       </div>
 
-      {/* Dispatch Logistics Notification Alert */}
+      {/* Dispatch Logistics Notification Alert (Compact) */}
       {counts.dispatchPendingCount > 0 && (
-        <div className="relative group overflow-hidden p-6 rounded-[2.5rem] bg-amber-500/10 border border-amber-500/20 backdrop-blur-3xl animate-in fade-in slide-in-from-top-10 duration-1000">
-           <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full -mr-16 -mt-16 blur-[60px]" />
-           <div className="flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10">
-              <div className="flex items-center gap-6">
-                 <div className="w-14 h-14 bg-amber-500/20 rounded-2xl flex items-center justify-center text-amber-600 shadow-soft group-hover:rotate-12 transition-all duration-700">
-                    <Truck className="w-7 h-7" />
+        <div className="relative group overflow-hidden p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 backdrop-blur-3xl animate-in fade-in duration-500">
+           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 relative z-10">
+              <div className="flex items-center gap-3">
+                 <div className="w-8 h-8 bg-amber-500/20 rounded-lg flex items-center justify-center text-amber-600 shadow-soft">
+                    <Truck className="w-4 h-4" />
                  </div>
-                 <div className="space-y-1.5">
-                    <h4 className="text-base font-black text-amber-900 uppercase tracking-tighter leading-none">Logistics Alert: {counts.dispatchPendingCount} Pending Dispatches</h4>
-                    <p className="text-[11px] font-bold text-amber-700 uppercase tracking-widest opacity-70">
-                       Students have submitted shipping addresses. Administrative processing required.
+                 <div>
+                    <h4 className="text-xs font-black text-amber-900 uppercase tracking-tight leading-none">Logistics Alert: {counts.dispatchPendingCount} Pending Dispatches</h4>
+                    <p className="text-[8px] font-bold text-amber-700 uppercase tracking-widest opacity-70 mt-1">
+                       Students submitted addresses. Action required.
                     </p>
                  </div>
               </div>
               <Button 
                 onClick={() => onNavigate('dispatch')}
-                className="bg-amber-600 hover:bg-amber-700 text-white h-14 px-8 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] shadow-strong shadow-amber-600/20 flex items-center gap-4 transition-all active:scale-95 shrink-0"
+                className="bg-amber-600 hover:bg-amber-700 text-white h-8 px-4 rounded-xl font-black text-[8px] uppercase tracking-widest shadow-soft shadow-amber-600/10 flex items-center gap-2 transition-all active:scale-95 shrink-0"
               >
-                Go to Logistics Center
-                <ArrowRight className="w-4 h-4" />
+                Go to Logistics
+                <ArrowRight className="w-3.5 h-3.5" />
               </Button>
            </div>
         </div>
@@ -381,8 +363,8 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-4 sm:p-5 lg:p-6">
-            <div className="h-[220px] lg:h-[230px] xl:h-[260px] sm:h-[320px] w-full">
+          <CardContent className="p-3.5 lg:p-4">
+            <div className="h-[180px] lg:h-[190px] xl:h-[215px] sm:h-[260px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 {chartView === 'status' ? (
                   <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
@@ -514,14 +496,14 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                    'Rejected': '#ef4444'
                  };
                  return (
-                   <div key={item.name} className="space-y-2 group cursor-pointer p-3 lg:p-2.5 rounded-2xl hover:bg-muted/10 transition-all duration-500">
-                      <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest group-hover:text-primary transition-colors">{item.name}</p>
-                      <div className="flex items-center gap-3">
-                         <div className="w-1.5 h-6 rounded-full shadow-md" style={{ backgroundColor: legendColors[item.name] || '#6366f1' }} />
-                         <h4 className="text-2xl font-black text-foreground tracking-tighter leading-none">{item.value}</h4>
-                      </div>
-                   </div>
-                 );
+                    <div key={item.name} className="space-y-1.5 group cursor-pointer p-2.5 lg:p-2 rounded-xl hover:bg-muted/10 transition-all duration-500">
+                       <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest group-hover:text-primary transition-colors">{item.name}</p>
+                       <div className="flex items-center gap-3">
+                          <div className="w-1.5 h-6 rounded-full shadow-md" style={{ backgroundColor: legendColors[item.name] || '#6366f1' }} />
+                          <h4 className="text-xl lg:text-lg xl:text-xl font-black text-foreground tracking-tighter leading-none">{item.value}</h4>
+                       </div>
+                    </div>
+                  );
                })}
             </div>
           </CardContent>
@@ -537,27 +519,27 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                <CardTitle className="text-lg font-black tracking-tighter uppercase leading-none">Pending by<br />Department</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="p-5 lg:p-4">
-            <div className="space-y-6 lg:space-y-3.5">
-              {(Array.isArray(departmentPendingStats) ? departmentPendingStats : []).slice(0, 6).map((dept: any, index: number) => {
+          <CardContent className="p-4 lg:p-3.5">
+            <div className="space-y-4 lg:space-y-3">
+              {(Array.isArray(departmentPendingStats) ? departmentPendingStats : []).slice(0, 4).map((dept: any, index: number) => {
                 const latency = getLatencyInfo(dept.count);
                 return (
-                  <div key={index} className="space-y-3 lg:space-y-2 group cursor-pointer relative">
+                  <div key={index} className="space-y-2 lg:space-y-1.5 group cursor-pointer relative">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-5">
-                         <span className="text-[11px] font-black text-muted-foreground/20 w-8 group-hover:text-primary transition-colors duration-500">0{index + 1}</span>
-                         <div className="space-y-1">
-                            <span className="text-base font-black text-foreground tracking-tight group-hover:text-primary transition-colors duration-500 uppercase">{dept.department?.name || dept.departmentName}</span>
-                            <div className="flex items-center gap-2">
-                               <p className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-widest leading-none">{dept.department?.code || 'DEPT'}</p>
+                      <div className="flex items-center gap-3">
+                         <span className="text-[10px] font-black text-muted-foreground/20 w-6 group-hover:text-primary transition-colors duration-500">0{index + 1}</span>
+                         <div className="space-y-0.5">
+                            <span className="text-sm font-black text-foreground tracking-tight group-hover:text-primary transition-colors duration-500 uppercase leading-none">{dept.department?.name || dept.departmentName}</span>
+                            <div className="flex items-center gap-1.5">
+                               <p className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-widest leading-none">{dept.department?.code || 'DEPT'}</p>
                                <span className="w-1.5 h-1.5 rounded-full bg-foreground/20" />
-                               <span className={`text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded ${latency.badgeStyle}`}>{latency.badgeText}</span>
+                               <span className={`text-[7px] font-black uppercase tracking-wider px-1 py-0.5 rounded leading-none ${latency.badgeStyle}`}>{latency.badgeText}</span>
                             </div>
                          </div>
                       </div>
-                      <Badge className={`rounded-xl font-black text-[11px] px-4 py-1.5 shadow-soft border border-foreground/5 ${latency.badgeStyle}`}>{dept.count}</Badge>
+                      <Badge className={`rounded-lg font-black text-[10px] px-2.5 py-1 shadow-soft border border-foreground/5 ${latency.badgeStyle}`}>{dept.count}</Badge>
                     </div>
-                    <div className="relative h-2.5 w-full bg-secondary rounded-full overflow-hidden p-0.5">
+                    <div className="relative h-1.5 w-full bg-secondary rounded-full overflow-hidden p-0.5">
                        <div 
                         className={`absolute inset-y-0.5 left-0.5 rounded-full transition-all duration-1000 ease-out ${latency.color}`}
                         style={{ width: `${Math.min(((dept.count || 0) / 30) * 100, 100)}%` }}
@@ -570,20 +552,19 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
               })}
               
               {departmentPendingStats.length === 0 && (
-                <div className="py-24 text-center space-y-8">
-                   <div className="w-28 h-28 bg-emerald-500/10 rounded-[3rem] flex items-center justify-center mx-auto shadow-inner relative group/icon">
-                      <div className="absolute inset-0 bg-emerald-500/20 rounded-[3rem] blur-xl opacity-0 group-hover/icon:opacity-100 transition-opacity" />
-                      <ShieldCheck className="w-14 h-14 text-emerald-500 relative z-10" />
+                <div className="py-10 text-center space-y-4">
+                   <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto shadow-inner relative group/icon">
+                      <ShieldCheck className="w-8 h-8 text-emerald-500 relative z-10" />
                    </div>
-                   <div className="space-y-2">
-                      <p className="text-2xl font-black text-foreground uppercase tracking-tight">Latency Zero</p>
-                      <p className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-50 italic">Peak operational velocity detected.</p>
+                   <div className="space-y-1">
+                      <p className="text-lg font-black text-foreground uppercase tracking-tight leading-none">Latency Zero</p>
+                      <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest opacity-50 italic">Peak operational velocity detected.</p>
                    </div>
                 </div>
               )}
             </div>
           </CardContent>
-          <div className="p-4 lg:p-4 bg-muted/20 border-t border-foreground/5 text-center">
+          <div className="p-3 lg:p-3 bg-muted/20 border-t border-foreground/5 text-center">
              <Button variant="ghost" className="text-[10px] font-black uppercase tracking-[0.4em] text-primary hover:bg-primary/10 rounded-[1.5rem] px-10 h-10 w-full transition-all duration-500 active:scale-95" onClick={() => onNavigate('analytics')}>
                 Extended Analytics <ChevronRight className="w-4 h-4 ml-3" />
              </Button>
