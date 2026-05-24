@@ -154,7 +154,6 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [chartView, setChartView] = useState<'status' | 'trends'>('status');
-  const [dashboardView, setDashboardView] = useState<'operations' | 'registry'>('operations');
 
   const fetchDashboard = async () => {
     try {
@@ -370,31 +369,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
         />
       </div>
 
-      {/* View Switcher for Desktop to eliminate scrolling */}
-      <div className="hidden lg:flex items-center gap-3 p-1.5 bg-card/60 backdrop-blur-3xl rounded-2xl border border-foreground/5 max-w-md w-full shadow-soft my-2">
-        <button
-          onClick={() => setDashboardView('operations')}
-          className={`flex-1 py-2 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${
-            dashboardView === 'operations'
-              ? 'bg-primary text-white shadow-strong shadow-primary/20'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted/10'
-          }`}
-        >
-          Operations Hub
-        </button>
-        <button
-          onClick={() => setDashboardView('registry')}
-          className={`flex-1 py-2 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${
-            dashboardView === 'registry'
-              ? 'bg-primary text-white shadow-strong shadow-primary/20'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted/10'
-          }`}
-        >
-          Registry & Activity
-        </button>
-      </div>
-
-      <div className={`grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-6 sm:gap-10 ${dashboardView === 'operations' ? 'lg:grid' : 'lg:hidden'} grid`}>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-6 sm:gap-10">
         
         {/* Analytics Throughput Card */}
         <Card className="col-span-1 lg:col-span-2 border-none shadow-strong rounded-3xl bg-card/60 backdrop-blur-3xl overflow-hidden group">
@@ -636,150 +611,15 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
             </div>
           </CardContent>
           <div className="p-4 lg:p-4 bg-muted/20 border-t border-foreground/5 text-center">
-             <Button variant="ghost" className="text-[10px] font-black uppercase tracking-[0.4em] text-primary hover:bg-primary/10 rounded-[1.5rem] px-10 h-10 w-full transition-all duration-500 active:scale-95">
+             <Button variant="ghost" className="text-[10px] font-black uppercase tracking-[0.4em] text-primary hover:bg-primary/10 rounded-[1.5rem] px-10 h-10 w-full transition-all duration-500 active:scale-95" onClick={() => onNavigate('analytics')}>
                 Extended Analytics <ChevronRight className="w-4 h-4 ml-3" />
              </Button>
           </div>
         </Card>
       </div>
 
-      {/* Registry Density & Institutional Control */}
-      <div className={`grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-6 sm:gap-10 ${dashboardView === 'registry' ? 'lg:grid' : 'lg:hidden'} grid`}>
-        <Card className="border-none shadow-strong rounded-[2rem] bg-card/60 backdrop-blur-3xl overflow-hidden">
-          <CardHeader className="p-4 lg:p-4 border-b border-foreground/5 bg-primary/5">
-            <div className="flex items-center gap-4 text-primary">
-               <div className="p-2.5 bg-primary/10 rounded-xl">
-                  <GraduationCap className="w-5 h-5" />
-               </div>
-               <CardTitle className="text-xl font-black tracking-tighter uppercase leading-none">Students per Dept</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="p-4 lg:p-4">
-            <div className="h-[220px] lg:h-[200px] xl:h-[230px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={departmentStudentStats} layout="vertical" margin={{ left: 10, right: 30, bottom: 10 }}>
-                  <defs>
-                    <linearGradient id="deptStudentGrad" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="hsl(var(--primary) / 0.3)"/>
-                      <stop offset="100%" stopColor="hsl(var(--primary))"/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--foreground) / 0.03)" />
-                  <XAxis type="number" hide />
-                  <YAxis 
-                    dataKey="name" 
-                    type="category" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fill: 'currentColor', fontSize: 9, fontWeight: 900, opacity: 0.4 }} 
-                    width={100}
-                  />
-                  <Tooltip 
-                    cursor={{ fill: 'hsl(var(--primary) / 0.05)', radius: 8 }}
-                    contentStyle={{ borderRadius: '1.5rem', border: 'none', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.2)', padding: '1rem' }}
-                  />
-                  <Bar dataKey="count" fill="url(#deptStudentGrad)" radius={[0, 10, 10, 0]} barSize={25} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Right Column: System Operations Monitor & Redirection */}
-        <div className="flex flex-col gap-6 lg:gap-6 sm:gap-10">
-           {/* System Operations Pulse Widget */}
-           <Card className="border-none shadow-strong rounded-[2rem] bg-card/60 backdrop-blur-3xl overflow-hidden p-4 lg:p-4 relative group border border-foreground/5">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 blur-[50px] group-hover:bg-emerald-500/10 transition-colors duration-1000" />
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-500 shadow-inner group-hover:rotate-6 transition-transform">
-                     <Activity className="w-5 h-5 animate-pulse" />
-                  </div>
-                  <div>
-                    <h3 className="text-xs font-black uppercase tracking-widest text-foreground">System Operations Pulse</h3>
-                    <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground opacity-50">Real-Time Infrastructure Pulse</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-600 px-3 py-1 rounded-full border border-emerald-500/20">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                  <span className="text-[8px] font-black uppercase tracking-widest">Active</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                 {/* Item 1: Database Latency */}
-                 <div className="bg-secondary/40 p-4 rounded-2xl border border-foreground/5 space-y-1">
-                    <div className="flex items-center justify-between">
-                       <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Database Sync</span>
-                       <Database className="w-3.5 h-3.5 text-primary opacity-40" />
-                    </div>
-                    <div className="flex items-baseline gap-2">
-                       <h4 className="text-xl font-black tracking-tighter">12ms</h4>
-                       <span className="text-[7px] text-emerald-500 font-bold uppercase">Optimal</span>
-                    </div>
-                 </div>
-
-                 {/* Item 2: Secure Access Protocol */}
-                 <div className="bg-secondary/40 p-4 rounded-2xl border border-foreground/5 space-y-1">
-                    <div className="flex items-center justify-between">
-                       <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Auth Integrity</span>
-                       <Lock className="w-3.5 h-3.5 text-indigo-500 opacity-40" />
-                    </div>
-                    <div className="flex items-baseline gap-2">
-                       <h4 className="text-base font-black tracking-tight uppercase">SHA-256</h4>
-                       <span className="text-[7px] text-emerald-500 font-bold uppercase">Secured</span>
-                    </div>
-                 </div>
-
-                 {/* Item 3: Refresh Rates */}
-                 <div className="bg-secondary/40 p-4 rounded-2xl border border-foreground/5 space-y-1">
-                    <div className="flex items-center justify-between">
-                       <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Heartbeat Rate</span>
-                       <Layers className="w-3.5 h-3.5 text-amber-500 opacity-40" />
-                    </div>
-                    <div className="flex items-baseline gap-2">
-                       <h4 className="text-xl font-black tracking-tighter">30s</h4>
-                       <span className="text-[7px] text-muted-foreground font-bold uppercase">Auto</span>
-                    </div>
-                 </div>
-
-                 {/* Item 4: Cloud Gateway Availability */}
-                 <div className="bg-secondary/40 p-4 rounded-2xl border border-foreground/5 space-y-1">
-                    <div className="flex items-center justify-between">
-                       <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Cloud availability</span>
-                       <Globe className="w-3.5 h-3.5 text-teal-500 opacity-40" />
-                    </div>
-                    <div className="flex items-baseline gap-2">
-                       <h4 className="text-xl font-black tracking-tighter">99.98%</h4>
-                       <span className="text-[7px] text-emerald-500 font-bold uppercase">Fluid</span>
-                    </div>
-                 </div>
-              </div>
-           </Card>
-
-           {/* Global Registry Management Master Card */}
-           <Card className="border-none shadow-strong rounded-[2rem] bg-foreground text-background overflow-hidden relative group p-6 flex flex-col justify-center items-center text-center space-y-4">
-              <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/20 rounded-full -mr-48 -mt-48 blur-[100px] group-hover:bg-primary/30 transition-colors duration-1000" />
-              
-              <div className="space-y-1 relative z-10">
-                 <h3 className="text-xl font-black tracking-tighter uppercase leading-none">Student Registry</h3>
-                 <p className="text-background/40 text-[9px] font-bold max-w-[200px] mx-auto leading-relaxed uppercase tracking-wider">
-                   Complete roster of clearance profiles.
-                 </p>
-              </div>
-              <Button 
-               className="rounded-xl h-10 bg-primary hover:bg-primary/90 text-white font-black text-[10px] uppercase tracking-widest px-8 shadow-strong group/cta active:scale-95 transition-all relative overflow-hidden z-10 border-none"
-               onClick={() => onNavigate('students')}
-              >
-                 <span>View Students</span>
-                 <ArrowRight className="ml-2 w-3.5 h-3.5 group-hover/cta:translate-x-2 transition-transform" />
-              </Button>
-           </Card>
-        </div>
-      </div>
-
       {/* Recent Activity Section */}
-      <Card className={`border-none shadow-strong rounded-[2rem] bg-card/60 backdrop-blur-3xl overflow-hidden ${dashboardView === 'registry' ? 'lg:block' : 'lg:hidden'} block`}>
+      <Card className="border-none shadow-strong rounded-[2rem] bg-card/60 backdrop-blur-3xl overflow-hidden">
         <CardHeader className="p-6 pb-4 flex flex-col lg:flex-row lg:items-center justify-between border-b border-foreground/5 gap-6">
           <div className="space-y-1">
             <div className="flex items-center gap-3 text-primary">
