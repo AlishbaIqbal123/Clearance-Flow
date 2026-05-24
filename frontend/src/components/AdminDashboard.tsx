@@ -220,13 +220,13 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
   ];
 
   return (
-    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+    <div className="space-y-6 lg:space-y-5 sm:space-y-8 animate-in fade-in slide-in-from-bottom-10 duration-1000">
       {/* Premium Dashboard Header */}
-      <div className="relative overflow-hidden p-4 sm:p-6 lg:p-8 rounded-2xl bg-card border border-foreground/5 group shadow-strong">
+      <div className="relative overflow-hidden p-4 sm:p-6 lg:p-6 rounded-2xl bg-card border border-foreground/5 group shadow-strong">
         <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[15%] -mt-[10%] blur-[100px] group-hover:scale-125 transition-transform duration-1000" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 rounded-full -ml-32 -mb-32 blur-[60px]" />
         
-        <div className="space-y-6 relative z-10 max-w-3xl">
+        <div className="space-y-4 lg:space-y-3 sm:space-y-5 relative z-10 max-w-3xl">
           <div className="flex flex-col sm:flex-row sm:items-center gap-5">
              <div className="w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center text-primary backdrop-blur-xl border border-foreground/5 shadow-2xl group-hover:rotate-6 transition-all duration-700 shrink-0">
                 <Database className="w-7 h-7" />
@@ -330,7 +330,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
       )}
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-4 sm:gap-6">
         <AdminBentoCard 
           title="Total Students" 
           value={counts.totalStudents.toLocaleString()} 
@@ -369,16 +369,16 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-6 sm:gap-10">
         
         {/* Analytics Throughput Card */}
         <Card className="col-span-1 lg:col-span-2 border-none shadow-strong rounded-3xl bg-card/60 backdrop-blur-3xl overflow-hidden group">
-          <CardHeader className="p-5 sm:p-8 pb-5 border-b border-foreground/5 relative overflow-hidden">
+          <CardHeader className="p-4 sm:p-5 pb-4 border-b border-foreground/5 relative overflow-hidden">
              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-[80px]" />
              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10">
                <div className="space-y-1.5">
                 <div className="flex items-center gap-3">
-                   <div className="p-2.5 bg-primary/10 rounded-xl">
+                   <div className="p-2 bg-primary/10 rounded-xl">
                       <BarChart3 className="w-6 h-6 text-primary" />
                    </div>
                    <CardTitle className="text-xl sm:text-2xl font-black tracking-tighter uppercase leading-none">Clearance Overview</CardTitle>
@@ -408,8 +408,8 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-5 sm:p-8">
-            <div className="h-[250px] sm:h-[350px] w-full">
+          <CardContent className="p-4 sm:p-5 lg:p-6">
+            <div className="h-[220px] lg:h-[230px] xl:h-[260px] sm:h-[320px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 {chartView === 'status' ? (
                   <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
@@ -532,7 +532,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
               </ResponsiveContainer>
             </div>
             
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mt-8 pt-8 border-t border-foreground/5">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 lg:gap-3 mt-4 pt-4 lg:mt-3 lg:pt-3 border-t border-foreground/5">
                {chartData.map((item) => {
                  const legendColors: Record<string, string> = {
                    'Cleared': '#10b981',
@@ -541,7 +541,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                    'Rejected': '#ef4444'
                  };
                  return (
-                   <div key={item.name} className="space-y-2 group cursor-pointer p-4 rounded-2xl hover:bg-muted/10 transition-all duration-500">
+                   <div key={item.name} className="space-y-2 group cursor-pointer p-3 lg:p-2.5 rounded-2xl hover:bg-muted/10 transition-all duration-500">
                       <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest group-hover:text-primary transition-colors">{item.name}</p>
                       <div className="flex items-center gap-3">
                          <div className="w-1.5 h-6 rounded-full shadow-md" style={{ backgroundColor: legendColors[item.name] || '#6366f1' }} />
@@ -555,8 +555,8 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
         </Card>
 
         {/* Bottleneck Command Sidebar */}
-        <Card className="border-none shadow-strong rounded-[2rem] bg-card overflow-hidden group">
-          <CardHeader className="p-6 border-b border-foreground/5 bg-primary/5">
+        <Card className="border-none shadow-strong rounded-[2rem] lg:rounded-[1.5rem] bg-card overflow-hidden group">
+          <CardHeader className="p-4 lg:p-4 border-b border-foreground/5 bg-primary/5">
             <div className="flex items-center gap-3 text-destructive">
                <div className="p-2 bg-destructive/10 rounded-xl">
                   <AlertCircle className="w-4 h-4" />
@@ -564,12 +564,12 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                <CardTitle className="text-lg font-black tracking-tighter uppercase leading-none">Pending by<br />Department</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="p-6">
-            <div className="space-y-8">
+          <CardContent className="p-5 lg:p-4">
+            <div className="space-y-6 lg:space-y-3.5">
               {(Array.isArray(departmentPendingStats) ? departmentPendingStats : []).slice(0, 6).map((dept: any, index: number) => {
                 const latency = getLatencyInfo(dept.count);
                 return (
-                  <div key={index} className="space-y-4 group cursor-pointer relative">
+                  <div key={index} className="space-y-3 lg:space-y-2 group cursor-pointer relative">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-5">
                          <span className="text-[11px] font-black text-muted-foreground/20 w-8 group-hover:text-primary transition-colors duration-500">0{index + 1}</span>
@@ -610,8 +610,8 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
               )}
             </div>
           </CardContent>
-          <div className="p-8 bg-muted/20 border-t border-foreground/5 text-center">
-             <Button variant="ghost" className="text-[10px] font-black uppercase tracking-[0.4em] text-primary hover:bg-primary/10 rounded-[1.5rem] px-10 h-14 w-full transition-all duration-500 active:scale-95">
+          <div className="p-4 lg:p-4 bg-muted/20 border-t border-foreground/5 text-center">
+             <Button variant="ghost" className="text-[10px] font-black uppercase tracking-[0.4em] text-primary hover:bg-primary/10 rounded-[1.5rem] px-10 h-10 w-full transition-all duration-500 active:scale-95">
                 Extended Analytics <ChevronRight className="w-4 h-4 ml-3" />
              </Button>
           </div>
@@ -619,9 +619,9 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
       </div>
 
       {/* Registry Density & Institutional Control */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-6 sm:gap-10">
         <Card className="border-none shadow-strong rounded-[2rem] bg-card/60 backdrop-blur-3xl overflow-hidden">
-          <CardHeader className="p-8 border-b border-foreground/5 bg-primary/5">
+          <CardHeader className="p-4 lg:p-4 border-b border-foreground/5 bg-primary/5">
             <div className="flex items-center gap-4 text-primary">
                <div className="p-2.5 bg-primary/10 rounded-xl">
                   <GraduationCap className="w-5 h-5" />
@@ -629,8 +629,8 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                <CardTitle className="text-xl font-black tracking-tighter uppercase leading-none">Students per Dept</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="p-8">
-            <div className="h-[300px] w-full">
+          <CardContent className="p-4 lg:p-4">
+            <div className="h-[220px] lg:h-[200px] xl:h-[230px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={departmentStudentStats} layout="vertical" margin={{ left: 10, right: 30, bottom: 10 }}>
                   <defs>
@@ -661,9 +661,9 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
         </Card>
 
         {/* Right Column: System Operations Monitor & Redirection */}
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-6 lg:gap-6 sm:gap-10">
            {/* System Operations Pulse Widget */}
-           <Card className="border-none shadow-strong rounded-[2rem] bg-card/60 backdrop-blur-3xl overflow-hidden p-6 relative group border border-foreground/5">
+           <Card className="border-none shadow-strong rounded-[2rem] bg-card/60 backdrop-blur-3xl overflow-hidden p-4 lg:p-4 relative group border border-foreground/5">
               <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 blur-[50px] group-hover:bg-emerald-500/10 transition-colors duration-1000" />
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
@@ -781,12 +781,12 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
             <Table>
               <TableHeader className="bg-muted/10">
                 <TableRow className="border-none">
-                  <TableHead className="px-8 py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Student</TableHead>
-                  <TableHead className="py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Request ID</TableHead>
-                  <TableHead className="py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Type</TableHead>
-                  <TableHead className="py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Status</TableHead>
-                  <TableHead className="py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Date</TableHead>
-                  <TableHead className="py-5 text-right px-8 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Actions</TableHead>
+                  <TableHead className="px-8 py-3 lg:py-2.5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Student</TableHead>
+                  <TableHead className="py-3 lg:py-2.5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Request ID</TableHead>
+                  <TableHead className="py-3 lg:py-2.5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Type</TableHead>
+                  <TableHead className="py-3 lg:py-2.5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Status</TableHead>
+                  <TableHead className="py-3 lg:py-2.5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Date</TableHead>
+                  <TableHead className="py-3 lg:py-2.5 text-right px-8 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -796,7 +796,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                     className="group hover:bg-muted/10 transition-all duration-500 border-foreground/5 cursor-pointer"
                     onClick={() => { setSelectedRequest(request); setIsDetailsOpen(true); }}
                   >
-                    <TableCell className="px-8 py-5">
+                    <TableCell className="px-8 py-3 lg:py-2">
                       <div className="flex items-center gap-4">
                         <div className={`w-10 h-10 rounded-xl shadow-soft border border-foreground/5 flex items-center justify-center font-black text-xs group-hover:scale-110 group-hover:rotate-6 transition-all duration-700 relative overflow-hidden bg-gradient-to-tr ${getAvatarGradient(request.student?.registration_number)}`}>
                            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -808,7 +808,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="py-3 lg:py-2">
                       <div className="inline-flex items-center gap-3 bg-secondary/80 backdrop-blur-md px-5 py-2.5 rounded-2xl border border-foreground/5 group-hover:border-primary/20 transition-all">
                          <Lock className="w-3.5 h-3.5 text-primary opacity-40" />
                          <code className="text-[10px] font-black text-primary tracking-[0.2em]">
@@ -816,16 +816,16 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                          </code>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="py-3 lg:py-2">
                       <div className="flex items-center gap-4">
                          <div className="w-2 h-2 rounded-full bg-primary shadow-lg" />
                          <span className="font-black text-[10px] text-muted-foreground uppercase tracking-[0.2em]">{request.request_type?.replace('_', ' ')}</span>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="py-3 lg:py-2">
                       <StatusBadge status={request.status} />
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="py-3 lg:py-2">
                       <div className="space-y-2">
                          <div className="flex items-center gap-3 text-foreground font-black text-[10px] uppercase tracking-widest">
                             <CalendarDays className="w-4 h-4 text-primary opacity-40" />
@@ -837,7 +837,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                          </div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-right px-8">
+                    <TableCell className="text-right px-8 py-3 lg:py-2">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="w-10 h-10 rounded-xl hover:bg-card hover:shadow-strong transition-all duration-500 active:scale-90 border border-transparent hover:border-foreground/5">

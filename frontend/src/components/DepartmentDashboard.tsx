@@ -163,16 +163,16 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
   const currentDeptId = department.id || user?.department_id;
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+    <div className="space-y-6 lg:space-y-4 sm:space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
       {/* Department Hero */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 relative overflow-hidden p-4 sm:p-6 lg:p-8 rounded-3xl bg-foreground group">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-6 sm:gap-10 relative overflow-hidden p-4 sm:p-6 lg:p-6 rounded-3xl bg-foreground group">
         <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[15%] -mt-[5%] blur-3xl group-hover:scale-110 transition-transform duration-1000" />
         
         <div className="flex flex-col lg:flex-row lg:items-center gap-6 relative z-10 flex-1">
            <div className="w-14 h-14 bg-card shadow-strong rounded-2xl flex items-center justify-center border border-white/5 relative overflow-hidden shrink-0">
               <span className="text-2xl lg:text-3xl font-black text-primary relative z-10 tracking-tighter">{department.code || '??'}</span>
            </div>
-           <div className="space-y-1.5">
+           <div className="space-y-1">
               <div className="flex items-center gap-3">
                  <Badge className="bg-primary/20 text-primary border-none rounded-full px-4 py-1 text-[9px] font-black uppercase tracking-widest backdrop-blur-md">Active Dashboard</Badge>
               </div>
@@ -202,7 +202,7 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-3.5 sm:gap-4">
         <StatCard title="Pending" value={stats.pending} icon={Clock} color="bg-amber-500" description="Awaiting Review" onClick={() => setStatusFilter('pending')} />
         <StatCard title="In Review" value={stats.inReview} icon={FileText} color="bg-blue-600" description="Under Investigation" onClick={() => setStatusFilter('in_review')} />
         <StatCard title="Cleared" value={stats.cleared} icon={ShieldCheck} color="bg-emerald-600" description="Approved" onClick={() => setStatusFilter('cleared')} />
@@ -210,7 +210,7 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
       </div>
 
       <Card className="border-none shadow-strong rounded-3xl bg-card/60 backdrop-blur-3xl overflow-hidden group">
-        <CardHeader className="p-4 sm:p-6 pb-6 border-b border-foreground/5 relative overflow-hidden">
+        <CardHeader className="p-4 sm:p-5 pb-5 border-b border-foreground/5 relative overflow-hidden">
            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
               <div className="space-y-1">
                  <div className="flex items-center gap-3 text-primary">
@@ -249,11 +249,11 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
             <Table>
             <TableHeader className="bg-muted/10">
                <TableRow className="border-none">
-                 <TableHead className="px-8 py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Student</TableHead>
-                 <TableHead className="py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Academic Info</TableHead>
-                 <TableHead className="py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Status</TableHead>
-                 <TableHead className="py-5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Date</TableHead>
-                 <TableHead className="px-8 py-5 text-right text-[9px] font-black text-muted-foreground uppercase tracking-widest">Action</TableHead>
+                 <TableHead className="px-8 py-3 lg:py-2.5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Student</TableHead>
+                 <TableHead className="py-3 lg:py-2.5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Academic Info</TableHead>
+                 <TableHead className="py-3 lg:py-2.5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Status</TableHead>
+                 <TableHead className="py-3 lg:py-2.5 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Date</TableHead>
+                 <TableHead className="px-8 py-3 lg:py-2.5 text-right text-[9px] font-black text-muted-foreground uppercase tracking-widest">Action</TableHead>
                </TableRow>
             </TableHeader>
             <TableBody>                {(Array.isArray(recentRequests) ? recentRequests : [])
@@ -282,7 +282,7 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                         setDueAmount(currentDeptStatus?.due_amount || 0);
                         setShowActionDialog(true);
                       }}>
-                        <TableCell className="px-8 py-3">
+                        <TableCell className="px-8 py-2.5 lg:py-2">
                            <div className="flex items-center gap-4">
                               <div className="w-8 h-8 rounded-xl bg-card shadow-soft border border-foreground/5 flex items-center justify-center font-black text-primary text-xs group-hover:bg-primary group-hover:text-white transition-all duration-700 relative overflow-hidden">
                                  <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -294,7 +294,7 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                               </div>
                            </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="py-2.5 lg:py-2">
                            <div className="space-y-1">
                               <p className="text-sm font-black text-foreground flex items-center gap-2 uppercase tracking-tight">
                                  <GraduationCap className="w-4 h-4 text-primary opacity-40" />
@@ -303,16 +303,16 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                               <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest pl-6 opacity-40">{request.student?.department?.code || 'DEPT'}</p>
                            </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="py-2.5 lg:py-2">
                             <StatusBadge status={currentDeptStatus?.status || 'pending'} />
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="py-2.5 lg:py-2">
                             <div className="flex items-center gap-3 text-muted-foreground font-black text-[9px] uppercase tracking-widest bg-secondary/50 w-fit px-4 py-2 rounded-xl border border-foreground/5 group-hover:border-primary/20 transition-all">
                                <CalendarDays className="w-4 h-4 text-primary opacity-40" />
                                <span>{new Date(request.created_at).toLocaleDateString()}</span>
                             </div>
                         </TableCell>
-                         <TableCell className="px-8 py-3 text-right">
+                         <TableCell className="px-8 py-2.5 lg:py-2 text-right">
                              <Button 
                                className="rounded-xl h-9 px-6 font-black text-[9px] uppercase tracking-widest bg-secondary/80 text-foreground hover:bg-primary hover:text-white transition-all duration-700 active:scale-95 border border-foreground/5 hover:border-transparent"
                             onClick={(e) => {
@@ -442,7 +442,7 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
 
       {/* Request Action Dialog */}
       <Dialog open={showActionDialog} onOpenChange={setShowActionDialog}>
-        <DialogContent className="sm:max-w-[650px] rounded-3xl p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <DialogContent className="sm:max-w-[650px] w-[95vw] rounded-3xl p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 max-h-[90vh] overflow-y-auto custom-scrollbar">
           {selectedRequest && (
             <>
               <div className="bg-card p-4 sm:p-6 text-foreground relative border-b border-foreground/5">

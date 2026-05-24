@@ -173,7 +173,7 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onBackToHome,
   };
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex bg-background font-sans selection:bg-primary/20">
+    <div className="min-h-screen lg:h-screen w-screen overflow-y-auto lg:overflow-hidden flex bg-background font-sans selection:bg-primary/20">
       
       {/* Editorial Left Architecture (Fixed) */}
       <div className="hidden lg:flex w-[30%] xl:w-[35%] h-full bg-[#1F5FAF] relative overflow-hidden flex-col justify-between p-12 xl:p-16 text-white shrink-0">
@@ -233,7 +233,7 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onBackToHome,
       </div>
 
       {/* Dynamic Right Interface (Scrollable Form) */}
-      <div className="flex-1 h-full overflow-y-auto bg-background custom-scrollbar">
+      <div className="flex-1 min-h-screen lg:h-full lg:overflow-y-auto bg-background custom-scrollbar">
         <div className="min-h-full w-full flex flex-col p-6 md:p-8 xl:p-12">
           <div className="max-w-3xl w-full mx-auto space-y-6 py-8">
             <div className="space-y-4">

@@ -76,43 +76,6 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
     return () => clearInterval(interval);
   }, [user, view]);
 
-  useEffect(() => {
-    // Lock both body and document element heights/overflows to 100vh to prevent window shifting
-    const originalBodyOverflow = document.body.style.overflow;
-    const originalBodyHeight = document.body.style.height;
-    const originalBodyMaxHeight = document.body.style.maxHeight;
-    const originalHtmlOverflow = document.documentElement.style.overflow;
-    const originalHtmlHeight = document.documentElement.style.height;
-    const originalHtmlMaxHeight = document.documentElement.style.maxHeight;
-
-    document.body.style.overflow = 'hidden';
-    document.body.style.height = '100vh';
-    document.body.style.maxHeight = '100vh';
-    document.documentElement.style.overflow = 'hidden';
-    document.documentElement.style.height = '100vh';
-    document.documentElement.style.maxHeight = '100vh';
-
-    // Reset scroll to top-left to avoid sticky offset when tab loads
-    window.scrollTo(0, 0);
-
-    const handleScroll = () => {
-      if (window.scrollY !== 0 || window.scrollX !== 0) {
-        window.scrollTo(0, 0);
-      }
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => {
-      // Restore original scroll and document layout configurations on unmount
-      window.removeEventListener('scroll', handleScroll);
-      document.body.style.overflow = originalBodyOverflow || '';
-      document.body.style.height = originalBodyHeight || '';
-      document.body.style.maxHeight = originalBodyMaxHeight || '';
-      document.documentElement.style.overflow = originalHtmlOverflow || '';
-      document.documentElement.style.height = originalHtmlHeight || '';
-      document.documentElement.style.maxHeight = originalHtmlMaxHeight || '';
-    };
-  }, []);
 
   // Auto scroll to bottom of selected chat stream without scrolling the parent window/body
   const scrollToBottom = () => {

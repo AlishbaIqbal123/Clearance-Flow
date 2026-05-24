@@ -320,7 +320,7 @@ export const DashboardLayout = ({
   return (
     <div className="min-h-screen bg-background flex flex-col lg:flex-row font-sans selection:bg-primary/10">
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-56 bg-[#0A4EA3] border-r border-[#083e82] transition-all duration-700 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)]
+        fixed inset-y-0 left-0 z-50 w-64 bg-[#0A4EA3] border-r border-[#083e82] transition-all duration-700 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)]
         ${isSidebarOpen ? 'translate-x-0 shadow-strong' : '-translate-x-full lg:translate-x-0'}
       `}>
         <div className="flex flex-col h-screen max-h-screen overflow-hidden">
@@ -467,7 +467,7 @@ export const DashboardLayout = ({
                   )}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-80 p-0 rounded-3xl border-none shadow-strong mt-4" align="end">
+              <PopoverContent className="w-[calc(100vw-32px)] sm:w-80 p-0 rounded-3xl border-none shadow-strong mt-4" align="end">
                 <div className="p-6 border-b border-foreground/5 bg-secondary/30 rounded-t-3xl">
                    <h3 className="text-lg font-black text-foreground tracking-tight uppercase">Notifications</h3>
                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Updates and alerts</p>
@@ -536,7 +536,7 @@ export const DashboardLayout = ({
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-72 mt-6 rounded-3xl p-4 border-none shadow-strong">
+              <DropdownMenuContent align="end" className="w-[calc(100vw-32px)] sm:w-72 mt-6 rounded-3xl p-4 border-none shadow-strong">
                 <div className="px-5 py-4 bg-secondary/50 rounded-3xl mb-3 border border-foreground/5">
                   <p className="text-sm font-black text-foreground truncate uppercase tracking-tight">{user.fullName}</p>
                   <p className="text-[10px] font-bold text-muted-foreground truncate mt-1 opacity-70 italic">{user.email}</p>
@@ -581,7 +581,7 @@ export const DashboardLayout = ({
 
       {/* Redesigned Dialogs - Premium & Bento Style */}
       <Dialog open={isProfileOpen} onOpenChange={setIsProfileOpen}>
-        <DialogContent className="sm:max-w-[480px] rounded-3xl p-0 overflow-hidden border-none shadow-strong">
+        <DialogContent className="sm:max-w-[480px] w-[95vw] rounded-3xl p-0 overflow-hidden border-none shadow-strong max-h-[90vh] overflow-y-auto custom-scrollbar">
           <div className="absolute top-0 left-0 w-full h-32 bg-primary/5 pointer-events-none" />
           <div className="p-6 sm:p-10 pt-10 sm:pt-12 space-y-5 sm:space-y-8 relative">
             <div className="flex flex-col items-center text-center space-y-5">
@@ -660,7 +660,7 @@ export const DashboardLayout = ({
 
       {/* Account Settings Dialog */}
       <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-        <DialogContent className="sm:max-w-[450px] rounded-3xl p-0 overflow-hidden border-none shadow-strong">
+        <DialogContent className="sm:max-w-[450px] w-[95vw] rounded-3xl p-0 overflow-hidden border-none shadow-strong max-h-[90vh] overflow-y-auto custom-scrollbar">
           <div className="bg-foreground p-8 sm:p-10 text-background relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full -mr-16 -mt-16 blur-[60px]" />
             <DialogTitle className="text-2xl sm:text-3xl font-black tracking-tighter flex items-center gap-4 uppercase">
@@ -716,7 +716,7 @@ export const DashboardLayout = ({
 
       {/* Password Dialog */}
       <Dialog open={isPasswordOpen} onOpenChange={setIsPasswordOpen}>
-        <DialogContent className="sm:max-w-[500px] w-[95vw] rounded-3xl p-0 overflow-hidden border-none shadow-strong">
+        <DialogContent className="sm:max-w-[500px] w-[95vw] rounded-3xl p-0 overflow-hidden border-none shadow-strong max-h-[90vh] overflow-y-auto custom-scrollbar">
           <div className="bg-primary p-8 sm:p-12 text-white relative">
             <div className="absolute bottom-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-24 -mb-24 blur-[80px]" />
             <DialogTitle className="text-2xl sm:text-3xl font-black tracking-tighter flex items-center gap-5 uppercase">

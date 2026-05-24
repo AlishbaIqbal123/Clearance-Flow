@@ -346,7 +346,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                             </div>
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background">
+                        <DialogContent className="sm:max-w-xl w-[95vw] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background max-h-[90vh] overflow-y-auto custom-scrollbar">
                           {/* ... existing Dialog content for dispatch ... */}
                           <div className="bg-card border-b border-border/50 p-10 text-foreground relative">
                              <div className="absolute top-0 right-0 w-48 h-48 bg-primary/20 rounded-full -mr-24 -mt-24 blur-[100px]" />
@@ -522,7 +522,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                       </div>
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background">
+                  <DialogContent className="sm:max-w-xl w-[95vw] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background max-h-[90vh] overflow-y-auto custom-scrollbar">
                     <div className="bg-card border-b border-border/50 p-10 text-foreground relative">
                        <div className="absolute top-0 right-0 w-48 h-48 bg-primary/20 rounded-full -mr-24 -mt-24 blur-[100px]" />
                        <div className="relative z-10 space-y-4">
@@ -640,7 +640,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
       )}
 
       {/* Bento Grid Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-4 sm:gap-6">
         <BentoStatCard 
           title="Overall Status" 
           value={student.clearance_status?.replace('_', ' ').toUpperCase() || 'NOT STARTED'} 
@@ -675,12 +675,12 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-6 sm:gap-10">
         {/* Active Clearance Status - Main Bento Piece */}
-        <div className="lg:col-span-2 space-y-10">
+        <div className="lg:col-span-2 space-y-6 lg:space-y-5 sm:space-y-8">
           {activeRequest ? (
             <Card className="border-none shadow-strong rounded-3xl overflow-hidden bg-card/60 backdrop-blur-2xl">
-              <CardHeader className="p-5 sm:p-8 pb-5">
+              <CardHeader className="p-4 sm:p-5 pb-4">
                 <div className="flex items-center justify-between gap-6">
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-3">
@@ -740,8 +740,8 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                     const unreadCount = deptComments.filter((c: any) => c.author_model === 'Staff' && !c.read_by_student).length;
 
                     return (
-                      <div key={ds.id} className={`group relative p-5 rounded-2xl border-2 transition-all duration-700 flex flex-col min-h-[180px] ${isLocked ? 'bg-muted/5 border-muted/50 grayscale opacity-40' : 'bg-background/40 border-foreground/5 hover:bg-background hover:shadow-strong hover:border-primary/20'}`}>
-                        <div className="flex items-start justify-between mb-5">
+                      <div key={ds.id} className={`group relative p-4 lg:p-4 sm:p-5 rounded-2xl border-2 transition-all duration-700 flex flex-col lg:min-h-[145px] min-h-[180px] ${isLocked ? 'bg-muted/5 border-muted/50 grayscale opacity-40' : 'bg-background/40 border-foreground/5 hover:bg-background hover:shadow-strong hover:border-primary/20'}`}>
+                        <div className="flex items-start justify-between mb-3 lg:mb-3 sm:mb-5">
                           <div className="flex items-center gap-3">
                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-soft ${isLocked ? 'bg-muted/20' : 'bg-secondary/50'}`}>
                                <Zap className={`w-5 h-5 ${isLocked ? 'text-muted-foreground' : 'text-primary'} ${ds.status === 'in_review' ? 'animate-pulse' : ''}`} />
@@ -767,7 +767,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                         ) : (
                           <div className="flex-1 flex flex-col">
                             {(ds.remarks || ds.due_amount > 0) && (
-                              <div className={`p-5 rounded-[1.75rem] border-none mb-6 ${ds.status === 'rejected' ? 'bg-destructive/5' : 'bg-secondary/30'}`}>
+                              <div className={`p-3 lg:p-3 sm:p-5 rounded-[1.75rem] border-none mb-3 lg:mb-3 sm:mb-6 ${ds.status === 'rejected' ? 'bg-destructive/5' : 'bg-secondary/30'}`}>
                                 {ds.due_amount > 0 && (
                                   <p className="text-[11px] font-black text-destructive uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
                                     <TrendingUp className="w-3.5 h-3.5" />
@@ -779,7 +779,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                                 )}
                               </div>
                             )}
-                            <div className="mt-auto flex items-center justify-between pt-6 border-t border-foreground/5">
+                            <div className="mt-auto flex items-center justify-between pt-3 lg:pt-3 sm:pt-6 border-t border-foreground/5">
                               <div className="flex gap-3">
                                 <Button variant="ghost" size="icon" className="w-10 h-10 rounded-2xl text-emerald-500 hover:bg-emerald-500/10 transition-all active:scale-90"
                                   onClick={() => { const wa = ds.department?.contact_info?.whatsapp_number; if (wa) window.open(`https://wa.me/${wa.replace(/\D/g, '')}`, '_blank'); else toast.error('WhatsApp not available'); }}>
@@ -810,7 +810,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                   };
 
                   return (
-                    <div className="space-y-6 pt-4 pb-6">
+                    <div className="space-y-3 lg:space-y-3 sm:space-y-6 pt-2 lg:pt-2 sm:pt-4 pb-3 lg:pb-3 sm:pb-6">
                       {/* ── Phase 1: Administrative ── */}
                       <PhaseAccordion
                         phase="Phase 1"
@@ -860,7 +860,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                                     <Truck className="w-4 h-4" /> Dispatch
                                   </Button>
                                 </DialogTrigger>
-                                <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background">
+                                <DialogContent className="sm:max-w-xl w-[95vw] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background max-h-[90vh] overflow-y-auto custom-scrollbar">
                                   <div className="bg-card border-b border-border/50 p-10 text-foreground relative">
                                     <div className="absolute top-0 right-0 w-48 h-48 bg-primary/20 rounded-full -mr-24 -mt-24 blur-[100px]" />
                                     <div className="relative z-10 space-y-4">
@@ -930,25 +930,25 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
               </Card>
 
               {/* Department Directory Bento Section */}
-              <div className="space-y-8">
+              <div className="space-y-4 lg:space-y-4 sm:space-y-8">
                 <div className="flex items-center justify-between px-6">
                    <div className="flex items-center gap-5">
                       <div className="w-3 h-3 rounded-full bg-primary animate-pulse shadow-[0_0_15px_rgba(var(--primary),0.5)]"></div>
-                      <h4 className="text-2xl font-black text-foreground tracking-tighter uppercase">Departments</h4>
+                      <h4 className="text-xl lg:text-xl sm:text-2xl font-black text-foreground tracking-tighter uppercase">Departments</h4>
                    </div>
                    <Badge variant="outline" className="rounded-full border-foreground/10 text-[10px] font-black uppercase tracking-[0.2em] px-5 py-1.5 opacity-60">{data?.departments?.length || 0} Units Detected</Badge>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-4 sm:gap-8">
                    {(data?.departments || []).map((dept: any) => (
-                       <div key={dept.id} className="p-8 rounded-[3rem] bg-card/40 backdrop-blur-md border border-foreground/5 hover:bg-card hover:shadow-strong transition-all duration-700 flex items-center gap-6 group">
-                          <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center text-xs font-black transition-all duration-700 group-hover:rotate-12 ${dept.type === 'academic' ? 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white' : 'bg-secondary text-muted-foreground group-hover:bg-primary group-hover:text-white'} shadow-soft`}>
+                       <div key={dept.id} className="p-4 lg:p-4 sm:p-8 rounded-[2rem] lg:rounded-[2rem] sm:rounded-[3rem] bg-card/40 backdrop-blur-md border border-foreground/5 hover:bg-card hover:shadow-strong transition-all duration-700 flex items-center gap-4 lg:gap-4 sm:gap-6 group">
+                          <div className={`w-12 h-12 lg:w-12 lg:h-12 sm:w-16 sm:h-16 rounded-[1.25rem] lg:rounded-[1.25rem] sm:rounded-[1.5rem] flex items-center justify-center text-xs font-black transition-all duration-700 group-hover:rotate-12 ${dept.type === 'academic' ? 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white' : 'bg-secondary text-muted-foreground group-hover:bg-primary group-hover:text-white'} shadow-soft`}>
                              {dept.code}
                           </div>
-                          <div className="flex-1 min-w-0 space-y-2">
-                             <h5 className="text-base font-black text-foreground leading-none truncate group-hover:text-primary transition-colors uppercase tracking-tight">
+                          <div className="flex-1 min-w-0 space-y-1 lg:space-y-1 sm:space-y-2">
+                             <h5 className="text-sm lg:text-sm sm:text-base font-black text-foreground leading-none truncate group-hover:text-primary transition-colors uppercase tracking-tight">
                                {getDeptDisplayName(dept.id, dept.name)}
                              </h5>
-                             <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest leading-none">
+                             <p className="text-[9px] lg:text-[9px] sm:text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest leading-none">
                                Department • {dept.type}
                              </p>
                           </div>
@@ -961,12 +961,12 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
         </div>
 
         {/* Right Bento Column */}
-        <div className="space-y-12">
+        <div className="space-y-6 lg:space-y-6 sm:space-y-12">
           {/* Portal Support Card */}
           <Card className="border-none shadow-strong rounded-[2rem] bg-card border border-border/50 text-foreground overflow-hidden group">
-            <CardContent className="p-6 sm:p-8 relative">
+            <CardContent className="p-5 lg:p-5 sm:p-8 relative">
               <div className="absolute top-0 right-0 w-64 h-64 bg-primary/30 rounded-full -mr-32 -mt-32 blur-[120px] group-hover:scale-125 transition-transform duration-1000" />
-              <div className="space-y-5 relative z-10">
+              <div className="space-y-3 lg:space-y-3 sm:space-y-5 relative z-10">
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20 backdrop-blur-md">
                    <MessageSquare className="w-6 h-6 text-primary" />
                 </div>
@@ -994,7 +994,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                            View Instructions
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background">
+                      <DialogContent className="sm:max-w-xl w-[95vw] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background max-h-[90vh] overflow-y-auto custom-scrollbar">
                         <div className="relative">
                           {/* Banner background decor */}
                           <div className="bg-gradient-to-br from-primary to-primary/80 p-8 text-white relative overflow-hidden">
@@ -1066,17 +1066,17 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
 
           {/* Quick Contact Bento List */}
           <Card className="border-none shadow-strong rounded-[2rem] bg-card/60 backdrop-blur-2xl border border-foreground/5 overflow-hidden">
-            <CardHeader className="p-6 pb-4">
+            <CardHeader className="p-4 lg:p-4 sm:p-6 pb-2 lg:pb-2 sm:pb-4">
               <div className="flex items-center gap-4">
                 <div className="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.5)] animate-pulse" />
                 <CardTitle className="text-base font-black text-foreground tracking-tighter uppercase">Directory</CardTitle>
               </div>
             </CardHeader>
-            <CardContent className="p-6 pt-0 space-y-4">
+            <CardContent className="p-4 lg:p-4 sm:p-6 pt-0 space-y-2 lg:space-y-2.5 sm:space-y-4">
               {(data?.departments || []).slice(0, 5).map((dept: any) => (
-                <div key={dept.id} className="flex items-center justify-between group cursor-pointer hover:bg-background/50 p-2.5 -mx-2.5 rounded-xl transition-all duration-500">
+                <div key={dept.id} className="flex items-center justify-between group cursor-pointer hover:bg-background/50 p-2 lg:p-1.5 sm:p-2.5 -mx-2.5 rounded-xl transition-all duration-500">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center text-[8px] font-black text-muted-foreground group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-soft">
+                    <div className="w-8 h-8 lg:w-8 lg:h-8 sm:w-9 sm:h-9 rounded-xl bg-secondary flex items-center justify-center text-[8px] font-black text-muted-foreground group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-soft">
                       {dept.code}
                     </div>
                     <div className="min-w-0">
@@ -1132,7 +1132,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
           setMessageInput('');
         }
       }}>
-        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border border-primary/20 bg-background shadow-strong">
+        <DialogContent className="sm:max-w-md w-[95vw] rounded-[2.5rem] p-0 overflow-hidden border border-primary/20 bg-background shadow-strong max-h-[90vh] overflow-y-auto custom-scrollbar">
           {chatOpenDept && (() => {
             const currentComments = (data?.activeRequest?.comments || []).filter((c: any) => c.department_id === chatOpenDept.department_id || !c.department_id);
             return (

@@ -386,10 +386,10 @@ export const Analytics = ({ user }: { user: any }) => {
   ].filter(item => item.value > 0);
 
   return (
-    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 pb-20">
+    <div className="space-y-6 lg:space-y-4 sm:space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 lg:pb-10 pb-20">
       {/* Editorial Header Section */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 sm:gap-10">
-        <div className="space-y-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-4 sm:gap-10">
+        <div className="space-y-2 lg:space-y-1.5">
            <div className="flex items-center gap-4 sm:gap-5">
               <div className="w-12 h-12 sm:w-14 sm:h-14 bg-primary/10 rounded-xl sm:rounded-2xl flex items-center justify-center text-primary shadow-soft relative overflow-hidden group">
                  <div className="absolute inset-0 bg-primary/10 group-hover:scale-110 transition-transform duration-700" />
@@ -408,7 +408,7 @@ export const Analytics = ({ user }: { user: any }) => {
            </p>
         </div>
         
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-muted/20 p-2 sm:p-3 rounded-2xl sm:rounded-[2.5rem] border border-foreground/5 backdrop-blur-md shadow-soft">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-muted/20 p-2 lg:p-2 sm:p-3 rounded-2xl sm:rounded-[2.5rem] border border-foreground/5 backdrop-blur-md shadow-soft">
           <div className="px-4 sm:px-5 py-2 sm:py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl sm:rounded-2xl flex items-center gap-3 sm:gap-4 justify-center">
              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
              <span className="text-emerald-700 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.3em]">Live Stream Active</span>
@@ -431,7 +431,7 @@ export const Analytics = ({ user }: { user: any }) => {
       <div className="flex items-center gap-3 p-1.5 bg-card/60 backdrop-blur-3xl rounded-[2rem] border border-foreground/5 max-w-lg w-full shadow-soft">
         <button
           onClick={() => setActiveTab('overview')}
-          className={`flex-1 py-3.5 px-6 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${
+          className={`flex-1 py-2.5 px-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${
             activeTab === 'overview'
               ? 'bg-primary text-white shadow-strong shadow-primary/20'
               : 'text-muted-foreground hover:text-foreground hover:bg-muted/10'
@@ -444,7 +444,7 @@ export const Analytics = ({ user }: { user: any }) => {
         </button>
         <button
           onClick={() => setActiveTab('departments')}
-          className={`flex-1 py-3.5 px-6 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${
+          className={`flex-1 py-2.5 px-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${
             activeTab === 'departments'
               ? 'bg-primary text-white shadow-strong shadow-primary/20'
               : 'text-muted-foreground hover:text-foreground hover:bg-muted/10'
@@ -457,7 +457,7 @@ export const Analytics = ({ user }: { user: any }) => {
         </button>
         <button
           onClick={() => setActiveTab('cohorts')}
-          className={`flex-1 py-3.5 px-6 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${
+          className={`flex-1 py-2.5 px-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${
             activeTab === 'cohorts'
               ? 'bg-primary text-white shadow-strong shadow-primary/20'
               : 'text-muted-foreground hover:text-foreground hover:bg-muted/10'
@@ -472,9 +472,9 @@ export const Analytics = ({ user }: { user: any }) => {
 
       {/* Overview View */}
       {activeTab === 'overview' && (
-        <div className="space-y-12 animate-in fade-in duration-500">
+        <div className="space-y-6 lg:space-y-5 sm:space-y-8 animate-in fade-in duration-500">
           {/* Hero Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-3.5 sm:gap-6">
             {stats.map((stat, i) => (
               <Card key={i} className="border-none shadow-soft rounded-2xl group hover:-translate-y-1 transition-all duration-700 bg-card/60 backdrop-blur-3xl overflow-hidden border border-foreground/5 relative">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12 blur-2xl group-hover:bg-primary/10 transition-colors duration-700" />
@@ -499,7 +499,7 @@ export const Analytics = ({ user }: { user: any }) => {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-5 sm:gap-8">
             {/* Clearance Overview Pie Chart */}
             <Card className="lg:col-span-7 border-none shadow-strong rounded-3xl bg-card/60 backdrop-blur-3xl overflow-hidden border border-foreground/5 group">
               <CardHeader className="p-6 border-b border-foreground/5 relative overflow-hidden">
@@ -514,8 +514,8 @@ export const Analytics = ({ user }: { user: any }) => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="p-6">
-                <div className="h-[250px] w-full relative">
+              <CardContent className="p-4 lg:p-4">
+                <div className="h-[220px] lg:h-[190px] xl:h-[220px] w-full relative">
                   {pieChartData.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
@@ -578,7 +578,7 @@ export const Analytics = ({ user }: { user: any }) => {
 
             {/* Circular Queue Congestion Gauge */}
             <Card className="lg:col-span-5 border-none shadow-strong rounded-3xl bg-card/60 backdrop-blur-3xl overflow-hidden border border-foreground/5 group flex flex-col justify-center">
-              <CardHeader className="p-6 border-b border-foreground/5">
+              <CardHeader className="p-4 lg:p-4 border-b border-foreground/5">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-indigo-500/10 rounded-xl">
                     <Gauge className="w-5 h-5 text-indigo-500" />
@@ -589,8 +589,8 @@ export const Analytics = ({ user }: { user: any }) => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="p-6 flex flex-col items-center justify-center">
-                <div className="relative flex items-center justify-center mb-6">
+              <CardContent className="p-4 lg:p-4 flex flex-col items-center justify-center">
+                <div className="relative flex items-center justify-center mb-4 lg:mb-3">
                   {/* Circular SVG Gauge */}
                   <svg height="140" width="140" className="transform -rotate-90">
                     <circle
@@ -639,9 +639,9 @@ export const Analytics = ({ user }: { user: any }) => {
           </div>
 
           {/* Modeling and Uptime Pulse */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-5 sm:gap-10">
             <div className="lg:col-span-8">
-              <Card className="border-none shadow-soft rounded-[2rem] bg-secondary/30 backdrop-blur-3xl p-5 sm:p-8 border border-foreground/5 relative overflow-hidden group h-full flex flex-col justify-center">
+              <Card className="border-none shadow-soft rounded-[2rem] bg-secondary/30 backdrop-blur-3xl p-4 lg:p-4 sm:p-6 border border-foreground/5 relative overflow-hidden group h-full flex flex-col justify-center">
                 <div className="absolute top-0 right-0 w-80 h-80 bg-primary/5 rounded-full blur-[100px] -mr-40 -mt-40 transition-opacity opacity-0 group-hover:opacity-100 duration-1000" />
                 <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-8 relative z-10">
                   <div className="w-12 h-12 sm:w-14 sm:h-14 bg-card rounded-xl border border-foreground/5 shadow-soft flex items-center justify-center text-primary shrink-0 group-hover:rotate-6 transition-transform duration-700">
@@ -657,7 +657,7 @@ export const Analytics = ({ user }: { user: any }) => {
                       Processing analytics model shows a 14% improvement in overall approval cycles.
                     </p>
                   </div>
-                  <div className="flex flex-col items-center gap-1 px-6 py-4 bg-card rounded-2xl border border-foreground/5 shadow-soft shrink-0">
+                  <div className="flex flex-col items-center gap-1 px-4 py-3 lg:px-4 lg:py-2.5 bg-card rounded-2xl border border-foreground/5 shadow-soft shrink-0">
                     <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.4em]">Uptime</p>
                     <p className="text-xl sm:text-2xl font-black text-primary tracking-tighter">99.9%</p>
                     <div className="flex items-center gap-2 text-emerald-500 text-[8px] font-black uppercase tracking-widest mt-1">
@@ -703,9 +703,9 @@ export const Analytics = ({ user }: { user: any }) => {
 
       {/* Departments Standings View */}
       {activeTab === 'departments' && (
-        <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="space-y-4 lg:space-y-4 sm:space-y-8 animate-in fade-in duration-500">
           <Card className="border-none shadow-soft rounded-3xl bg-card/60 backdrop-blur-3xl border border-foreground/5 group overflow-hidden">
-            <CardHeader className="p-6 border-b border-foreground/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <CardHeader className="p-4 lg:p-4 border-b border-foreground/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary shadow-soft">
                   <Trophy className="w-5 h-5 animate-bounce" />
@@ -720,7 +720,7 @@ export const Analytics = ({ user }: { user: any }) => {
                 <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Efficiency Rankings</span>
               </div>
             </CardHeader>
-            <CardContent className="p-6 space-y-6">
+            <CardContent className="p-4 lg:p-4 space-y-4 lg:space-y-3 sm:space-y-6">
               {sortedDepts.map((dept, index) => {
                 let badgeContent = null;
                 let trophyColor = 'text-muted-foreground/20';
@@ -752,7 +752,7 @@ export const Analytics = ({ user }: { user: any }) => {
                 }
 
                 return (
-                  <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-card/50 backdrop-blur-md rounded-2xl border border-foreground/5 hover:border-primary/20 hover:bg-card transition-all duration-500 gap-4">
+                  <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 lg:p-3.5 sm:p-5 bg-card/50 backdrop-blur-md rounded-2xl border border-foreground/5 hover:border-primary/20 hover:bg-card transition-all duration-500 gap-4">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center font-black text-xs text-primary group-hover/item:rotate-6 transition-transform">
                         {index + 1}

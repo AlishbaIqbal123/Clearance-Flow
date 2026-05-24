@@ -484,7 +484,7 @@ export const DispatchList = () => {
 
       {/* Manage Details Dialog (CRUD) */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="sm:max-w-[600px] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background">
+        <DialogContent className="sm:max-w-[600px] w-[95vw] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background max-h-[90vh] overflow-y-auto custom-scrollbar">
           <div className="bg-foreground p-8 text-background relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full -mr-32 -mt-32 blur-[80px]" />
             <div className="relative z-10 flex items-center gap-6">
@@ -572,7 +572,7 @@ export const DispatchList = () => {
 
       {/* View Details Dialog */}
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <DialogContent className="sm:max-w-[700px] w-[95vw] max-h-[90vh] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background flex flex-col">
+        <DialogContent className="sm:max-w-[700px] w-[95vw] max-h-[90vh] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-strong bg-background flex flex-col overflow-y-auto custom-scrollbar">
           <div className="bg-foreground p-8 text-background relative overflow-hidden shrink-0">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full -mr-32 -mt-32 blur-[80px]" />
             <div className="relative z-10 flex items-center gap-6">

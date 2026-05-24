@@ -211,7 +211,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
   };
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-background">
+    <div className="min-h-screen lg:h-screen w-screen overflow-y-auto lg:overflow-hidden bg-background">
       
       {/* Floating Theme Toggle */}
       <button 
@@ -230,9 +230,9 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
         <span className="text-[10px] font-black uppercase tracking-[0.2em]">Home</span>
       </button>
 
-      <div className="h-full w-full flex">
+      <div className="min-h-screen lg:h-full w-full flex">
         {activePortal === 'student' ? (
-          <div className="h-full w-full flex animate-in fade-in duration-700">
+          <div className="min-h-screen lg:h-full w-full flex animate-in fade-in duration-700">
             {/* Left: Design Area (for Student) */}
             <div className="hidden lg:flex w-[45%] h-full bg-[#1F5FAF] relative overflow-hidden flex-col justify-center p-12 xl:p-20">
                <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-black/20" />
@@ -274,7 +274,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
             </div>
 
             {/* Right: Form Area (for Student) */}
-            <div className="flex-1 h-full bg-background relative overflow-hidden flex flex-col justify-center">
+            <div className="flex-1 min-h-screen lg:h-full bg-background relative overflow-y-auto lg:overflow-hidden flex flex-col justify-center py-8 lg:py-0">
                <div className="w-full max-w-md mx-auto p-8 space-y-8 animate-in slide-in-from-right-10 duration-1000">
                   <div className="space-y-6">
                     <div className="inline-flex p-1 bg-secondary/30 backdrop-blur-3xl rounded-2xl gap-1 border border-foreground/5 w-fit">
@@ -369,9 +369,9 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
             </div>
           </div>
         ) : (
-          <div className="h-full w-full flex animate-in fade-in duration-700 bg-background">
+          <div className="min-h-screen lg:h-full w-full flex animate-in fade-in duration-700 bg-background">
             {/* Left: Form Area (for Faculty) */}
-            <div className="flex-1 h-full bg-background relative overflow-hidden flex flex-col justify-center">
+            <div className="flex-1 min-h-screen lg:h-full bg-background relative overflow-y-auto lg:overflow-hidden flex flex-col justify-center py-8 lg:py-0">
                <div className="w-full max-w-md mx-auto p-8 space-y-8 animate-in slide-in-from-left-10 duration-1000">
                   <div className="space-y-6">
                     <div className="inline-flex p-1 bg-secondary/30 backdrop-blur-3xl rounded-2xl gap-1 border border-foreground/5 w-fit">
@@ -496,7 +496,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
           setRevealToken(false);
         }
       }}>
-        <DialogContent className="sm:max-w-xl rounded-3xl border-none shadow-strong p-0 bg-background text-foreground overflow-hidden max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <DialogContent className="sm:max-w-xl w-[95vw] rounded-3xl border-none shadow-strong p-0 bg-background text-foreground overflow-hidden max-h-[90vh] overflow-y-auto custom-scrollbar">
           <div className="bg-primary/5 p-8 space-y-8 relative overflow-hidden">
              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full -mr-32 -mt-32 blur-[100px]" />
              <div className="w-20 h-20 bg-primary/10 rounded-[2rem] flex items-center justify-center relative shadow-inner">
