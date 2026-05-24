@@ -58,22 +58,22 @@ import { studentService } from '@/lib/student.service';
 const BentoStatCard = ({ title, value, icon: Icon, color, onClick, description }: { title: string; value: any; icon: any; color: string; onClick?: () => void; description?: string }) => (
   <button 
     className={`
-      flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-card/40 backdrop-blur-md border border-foreground/5 shadow-soft overflow-hidden group relative transition-all duration-700
+      flex flex-col justify-between p-3 sm:p-5 rounded-xl sm:rounded-2xl bg-card/40 backdrop-blur-md border border-foreground/5 shadow-soft overflow-hidden group relative transition-all duration-700
       ${onClick ? 'cursor-pointer hover:shadow-strong hover:bg-card hover:-translate-y-1.5' : ''}
     `}
     onClick={onClick}
   >
     <div className={`absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 rounded-full ${color} opacity-[0.05] group-hover:opacity-[0.1] transition-opacity blur-3xl`} />
-    <div className="flex items-center justify-between relative z-10 w-full mb-4">
-      <div className={`w-10 h-10 rounded-xl ${color} bg-opacity-10 flex items-center justify-center transition-all duration-700 group-hover:scale-110 group-hover:rotate-6 shadow-soft shadow-inner`}>
-        <Icon className={`w-5 h-5 ${color.replace('bg-', 'text-')}`} />
+    <div className="flex items-center justify-between relative z-10 w-full mb-2 sm:mb-4">
+      <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl ${color} bg-opacity-10 flex items-center justify-center transition-all duration-700 group-hover:scale-110 group-hover:rotate-6 shadow-soft shadow-inner`}>
+        <Icon className={`w-4.5 h-4.5 sm:w-5 sm:h-5 ${color.replace('bg-', 'text-')}`} />
       </div>
       {onClick && <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-500" />}
     </div>
     <div className="space-y-1 text-left relative z-10">
       <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.3em] leading-none opacity-60">{title}</p>
-      <h3 className="text-lg font-black text-foreground mt-1.5 tracking-tighter uppercase leading-none">{value}</h3>
-      {description && <p className="text-[7px] font-bold text-muted-foreground/60 uppercase tracking-widest mt-1.5">{description}</p>}
+      <h3 className="text-sm sm:text-lg font-black text-foreground mt-1 sm:mt-1.5 tracking-tighter uppercase leading-none">{value}</h3>
+      {description && <p className="text-[7px] font-bold text-muted-foreground/60 uppercase tracking-widest mt-1 sm:mt-1.5">{description}</p>}
     </div>
   </button>
 );
@@ -416,15 +416,15 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
       ) : (
         <>
           {/* Premium Hero Section - Bento Hero */}
-          <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-4 sm:p-6 lg:p-8 shadow-strong group">
+          <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-card border border-border/50 p-3.5 sm:p-6 lg:p-8 shadow-strong group">
         {/* Dynamic Effects */}
         <div className="absolute top-0 right-0 w-[45%] h-full bg-primary/20 rounded-full -mr-[20%] -mt-[10%] blur-[100px] group-hover:scale-125 transition-transform duration-1000" />
         <div className="absolute bottom-0 left-0 w-[25%] h-[60%] bg-primary/10 rounded-full -ml-[12%] -mb-[12%] blur-[60px]" />
         
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-10 relative z-10">
-          <div className="space-y-4 sm:space-y-5 max-w-2xl">
-            <div className="space-y-2">
-              <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6 lg:gap-10 relative z-10">
+          <div className="space-y-3 sm:space-y-5 max-w-2xl">
+            <div className="space-y-1.5 sm:space-y-2">
+              <div className="flex items-center gap-2 sm:gap-4">
                 <Badge className="bg-primary/20 text-primary border-none font-black text-[8px] uppercase tracking-[0.4em] px-3 py-1 sm:px-4 sm:py-1 rounded-full backdrop-blur-md shadow-sm">
                    Student Dashboard
                 </Badge>
@@ -432,29 +432,29 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                    {[1,2,3].map(i => <div key={i} className="w-1 h-1 bg-primary rounded-full animate-pulse" style={{ animationDelay: `${i*0.2}s` }} />)}
                 </div>
               </div>
-              <h2 className="text-lg sm:text-xl lg:text-2xl font-black text-foreground tracking-tighter leading-none uppercase">
+              <h2 className="text-base sm:text-xl lg:text-2xl font-black text-foreground tracking-tighter leading-tight sm:leading-none uppercase">
                 {activeRequest?.status === 'fully_cleared' ? (
-                  <>Clearance Complete,<br /><span className="text-primary italic">Clearance Finalized</span></>
+                  <>Clearance Complete,<br className="hidden sm:inline" /> <span className="text-primary italic">Clearance Finalized</span></>
                 ) : (
-                  <>Ready for Delivery,<br /><span className="text-primary italic">Select Option Below</span></>
+                  <>Ready for Delivery,<br className="hidden sm:inline" /> <span className="text-primary italic">Select Option Below</span></>
                 )}
               </h2>
             </div>
             
-            <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed max-w-xl opacity-80 italic">
+            <p className="text-[11px] sm:text-sm text-muted-foreground font-medium leading-relaxed max-w-xl opacity-80 italic">
               {activeRequest?.status === 'fully_cleared' 
                 ? 'Your clearance process is 100% complete. Your degree has been officially allotted and the process is closed.'
                 : 'Easily manage and track your university clearance status in one place.'}
             </p>
 
-            <div className="flex flex-wrap gap-2 pt-1 sm:pt-2">
+            <div className="flex flex-wrap gap-1.5 pt-1 sm:pt-2">
               {[
                 { label: 'Program', value: student.program, icon: GraduationCap },
                 { label: 'ID', value: student.registration_number, icon: Shield },
                 { label: 'Batch', value: student.batch, icon: History }
               ].map((tag, i) => (
-                <div key={i} className="flex items-center gap-2 bg-secondary border border-border px-3 py-1.5 rounded-lg sm:rounded-xl hover:bg-secondary/80 transition-colors">
-                  <tag.icon className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary" />
+                <div key={i} className="flex items-center gap-1.5 sm:gap-2 bg-secondary border border-border px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl hover:bg-secondary/80 transition-colors">
+                  <tag.icon className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-primary" />
                   <div className="flex flex-col">
                      <span className="text-[6px] sm:text-[7px] font-black text-muted-foreground/50 uppercase tracking-widest leading-none mb-0.5 sm:mb-1">{tag.label}</span>
                      <span className="text-[8px] sm:text-[10px] font-black text-foreground uppercase tracking-tight">{tag.value}</span>
@@ -490,29 +490,29 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
       {(activeRequest?.status === 'cleared' || activeRequest?.progress?.percentage === 100) && 
        (!activeRequest?.degree_fulfillment || Object.keys(activeRequest.degree_fulfillment).length === 0) && (
         <div className="animate-in zoom-in-95 slide-in-from-top-12 duration-1000 ease-out">
-          <Card className="border-none shadow-strong rounded-2xl sm:rounded-[2.5rem] bg-card border border-border/50 text-foreground overflow-hidden relative group">
+          <Card className="border-none shadow-strong rounded-xl sm:rounded-3xl lg:rounded-[2.5rem] bg-card border border-border/50 text-foreground overflow-hidden relative group">
             <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[15%] -mt-[10%] blur-[120px]" />
-            <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-8 p-5 sm:p-8 relative z-10">
-              <div className="w-12 h-12 sm:w-20 sm:h-20 bg-primary/10 rounded-xl sm:rounded-2xl flex items-center justify-center backdrop-blur-xl shadow-soft shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-700">
+            <div className="flex flex-col lg:flex-row items-center gap-4 lg:gap-8 p-4 sm:p-8 relative z-10">
+              <div className="w-10 h-10 sm:w-20 sm:h-20 bg-primary/10 rounded-lg sm:rounded-2xl flex items-center justify-center backdrop-blur-xl shadow-soft shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-700">
                 <Sparkles className="w-5 h-5 sm:w-10 sm:h-10 text-primary animate-pulse" />
               </div>
               
-              <div className="flex-1 text-center lg:text-left space-y-2 sm:space-y-4">
+              <div className="flex-1 text-center lg:text-left space-y-1.5 sm:space-y-4">
                 <div className="space-y-1">
-                  <Badge className="bg-primary text-white border-none font-black text-[8px] sm:text-[9px] uppercase tracking-[0.4em] px-3 py-1 sm:px-4 sm:py-1.5 rounded-full shadow-lg mb-2">Final Fulfillment</Badge>
-                  <h3 className="text-lg sm:text-2xl lg:text-3xl font-black tracking-tighter uppercase leading-none">Your Degree is Ready</h3>
+                  <Badge className="bg-primary text-white border-none font-black text-[8px] sm:text-[9px] uppercase tracking-[0.4em] px-3 py-1 sm:px-4 sm:py-1.5 rounded-full shadow-lg mb-1 sm:mb-2">Final Fulfillment</Badge>
+                  <h3 className="text-base sm:text-2xl lg:text-3xl font-black tracking-tighter uppercase leading-none">Your Degree is Ready</h3>
                 </div>
-                <p className="text-[10px] sm:text-xs lg:text-sm font-bold text-muted-foreground uppercase tracking-widest max-w-xl">
+                <p className="text-[9px] sm:text-xs lg:text-sm font-semibold text-muted-foreground/80 tracking-wider max-w-xl">
                   Congratulations! All clearance requirements have been satisfied. Select your preferred method of degree collection.
                 </p>
               </div>
  
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full lg:w-auto">
+              <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-4 w-full lg:w-auto">
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button className="h-12 sm:h-16 px-6 sm:px-8 rounded-xl sm:rounded-2xl bg-primary text-white hover:bg-primary/95 font-black text-[8px] sm:text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-3 sm:gap-4 group/btn w-full sm:w-auto sm:min-w-[220px] shadow-lg shadow-primary/10">
-                      <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center group-hover/btn:scale-110 transition-transform">
-                        <Truck className="w-4 h-4 text-white" />
+                    <Button className="h-11 sm:h-16 px-4 sm:px-8 rounded-lg sm:rounded-2xl bg-primary text-white hover:bg-primary/95 font-black text-[8px] sm:text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-2.5 sm:gap-4 group/btn w-full sm:w-auto sm:min-w-[220px] shadow-lg shadow-primary/10">
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 bg-white/20 rounded-md sm:rounded-lg flex items-center justify-center group-hover/btn:scale-110 transition-transform">
+                        <Truck className="w-3.5 h-3.5 text-white" />
                       </div>
                       <div className="text-left">
                         <span className="block">Dispatch Degree</span>
@@ -553,12 +553,12 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                 </Dialog>
  
                 <Button 
-                  className="h-12 sm:h-16 px-6 sm:px-8 rounded-xl sm:rounded-2xl bg-secondary border border-border text-foreground hover:bg-secondary/80 font-black text-[8px] sm:text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-3 sm:gap-4 w-full sm:w-auto sm:min-w-[220px]"
+                  className="h-11 sm:h-16 px-4 sm:px-8 rounded-lg sm:rounded-2xl bg-secondary border border-border text-foreground hover:bg-secondary/80 font-black text-[8px] sm:text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-2.5 sm:gap-4 w-full sm:w-auto sm:min-w-[220px]"
                   disabled={prefSubmitting}
                   onClick={() => handleUpdatePreference('manual')}
                 >
-                  <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center">
-                    <History className="w-4 h-4 text-primary" />
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-primary/20 rounded-md sm:rounded-lg flex items-center justify-center">
+                    <History className="w-3.5 h-3.5 text-primary" />
                   </div>
                   <div className="text-left">
                     <span className="block text-foreground">Manual Pickup</span>
@@ -572,26 +572,26 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
       )}      {/* Fulfillment Status Section - Phase 3 */}
       {activeRequest?.degree_fulfillment && Object.keys(activeRequest.degree_fulfillment).length > 0 && (
         <div className="animate-in zoom-in-95 slide-in-from-top-12 duration-1000 ease-out">
-          <Card className={`border-none shadow-strong rounded-2xl sm:rounded-[2.5rem] ${activeRequest.status === 'fully_cleared' ? 'bg-card border border-border/50 text-foreground' : 'bg-emerald-950 text-white'} overflow-hidden relative group transition-colors duration-700`}>
+          <Card className={`border-none shadow-strong rounded-xl sm:rounded-3xl lg:rounded-[2.5rem] ${activeRequest.status === 'fully_cleared' ? 'bg-card border border-border/50 text-foreground' : 'bg-emerald-950 text-white'} overflow-hidden relative group transition-colors duration-700`}>
             <div className="absolute top-0 right-0 w-[40%] h-full bg-emerald-500/20 rounded-full -mr-[15%] -mt-[10%] blur-[120px]" />
             
-            <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-10 p-5 sm:p-12 relative z-10">
-              <div className={`w-14 h-14 sm:w-24 sm:h-24 ${activeRequest.status === 'fully_cleared' ? 'bg-primary/10 border border-primary/20' : 'bg-emerald-500/20 border border-emerald-500/30'} rounded-xl sm:rounded-[2rem] flex items-center justify-center backdrop-blur-xl shrink-0`}>
-                {activeRequest.status === 'fully_cleared' ? <ShieldCheck className="w-6 h-6 sm:w-12 sm:h-12 text-primary" /> : <Truck className="w-6 h-6 sm:w-12 sm:h-12 text-emerald-400" />}
+            <div className="flex flex-col lg:flex-row items-center gap-4 lg:gap-10 p-4 sm:p-8 lg:p-12 relative z-10">
+              <div className={`w-12 h-12 sm:w-24 sm:h-24 ${activeRequest.status === 'fully_cleared' ? 'bg-primary/10 border border-primary/20' : 'bg-emerald-500/20 border border-emerald-500/30'} rounded-full flex items-center justify-center backdrop-blur-xl shrink-0`}>
+                {activeRequest.status === 'fully_cleared' ? <ShieldCheck className="w-5 h-5 sm:w-12 sm:h-12 text-primary" /> : <Truck className="w-5 h-5 sm:w-12 sm:h-12 text-emerald-400" />}
               </div>
               
-              <div className="flex-1 text-center lg:text-left space-y-2 sm:space-y-4">
+              <div className="flex-1 text-center lg:text-left space-y-1.5 sm:space-y-4">
                 <div className="space-y-1">
-                  <Badge className={`${activeRequest.status === 'fully_cleared' ? 'bg-primary text-white' : 'bg-emerald-500 text-white'} border-none font-black text-[8px] sm:text-[9px] uppercase tracking-[0.4em] px-3 py-1 sm:px-4 sm:py-1.5 rounded-full shadow-lg mb-2`}>
+                  <Badge className={`${activeRequest.status === 'fully_cleared' ? 'bg-primary text-white' : 'bg-emerald-500 text-white'} border-none font-black text-[8px] sm:text-[9px] uppercase tracking-[0.4em] px-3 py-1 sm:px-4 sm:py-1.5 rounded-full shadow-lg mb-1 sm:mb-2`}>
                     {activeRequest.status === 'fully_cleared' ? 'CLEARANCE COMPLETE' : 'Phase 3: Degree Delivery'}
                   </Badge>
-                  <h3 className="text-lg sm:text-2xl lg:text-3xl font-black tracking-tighter uppercase leading-none">
+                  <h3 className="text-base sm:text-2xl lg:text-3xl font-black tracking-tighter uppercase leading-tight sm:leading-none">
                     {activeRequest.status === 'fully_cleared' 
                       ? 'Clearance Fully Finalized' 
                       : activeRequest.degree_fulfillment.method === 'dispatch' ? 'Dispatch Process Active' : 'Manual Pickup Available'}
                   </h3>
                 </div>
-                <p className={`text-[10px] sm:text-xs lg:text-sm font-bold ${activeRequest.status === 'fully_cleared' ? 'text-muted-foreground' : 'text-emerald-100/60'} uppercase tracking-widest max-w-xl`}>
+                <p className={`text-[9px] sm:text-xs lg:text-sm font-semibold ${activeRequest.status === 'fully_cleared' ? 'text-muted-foreground/80' : 'text-emerald-100/70'} tracking-wider max-w-xl`}>
                   {activeRequest.status === 'fully_cleared'
                     ? `Clearance process completed. Degree successfully allotted and received on ${new Date(activeRequest.degree_fulfillment.received_at || Date.now()).toLocaleDateString()}.`
                     : activeRequest.degree_fulfillment.method === 'dispatch' 
@@ -600,15 +600,15 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                 </p>
               </div>
  
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full lg:w-auto">
+              <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-4 w-full lg:w-auto">
                 {activeRequest.degree_fulfillment.notification_sent && !activeRequest.degree_fulfillment.received_by_student && (
                   <Button 
-                    className="h-12 sm:h-20 px-6 sm:px-10 rounded-xl sm:rounded-[1.75rem] bg-primary text-white hover:bg-primary/90 font-black text-[8px] sm:text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-3 sm:gap-4 w-full sm:w-auto sm:min-w-[240px] shadow-lg shadow-primary/20 animate-pulse"
+                    className="h-11 sm:h-16 px-4 sm:px-10 rounded-lg sm:rounded-[1.5rem] bg-primary text-white hover:bg-primary/90 font-black text-[8px] sm:text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-2.5 sm:gap-4 w-full sm:w-auto sm:min-w-[220px] shadow-lg shadow-primary/20 animate-pulse"
                     onClick={handleConfirmReceipt}
                     disabled={submitting}
                   >
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
-                      <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <div className="w-7 h-7 sm:w-10 sm:h-10 bg-white/20 rounded-md sm:rounded-xl flex items-center justify-center">
+                      <CheckCircle2 className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                     </div>
                     <div className="text-left">
                       <span className="block font-black">Yes, I've Received It</span>
@@ -618,15 +618,15 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                 )}
                 
                 <Button 
-                  className={`h-12 sm:h-20 px-6 sm:px-10 rounded-xl sm:rounded-[1.75rem] ${activeRequest.status === 'fully_cleared' ? 'bg-primary/10 text-primary' : 'bg-white text-emerald-950'} hover:opacity-90 font-black text-[8px] sm:text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-3 sm:gap-4 w-full sm:w-auto sm:min-w-[240px] shadow-lg`}
+                  className={`h-11 sm:h-16 px-4 sm:px-10 rounded-lg sm:rounded-[1.5rem] ${activeRequest.status === 'fully_cleared' ? 'bg-primary/10 text-primary' : 'bg-white text-emerald-950'} hover:opacity-90 font-black text-[8px] sm:text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95 flex items-center gap-2.5 sm:gap-4 w-full sm:w-auto sm:min-w-[220px] shadow-lg`}
                   onClick={() => window.location.href = 'mailto:registrar@university.edu?subject=Clearance Fulfillment Inquiry'}
                 >
-                  <div className={`w-8 h-8 sm:w-10 sm:h-10 ${activeRequest.status === 'fully_cleared' ? 'bg-primary/20' : 'bg-emerald-100'} rounded-lg sm:rounded-xl flex items-center justify-center shrink-0`}>
-                    <MessageSquare className={`w-4 h-4 sm:w-5 sm:h-5 ${activeRequest.status === 'fully_cleared' ? 'text-primary' : 'text-emerald-600'}`} />
+                  <div className={`w-7 h-7 sm:w-10 sm:h-10 ${activeRequest.status === 'fully_cleared' ? 'bg-primary/20' : 'bg-emerald-100'} rounded-md sm:rounded-xl flex items-center justify-center shrink-0`}>
+                    <MessageSquare className={`w-3.5 h-3.5 sm:w-5 sm:h-5 ${activeRequest.status === 'fully_cleared' ? 'text-primary' : 'text-emerald-600'}`} />
                   </div>
                   <div className="text-left">
                     <span className="block font-black">Institutional Support</span>
-                    <span className="block text-[6px] sm:text-[7px] opacity-40 mt-0.5 font-bold">Support ID: {activeRequest.id.slice(0, 8)}</span>
+                    <span className="block text-[5.5px] sm:text-[7px] opacity-40 mt-0.5 font-bold">Support ID: {activeRequest.id.slice(0, 8)}</span>
                   </div>
                 </Button>
               </div>
@@ -736,7 +736,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                     const unreadCount = deptComments.filter((c: any) => c.author_model === 'Staff' && !c.read_by_student).length;
 
                     return (
-                      <div key={ds.id} className={`group relative p-3 sm:p-4 rounded-2xl border-2 transition-all duration-700 flex flex-col lg:min-h-[110px] min-h-[140px] ${isLocked ? 'bg-muted/5 border-muted/50 grayscale opacity-40' : 'bg-background/40 border-foreground/5 hover:bg-background hover:shadow-strong hover:border-primary/20'}`}>
+                      <div key={ds.id} className={`group relative p-3 sm:p-4 rounded-xl border-2 transition-all duration-700 flex flex-col lg:min-h-[110px] sm:min-h-[120px] min-h-[110px] ${isLocked ? 'bg-muted/5 border-muted/50 grayscale opacity-40' : 'bg-background/40 border-foreground/5 hover:bg-background hover:shadow-strong hover:border-primary/20'}`}>
                         <div className="flex items-start justify-between mb-2 sm:mb-3">
                           <div className="flex items-center gap-3">
                             <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-soft ${isLocked ? 'bg-muted/20' : 'bg-secondary/50'}`}>

@@ -162,27 +162,27 @@ const DepartmentCard = ({
   };
 
   return (
-    <div className={`flex gap-3 sm:gap-6 relative group animate-in slide-in-from-left-8 duration-700 delay-[${index * 100}ms]`}>
+    <div className={`flex gap-2.5 sm:gap-6 relative group animate-in slide-in-from-left-8 duration-700 delay-[${index * 100}ms]`}>
       {/* Timeline */}
       <div className="flex flex-col items-center">
         <div className={`
-          relative z-10 w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl flex items-center justify-center border-2 transition-all duration-1000 flex-shrink-0 shadow-strong
+          relative z-10 w-7 h-7 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl flex items-center justify-center border-2 transition-all duration-1000 flex-shrink-0 shadow-strong
           ${isCompleted ? 'bg-emerald-500 border-emerald-500/20 scale-105' : ''}
           ${isActive ? 'bg-primary border-primary/20 scale-110 shadow-primary/40 animate-pulse' : ''}
           ${isFuture ? 'bg-card border-foreground/5 text-muted-foreground' : ''}
         `}>
           <div className="absolute inset-0 bg-white/20 rounded-[inherit] opacity-0 group-hover:opacity-100 transition-opacity" />
-          {isCompleted && <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-white" />}
-          {isActive && <Clock className="w-4 h-4 sm:w-6 sm:h-6 text-white" />}
-          {isFuture && <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest opacity-40">{index + 1}</span>}
+          {isCompleted && <CheckCircle2 className="w-3.5 h-3.5 sm:w-6 sm:h-6 text-white" />}
+          {isActive && <Clock className="w-3.5 h-3.5 sm:w-6 sm:h-6 text-white" />}
+          {isFuture && <span className="text-[9px] sm:text-xs font-black uppercase tracking-widest opacity-40">{index + 1}</span>}
         </div>
         {/* Connector */}
-        <div className={`w-1 flex-1 mt-4 mb-4 rounded-full transition-all duration-1000 bg-gradient-to-b ${isCompleted ? 'from-emerald-500/50 to-emerald-500/20' : 'from-muted/20 to-muted/5'}`} />
+        <div className={`w-0.5 flex-1 mt-3 mb-3 rounded-full transition-all duration-1000 bg-gradient-to-b ${isCompleted ? 'from-emerald-500/50 to-emerald-500/20' : 'from-muted/20 to-muted/5'}`} />
       </div>
 
       {/* Department Card */}
       <div className={`
-        flex-1 mb-6 rounded-2xl border transition-all duration-700 overflow-hidden relative group/card
+        flex-1 mb-6 rounded-xl sm:rounded-2xl border transition-all duration-700 overflow-hidden relative group/card
         ${isActive ? 'border-primary/20 shadow-strong scale-[1.01] bg-card/60 backdrop-blur-3xl' : 'border-foreground/5 bg-card/40'}
         ${isCompleted ? 'border-emerald-500/10' : ''}
         ${isFuture ? 'opacity-40' : ''}
@@ -190,7 +190,7 @@ const DepartmentCard = ({
         {/* Ambient Glow Decoration */}
         <div className={`absolute top-0 right-0 w-48 h-48 rounded-full blur-[80px] opacity-10 -mr-24 -mt-24 transition-all duration-1000 group-hover/card:scale-150 ${isCompleted ? 'bg-emerald-500' : isActive ? 'bg-primary' : 'bg-muted'}`} />
 
-        <div className="p-5 sm:p-6">
+        <div className="p-4 sm:p-6">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-4">
               <div className={`
@@ -225,7 +225,7 @@ const DepartmentCard = ({
           </div>
           
           {isAcademic && !phase1Cleared && dept.status === 'pending' && (
-             <div className="mb-8 p-6 rounded-2xl bg-amber-500/5 border border-amber-500/10 flex gap-4 animate-in fade-in duration-1000 group/alert">
+             <div className="mb-8 p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-amber-500/5 border border-amber-500/10 flex gap-4 animate-in fade-in duration-1000 group/alert">
                 <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-600 shrink-0 group-hover/alert:scale-110 transition-transform">
                    <Info className="w-5 h-5" />
                 </div>
@@ -269,7 +269,7 @@ const DepartmentCard = ({
                   return (
                     <div
                       key={fi}
-                      className="p-6 rounded-2xl bg-primary/5 border border-primary/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 group/form transition-all duration-500 hover:bg-primary/10 relative overflow-hidden"
+                      className="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-primary/5 border border-primary/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 group/form transition-all duration-500 hover:bg-primary/10 relative overflow-hidden"
                     >
                       <div className="absolute top-0 right-0 w-32 h-full bg-primary/5 -mr-16 skew-x-12 opacity-0 group-hover/form:opacity-100 transition-opacity" />
                       <div className="flex items-center gap-4 relative z-10">
@@ -287,20 +287,20 @@ const DepartmentCard = ({
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 relative z-10 shrink-0">
+                      <div className="flex items-center gap-2.5 sm:gap-3 relative z-10 shrink-0 w-full sm:w-auto">
                         <Button
-                          className="rounded-xl bg-primary text-white hover:bg-primary/90 font-black text-[9px] uppercase tracking-[0.3em] px-6 h-12 shadow-strong group/cta relative overflow-hidden active:scale-95 transition-all"
+                          className="rounded-lg sm:rounded-xl bg-primary text-white hover:bg-primary/90 font-black text-[8px] sm:text-[9px] uppercase tracking-[0.3em] px-4 sm:px-6 h-10 sm:h-12 shadow-strong group/cta relative overflow-hidden active:scale-95 transition-all flex-1 sm:flex-initial"
                           onClick={() => window.open(fl.url, '_blank')}
                         >
                           <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover/cta:translate-x-[100%] transition-transform duration-700 skew-x-12" />
                           <span>Open Form</span>
-                          <ArrowUpRight className="w-4 h-4 ml-2 group-hover/cta:translate-x-1 group-hover/cta:-translate-y-1 transition-transform" />
+                          <ArrowUpRight className="w-3.5 h-3.5 ml-1.5 sm:ml-2 group-hover/cta:translate-x-1 group-hover/cta:-translate-y-1 transition-transform" />
                         </Button>
                         
                         {!isSubmitted ? (
                           <Button
                             variant="outline"
-                            className="rounded-xl border-emerald-500/20 text-emerald-600 hover:bg-emerald-500 hover:text-white font-black text-[9px] uppercase tracking-[0.3em] px-6 h-12 shadow-soft active:scale-95 transition-all"
+                            className="rounded-lg sm:rounded-xl border-emerald-500/20 text-emerald-600 hover:bg-emerald-500 hover:text-white font-black text-[8px] sm:text-[9px] uppercase tracking-[0.3em] px-4 sm:px-6 h-10 sm:h-12 shadow-soft active:scale-95 transition-all flex-1 sm:flex-initial"
                             onClick={() => handleMarkCompleted(fl.label || `Form ${fi + 1}`)}
                             disabled={isSubmitting}
                           >
@@ -311,9 +311,9 @@ const DepartmentCard = ({
                             )}
                           </Button>
                         ) : (
-                          <div className="flex items-center gap-2 px-6 h-12 rounded-xl bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
-                            <CheckCircle2 className="w-4 h-4" />
-                            <span className="font-black text-[9px] uppercase tracking-[0.3em]">Completed</span>
+                          <div className="flex items-center justify-center gap-2 px-4 sm:px-6 h-10 sm:h-12 rounded-lg sm:rounded-xl bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 flex-1 sm:flex-initial">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span className="font-black text-[8px] sm:text-[9px] uppercase tracking-[0.3em]">Completed</span>
                           </div>
                         )}
                       </div>
@@ -838,15 +838,15 @@ export const MyClearance = ({ filterType, onRefresh }: { filterType?: 'administr
         </>
       ) : (
         /* Workflow Initialization Architecture */
-        <Card className="border-none shadow-strong rounded-3xl p-16 text-center bg-card/60 backdrop-blur-3xl relative overflow-hidden group border border-foreground/5">
+        <Card className="border-none shadow-strong rounded-2xl sm:rounded-3xl p-6 sm:p-16 text-center bg-card/60 backdrop-blur-3xl relative overflow-hidden group border border-foreground/5">
           <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
           <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[100px] -mr-64 -mt-64" />
           
-          <div className="relative z-10 space-y-10">
-            <div className="w-24 h-24 bg-secondary/80 rounded-2xl flex items-center justify-center mx-auto transition-all duration-1000 group-hover:rotate-12 group-hover:scale-110 shadow-inner group-hover:bg-primary group-hover:text-white group-hover:shadow-strong group-hover:shadow-primary/20">
-              <FileText className="w-10 h-10 opacity-20 group-hover:opacity-100 transition-all duration-1000" />
+          <div className="relative z-10 space-y-6 sm:space-y-10">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-secondary/80 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto transition-all duration-1000 group-hover:rotate-12 group-hover:scale-110 shadow-inner group-hover:bg-primary group-hover:text-white group-hover:shadow-strong group-hover:shadow-primary/20">
+              <FileText className="w-8 h-8 sm:w-10 sm:h-10 opacity-20 group-hover:opacity-100 transition-all duration-1000" />
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
                <div className="flex items-center justify-center gap-3 text-primary font-black text-[10px] uppercase tracking-[0.4em] mb-2">
                   <Lock className="w-4 h-4" /> Authorized Session Ready
                </div>
@@ -857,7 +857,7 @@ export const MyClearance = ({ filterType, onRefresh }: { filterType?: 'administr
             </div>
             <div className="flex flex-col items-center gap-8">
                <Button 
-                className="rounded-2xl h-16 bg-foreground text-background hover:bg-foreground/90 font-black text-xs uppercase tracking-[0.4em] px-12 shadow-strong group/cta active:scale-95 transition-all relative overflow-hidden"
+                className="rounded-xl sm:rounded-2xl h-12 sm:h-16 bg-foreground text-background hover:bg-foreground/90 font-black text-[10px] sm:text-xs uppercase tracking-[0.4em] px-6 sm:px-12 shadow-strong group/cta active:scale-95 transition-all relative overflow-hidden"
                 onClick={async () => {
                   const promise = studentService.submitRequest({ 
                     requestType: 'graduation', 
