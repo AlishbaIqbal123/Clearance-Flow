@@ -419,36 +419,15 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                   </BarChart>
                 ) : (
                   <AreaChart 
-                    data={(() => {
-                      if (!recentRequests || recentRequests.length === 0) {
-                        return [
-                          { name: 'Mon', value: 12 },
-                          { name: 'Tue', value: 19 },
-                          { name: 'Wed', value: 15 },
-                          { name: 'Thu', value: 24 },
-                          { name: 'Fri', value: counts.totalClearanceRequests % 10 + 10 },
-                          { name: 'Sat', value: counts.totalClearanceRequests % 5 + 5 },
-                          { name: 'Sun', value: counts.totalClearanceRequests % 7 + 8 }
-                        ];
-                      }
-                      const dates: Record<string, number> = {};
-                      recentRequests.forEach((req: any) => {
-                        try {
-                          const date = new Date(req.created_at).toLocaleDateString(undefined, { weekday: 'short' });
-                          dates[date] = (dates[date] || 0) + 1;
-                        } catch (e) {}
-                      });
-                      const rawEntries = Object.entries(dates).map(([name, value]) => ({ name, value })).reverse();
-                      if (rawEntries.length < 5) {
-                        return [
-                          { name: 'Mon', value: 12 },
-                          { name: 'Tue', value: 19 },
-                          { name: 'Wed', value: 15 },
-                          ...rawEntries
-                        ];
-                      }
-                      return rawEntries;
-                    })()} 
+                    data={data?.clearanceTrends && data.clearanceTrends.length > 0 ? data.clearanceTrends : [
+                      { name: 'Mon', value: 0 },
+                      { name: 'Tue', value: 0 },
+                      { name: 'Wed', value: 0 },
+                      { name: 'Thu', value: 0 },
+                      { name: 'Fri', value: 0 },
+                      { name: 'Sat', value: 0 },
+                      { name: 'Sun', value: 0 }
+                    ]}
                     margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
                   >
                     <defs>

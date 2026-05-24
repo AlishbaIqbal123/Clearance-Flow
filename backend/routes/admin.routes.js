@@ -106,6 +106,44 @@ router.get('/dashboard', adminPlus, asyncHandler(async (req, res) => {
     .from('clearance_requests')
     .select('*', { count: 'exact', head: true })
     .in('status', ['submitted', 'in_progress']);
+
+  // Real-time weekly trends calculation
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+  sevenDaysAgo.setHours(0, 0, 0, 0);
+
+  const { data: dailyRequests } = await supabase
+    .from('clearance_requests')
+    .select('created_at')
+    .gte('created_at', sevenDaysAgo.toISOString());
+
+  const dailyTrends = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+    const dateStr = d.toDateString();
+    dailyTrends.push({
+      name: dayName,
+      dateStr: dateStr,
+      value: 0
+    });
+  }
+
+  (dailyRequests || []).forEach(req => {
+    try {
+      const reqDateStr = new Date(req.created_at).toDateString();
+      const trendItem = dailyTrends.find(item => item.dateStr === reqDateStr);
+      if (trendItem) {
+        trendItem.value++;
+      }
+    } catch (e) {}
+  });
+
+  const clearanceTrends = dailyTrends.map(item => ({
+    name: item.name,
+    value: item.value
+  }));
   
   // Calculate dispatchPendingCount from clearance_requests where degree_fulfillment exists and status is not 'completed'
   const { data: allRequestsForDispatchCount } = await supabase.from('clearance_requests').select('status, degree_fulfillment');
@@ -146,7 +184,8 @@ router.get('/dashboard', adminPlus, asyncHandler(async (req, res) => {
       clearanceStats: clearanceMap,
       recentRequests,
       departmentPendingStats: deptPendingStats,
-      departmentStudentStats
+      departmentStudentStats,
+      clearanceTrends
     }
   });
 }));
