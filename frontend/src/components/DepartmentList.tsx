@@ -169,7 +169,108 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Mobile Responsive Layout */}
+      <div className="flex sm:hidden flex-col gap-3">
+        {loading ? (
+           Array(4).fill(0).map((_, i) => (
+             <div key={i} className="h-16 bg-card/60 rounded-2xl animate-pulse"></div>
+           ))
+        ) : departments.length === 0 ? (
+          <div className="h-48 flex flex-col items-center justify-center gap-4 bg-card/40 rounded-2xl border border-dashed border-foreground/5">
+             <div className="w-12 h-12 bg-muted/10 rounded-2xl flex items-center justify-center text-muted-foreground/20">
+                <Building2 className="w-6 h-6" />
+             </div>
+             <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest italic">No Departments Found</p>
+          </div>
+        ) : (
+          departments.map((dept) => (
+            <div 
+              key={dept.id} 
+              onClick={() => {
+                const isCustomType = !!dept.contact_info?.custom_type;
+                setSelectedDept(dept);
+                setFormData({
+                  name: dept.name,
+                  code: dept.code,
+                  type: isCustomType ? 'custom' : (dept.type || 'academic'),
+                  customType: dept.contact_info?.custom_type || '',
+                  email: dept.contact_info?.email || '',
+                  phone: dept.contact_info?.phone || ''
+                });
+                setIsEditOpen(true);
+              }}
+              className="flex items-center gap-3 p-3 bg-card/60 backdrop-blur-3xl border border-foreground/5 rounded-2xl shadow-soft hover:bg-card transition-all cursor-pointer relative group"
+            >
+              {/* Code Avatar */}
+              <div className="w-11 h-11 rounded-xl bg-secondary/80 flex items-center justify-center font-black text-xs text-primary shrink-0 group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-inner">
+                {dept.code}
+              </div>
+
+              {/* Department Info */}
+              <div className="flex-1 min-w-0 space-y-1">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <h3 className="text-xs font-black text-foreground uppercase tracking-tight truncate max-w-[150px]">
+                    {dept.name}
+                  </h3>
+                  {dept.clearance_config?.isRequired && (
+                    <span className="text-[7px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-md">
+                      Mandatory
+                    </span>
+                  )}
+                </div>
+                
+                <div className="flex items-center gap-2 text-[8px] text-muted-foreground/60 font-black uppercase tracking-widest flex-wrap">
+                  <span>{dept.contact_info?.custom_type || dept.type?.replace('_', ' ')}</span>
+                  <span className="text-foreground/10">•</span>
+                  <span>Order: {dept.clearance_config?.order || 0}</span>
+                </div>
+              </div>
+
+              {/* Actions Dropdown */}
+              <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+                <DropdownMenu>
+                   <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="w-8 h-8 rounded-lg bg-secondary/30 hover:bg-card hover:shadow-soft transition-all duration-500">
+                         <MoreVertical className="w-4 h-4 text-muted-foreground" />
+                      </Button>
+                   </DropdownMenuTrigger>
+                   <DropdownMenuContent align="end" className="rounded-xl w-48 p-1.5 shadow-strong bg-background/95 backdrop-blur-2xl border-none">
+                        <DropdownMenuItem 
+                         className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-primary focus:text-white px-3 cursor-pointer"
+                         onClick={() => {
+                           const isCustomType = !!dept.contact_info?.custom_type;
+                           setSelectedDept(dept);
+                           setFormData({
+                             name: dept.name,
+                             code: dept.code,
+                             type: isCustomType ? 'custom' : (dept.type || 'academic'),
+                             customType: dept.contact_info?.custom_type || '',
+                             email: dept.contact_info?.email || '',
+                             phone: dept.contact_info?.phone || ''
+                           });
+                           setIsEditOpen(true);
+                         }}
+                       >
+                         <Edit className="w-3.5 h-3.5 mr-2 opacity-40" /> 
+                         Edit Details
+                       </DropdownMenuItem>
+                       <DropdownMenuItem 
+                         className="rounded-lg h-10 font-black text-[9px] uppercase tracking-widest focus:bg-destructive focus:text-white px-3 cursor-pointer text-destructive mt-0.5"
+                         onClick={() => setConfirmDeleteId(dept.id)}
+                       >
+                         <Trash2 className="w-3.5 h-3.5 mr-2" /> 
+                         Delete
+                       </DropdownMenuItem>
+                   </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop/Tablet Grid Layout */}
+      <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading ? (
            Array(6).fill(0).map((_, i) => (
              <div key={i} className="h-64 bg-card/60 rounded-2xl animate-pulse"></div>
