@@ -240,7 +240,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
                   <span>Add New</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-64 rounded-3xl border-none shadow-strong p-3 bg-background/95 backdrop-blur-3xl animate-in zoom-in-95 duration-300">
+              <DropdownMenuContent align="end" className="w-64 rounded-xl sm:rounded-2xl lg:rounded-3xl border-none shadow-strong p-3 bg-background/95 backdrop-blur-3xl animate-in zoom-in-95 duration-300">
                 <DropdownMenuItem className="rounded-2xl h-12 font-black text-[9px] uppercase tracking-[0.1em] focus:bg-primary focus:text-white px-5 cursor-pointer transition-all" onClick={() => onNavigate('students')}>
                   <Users className="w-4 h-4 mr-4 opacity-50" />
                   Enroll Student
@@ -327,7 +327,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-6 sm:gap-10">
         
         {/* Analytics Throughput Card */}
-        <Card className="col-span-1 lg:col-span-2 border-none shadow-strong rounded-3xl bg-card/60 backdrop-blur-3xl overflow-hidden group">
+        <Card className="col-span-1 lg:col-span-2 border-none shadow-strong rounded-xl sm:rounded-2xl lg:rounded-3xl bg-card/60 backdrop-blur-3xl overflow-hidden group">
           <CardHeader className="p-4 sm:p-5 pb-4 border-b border-foreground/5 relative overflow-hidden">
              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-[80px]" />
              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10">
@@ -489,7 +489,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
         </Card>
 
         {/* Bottleneck Command Sidebar */}
-        <Card className="border-none shadow-strong rounded-[2rem] lg:rounded-[1.5rem] bg-card overflow-hidden group">
+        <Card className="border-none shadow-strong rounded-xl sm:rounded-2xl lg:rounded-3xl bg-card overflow-hidden group">
           <CardHeader className="p-4 lg:p-4 border-b border-foreground/5 bg-primary/5">
             <div className="flex items-center gap-3 text-destructive">
                <div className="p-2 bg-destructive/10 rounded-xl">

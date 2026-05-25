@@ -70,22 +70,22 @@ import { StatusBadge } from './StatusBadge';
 const StatCard = ({ title, value, icon: Icon, color, onClick, description }: { title: string; value: any; icon: any; color: string; onClick?: () => void; description?: string }) => (
   <button 
     className={`
-      flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-card/40 backdrop-blur-3xl border border-foreground/5 shadow-soft overflow-hidden group relative transition-all duration-700 text-left
+      flex flex-col justify-between p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-card/40 backdrop-blur-3xl border border-foreground/5 shadow-soft overflow-hidden group relative transition-all duration-700 text-left
       ${onClick ? 'cursor-pointer hover:shadow-strong hover:bg-card hover:-translate-y-1' : ''}
     `}
     onClick={onClick}
   >
     <div className={`absolute top-0 right-0 w-20 h-20 -mr-8 -mt-8 rounded-full ${color} opacity-[0.08] group-hover:opacity-[0.15] transition-opacity blur-3xl`} />
-    <div className="flex items-center justify-between relative z-10 w-full mb-4">
-      <div className={`w-10 h-10 rounded-xl ${color} bg-opacity-10 flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-soft shadow-inner`}>
-        <Icon className={`w-5 h-5 ${color.replace('bg-', 'text-')}`} />
+    <div className="flex items-center justify-between relative z-10 w-full mb-2 sm:mb-3">
+      <div className={`w-8 h-8 rounded-lg sm:w-10 sm:h-10 sm:rounded-xl ${color} bg-opacity-10 flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-soft shadow-inner`}>
+        <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${color.replace('bg-', 'text-')}`} />
       </div>
       {onClick && <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-500" />}
     </div>
-    <div className="space-y-1 relative z-10">
-      <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none opacity-50">{title}</p>
-      <h3 className="text-lg font-black text-foreground mt-1.5 tracking-tighter uppercase leading-none">{value}</h3>
-      <p className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-widest mt-2">{description || 'Total Count'}</p>
+    <div className="space-y-0.5 relative z-10">
+      <p className="text-[8px] sm:text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none opacity-50">{title}</p>
+      <h3 className="text-sm sm:text-lg font-black text-foreground mt-1 sm:mt-1.5 tracking-tighter uppercase leading-none">{value}</h3>
+      <p className="text-[7px] sm:text-[8px] font-bold text-muted-foreground/60 uppercase tracking-widest mt-1.5 sm:mt-2">{description || 'Total Count'}</p>
     </div>
   </button>
 );
@@ -165,7 +165,7 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
   return (
     <div className="space-y-4 lg:space-y-3.5 sm:space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-1000">
       {/* Department Hero */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-6 sm:gap-10 relative overflow-hidden p-4 sm:p-6 lg:p-6 rounded-3xl bg-foreground group">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-6 sm:gap-10 relative overflow-hidden p-4 sm:p-6 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-3xl bg-foreground group">
         <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/20 rounded-full -mr-[15%] -mt-[5%] blur-3xl group-hover:scale-110 transition-transform duration-1000" />
         
         <div className="flex flex-col lg:flex-row lg:items-center gap-6 relative z-10 flex-1">
@@ -209,7 +209,7 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
         <StatCard title="Total" value={stats.total} icon={Activity} color="bg-primary" description="All Requests" onClick={() => onNavigate('requests')} />
       </div>
 
-      <Card className="border-none shadow-strong rounded-3xl bg-card/60 backdrop-blur-3xl overflow-hidden group">
+      <Card className="border-none shadow-strong rounded-xl sm:rounded-2xl lg:rounded-3xl bg-card/60 backdrop-blur-3xl overflow-hidden group">
         <CardHeader className="p-4 sm:p-5 pb-5 border-b border-foreground/5 relative overflow-hidden">
            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
               <div className="space-y-1">
@@ -337,9 +337,9 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
                  <TableRow>
                    <TableCell colSpan={5} className="h-[300px] text-center px-8">
                       <div className="flex flex-col items-center justify-center gap-6">
-                        <div className="w-24 h-24 bg-muted/10 rounded-3xl flex items-center justify-center shadow-inner group/empty relative overflow-hidden">
-                           <Activity className="w-10 h-10 text-muted-foreground/10" />
-                        </div>
+                         <div className="w-24 h-24 bg-muted/10 rounded-2xl flex items-center justify-center shadow-inner group/empty relative overflow-hidden">
+                            <Activity className="w-10 h-10 text-muted-foreground/10" />
+                         </div>
                         <div className="space-y-1">
                            <p className="text-xl font-black text-foreground uppercase tracking-tight leading-none">List Empty</p>
                            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest opacity-40 italic">No clearance requests found.</p>
@@ -443,7 +443,7 @@ export const DepartmentDashboard = ({ onNavigate, user }: { onNavigate: (tab: st
 
       {/* Request Action Dialog */}
       <Dialog open={showActionDialog} onOpenChange={setShowActionDialog}>
-        <DialogContent className="sm:max-w-[650px] w-[95vw] rounded-3xl p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <DialogContent className="sm:max-w-[650px] w-[95vw] rounded-xl sm:rounded-2xl lg:rounded-3xl p-0 overflow-hidden border-none shadow-strong bg-background animate-in zoom-in-95 duration-500 max-h-[90vh] overflow-y-auto custom-scrollbar">
           {selectedRequest && (
             <>
               <div className="bg-card p-4 sm:p-6 text-foreground relative border-b border-foreground/5">
