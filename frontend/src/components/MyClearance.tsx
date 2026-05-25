@@ -363,78 +363,77 @@ const DepartmentCard = ({
             </div>
           )}
           {/* Metadata Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-6 border-t border-foreground/5">
-             <div className="flex items-center gap-2.5 sm:gap-4 p-2 sm:p-4 bg-secondary/30 rounded-lg sm:rounded-2xl border border-foreground/5 group/meta">
-                <div className="p-1.5 sm:p-2.5 bg-card rounded-md sm:rounded-lg text-primary shadow-soft group-hover/meta:rotate-12 transition-transform shrink-0">
-                   <Mail className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5" />
+          <div className="grid grid-cols-3 gap-1.5 md:gap-3 pt-4 border-t border-foreground/5">
+             <div className="flex items-center gap-2 p-1.5 bg-secondary/30 rounded-lg border border-foreground/5 group/meta">
+                <div className="p-1 bg-card rounded text-primary shrink-0">
+                   <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
                 </div>
                 <div className="space-y-0.5 overflow-hidden">
-                   <p className="text-[7px] sm:text-[8px] font-black text-muted-foreground/40 uppercase tracking-widest">Contact Officer</p>
-                   <p className="text-[9px] sm:text-[10px] font-bold text-foreground truncate">
+                   <p className="text-[6px] sm:text-[7px] font-black text-muted-foreground/40 uppercase tracking-widest leading-none">Officer</p>
+                   <p className="text-[8px] sm:text-[9px] font-bold text-foreground truncate leading-none" title={dept.department?.head?.email || dept.department?.contact_info?.email || dept.department?.email}>
                      {dept.department?.head?.email || dept.department?.contact_info?.email || dept.department?.email || 'N/A'}
                    </p>
-                   {dept.department?.head && (
-                     <p className="text-[7px] sm:text-[8px] font-bold text-primary/60 truncate uppercase tracking-tighter">
-                       {dept.department.head.first_name} {dept.department.head.last_name}
-                     </p>
-                   )}
                 </div>
              </div>
-             <div className="flex items-center gap-2.5 sm:gap-4 p-2 sm:p-4 bg-secondary/30 rounded-lg sm:rounded-2xl border border-foreground/5 group/meta">
-                <div className="p-1.5 sm:p-2.5 bg-card rounded-md sm:rounded-lg text-primary shadow-soft group-hover/meta:scale-110 transition-transform shrink-0">
-                   <Phone className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5" />
+             <div className="flex items-center gap-2 p-1.5 bg-secondary/30 rounded-lg border border-foreground/5 group/meta">
+                <div className="p-1 bg-card rounded text-primary shrink-0">
+                   <Phone className="w-3 h-3 sm:w-4 sm:h-4" />
                 </div>
                 <div className="space-y-0.5 overflow-hidden">
-                   <p className="text-[7px] sm:text-[8px] font-black text-muted-foreground/40 uppercase tracking-widest">Phone Number</p>
-                   <p className="text-[9px] sm:text-[10px] font-bold text-foreground">{dept.department?.head?.phone || dept.department?.contact_info?.phone || dept.department?.phone || 'N/A'}</p>
+                   <p className="text-[6px] sm:text-[7px] font-black text-muted-foreground/40 uppercase tracking-widest leading-none">Phone</p>
+                   <p className="text-[8px] sm:text-[9px] font-bold text-foreground truncate leading-none">
+                     {dept.department?.head?.phone || dept.department?.contact_info?.phone || dept.department?.phone || 'N/A'}
+                   </p>
                 </div>
              </div>
-             <div className="flex items-center gap-2.5 sm:gap-4 p-2 sm:p-4 bg-secondary/30 rounded-lg sm:rounded-2xl border border-foreground/5 group/meta">
-                <div className="p-1.5 sm:p-2.5 bg-card rounded-md sm:rounded-lg text-primary shadow-soft group-hover/meta:-rotate-12 transition-transform shrink-0">
-                   <MapPin className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5" />
+             <div className="flex items-center gap-2 p-1.5 bg-secondary/30 rounded-lg border border-foreground/5 group/meta">
+                <div className="p-1 bg-card rounded text-primary shrink-0">
+                   <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
                 </div>
                 <div className="space-y-0.5 overflow-hidden">
-                   <p className="text-[7px] sm:text-[8px] font-black text-muted-foreground/40 uppercase tracking-widest">Campus Location</p>
-                   <p className="text-[9px] sm:text-[10px] font-bold text-foreground truncate">{dept.department?.location || 'General Campus'}</p>
+                   <p className="text-[6px] sm:text-[7px] font-black text-muted-foreground/40 uppercase tracking-widest leading-none">Location</p>
+                   <p className="text-[8px] sm:text-[9px] font-bold text-foreground truncate leading-none">
+                     {dept.department?.location || 'Campus'}
+                   </p>
                 </div>
              </div>
           </div>
  
           {/* Verification Audit Trace */}
           {isCompleted && dept.cleared_at && (
-            <div className="mt-6 flex items-center gap-3 p-3 bg-emerald-500/5 border border-emerald-500/10 rounded-xl w-fit">
-               <div className="p-1.5 bg-emerald-500 rounded-lg text-white">
-                  <ShieldCheck className="w-3.5 h-3.5" />
+            <div className="mt-4 flex items-center gap-2 py-1 px-2.5 bg-emerald-500/5 border border-emerald-500/10 rounded-lg w-fit">
+               <div className="p-0.5 bg-emerald-500 rounded text-white shrink-0">
+                  <ShieldCheck className="w-3 h-3" />
                </div>
-               <p className="text-[9px] text-emerald-700 font-black uppercase tracking-[0.15em]">
-                 Authorized and Sealed: <span className="text-foreground ml-1">{new Date(dept.cleared_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+               <p className="text-[7.5px] sm:text-[8.5px] text-emerald-700 font-extrabold uppercase tracking-wide leading-none">
+                 Sealed: <span className="text-foreground ml-0.5">{new Date(dept.cleared_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                </p>
             </div>
           )}
  
           {/* Operational Directives */}
           {!isFuture && (
-            <div className="space-y-3 mt-6">
+            <div className="space-y-3 mt-4">
               <div className="grid grid-cols-3 gap-1.5 sm:flex sm:flex-row sm:gap-3">
                 <Button
-                  className="rounded-lg sm:rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[7.5px] sm:text-[9px] uppercase tracking-[0.03em] sm:tracking-[0.15em] flex-1 h-9 sm:h-10 shadow-strong shadow-emerald-500/20 transition-all active:scale-95 group/wa relative overflow-hidden flex items-center justify-center px-1 sm:px-4"
+                  className="rounded-lg sm:rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[7px] sm:text-[9px] uppercase tracking-[0.03em] sm:tracking-[0.15em] flex-1 h-8 sm:h-10 shadow-strong shadow-emerald-500/20 transition-all active:scale-95 group/wa relative overflow-hidden flex items-center justify-center px-1 sm:px-4"
                   onClick={handleWhatsApp}
                 >
                   <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover/wa:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
-                  <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 group-hover/wa:rotate-12 transition-transform shrink-0" />
+                  <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 group-hover/wa:rotate-12 transition-transform shrink-0" />
                   <span>WhatsApp</span>
                 </Button>
                 <Button
                   variant="outline"
-                  className="rounded-lg sm:rounded-xl border-foreground/5 bg-card hover:bg-secondary text-foreground font-black text-[7.5px] sm:text-[9px] uppercase tracking-[0.03em] sm:tracking-[0.15em] flex-1 h-9 sm:h-10 shadow-soft transition-all active:scale-95 group/mail flex items-center justify-center px-1 sm:px-4"
+                  className="rounded-lg sm:rounded-xl border-foreground/5 bg-card hover:bg-secondary text-foreground font-black text-[7px] sm:text-[9px] uppercase tracking-[0.03em] sm:tracking-[0.15em] flex-1 h-8 sm:h-10 shadow-soft transition-all active:scale-95 group/mail flex items-center justify-center px-1 sm:px-4"
                   onClick={handleEmail}
                 >
-                  <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 group-hover/mail:-translate-y-0.5 transition-transform duration-500 shrink-0" />
+                  <Mail className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 group-hover/mail:-translate-y-0.5 transition-transform duration-500 shrink-0" />
                   <span>Email</span>
                 </Button>
                 <Button
                   variant="outline"
-                  className={`rounded-lg sm:rounded-xl font-black text-[7.5px] sm:text-[9px] uppercase tracking-[0.03em] sm:tracking-[0.15em] flex-1 h-9 sm:h-10 shadow-soft transition-all active:scale-95 relative group/chat flex items-center justify-center px-1 sm:px-4 ${showChat ? 'bg-primary text-white border-primary shadow-primary/20' : 'border-primary/20 bg-primary/5 text-primary hover:bg-primary/10'}`}
+                  className={`rounded-lg sm:rounded-xl font-black text-[7px] sm:text-[9px] uppercase tracking-[0.03em] sm:tracking-[0.15em] flex-1 h-8 sm:h-10 shadow-soft transition-all active:scale-95 relative group/chat flex items-center justify-center px-1 sm:px-4 ${showChat ? 'bg-primary text-white border-primary shadow-primary/20' : 'border-primary/20 bg-primary/5 text-primary hover:bg-primary/10'}`}
                   onClick={() => {
                     setShowChat(!showChat);
                     if (unreadCount > 0 && requestId) {
@@ -442,7 +441,7 @@ const DepartmentCard = ({
                     }
                   }}
                 >
-                  <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 group-hover/chat:scale-110 transition-transform shrink-0" />
+                  <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 group-hover/chat:scale-110 transition-transform shrink-0" />
                   <span className="hidden sm:inline">Chat Gateway</span>
                   <span className="inline sm:hidden">Chat</span>
                   {unreadCount > 0 && (
