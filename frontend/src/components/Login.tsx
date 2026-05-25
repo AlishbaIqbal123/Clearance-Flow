@@ -234,8 +234,11 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
         {activePortal === 'student' ? (
           <div className="min-h-screen lg:h-full w-full flex animate-in fade-in duration-700">
             {/* Left: Design Area (for Student) */}
-            <div className="hidden lg:flex w-[45%] h-full bg-[#1F5FAF] relative overflow-hidden flex-col justify-center p-12 xl:p-20">
-               <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-black/20" />
+            <div 
+              className="hidden lg:flex w-[45%] h-full bg-[#1F5FAF] relative overflow-hidden flex-col justify-center p-12 xl:p-20"
+              style={{ backgroundImage: 'url(/students_library.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}
+            >
+               <div className="absolute inset-0 bg-gradient-to-br from-[#1F5FAF]/90 via-[#1F5FAF]/85 to-black/75" />
                <div className="absolute top-0 left-0 w-full h-full opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
                <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-white/5 rounded-full blur-[120px]" />
                
@@ -452,8 +455,11 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
             </div>
 
             {/* Right: Design Area (for Faculty) */}
-            <div className="hidden lg:flex w-[45%] h-full bg-[#1e293b] relative overflow-hidden flex-col justify-center p-12 xl:p-20 text-white">
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-slate-800" />
+            <div 
+              className="hidden lg:flex w-[45%] h-full bg-[#1e293b] relative overflow-hidden flex-col justify-center p-12 xl:p-20 text-white"
+              style={{ backgroundImage: 'url(/faculty_staff.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}
+            >
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-950/90 via-slate-900/85 to-black/75" />
                 <div className="absolute top-0 right-0 w-full h-full opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
                 
                 <div className="relative z-10 space-y-10">
