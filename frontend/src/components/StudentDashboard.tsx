@@ -748,22 +748,22 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
 
                     return (
                       <div key={ds.id} className={`group relative p-3 sm:p-4 rounded-xl border-2 transition-all duration-700 flex flex-col lg:min-h-[110px] sm:min-h-[120px] min-h-[110px] ${isLocked ? 'bg-muted/5 border-muted/50 grayscale opacity-40' : 'bg-background/40 border-foreground/5 hover:bg-background hover:shadow-strong hover:border-primary/20'}`}>
-                        <div className="flex items-start justify-between mb-2 sm:mb-3">
-                          <div className="flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-soft ${isLocked ? 'bg-muted/20' : 'bg-secondary/50'}`}>
-                               <Zap className={`w-4 h-4 ${isLocked ? 'text-muted-foreground' : 'text-primary'} ${ds.status === 'in_review' ? 'animate-pulse' : ''}`} />
-                            </div>
-                            <div className="min-w-0">
-                              <h4 className="text-[11px] font-black text-foreground truncate group-hover:text-primary transition-colors uppercase tracking-tight leading-tight">
-                                {getDeptDisplayName(ds.department_id, ds.department?.name || 'Department')}
-                              </h4>
-                              <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.3em] mt-0.5 opacity-50">{ds.department?.code || 'DEPT'}</p>
-                            </div>
-                          </div>
-                          <div className="absolute top-4 right-4">
-                            {isLocked ? <StatusBadge status="locked" size="sm" /> : <StatusBadge status={ds.status} size="sm" />}
-                          </div>
-                        </div>
+                        <div className="flex items-center justify-between mb-2 sm:mb-3 gap-2 w-full">
+                           <div className="flex items-center gap-3 min-w-0">
+                             <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-soft ${isLocked ? 'bg-muted/20' : 'bg-secondary/50'} shrink-0`}>
+                                <Zap className={`w-4 h-4 ${isLocked ? 'text-muted-foreground' : 'text-primary'} ${ds.status === 'in_review' ? 'animate-pulse' : ''}`} />
+                             </div>
+                             <div className="min-w-0">
+                               <h4 className="text-[11px] font-black text-foreground truncate group-hover:text-primary transition-colors uppercase tracking-tight leading-tight" title={getDeptDisplayName(ds.department_id, ds.department?.name || 'Department')}>
+                                 {getDeptDisplayName(ds.department_id, ds.department?.name || 'Department')}
+                               </h4>
+                               <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.3em] mt-0.5 opacity-50">{ds.department?.code || 'DEPT'}</p>
+                             </div>
+                           </div>
+                           <div className="shrink-0">
+                             {isLocked ? <StatusBadge status="locked" size="sm" /> : <StatusBadge status={ds.status} size="sm" />}
+                           </div>
+                         </div>
 
                         {isLocked ? (
                           <div className="flex-1 flex flex-col justify-center bg-muted/10 rounded-xl p-4 border border-dashed border-muted/50">
