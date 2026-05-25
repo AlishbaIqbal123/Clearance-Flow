@@ -234,15 +234,17 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
         {activePortal === 'student' ? (
           <div className="min-h-screen lg:h-full w-full flex animate-in fade-in duration-700">
             {/* Left: Design Area (for Student) */}
-            <div 
-              className="hidden lg:flex w-[45%] h-full bg-[#1F5FAF] relative overflow-hidden flex-col justify-center p-12 xl:p-20"
-              style={{ backgroundImage: 'url(/students_library.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}
-            >
-               <div className="absolute inset-0 bg-gradient-to-br from-[#1F5FAF]/90 via-[#1F5FAF]/85 to-black/75" />
-               <div className="absolute top-0 left-0 w-full h-full opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
-               <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-white/5 rounded-full blur-[120px]" />
+            <div className="hidden lg:flex w-[45%] h-full bg-[#1F5FAF] relative overflow-hidden flex-col justify-center p-12 xl:p-20">
+               {/* Animated Background Image */}
+               <div 
+                 className="absolute inset-0 z-0 animate-ken-burns"
+                 style={{ backgroundImage: 'url(/students_library.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}
+               />
+               <div className="absolute inset-0 bg-gradient-to-br from-[#1F5FAF]/90 via-[#1F5FAF]/85 to-black/75 z-10" />
+               <div className="absolute top-0 left-0 w-full h-full opacity-10 z-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
+               <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-white/5 rounded-full blur-[120px] z-10" />
                
-               <div className="relative z-10 space-y-8">
+               <div className="relative z-20 space-y-8">
                   <div className="flex items-center gap-3">
                      <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-white/20 p-2 shadow-strong">
                         <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
@@ -278,7 +280,13 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
 
             {/* Right: Form Area (for Student) */}
             <div className="flex-1 min-h-screen lg:h-full bg-background relative overflow-y-auto lg:overflow-hidden flex flex-col justify-center py-8 lg:py-0">
-               <div className="w-full max-w-md mx-auto p-8 space-y-8 animate-in slide-in-from-right-10 duration-1000">
+               {/* Ambient Floating Blobs (Adapted to Light & Dark Mode) */}
+               <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                  <div className="absolute -top-[10%] -left-[10%] w-[60%] h-[60%] rounded-full bg-primary/10 dark:bg-primary/5 blur-[120px] animate-blob-1" />
+                  <div className="absolute -bottom-[10%] -right-[10%] w-[60%] h-[60%] rounded-full bg-purple-500/10 dark:bg-purple-500/5 blur-[120px] animate-blob-2" />
+               </div>
+               
+               <div className="w-full max-w-md mx-auto p-8 space-y-8 animate-in slide-in-from-right-10 duration-1000 relative z-10">
                   <div className="space-y-6">
                     <div className="inline-flex p-1 bg-secondary/30 backdrop-blur-3xl rounded-2xl gap-1 border border-foreground/5 w-fit">
                       <button 
@@ -375,7 +383,13 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
           <div className="min-h-screen lg:h-full w-full flex animate-in fade-in duration-700 bg-background">
             {/* Left: Form Area (for Faculty) */}
             <div className="flex-1 min-h-screen lg:h-full bg-background relative overflow-y-auto lg:overflow-hidden flex flex-col justify-center py-8 lg:py-0">
-               <div className="w-full max-w-md mx-auto p-8 space-y-8 animate-in slide-in-from-left-10 duration-1000">
+               {/* Ambient Floating Blobs (Adapted to Light & Dark Mode) */}
+               <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                  <div className="absolute -top-[10%] -right-[10%] w-[60%] h-[60%] rounded-full bg-primary/10 dark:bg-primary/5 blur-[120px] animate-blob-1" />
+                  <div className="absolute -bottom-[10%] -left-[10%] w-[60%] h-[60%] rounded-full bg-purple-500/10 dark:bg-purple-500/5 blur-[120px] animate-blob-2" />
+               </div>
+               
+               <div className="w-full max-w-md mx-auto p-8 space-y-8 animate-in slide-in-from-left-10 duration-1000 relative z-10">
                   <div className="space-y-6">
                     <div className="inline-flex p-1 bg-secondary/30 backdrop-blur-3xl rounded-2xl gap-1 border border-foreground/5 w-fit">
                       <button 
@@ -455,14 +469,16 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
             </div>
 
             {/* Right: Design Area (for Faculty) */}
-            <div 
-              className="hidden lg:flex w-[45%] h-full bg-[#1e293b] relative overflow-hidden flex-col justify-center p-12 xl:p-20 text-white"
-              style={{ backgroundImage: 'url(/faculty_staff.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}
-            >
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-950/90 via-slate-900/85 to-black/75" />
-                <div className="absolute top-0 right-0 w-full h-full opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
+            <div className="hidden lg:flex w-[45%] h-full bg-[#1e293b] relative overflow-hidden flex-col justify-center p-12 xl:p-20 text-white">
+                {/* Animated Background Image */}
+                <div 
+                  className="absolute inset-0 z-0 animate-ken-burns"
+                  style={{ backgroundImage: 'url(/faculty_staff.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-950/90 via-slate-900/85 to-black/75 z-10" />
+                <div className="absolute top-0 right-0 w-full h-full opacity-10 z-10" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
                 
-                <div className="relative z-10 space-y-10">
+                <div className="relative z-20 space-y-10">
                    <div className="w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center backdrop-blur-3xl border border-primary/30 shadow-2xl">
                       <Building2 className="w-8 h-8 text-primary" />
                    </div>

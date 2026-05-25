@@ -155,3 +155,35 @@
 ::-webkit-scrollbar-thumb {
   @apply bg-muted-foreground/10 rounded-full hover:bg-muted-foreground/20 transition-colors;
 }
+
+/* Background Animations for Login Split Screen */
+@keyframes float-blob-1 {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(40px, -60px) scale(1.15); }
+  66% { transform: translate(-30px, 30px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+@keyframes float-blob-2 {
+  0% { transform: translate(0px, 0px) scale(1); }
+  50% { transform: translate(-50px, 50px) scale(1.1); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+@keyframes ken-burns {
+  0% { transform: scale(1) translate(0%, 0%); }
+  50% { transform: scale(1.08) translate(1.5%, -1%); }
+  100% { transform: scale(1) translate(0%, 0%); }
+}
+
+.animate-blob-1 {
+  animation: float-blob-1 16s infinite ease-in-out;
+}
+
+.animate-blob-2 {
+  animation: float-blob-2 20s infinite ease-in-out;
+}
+
+.animate-ken-burns {
+  animation: ken-burns 30s infinite ease-in-out;
+}
