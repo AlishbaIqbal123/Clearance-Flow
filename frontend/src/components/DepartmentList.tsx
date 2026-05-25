@@ -79,8 +79,8 @@ export const DepartmentList = ({ filterType }: { filterType?: 'academic' | 'admi
       if (res.success) {
         setAllDepartments(res.data.departments || []);
       }
-    } catch (error) {
-      toast.error('Failed to fetch departments');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to fetch departments');
     } finally {
       setLoading(false);
     }
