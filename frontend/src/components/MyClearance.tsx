@@ -416,24 +416,24 @@ const DepartmentCard = ({
             <div className="space-y-3 mt-4">
               <div className="grid grid-cols-3 gap-1.5 sm:flex sm:flex-row sm:gap-3">
                 <Button
-                  className="rounded-lg sm:rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[7px] sm:text-[9px] uppercase tracking-[0.03em] sm:tracking-[0.15em] flex-1 h-8 sm:h-10 shadow-strong shadow-emerald-500/20 transition-all active:scale-95 group/wa relative overflow-hidden flex items-center justify-center px-1 sm:px-4"
+                  className="rounded-full bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[7px] sm:text-[9px] uppercase tracking-[0.03em] sm:tracking-[0.15em] flex-1 h-8 sm:h-10 shadow-strong shadow-emerald-500/20 transition-all active:scale-95 group/wa relative overflow-hidden flex items-center justify-center px-3 sm:px-4"
                   onClick={handleWhatsApp}
                 >
                   <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover/wa:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
-                  <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 group-hover/wa:rotate-12 transition-transform shrink-0" />
+                  <MessageCircle className="size-3 sm:size-4 mr-1 sm:mr-1.5 group-hover/wa:rotate-12 transition-transform shrink-0" />
                   <span>WhatsApp</span>
                 </Button>
                 <Button
                   variant="outline"
-                  className="rounded-lg sm:rounded-xl border-foreground/5 bg-card hover:bg-secondary text-foreground font-black text-[7px] sm:text-[9px] uppercase tracking-[0.03em] sm:tracking-[0.15em] flex-1 h-8 sm:h-10 shadow-soft transition-all active:scale-95 group/mail flex items-center justify-center px-1 sm:px-4"
+                  className="rounded-full border-foreground/5 bg-card hover:bg-secondary text-foreground font-black text-[7px] sm:text-[9px] uppercase tracking-[0.03em] sm:tracking-[0.15em] flex-1 h-8 sm:h-10 shadow-soft transition-all active:scale-95 group/mail flex items-center justify-center px-3 sm:px-4"
                   onClick={handleEmail}
                 >
-                  <Mail className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 group-hover/mail:-translate-y-0.5 transition-transform duration-500 shrink-0" />
+                  <Mail className="size-3 sm:size-4 mr-1 sm:mr-1.5 group-hover/mail:-translate-y-0.5 transition-transform duration-500 shrink-0" />
                   <span>Email</span>
                 </Button>
                 <Button
                   variant="outline"
-                  className={`rounded-lg sm:rounded-xl font-black text-[7px] sm:text-[9px] uppercase tracking-[0.03em] sm:tracking-[0.15em] flex-1 h-8 sm:h-10 shadow-soft transition-all active:scale-95 relative group/chat flex items-center justify-center px-1 sm:px-4 ${showChat ? 'bg-primary text-white border-primary shadow-primary/20' : 'border-primary/20 bg-primary/5 text-primary hover:bg-primary/10'}`}
+                  className={`rounded-full font-black text-[7px] sm:text-[9px] uppercase tracking-[0.03em] sm:tracking-[0.15em] flex-1 h-8 sm:h-10 shadow-soft transition-all active:scale-95 relative group/chat flex items-center justify-center px-3 sm:px-4 ${showChat ? 'bg-primary text-white border-primary shadow-primary/20' : 'border-primary/20 bg-primary/5 text-primary hover:bg-primary/10'}`}
                   onClick={() => {
                     setShowChat(!showChat);
                     if (unreadCount > 0 && requestId) {
@@ -441,7 +441,7 @@ const DepartmentCard = ({
                     }
                   }}
                 >
-                  <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 group-hover/chat:scale-110 transition-transform shrink-0" />
+                  <MessageSquare className="size-3 sm:size-4 mr-1 sm:mr-1.5 group-hover/chat:scale-110 transition-transform shrink-0" />
                   <span className="hidden sm:inline">Chat Gateway</span>
                   <span className="inline sm:hidden">Chat</span>
                   {unreadCount > 0 && (
