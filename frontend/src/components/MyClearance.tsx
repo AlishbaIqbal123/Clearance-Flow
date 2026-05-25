@@ -190,11 +190,11 @@ const DepartmentCard = ({
         {/* Ambient Glow Decoration */}
         <div className={`absolute top-0 right-0 w-48 h-48 rounded-full blur-[80px] opacity-10 -mr-24 -mt-24 transition-all duration-1000 group-hover/card:scale-150 ${isCompleted ? 'bg-emerald-500' : isActive ? 'bg-primary' : 'bg-muted'}`} />
 
-        <div className="p-4 sm:p-6">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
-            <div className="flex items-center gap-4">
+        <div className="p-3.5 sm:p-5">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
+            <div className="flex items-center gap-3">
               <div className={`
-                w-12 h-12 rounded-xl flex items-center justify-center font-black text-base flex-shrink-0 shadow-inner relative overflow-hidden group-hover/card:rotate-6 transition-transform duration-700
+                w-10 h-10 rounded-xl flex items-center justify-center font-black text-base flex-shrink-0 shadow-inner relative overflow-hidden group-hover/card:rotate-6 transition-transform duration-700
                 ${isActive ? 'bg-primary/10 text-primary' : ''}
                 ${isCompleted ? 'bg-emerald-500/10 text-emerald-600' : ''}
                 ${isFuture ? 'bg-secondary text-muted-foreground opacity-40' : ''}
@@ -203,14 +203,14 @@ const DepartmentCard = ({
                 <span className="relative z-10 text-xs">{dept.department?.code || (index + 1)}</span>
               </div>
               <div className="space-y-0.5">
-                <h3 className={`font-black text-lg tracking-tight uppercase leading-none transition-colors ${isActive ? 'text-primary' : 'text-foreground'}`}>
+                <h3 className={`font-black text-base sm:text-lg tracking-tight uppercase leading-none transition-colors ${isActive ? 'text-primary' : 'text-foreground'}`}>
                   {dept.department_id === student.department_id ? student.discipline : (dept.department?.name || `Department ${index + 1}`)}
                 </h3>
                 <div className="flex items-center gap-3">
-                   <Badge variant="outline" className={`rounded-md px-3 py-0.5 text-[8px] font-black uppercase tracking-[0.2em] border-none shadow-soft ${isAcademic ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted-foreground opacity-60'}`}>
+                   <Badge variant="outline" className={`rounded-md px-2 py-0.5 text-[8px] font-black uppercase tracking-[0.15em] border-none shadow-soft ${isAcademic ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted-foreground opacity-60'}`}>
                       {isAcademic ? 'Academic Unit' : 'Administrative Unit'}
                    </Badge>
-                   <span className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-30 italic">Department {index + 1}</span>
+                   <span className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.15em] opacity-30 italic">Department {index + 1}</span>
                 </div>
               </div>
             </div>
@@ -225,13 +225,13 @@ const DepartmentCard = ({
           </div>
           
           {isAcademic && !phase1Cleared && dept.status === 'pending' && (
-             <div className="mb-8 p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-amber-500/5 border border-amber-500/10 flex gap-4 animate-in fade-in duration-1000 group/alert">
-                <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-600 shrink-0 group-hover/alert:scale-110 transition-transform">
-                   <Info className="w-5 h-5" />
+             <div className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-xl bg-amber-500/5 border border-amber-500/10 flex gap-3 animate-in fade-in duration-1000 group/alert">
+                <div className="w-9 h-9 bg-amber-500/10 rounded-lg flex items-center justify-center text-amber-600 shrink-0 group-hover/alert:scale-110 transition-transform">
+                   <Info className="w-4 h-4" />
                 </div>
                 <div className="space-y-0.5">
                    <p className="text-[8px] font-black uppercase tracking-[0.4em] text-amber-600/60">Sequence Lock Active</p>
-                   <p className="text-xs text-muted-foreground font-medium leading-relaxed italic max-w-xl">
+                   <p className="text-[10px] sm:text-xs text-muted-foreground font-medium leading-relaxed italic max-w-xl">
                      Phase 2 verification will engage automatically upon validation of all administrative departments.
                    </p>
                 </div>
@@ -249,14 +249,15 @@ const DepartmentCard = ({
             })();
             if (formLinks.length === 0) return null;
             return (
-              <div className="mb-8 space-y-4">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-strong shrink-0">
-                    <Zap className="w-5 h-5 animate-pulse" />
+              <div className="mb-4 sm:mb-8 space-y-2.5 sm:space-y-4">
+                <div className="flex items-center gap-2 sm:gap-4 mb-3 sm:mb-6">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary rounded-lg sm:rounded-xl flex items-center justify-center text-white shadow-strong shrink-0">
+                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
                   </div>
                   <div>
-                    <span className="text-[9px] font-black uppercase tracking-[0.4em] text-primary block">Pre-requisite Forms</span>
-                    <p className="text-xs font-medium text-muted-foreground leading-relaxed">Complete these forms before your request can be approved.</p>
+                    <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] text-primary block">Pre-requisite Forms</span>
+                    <p className="text-[10px] sm:text-xs font-medium text-muted-foreground leading-relaxed hidden sm:block">Complete these forms before your request can be approved.</p>
+                    <p className="text-[10px] sm:hidden font-medium text-muted-foreground leading-relaxed">Complete required forms before approval.</p>
                   </div>
                 </div>
                 {formLinks.map((fl, fi) => {
@@ -269,51 +270,51 @@ const DepartmentCard = ({
                   return (
                     <div
                       key={fi}
-                      className="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-primary/5 border border-primary/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 group/form transition-all duration-500 hover:bg-primary/10 relative overflow-hidden"
+                      className="p-2.5 sm:p-4 rounded-xl bg-primary/5 border border-primary/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-4 group/form transition-all duration-500 hover:bg-primary/10 relative overflow-hidden"
                     >
                       <div className="absolute top-0 right-0 w-32 h-full bg-primary/5 -mr-16 skew-x-12 opacity-0 group-hover/form:opacity-100 transition-opacity" />
-                      <div className="flex items-center gap-4 relative z-10">
-                        <div className="w-8 h-8 bg-primary/10 text-primary rounded-lg flex items-center justify-center font-black text-sm shrink-0">
+                      <div className="flex items-center gap-3 relative z-10">
+                        <div className="w-6 h-6 sm:w-7 sm:h-7 bg-primary/10 text-primary rounded-lg flex items-center justify-center font-black text-xs shrink-0">
                           {fi + 1}
                         </div>
                         <div className="space-y-0.5">
-                          <span className="text-sm font-black text-foreground uppercase tracking-tight block">
+                          <span className="text-xs sm:text-sm font-black text-foreground uppercase tracking-tight block">
                             {fl.label || `Form ${fi + 1}`}
                           </span>
                           {isSubmitted && (
                             <span className="text-[8px] font-black text-emerald-600 uppercase tracking-widest flex items-center gap-1">
-                              <Check className="w-3 h-3" /> Submission Confirmed
+                              <Check className="w-2.5 h-2.5" /> Submission Confirmed
                             </span>
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2.5 sm:gap-3 relative z-10 shrink-0 w-full sm:w-auto">
+                      <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-2 relative z-10 shrink-0 w-full sm:w-auto mt-1 sm:mt-0">
                         <Button
-                          className="rounded-lg sm:rounded-xl bg-primary text-white hover:bg-primary/90 font-black text-[8px] sm:text-[9px] uppercase tracking-[0.3em] px-4 sm:px-6 h-10 sm:h-12 shadow-strong group/cta relative overflow-hidden active:scale-95 transition-all flex-1 sm:flex-initial"
+                          className="rounded-lg bg-primary text-white hover:bg-primary/90 font-black text-[8px] sm:text-[9px] uppercase tracking-[0.05em] sm:tracking-[0.15em] px-2.5 sm:px-4 h-8 sm:h-10 shadow-strong group/cta relative overflow-hidden active:scale-95 transition-all w-full sm:w-auto flex items-center justify-center whitespace-nowrap"
                           onClick={() => window.open(fl.url, '_blank')}
                         >
                           <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover/cta:translate-x-[100%] transition-transform duration-700 skew-x-12" />
                           <span>Open Form</span>
-                          <ArrowUpRight className="w-3.5 h-3.5 ml-1.5 sm:ml-2 group-hover/cta:translate-x-1 group-hover/cta:-translate-y-1 transition-transform" />
+                          <ArrowUpRight className="w-3 h-3 ml-1 group-hover/cta:translate-x-0.5 group-hover/cta:-translate-y-0.5 transition-transform shrink-0" />
                         </Button>
                         
                         {!isSubmitted ? (
                           <Button
                             variant="outline"
-                            className="rounded-lg sm:rounded-xl border-emerald-500/20 text-emerald-600 hover:bg-emerald-500 hover:text-white font-black text-[8px] sm:text-[9px] uppercase tracking-[0.3em] px-4 sm:px-6 h-10 sm:h-12 shadow-soft active:scale-95 transition-all flex-1 sm:flex-initial"
+                            className="rounded-lg border-emerald-500/20 text-emerald-600 hover:bg-emerald-500 hover:text-white font-black text-[8px] sm:text-[9px] uppercase tracking-[0.05em] sm:tracking-[0.15em] px-2.5 sm:px-4 h-8 sm:h-10 shadow-soft active:scale-95 transition-all w-full sm:w-auto flex items-center justify-center whitespace-nowrap"
                             onClick={() => handleMarkCompleted(fl.label || `Form ${fi + 1}`)}
                             disabled={isSubmitting}
                           >
                             {isSubmitting ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
                             ) : (
                               <span>Mark Submitted</span>
                             )}
                           </Button>
                         ) : (
-                          <div className="flex items-center justify-center gap-2 px-4 sm:px-6 h-10 sm:h-12 rounded-lg sm:rounded-xl bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 flex-1 sm:flex-initial">
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span className="font-black text-[8px] sm:text-[9px] uppercase tracking-[0.3em]">Completed</span>
+                          <div className="flex items-center justify-center gap-1 px-2.5 sm:px-4 h-8 sm:h-10 rounded-lg bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 w-full sm:w-auto whitespace-nowrap">
+                            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                            <span className="font-black text-[8px] sm:text-[9px] uppercase tracking-[0.05em] sm:tracking-[0.15em]">Completed</span>
                           </div>
                         )}
                       </div>
@@ -326,14 +327,14 @@ const DepartmentCard = ({
 
           {/* Remarks Section */}
           {dept.remarks && (
-            <div className="mb-10 space-y-6">
-               <div className="flex items-center gap-4 text-amber-600">
-                  <MessageCircle className="w-5 h-5" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.4em]">Audit Feedback</span>
+            <div className="mb-4 sm:mb-8 space-y-2">
+               <div className="flex items-center gap-2 sm:gap-3 text-amber-600">
+                  <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em]">Audit Feedback</span>
                </div>
-               <div className="p-10 bg-secondary/50 rounded-[3rem] border border-foreground/5 relative group/remarks">
-                  <div className="absolute top-0 left-0 w-2 h-full bg-amber-500 rounded-full" />
-                  <p className="text-lg font-medium leading-relaxed text-muted-foreground italic pl-6">
+               <div className="p-3 sm:p-6 bg-secondary/50 rounded-lg sm:rounded-2xl border border-foreground/5 relative group/remarks">
+                  <div className="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-amber-500 rounded-full" />
+                  <p className="text-xs sm:text-sm font-semibold leading-relaxed text-muted-foreground italic pl-3 sm:pl-4">
                     "{dept.remarks}"
                   </p>
                </div>
@@ -342,99 +343,98 @@ const DepartmentCard = ({
 
           {/* Financial Architecture */}
           {dept.due_amount > 0 && (
-            <div className="mb-8 p-8 bg-destructive/5 border border-destructive/10 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-8 group/finance">
-               <div className="flex items-center gap-6">
-                  <div className="w-16 h-16 bg-destructive/10 rounded-2xl flex items-center justify-center text-destructive shadow-soft group-hover/finance:scale-110 transition-transform duration-700">
-                     <Wallet className="w-8 h-8" />
+            <div className="mb-4 sm:mb-6 p-3 sm:p-6 bg-destructive/5 border border-destructive/10 rounded-lg sm:rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-6 group/finance">
+               <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                  <div className="w-8 h-8 sm:w-12 sm:h-12 bg-destructive/10 rounded-lg sm:rounded-xl flex items-center justify-center text-destructive shadow-soft group-hover/finance:scale-110 transition-transform duration-700 shrink-0">
+                     <Wallet className="w-4 h-4 sm:w-6 sm:h-6" />
                   </div>
-                  <div className="space-y-1">
-                     <p className="text-[9px] font-black uppercase tracking-[0.4em] text-destructive/60">Financial Obligation</p>
-                     <p className="text-3xl font-black text-destructive tracking-tighter uppercase leading-none">PKR {dept.due_amount?.toLocaleString()}</p>
+                  <div className="space-y-0.5">
+                     <p className="text-[7px] sm:text-[8px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-destructive/60">Financial Obligation</p>
+                     <p className="text-lg sm:text-2xl font-black text-destructive tracking-tighter uppercase leading-none">PKR {dept.due_amount?.toLocaleString()}</p>
                   </div>
                </div>
                <Button 
-                className="rounded-2xl h-14 px-10 bg-destructive text-white hover:bg-destructive/90 font-black text-[9px] uppercase tracking-[0.3em] shadow-strong active:scale-95 transition-all"
+                className="rounded-lg sm:rounded-xl h-9 sm:h-10 px-5 sm:px-6 bg-destructive text-white hover:bg-destructive/90 font-black text-[8px] sm:text-[9px] uppercase tracking-[0.05em] sm:tracking-[0.15em] shadow-strong active:scale-95 transition-all w-full sm:w-auto flex items-center justify-center whitespace-nowrap"
                 onClick={() => toast.info('Redirecting to secure University Billing Gateway...')}
                >
                   Pay Dues
-                  <ArrowRight className="ml-4 w-4 h-4 group-hover/finance:translate-x-3 transition-transform" />
+                  <ArrowRight className="ml-1.5 sm:ml-2 w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover/finance:translate-x-1 transition-transform shrink-0" />
                </Button>
             </div>
           )}
-
           {/* Metadata Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-12 border-t border-foreground/5">
-             <div className="flex items-center gap-5 p-4 sm:p-6 bg-secondary/30 rounded-[2rem] border border-foreground/5 group/meta">
-                <div className="p-3 bg-card rounded-xl text-primary shadow-soft group-hover/meta:rotate-12 transition-transform">
-                   <Mail className="w-5 h-5" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-6 border-t border-foreground/5">
+             <div className="flex items-center gap-2.5 sm:gap-4 p-2 sm:p-4 bg-secondary/30 rounded-lg sm:rounded-2xl border border-foreground/5 group/meta">
+                <div className="p-1.5 sm:p-2.5 bg-card rounded-md sm:rounded-lg text-primary shadow-soft group-hover/meta:rotate-12 transition-transform shrink-0">
+                   <Mail className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5" />
                 </div>
-                <div className="space-y-1 overflow-hidden">
-                   <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest">Contact Officer</p>
-                   <p className="text-[11px] font-bold text-foreground truncate">
+                <div className="space-y-0.5 overflow-hidden">
+                   <p className="text-[7px] sm:text-[8px] font-black text-muted-foreground/40 uppercase tracking-widest">Contact Officer</p>
+                   <p className="text-[9px] sm:text-[10px] font-bold text-foreground truncate">
                      {dept.department?.head?.email || dept.department?.contact_info?.email || dept.department?.email || 'N/A'}
                    </p>
                    {dept.department?.head && (
-                     <p className="text-[9px] font-bold text-primary/60 truncate uppercase tracking-tighter">
+                     <p className="text-[7px] sm:text-[8px] font-bold text-primary/60 truncate uppercase tracking-tighter">
                        {dept.department.head.first_name} {dept.department.head.last_name}
                      </p>
                    )}
                 </div>
              </div>
-             <div className="flex items-center gap-5 p-4 sm:p-6 bg-secondary/30 rounded-[2rem] border border-foreground/5 group/meta">
-                <div className="p-3 bg-card rounded-xl text-primary shadow-soft group-hover/meta:scale-110 transition-transform">
-                   <Phone className="w-5 h-5" />
+             <div className="flex items-center gap-2.5 sm:gap-4 p-2 sm:p-4 bg-secondary/30 rounded-lg sm:rounded-2xl border border-foreground/5 group/meta">
+                <div className="p-1.5 sm:p-2.5 bg-card rounded-md sm:rounded-lg text-primary shadow-soft group-hover/meta:scale-110 transition-transform shrink-0">
+                   <Phone className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5" />
                 </div>
-                <div className="space-y-1 overflow-hidden">
-                   <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest">Phone Number</p>
-                   <p className="text-[11px] font-bold text-foreground">{dept.department?.head?.phone || dept.department?.contact_info?.phone || dept.department?.phone || 'N/A'}</p>
+                <div className="space-y-0.5 overflow-hidden">
+                   <p className="text-[7px] sm:text-[8px] font-black text-muted-foreground/40 uppercase tracking-widest">Phone Number</p>
+                   <p className="text-[9px] sm:text-[10px] font-bold text-foreground">{dept.department?.head?.phone || dept.department?.contact_info?.phone || dept.department?.phone || 'N/A'}</p>
                 </div>
              </div>
-             <div className="flex items-center gap-5 p-4 sm:p-6 bg-secondary/30 rounded-[2rem] border border-foreground/5 group/meta">
-                <div className="p-3 bg-card rounded-xl text-primary shadow-soft group-hover/meta:-rotate-12 transition-transform">
-                   <MapPin className="w-5 h-5" />
+             <div className="flex items-center gap-2.5 sm:gap-4 p-2 sm:p-4 bg-secondary/30 rounded-lg sm:rounded-2xl border border-foreground/5 group/meta">
+                <div className="p-1.5 sm:p-2.5 bg-card rounded-md sm:rounded-lg text-primary shadow-soft group-hover/meta:-rotate-12 transition-transform shrink-0">
+                   <MapPin className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5" />
                 </div>
-                <div className="space-y-1 overflow-hidden">
-                   <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest">Campus Location</p>
-                   <p className="text-[11px] font-bold text-foreground truncate">{dept.department?.location || 'General Campus'}</p>
+                <div className="space-y-0.5 overflow-hidden">
+                   <p className="text-[7px] sm:text-[8px] font-black text-muted-foreground/40 uppercase tracking-widest">Campus Location</p>
+                   <p className="text-[9px] sm:text-[10px] font-bold text-foreground truncate">{dept.department?.location || 'General Campus'}</p>
                 </div>
              </div>
           </div>
-
+ 
           {/* Verification Audit Trace */}
           {isCompleted && dept.cleared_at && (
-            <div className="mt-10 flex items-center gap-4 p-6 rounded-[2rem] bg-emerald-500/5 border border-emerald-500/10 w-fit">
-              <div className="p-2 bg-emerald-500 rounded-lg text-white">
-                 <ShieldCheck className="w-4 h-4" />
-              </div>
-              <p className="text-[11px] text-emerald-700 font-black uppercase tracking-[0.3em]">
-                Authorized and Sealed: <span className="text-foreground ml-2">{new Date(dept.cleared_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-              </p>
+            <div className="mt-6 flex items-center gap-3 p-3 bg-emerald-500/5 border border-emerald-500/10 rounded-xl w-fit">
+               <div className="p-1.5 bg-emerald-500 rounded-lg text-white">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+               </div>
+               <p className="text-[9px] text-emerald-700 font-black uppercase tracking-[0.15em]">
+                 Authorized and Sealed: <span className="text-foreground ml-1">{new Date(dept.cleared_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+               </p>
             </div>
           )}
-
+ 
           {/* Operational Directives */}
           {!isFuture && (
-            <div className="space-y-4 mt-10">
-              <div className="flex flex-col sm:flex-row gap-4">
+            <div className="space-y-3 mt-6">
+              <div className="grid grid-cols-3 gap-1.5 sm:flex sm:flex-row sm:gap-3">
                 <Button
-                  className="rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[10px] uppercase tracking-[0.3em] flex-1 h-16 shadow-strong shadow-emerald-500/20 transition-all active:scale-95 group/wa relative overflow-hidden"
+                  className="rounded-lg sm:rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[7.5px] sm:text-[9px] uppercase tracking-[0.03em] sm:tracking-[0.15em] flex-1 h-9 sm:h-10 shadow-strong shadow-emerald-500/20 transition-all active:scale-95 group/wa relative overflow-hidden flex items-center justify-center px-1 sm:px-4"
                   onClick={handleWhatsApp}
                 >
                   <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover/wa:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
-                  <MessageCircle className="w-5 h-5 mr-3 group-hover/wa:rotate-12 transition-transform" />
-                  WhatsApp
+                  <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 group-hover/wa:rotate-12 transition-transform shrink-0" />
+                  <span>WhatsApp</span>
                 </Button>
                 <Button
                   variant="outline"
-                  className="rounded-2xl border-foreground/5 bg-card hover:bg-secondary text-foreground font-black text-[10px] uppercase tracking-[0.3em] flex-1 h-16 shadow-soft transition-all active:scale-95 group/mail"
+                  className="rounded-lg sm:rounded-xl border-foreground/5 bg-card hover:bg-secondary text-foreground font-black text-[7.5px] sm:text-[9px] uppercase tracking-[0.03em] sm:tracking-[0.15em] flex-1 h-9 sm:h-10 shadow-soft transition-all active:scale-95 group/mail flex items-center justify-center px-1 sm:px-4"
                   onClick={handleEmail}
                 >
-                  <Mail className="w-5 h-5 mr-3 group-hover/mail:-translate-y-1 transition-transform duration-500" />
-                  Email
+                  <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 group-hover/mail:-translate-y-0.5 transition-transform duration-500 shrink-0" />
+                  <span>Email</span>
                 </Button>
                 <Button
                   variant="outline"
-                  className={`rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] flex-1 h-16 shadow-soft transition-all active:scale-95 relative group/chat ${showChat ? 'bg-primary text-white border-primary shadow-primary/20' : 'border-primary/20 bg-primary/5 text-primary hover:bg-primary/10'}`}
+                  className={`rounded-lg sm:rounded-xl font-black text-[7.5px] sm:text-[9px] uppercase tracking-[0.03em] sm:tracking-[0.15em] flex-1 h-9 sm:h-10 shadow-soft transition-all active:scale-95 relative group/chat flex items-center justify-center px-1 sm:px-4 ${showChat ? 'bg-primary text-white border-primary shadow-primary/20' : 'border-primary/20 bg-primary/5 text-primary hover:bg-primary/10'}`}
                   onClick={() => {
                     setShowChat(!showChat);
                     if (unreadCount > 0 && requestId) {
@@ -442,10 +442,11 @@ const DepartmentCard = ({
                     }
                   }}
                 >
-                  <MessageSquare className="w-5 h-5 mr-3 group-hover/chat:scale-110 transition-transform" />
-                  <span>Chat Gateway</span>
+                  <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 group-hover/chat:scale-110 transition-transform shrink-0" />
+                  <span className="hidden sm:inline">Chat Gateway</span>
+                  <span className="inline sm:hidden">Chat</span>
                   {unreadCount > 0 && (
-                    <Badge className="absolute -top-2 -right-2 bg-destructive text-white border-none rounded-full px-2 py-0.5 text-[8px] font-black animate-pulse shadow-strong">
+                    <Badge className="absolute -top-1.5 -right-1.5 bg-destructive text-white border-none rounded-full px-1.5 py-0.5 text-[8px] font-black animate-pulse shadow-strong">
                       {unreadCount}
                     </Badge>
                   )}
@@ -454,12 +455,12 @@ const DepartmentCard = ({
 
               {/* Chat Matrix UI */}
               {showChat && (
-                <div className="mt-6 rounded-3xl border border-primary/20 bg-card shadow-strong overflow-hidden animate-in slide-in-from-top-4 duration-500 flex flex-col">
+                <div className="mt-4 rounded-xl border border-primary/20 bg-card shadow-strong overflow-hidden animate-in slide-in-from-top-4 duration-500 flex flex-col">
                   {/* Header */}
-                  <div className="px-6 py-4 bg-primary/5 border-b border-primary/10 flex items-center justify-between">
+                  <div className="px-4 py-3 bg-primary/5 border-b border-primary/10 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-2 h-2 rounded-full bg-primary animate-ping" />
-                      <span className="text-xs font-black uppercase tracking-widest text-foreground">
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground">
                         Direct Core: {dept.department?.name || 'Department'}
                       </span>
                     </div>
@@ -516,12 +517,12 @@ const DepartmentCard = ({
                       value={messageInput}
                       onChange={(e) => setMessageInput(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') handleSendChat(); }}
-                      className="flex-1 h-12 bg-secondary/40 border-none rounded-xl px-4 text-xs font-bold outline-none focus:ring-2 focus:ring-primary/20"
+                      className="flex-1 h-10 bg-secondary/40 border-none rounded-xl px-4 text-xs font-bold outline-none focus:ring-2 focus:ring-primary/20"
                     />
                     <Button
                       disabled={sendingChat || !messageInput.trim()}
                       onClick={handleSendChat}
-                      className="h-12 w-12 rounded-xl bg-primary text-white shadow-strong shadow-primary/20 shrink-0 hover:scale-105 active:scale-95 transition-all p-0 flex items-center justify-center"
+                      className="h-10 w-10 rounded-xl bg-primary text-white shadow-strong shadow-primary/20 shrink-0 hover:scale-105 active:scale-95 transition-all p-0 flex items-center justify-center"
                     >
                       {sendingChat ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                     </Button>
@@ -623,30 +624,30 @@ export const MyClearance = ({ filterType, onRefresh }: { filterType?: 'administr
     : 'Track your university clearance progress in real-time.';
 
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-10 duration-1000 pb-20">
+    <div className="space-y-6 sm:space-y-10 animate-in fade-in slide-in-from-bottom-6 sm:slide-in-from-bottom-10 duration-1000 pb-12 sm:pb-20">
 
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-          <div className="space-y-4">
-             <div className="flex items-center gap-4">
-                <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-soft relative overflow-hidden group">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 sm:gap-8">
+          <div className="space-y-2.5 sm:space-y-4">
+             <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-11 h-11 sm:w-14 sm:h-14 bg-primary/10 rounded-xl sm:rounded-2xl flex items-center justify-center text-primary shadow-soft relative overflow-hidden group">
                    <div className="absolute inset-0 bg-primary/10 group-hover:scale-110 transition-transform duration-700" />
-                   <Fingerprint className="w-7 h-7 relative z-10" />
+                   <Fingerprint className="w-5 h-5 sm:w-7 sm:h-7 relative z-10" />
                 </div>
                 <div className="space-y-0.5">
-                   <div className="flex items-center gap-3">
-                      <Badge className="bg-primary/10 text-primary border-none rounded-full px-3 py-1 text-[8px] font-black uppercase tracking-[0.4em]">Audit</Badge>
-                      <span className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em] opacity-40">Identity Verified</span>
+                   <div className="flex items-center gap-2 sm:gap-3">
+                      <Badge className="bg-primary/10 text-primary border-none rounded-full px-2.5 py-0.5 text-[8px] font-black uppercase tracking-[0.3em]">Audit</Badge>
+                      <span className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.3em] opacity-40">Identity Verified</span>
                    </div>
-                   <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tighter uppercase leading-none">{pageTitle}</h1>
+                   <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-foreground tracking-tighter uppercase leading-none">{pageTitle}</h1>
                 </div>
              </div>
-             <p className="text-lg text-muted-foreground font-medium max-w-2xl leading-relaxed italic">
+             <p className="text-xs sm:text-sm lg:text-base font-semibold leading-relaxed text-muted-foreground max-w-2xl italic">
                {pageDescription}
              </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 shrink-0">
+          <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 sm:gap-4 shrink-0 w-full sm:w-auto">
             <Button 
               variant="outline" 
               onClick={() => {
@@ -668,9 +669,9 @@ export const MyClearance = ({ filterType, onRefresh }: { filterType?: 'administr
                   error: 'Failed to synthesize report'
                 });
               }}
-              className="w-full sm:w-auto rounded-2xl h-14 px-8 font-black text-[10px] uppercase tracking-[0.4em] text-primary hover:bg-primary/5 hover:shadow-strong transition-all duration-700 bg-card/40 backdrop-blur-md border border-primary/20 group/export"
+              className="w-full sm:w-auto rounded-xl h-10 px-3 sm:px-5 font-black text-[9px] uppercase tracking-[0.08em] sm:tracking-[0.2em] text-primary hover:bg-primary/5 hover:shadow-strong transition-all duration-700 bg-card/40 backdrop-blur-md border border-primary/20 group/export flex items-center justify-center whitespace-nowrap"
             >
-              <Download className="w-5 h-5 mr-3 group-hover/export:-translate-y-1 transition-transform" />
+              <Download className="w-4 h-4 mr-1.5 sm:mr-2 group-hover/export:-translate-y-0.5 transition-transform" />
               Export PDF
             </Button>
 
@@ -678,62 +679,61 @@ export const MyClearance = ({ filterType, onRefresh }: { filterType?: 'administr
               variant="ghost" 
               onClick={fetchClearanceData}
               disabled={refreshing}
-              className="w-full sm:w-auto rounded-2xl h-14 px-8 font-black text-[10px] uppercase tracking-[0.4em] text-muted-foreground hover:bg-card hover:text-primary hover:shadow-strong transition-all duration-700 bg-card/40 backdrop-blur-md shrink-0 border border-foreground/5 group/refresh"
+              className="w-full sm:w-auto rounded-xl h-10 px-3 sm:px-5 font-black text-[9px] uppercase tracking-[0.08em] sm:tracking-[0.2em] text-muted-foreground hover:bg-card hover:text-primary hover:shadow-strong transition-all duration-700 bg-card/40 backdrop-blur-md shrink-0 border border-foreground/5 group/refresh flex items-center justify-center whitespace-nowrap"
             >
-              <RefreshCcw className={`w-5 h-5 mr-3 group-hover/refresh:rotate-180 transition-transform duration-700 ${refreshing ? 'animate-spin' : ''}`} />
+              <RefreshCcw className={`w-4 h-4 mr-1.5 sm:mr-2 group-hover/refresh:rotate-180 transition-transform duration-700 ${refreshing ? 'animate-spin' : ''}`} />
               Sync Status
             </Button>
           </div>
       </div>
 
       {activeRequest ? (
-        <>
-          {/* Progress Overview */}
+        <>          {/* Progress Overview */}
           {(!filterType || filterType === 'administrative') && (
-            <Card className="border-none shadow-strong rounded-3xl overflow-hidden bg-foreground text-background relative border border-white/5 group">
+            <Card className="border-none shadow-strong rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden bg-foreground text-background relative border border-white/5 group">
               <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/20 rounded-full blur-[120px] -mr-32 -mt-32 animate-pulse" />
               
-              <CardContent className="p-6 sm:p-8 relative z-10">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-primary rounded-full shadow-[0_0_15px_hsl(var(--primary)/1)] animate-ping" />
-                      <span className="text-primary text-[9px] font-black uppercase tracking-[0.5em]">Live Status</span>
+              <CardContent className="p-3 sm:p-6 lg:p-8 relative z-10">
+                <div className="flex flex-row items-center justify-between gap-4">
+                  <div className="space-y-1 sm:space-y-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full shadow-[0_0_15px_hsl(var(--primary)/1)] animate-ping" />
+                      <span className="text-primary text-[8px] font-black uppercase tracking-[0.4em]">Live Status</span>
                     </div>
-                    <div className="space-y-2">
-                       <p className="text-[8px] font-black text-background/30 uppercase tracking-[0.5em] mb-1">Overall progress</p>
-                       <h3 className="text-3xl sm:text-5xl font-black tracking-tighter leading-none flex items-baseline gap-3">
-                        {progress.clearedDepartments || 0}<span className="text-base text-background/20 font-black uppercase tracking-widest">/ {progress.totalDepartments || allDepartments.length}</span>
+                    <div className="space-y-0.5 sm:space-y-1.5">
+                       <p className="text-[8px] font-black text-background/30 uppercase tracking-[0.4em] mb-0.5 hidden sm:block">Overall progress</p>
+                       <h3 className="text-xl sm:text-4xl lg:text-5xl font-black tracking-tighter leading-none flex items-baseline gap-1 sm:gap-2">
+                        {progress.clearedDepartments || 0}<span className="text-[10px] sm:text-xs text-background/20 font-black uppercase tracking-widest">/ {progress.totalDepartments || allDepartments.length} Cleared</span>
                        </h3>
-                      <div className="flex items-center gap-3 pt-1">
-                         <Badge className="bg-primary text-white border-none rounded-md px-3 py-1 text-[8px] font-black uppercase tracking-widest shadow-strong shadow-primary/40">ID: {activeRequest.request_id}</Badge>
-                         <div className="hidden sm:flex items-center gap-2 text-background/40 font-black text-[8px] uppercase tracking-widest italic">
-                            <Database className="w-3 h-3" /> Sync Complete
+                      <div className="flex items-center gap-2 pt-0.5 sm:pt-1">
+                         <Badge className="bg-primary text-white border-none rounded px-1.5 py-0.5 sm:px-2.5 sm:py-0.5 text-[7px] sm:text-[8px] font-black uppercase tracking-widest shadow-strong shadow-primary/40">ID: {activeRequest.request_id}</Badge>
+                         <div className="hidden sm:flex items-center gap-1.5 text-background/40 font-black text-[7px] uppercase tracking-widest italic">
+                            <Database className="w-2.5 h-2.5" /> Sync Complete
                          </div>
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-col items-start lg:items-end gap-1">
-                    <div className="text-5xl sm:text-7xl font-black tracking-tighter leading-none text-primary group-hover:scale-110 transition-transform duration-1000 origin-bottom-right">
-                       {progress.percentage || 0}<span className="text-2xl text-background/10 ml-1">%</span>
+                  <div className="flex flex-col items-end justify-center shrink-0">
+                    <div className="text-3xl sm:text-6xl lg:text-7xl font-black tracking-tighter leading-none text-primary group-hover:scale-105 transition-transform duration-1000 origin-bottom-right">
+                       {progress.percentage || 0}<span className="text-lg sm:text-xl text-background/10 ml-0.5">%</span>
                     </div>
-                    <div className="text-background/20 text-[8px] font-black uppercase tracking-[0.5em] italic mr-1">Progress Percentage</div>
+                    <div className="text-background/20 text-[7px] font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] italic mr-0.5">Complete</div>
                   </div>
                 </div>
 
-                <div className="mt-8 sm:mt-12 space-y-4">
-                   <div className="flex items-center justify-between px-2">
-                      <div className="flex items-center gap-2 text-background/30 font-black text-[9px] uppercase tracking-[0.4em]">
-                         <Activity className="w-3 h-3" /> Start
+                <div className="mt-3.5 sm:mt-8 space-y-2 sm:space-y-3">
+                   <div className="flex items-center justify-between px-1">
+                      <div className="flex items-center gap-1.5 text-background/30 font-black text-[7px] sm:text-[8px] uppercase tracking-[0.3em]">
+                         <Activity className="w-2 sm:w-2.5 h-2 sm:h-2.5" /> Start
                       </div>
-                      <div className="flex items-center gap-2 text-background/30 font-black text-[9px] uppercase tracking-[0.4em]">
-                         Finality <ChevronRight className="w-3 h-3" />
+                      <div className="flex items-center gap-1.5 text-background/30 font-black text-[7px] sm:text-[8px] uppercase tracking-[0.3em]">
+                         Finality <ChevronRight className="w-2 sm:w-2.5 h-2 sm:h-2.5" />
                       </div>
                    </div>
-                   <div className="w-full h-4 bg-background/5 rounded-full p-1 overflow-hidden shadow-inner border border-white/5 relative">
+                   <div className="w-full h-2 sm:h-3.5 bg-background/5 rounded-full p-0.5 overflow-hidden shadow-inner border border-white/5 relative">
                     <div
-                      className="h-full bg-primary rounded-full transition-all duration-2000 ease-out relative group/shimmer overflow-hidden shadow-[0_0_20px_rgba(var(--primary),0.4)]"
-                      style={{ width: `${progress.percentage || 0}%` }}
+                       className="h-full bg-primary rounded-full transition-all duration-2000 ease-out relative group/shimmer overflow-hidden shadow-[0_0_20px_rgba(var(--primary),0.4)]"
+                       style={{ width: `${progress.percentage || 0}%` }}
                     >
                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent translate-x-[-100%] animate-[shimmer_3s_infinite]" />
                     </div>
@@ -745,18 +745,18 @@ export const MyClearance = ({ filterType, onRefresh }: { filterType?: 'administr
           
           {/* Active Unit Focus Portal */}
           {activeIndex >= 0 && (
-            <div className="flex items-center gap-6 px-6 sm:px-8 py-6 bg-primary/5 border border-primary/10 rounded-3xl shadow-strong animate-in slide-in-from-left-10 duration-1000 group">
-              <div className="w-4 h-4 bg-primary rounded-full animate-ping flex-shrink-0" />
+            <div className="flex items-center gap-3 sm:gap-6 px-4 sm:px-8 py-3.5 sm:py-6 bg-primary/5 border border-primary/10 rounded-xl sm:rounded-3xl shadow-strong animate-in slide-in-from-left-10 duration-1000 group">
+              <div className="w-3 h-3 sm:w-4 sm:h-4 bg-primary rounded-full animate-ping flex-shrink-0" />
               <div className="space-y-0.5">
-                 <p className="text-[8px] font-black text-primary uppercase tracking-[0.5em] mb-1">Current Department</p>
-                 <p className="text-base sm:text-lg font-black uppercase tracking-tight text-foreground leading-none">
+                 <p className="text-[7px] sm:text-[8px] font-black text-primary uppercase tracking-[0.4em] sm:tracking-[0.5em] mb-0.5 sm:mb-1">Current Department</p>
+                 <p className="text-sm sm:text-lg font-black uppercase tracking-tight text-foreground leading-none">
                     Currently At:{' '}
-                    <span className="text-primary block sm:inline sm:ml-3 group-hover:tracking-wider transition-all duration-700">
+                    <span className="text-primary block sm:inline sm:ml-2 group-hover:tracking-wider transition-all duration-700">
                       {departments[activeIndex]?.department_id === data.student.department_id ? data.student.discipline : (departments[activeIndex]?.department?.name || 'Authorized Unit')}
                     </span>
                  </p>
               </div>
-              <ArrowUpRight className="ml-auto w-8 h-8 text-primary opacity-20 group-hover:translate-x-3 group-hover:-translate-y-3 transition-transform duration-700" />
+              <ArrowUpRight className="ml-auto w-5 h-5 sm:w-8 sm:h-8 text-primary opacity-20 group-hover:translate-x-1 sm:group-hover:translate-x-3 group-hover:-translate-y-1 sm:group-hover:-translate-y-3 transition-transform duration-700 shrink-0" />
             </div>
           )}
 
