@@ -193,10 +193,9 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
   ];
 
   return (
-    <div className="space-y-3 lg:space-y-2.5 sm:space-y-4 animate-in fade-in slide-in-from-bottom-10 duration-1000">
-      {/* Premium Dashboard Header (Slim & Compact) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card/40 backdrop-blur-md p-4 rounded-2xl border border-foreground/5 relative z-10 shadow-soft">
-        <div className="flex items-center gap-3">
+    <div className="space-y-3 lg:space-y-2.5 sm:space-y-4 animate-in fade-in slide-in-from-bottom-10 duration-1000">      {/* Premium Dashboard Header (Slim & Compact) */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-card/40 backdrop-blur-md p-4 rounded-2xl border border-foreground/5 relative z-10 shadow-soft">
+        <div className="flex items-center gap-3 shrink-0">
           <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary border border-foreground/5 shadow-inner">
              <Database className="w-5 h-5" />
           </div>
@@ -205,7 +204,27 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
              <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none mt-1 opacity-60">Manage students, departments, and clearance requests</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+
+        {/* Compact Center Logistics Alert */}
+        {counts.dispatchPendingCount > 0 && (
+          <button 
+            onClick={() => onNavigate('dispatch')}
+            className="flex items-center justify-between gap-3 px-4 py-2 bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/20 hover:border-amber-500/30 rounded-xl text-left transition-all active:scale-98 group cursor-pointer w-full lg:w-auto lg:max-w-xs xl:max-w-md shadow-sm shrink-0 animate-in fade-in duration-500"
+          >
+            <div className="flex items-center gap-3 overflow-hidden">
+              <div className="w-7 h-7 bg-amber-500/20 rounded-lg flex items-center justify-center text-amber-600 shadow-soft shrink-0">
+                <Truck className="w-3.5 h-3.5" />
+              </div>
+              <div className="overflow-hidden">
+                <h4 className="text-[10px] font-black text-amber-900 dark:text-amber-300 uppercase tracking-tight leading-none truncate">Logistics Alert: {counts.dispatchPendingCount} Pending</h4>
+                <p className="text-[7px] font-black text-amber-700 dark:text-amber-400 uppercase tracking-widest mt-0.5 truncate">Action Required • View Dispatches</p>
+              </div>
+            </div>
+            <ArrowRight className="w-3.5 h-3.5 text-amber-600 group-hover:translate-x-1 transition-transform shrink-0" />
+          </button>
+        )}
+
+        <div className="flex items-center gap-2 shrink-0 self-end lg:self-auto">
            <Button 
             variant="ghost" 
             className="rounded-xl h-10 px-4 font-black text-[9px] uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-all active:scale-95 border border-foreground/5 backdrop-blur-sm"
@@ -231,7 +250,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
            >
              <Download className="w-3.5 h-3.5 mr-2" />
              Export
-           </Button>
+            </Button>
            <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button className="rounded-xl bg-primary text-white hover:bg-primary/90 h-10 px-5 font-black text-[9px] uppercase tracking-widest shadow-soft shadow-primary/20 flex items-center gap-2 active:scale-95 transition-all group/btn overflow-hidden relative">
@@ -257,32 +276,6 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (tab: string) => vo
            </DropdownMenu>
         </div>
       </div>
-
-      {/* Dispatch Logistics Notification Alert (Compact) */}
-      {counts.dispatchPendingCount > 0 && (
-        <div className="relative group overflow-hidden p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 backdrop-blur-3xl animate-in fade-in duration-500">
-           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 relative z-10">
-              <div className="flex items-center gap-3">
-                 <div className="w-8 h-8 bg-amber-500/20 rounded-lg flex items-center justify-center text-amber-600 shadow-soft">
-                    <Truck className="w-4 h-4" />
-                 </div>
-                 <div>
-                    <h4 className="text-xs font-black text-amber-900 uppercase tracking-tight leading-none">Logistics Alert: {counts.dispatchPendingCount} Pending Dispatches</h4>
-                    <p className="text-[8px] font-bold text-amber-700 uppercase tracking-widest opacity-70 mt-1">
-                       Students submitted addresses. Action required.
-                    </p>
-                 </div>
-              </div>
-              <Button 
-                onClick={() => onNavigate('dispatch')}
-                className="bg-amber-600 hover:bg-amber-700 text-white h-8 px-4 rounded-xl font-black text-[8px] uppercase tracking-widest shadow-soft shadow-amber-600/10 flex items-center gap-2 transition-all active:scale-95 shrink-0"
-              >
-                Go to Logistics
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Button>
-           </div>
-        </div>
-      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 sm:gap-6">
