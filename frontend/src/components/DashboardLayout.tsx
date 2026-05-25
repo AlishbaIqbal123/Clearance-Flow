@@ -79,6 +79,79 @@ interface DashboardLayoutProps {
   isPhase3Unlocked?: boolean;
 }
 
+const iconDetails: Record<string, { redirect: string; description: string; iconName: string }> = {
+  'dashboard': {
+    redirect: 'Dashboard Hub',
+    description: 'Central console for quick actions, stats, and recent system activities.',
+    iconName: 'Layout Grid (Dashboard)'
+  },
+  'students': {
+    redirect: 'Student Directory',
+    description: 'Manage student records, browse clearance logs, and verify individual academic statuses.',
+    iconName: 'Graduation Cap (Academic Records)'
+  },
+  'academic-depts': {
+    redirect: 'Faculties Management',
+    description: 'Configure and monitor academic faculties and structural departments.',
+    iconName: 'Building (Faculties)'
+  },
+  'admin-depts': {
+    redirect: 'Admin Units Control',
+    description: 'Manage non-academic support sections (Library, Finance, Transport).',
+    iconName: 'Shield (Administrative Blocks)'
+  },
+  'requests': {
+    redirect: 'Clearance Requests',
+    description: 'Review, approve, or reject active student clearance requests.',
+    iconName: 'File Text (Applications)'
+  },
+  'dept-chats': {
+    redirect: 'Live Support Chats',
+    description: 'Real-time messaging with students to resolve clearance bottlenecks.',
+    iconName: 'Speech Bubble (Live Support)'
+  },
+  'settings': {
+    redirect: 'Portal Settings',
+    description: 'Manage departmental thresholds, operating hours, and configurations.',
+    iconName: 'Gear (Settings)'
+  },
+  'admin-clearance': {
+    redirect: 'Phase 1: Admin Clearance',
+    description: 'First stage of student clearance involving administrative units.',
+    iconName: 'Shield Check (Admin Clearances)'
+  },
+  'academic-clearance': {
+    redirect: 'Phase 2: Academic Clearance',
+    description: 'Second stage involving academic department and HOD approvals.',
+    iconName: 'Trophy (Academic Clearance)'
+  },
+  'degree-allotment': {
+    redirect: 'Phase 3: Degree Issuance',
+    description: 'Final stage verifying eligibility for degree & transcript release.',
+    iconName: 'Award (Degree Clearance)'
+  },
+  'analytics': {
+    redirect: 'Analytics & Trends',
+    description: 'Visual insights, clearance flow charts, and performance statistics.',
+    iconName: 'Bar Chart (Metrics)'
+  },
+  'users': {
+    redirect: 'Staff Directory',
+    description: 'Manage system personnel, assign officer permissions, and roles.',
+    iconName: 'Users (Staff Control)'
+  },
+  'profile': {
+    redirect: 'My Profile Modal',
+    description: 'View your profile info, update contacts, and manage security settings.',
+    iconName: 'Avatar (Identity/Profile)'
+  },
+  'logout': {
+    redirect: 'Logout Session',
+    description: 'Securely terminate your portal session and clear local credentials.',
+    iconName: 'Logout Door (Session Terminate)'
+  }
+};
+
 export const DashboardLayout = ({ 
   children, 
   user, 
@@ -97,6 +170,9 @@ export const DashboardLayout = ({
   useEffect(() => {
     localStorage.setItem('sidebar-collapsed', String(isSidebarCollapsed));
   }, [isSidebarCollapsed]);
+
+  const [hoveredItem, setHoveredItem] = useState<any>(null);
+  const [hoveredRect, setHoveredRect] = useState<DOMRect | null>(null);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadChatCount, setUnreadChatCount] = useState(0);
@@ -373,8 +449,24 @@ export const DashboardLayout = ({
                 return (
                   <button
                     key={item.id}
-                    onClick={() => !isLocked && setActiveTab(item.id)}
-                    disabled={isLocked}
+                    onClick={() => {
+                      if (!isLocked) {
+                        setActiveTab(item.id);
+                        setHoveredItem(null);
+                        setHoveredRect(null);
+                      }
+                    }}
+                    onMouseEnter={(e) => {
+                      if (isSidebarCollapsed) {
+                        setHoveredItem(item.id);
+                        setHoveredRect(e.currentTarget.getBoundingClientRect());
+                      }
+                    }}
+                    onMouseLeave={() => {
+                      setHoveredItem(null);
+                      setHoveredRect(null);
+                    }}
+                    aria-disabled={isLocked}
                     className={`
                       w-full flex items-center rounded-2xl transition-all duration-500 group relative overflow-hidden
                       ${isSidebarCollapsed 
@@ -420,7 +512,21 @@ export const DashboardLayout = ({
           {/* User Profile Card - Premium Interaction */}
           <div className={`p-4 border-t border-white/10 space-y-2 bg-white/5 shrink-0 transition-all duration-500 ${isSidebarCollapsed ? 'p-4 lg:p-2' : 'p-4'}`}>
             <button 
-              onClick={() => setIsProfileOpen(true)}
+              onClick={() => {
+                setIsProfileOpen(true);
+                setHoveredItem(null);
+                setHoveredRect(null);
+              }}
+              onMouseEnter={(e) => {
+                if (isSidebarCollapsed) {
+                  setHoveredItem('profile');
+                  setHoveredRect(e.currentTarget.getBoundingClientRect());
+                }
+              }}
+              onMouseLeave={() => {
+                setHoveredItem(null);
+                setHoveredRect(null);
+              }}
               className={`w-full bg-white/10 hover:bg-white/15 rounded-xl flex items-center transition-all duration-700 group border border-white/5 shadow-inner ${isSidebarCollapsed ? 'justify-between p-3 gap-3 lg:justify-center lg:p-2 lg:gap-0' : 'p-3 gap-3'}`}
             >
               <div className="relative shrink-0">
@@ -439,7 +545,21 @@ export const DashboardLayout = ({
             </button>
             <Button 
               variant="ghost"
-              onClick={onLogout}
+              onClick={() => {
+                onLogout();
+                setHoveredItem(null);
+                setHoveredRect(null);
+              }}
+              onMouseEnter={(e) => {
+                if (isSidebarCollapsed) {
+                  setHoveredItem('logout');
+                  setHoveredRect(e.currentTarget.getBoundingClientRect());
+                }
+              }}
+              onMouseLeave={() => {
+                setHoveredItem(null);
+                setHoveredRect(null);
+              }}
               className={`w-full flex items-center justify-center h-9 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] text-red-300 hover:bg-red-500/20 hover:text-red-100 transition-all border border-transparent hover:border-red-500/10 ${isSidebarCollapsed ? 'lg:p-0 lg:gap-0 gap-2' : 'gap-2'}`}
             >
               <LogOut className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5 shrink-0" />
@@ -805,6 +925,69 @@ export const DashboardLayout = ({
           className="fixed inset-0 bg-background/40 backdrop-blur-md z-40 lg:hidden transition-opacity duration-700"
           onClick={() => setIsSidebarOpen(false)}
         />
+      )}
+
+      {/* Floating Glassmorphic Tooltip for Collapsed Sidebar */}
+      {isSidebarCollapsed && hoveredItem && hoveredRect && iconDetails[hoveredItem] && (
+        <div 
+          className="fixed z-[9999] pointer-events-none flex items-center transition-all duration-300 animate-in fade-in slide-in-from-left-2 ease-out"
+          style={{
+            top: `${hoveredRect.top + hoveredRect.height / 2}px`,
+            left: `${hoveredRect.right + 12}px`,
+            transform: 'translateY(-50%)',
+          }}
+        >
+          {/* Arrow pointing back to the icon */}
+          <div className="w-0 h-0 border-y-[6px] border-y-transparent border-r-[6px] border-r-[#0A4EA3] dark:border-r-slate-900 relative z-20" />
+          
+          {/* Tooltip Content Card with elegant borders & shadows */}
+          <div className="bg-gradient-to-br from-[#0A4EA3] to-[#083e82] dark:from-slate-900 dark:to-slate-950 text-white rounded-2xl p-4 shadow-[0_12px_40px_rgba(0,0,0,0.5),0_0_24px_rgba(10,78,163,0.35)] border border-white/10 dark:border-white/5 max-w-[260px] backdrop-blur-xl -ml-[1px] relative overflow-hidden">
+            {/* Ambient inner glow */}
+            <div className="absolute top-0 right-0 w-16 h-16 bg-white/5 rounded-full blur-xl pointer-events-none" />
+
+            {/* Header info / Redirect Destination */}
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-sky-300 animate-pulse shadow-[0_0_6px_#7dd3fc]" />
+              <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-sky-200 leading-none">
+                {iconDetails[hoveredItem].redirect}
+              </h4>
+            </div>
+
+            {/* Lock check for student clearance milestones */}
+            {(() => {
+              const itemObj = menuItems.find(m => m.id === hoveredItem);
+              const isItemLocked = itemObj ? (itemObj as any).isLocked : false;
+              
+              return (
+                <>
+                  {isItemLocked && (
+                    <div className="flex items-center gap-1.5 mb-2 bg-red-500/20 border border-red-500/30 rounded-lg px-2 py-1">
+                      <Lock className="w-3 h-3 text-red-300 animate-pulse" />
+                      <span className="text-[8px] font-black uppercase tracking-widest text-red-200">
+                        Currently Locked
+                      </span>
+                    </div>
+                  )}
+                  
+                  {/* Detailed Description */}
+                  <p className="text-[10px] font-bold text-white/90 tracking-wide leading-relaxed">
+                    {isItemLocked 
+                      ? "This phase is currently locked. Complete the previous clearance checkpoints to unlock access."
+                      : iconDetails[hoveredItem].description}
+                  </p>
+                </>
+              );
+            })()}
+
+            {/* Metadata Footer: Indicates what this icon stands for */}
+            <div className="flex items-center gap-1.5 pt-2 border-t border-white/10 mt-2.5">
+              <span className="text-[8px] font-black text-white/40 uppercase tracking-widest block">Icon:</span>
+              <span className="text-[8px] font-bold text-sky-200/80 uppercase tracking-wider bg-white/5 px-2 py-0.5 rounded-md truncate max-w-full">
+                {iconDetails[hoveredItem].iconName}
+              </span>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
