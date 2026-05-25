@@ -805,71 +805,97 @@ export const Analytics = ({ user }: { user: any }) => {
       {/* Cohort Trends View */}
       {activeTab === 'cohorts' && (
         <div className="space-y-8 animate-in fade-in duration-500">
-          {/* Batch Distribution Card */}
-          {batchDistribution.length > 0 && (
-            <Card className="border-none shadow-soft rounded-3xl bg-card/60 backdrop-blur-3xl border border-foreground/5 group overflow-hidden">
-              <CardHeader className="p-6 border-b border-foreground/5">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-500 group-hover:rotate-6 transition-transform duration-700 shadow-soft">
-                    <GraduationCap className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-base sm:text-lg font-black tracking-tighter uppercase leading-none">Batch Cohorts Distribution</CardTitle>
-                    <CardDescription className="font-black text-[8px] uppercase tracking-[0.3em] opacity-40 mt-0.5 italic">Pending student count per academic cohort.</CardDescription>
-                  </div>
+          {batchDistribution.length === 0 && (!data?.recentPending || data.recentPending.length === 0) ? (
+            <Card className="border-none shadow-strong rounded-3xl bg-card/60 backdrop-blur-3xl border border-foreground/5 overflow-hidden p-8 sm:p-12 text-center relative group">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full -mr-32 -mt-32 blur-3xl animate-pulse" />
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/5 rounded-full -ml-32 -mb-32 blur-3xl" />
+              
+              <div className="relative z-10 space-y-6 max-w-md mx-auto py-8">
+                <div className="w-20 h-20 bg-emerald-500/10 rounded-[2.5rem] border border-emerald-500/20 flex items-center justify-center mx-auto transition-all duration-700 group-hover:scale-110 group-hover:rotate-6 shadow-soft">
+                  <ShieldCheck className="w-10 h-10 text-emerald-500" />
                 </div>
-              </CardHeader>
-              <CardContent className="p-6 grid grid-cols-2 md:grid-cols-4 gap-6">
-                {batchDistribution.map((b: any, i: number) => (
-                  <div key={i} className="bg-secondary/20 p-5 rounded-2xl border border-foreground/5 space-y-1.5 hover:bg-primary/5 transition-colors duration-500">
-                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40 leading-none">Cohort {b.batch}</p>
-                    <p className="text-3xl font-black text-foreground tracking-tighter leading-none">{b.count}</p>
-                    <p className="text-[7px] font-black text-muted-foreground uppercase tracking-widest">Students Pending Clearance</p>
-                  </div>
-                ))}
-              </CardContent>
+                <div className="space-y-2">
+                  <Badge className="bg-emerald-500/10 text-emerald-600 border-none rounded-full px-4 py-1 text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em]">
+                    All Systems Operational
+                  </Badge>
+                  <h3 className="text-xl sm:text-2xl font-black text-foreground tracking-tighter uppercase mt-2">
+                    Cohorts Fully Cleared
+                  </h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed italic">
+                    All academic cohorts have been processed. There are currently no pending clearance requests in the system.
+                  </p>
+                </div>
+              </div>
             </Card>
-          )}
-
-          {/* Recent Pending Requests Table */}
-          {data?.recentPending?.length > 0 && (
-            <Card className="border-none shadow-soft rounded-3xl bg-card/60 backdrop-blur-3xl border border-foreground/5 group overflow-hidden">
-              <CardHeader className="p-6 border-b border-foreground/5">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-500 shadow-soft">
-                    <Clock className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-base sm:text-lg font-black tracking-tighter uppercase leading-none">High Priority Pending Approvals</CardTitle>
-                    <CardDescription className="font-black text-[8px] uppercase tracking-[0.3em] opacity-40 mt-0.5 italic">Awaiting immediate review from campus units.</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-0 max-h-[350px] lg:max-h-[calc(100vh-22rem)] overflow-y-auto custom-scrollbar">
-                <div className="divide-y divide-foreground/5">
-                  {data.recentPending.map((req: any, i: number) => (
-                    <div key={i} className="p-5 flex items-center justify-between hover:bg-primary/5 transition-colors group/req">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center font-black text-xs text-primary border border-foreground/5 group-hover/req:scale-110 group-hover:rotate-6 transition-all duration-500">
-                          {req.student?.first_name?.[0]}{req.student?.last_name?.[0]}
-                        </div>
-                        <div className="space-y-0.5">
-                          <p className="text-sm font-black text-foreground uppercase tracking-tight leading-none group-hover/req:text-primary transition-colors">
-                            {req.student?.first_name} {req.student?.last_name}
-                          </p>
-                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">
-                            {req.student?.registration_number} • Batch {req.student?.batch}
-                          </p>
-                        </div>
+          ) : (
+            <>
+              {/* Batch Distribution Card */}
+              {batchDistribution.length > 0 && (
+                <Card className="border-none shadow-soft rounded-3xl bg-card/60 backdrop-blur-3xl border border-foreground/5 group overflow-hidden">
+                  <CardHeader className="p-6 border-b border-foreground/5">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-500 group-hover:rotate-6 transition-transform duration-700 shadow-soft">
+                        <GraduationCap className="w-5 h-5" />
                       </div>
-                      <Badge className="bg-amber-500/10 text-amber-600 border-none rounded-lg px-3 py-1 text-[8px] font-black uppercase tracking-widest">
-                        Pending
-                      </Badge>
+                      <div>
+                        <CardTitle className="text-base sm:text-lg font-black tracking-tighter uppercase leading-none">Batch Cohorts Distribution</CardTitle>
+                        <CardDescription className="font-black text-[8px] uppercase tracking-[0.3em] opacity-40 mt-0.5 italic">Pending student count per academic cohort.</CardDescription>
+                      </div>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                  </CardHeader>
+                  <CardContent className="p-6 grid grid-cols-2 md:grid-cols-4 gap-6">
+                    {batchDistribution.map((b: any, i: number) => (
+                      <div key={i} className="bg-secondary/20 p-5 rounded-2xl border border-foreground/5 space-y-1.5 hover:bg-primary/5 transition-colors duration-500">
+                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40 leading-none">Cohort {b.batch}</p>
+                        <p className="text-3xl font-black text-foreground tracking-tighter leading-none">{b.count}</p>
+                        <p className="text-[7px] font-black text-muted-foreground uppercase tracking-widest">Students Pending Clearance</p>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Recent Pending Requests Table */}
+              {data?.recentPending?.length > 0 && (
+                <Card className="border-none shadow-soft rounded-3xl bg-card/60 backdrop-blur-3xl border border-foreground/5 group overflow-hidden">
+                  <CardHeader className="p-6 border-b border-foreground/5">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-500 shadow-soft">
+                        <Clock className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base sm:text-lg font-black tracking-tighter uppercase leading-none">High Priority Pending Approvals</CardTitle>
+                        <CardDescription className="font-black text-[8px] uppercase tracking-[0.3em] opacity-40 mt-0.5 italic">Awaiting immediate review from campus units.</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-0 max-h-[350px] lg:max-h-[calc(100vh-22rem)] overflow-y-auto custom-scrollbar">
+                    <div className="divide-y divide-foreground/5">
+                      {data.recentPending.map((req: any, i: number) => (
+                        <div key={i} className="p-5 flex items-center justify-between hover:bg-primary/5 transition-colors group/req">
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center font-black text-xs text-primary border border-foreground/5 group-hover/req:scale-110 group-hover:rotate-6 transition-all duration-500">
+                              {req.student?.first_name?.[0]}{req.student?.last_name?.[0]}
+                            </div>
+                            <div className="space-y-0.5">
+                              <p className="text-sm font-black text-foreground uppercase tracking-tight leading-none group-hover/req:text-primary transition-colors">
+                                {req.student?.first_name} {req.student?.last_name}
+                              </p>
+                              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">
+                                {req.student?.registration_number} • Batch {req.student?.batch}
+                              </p>
+                            </div>
+                          </div>
+                          <Badge className="bg-amber-500/10 text-amber-600 border-none rounded-lg px-3 py-1 text-[8px] font-black uppercase tracking-widest">
+                            Pending
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </>
           )}
         </div>
       )}

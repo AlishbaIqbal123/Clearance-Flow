@@ -14,6 +14,8 @@ import {
   Moon,
   Sun,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Info,
   User,
   Settings,
@@ -88,6 +90,13 @@ export const DashboardLayout = ({
   isPhase3Unlocked = false 
 }: DashboardLayoutProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    return localStorage.getItem('sidebar-collapsed') === 'true';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('sidebar-collapsed', String(isSidebarCollapsed));
+  }, [isSidebarCollapsed]);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadChatCount, setUnreadChatCount] = useState(0);
@@ -320,19 +329,32 @@ export const DashboardLayout = ({
   return (
     <div className="min-h-screen bg-background flex flex-col lg:flex-row font-sans selection:bg-primary/10">
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-[#0A4EA3] border-r border-[#083e82] transition-all duration-700 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)]
+        fixed inset-y-0 left-0 z-50 bg-[#0A4EA3] border-r border-[#083e82] transition-all duration-700 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)]
+        ${isSidebarCollapsed ? 'w-64 lg:w-20' : 'w-64 lg:w-64'}
         ${isSidebarOpen ? 'translate-x-0 shadow-strong' : '-translate-x-full lg:translate-x-0'}
       `}>
+        {/* Toggle Button for collapsing/expanding sidebar on Desktop */}
+        <button
+          onClick={() => setIsSidebarCollapsed(prev => !prev)}
+          className="hidden lg:flex absolute top-6 -right-3.5 z-50 w-7 h-7 bg-white dark:bg-[#0A4EA3] border-2 border-[#0A4EA3] dark:border-white/20 rounded-full items-center justify-center shadow-strong text-[#0A4EA3] dark:text-white hover:scale-110 active:scale-95 transition-all cursor-pointer"
+        >
+          {isSidebarCollapsed ? (
+            <ChevronRight className="w-4 h-4" />
+          ) : (
+            <ChevronLeft className="w-4 h-4" />
+          )}
+        </button>
+
         <div className="flex flex-col h-screen max-h-screen overflow-hidden">
-          <div className="p-4 flex items-center justify-between shrink-0">
+          <div className={`p-4 flex items-center justify-between shrink-0 transition-all duration-500 ${isSidebarCollapsed ? 'lg:px-2 px-4' : 'px-4'}`}>
             <div className="flex items-center gap-3 group cursor-pointer">
-              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-strong group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 relative overflow-hidden p-1.5 border border-white/10">
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-strong group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 relative overflow-hidden p-1.5 border border-white/10 shrink-0">
                 <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity shimmer" />
                 <img src="/logo.png" alt="Logo" className="w-full h-full object-contain relative z-10" />
               </div>
-              <div className="space-y-0.5">
-                <span className="font-black text-base sm:text-lg text-white tracking-tighter block uppercase leading-none">CUI Vehari</span>
-                <span className="text-[7px] font-black text-sky-200 uppercase tracking-[0.3em] block italic">Clearance System</span>
+              <div className={`space-y-0.5 transition-all duration-500 overflow-hidden ${isSidebarCollapsed ? 'lg:w-0 lg:opacity-0 lg:pointer-events-none w-auto opacity-100' : 'w-auto opacity-100'}`}>
+                <span className="font-black text-base sm:text-lg text-white tracking-tighter block uppercase leading-none whitespace-nowrap">CUI Vehari</span>
+                <span className="text-[7px] font-black text-sky-200 uppercase tracking-[0.3em] block italic whitespace-nowrap">Clearance System</span>
               </div>
             </div>
             <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-white/80 rounded-full hover:bg-white/10 hover:text-white w-8 h-8">
@@ -340,9 +362,9 @@ export const DashboardLayout = ({
             </Button>
           </div>
 
-          <ScrollArea className="flex-1 px-6 py-4">
+          <ScrollArea className={`flex-1 py-4 transition-all duration-500 ${isSidebarCollapsed ? 'px-6 lg:px-3' : 'px-6'}`}>
             <nav className="space-y-1">
-              <p className="px-5 pb-3 text-[9px] font-black text-white/40 uppercase tracking-[0.3em]">Navigation</p>
+              <p className={`px-5 pb-3 text-[9px] font-black text-white/40 uppercase tracking-[0.3em] transition-all duration-500 overflow-hidden ${isSidebarCollapsed ? 'lg:opacity-0 lg:h-0 lg:pb-0 opacity-100' : 'opacity-100'}`}>Navigation</p>
               {filteredItems.map((item) => {
                 const Icon = item.icon;
                 const active = activeTab === item.id;
@@ -354,30 +376,37 @@ export const DashboardLayout = ({
                     onClick={() => !isLocked && setActiveTab(item.id)}
                     disabled={isLocked}
                     className={`
-                      w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-500 group relative overflow-hidden
+                      w-full flex items-center rounded-2xl transition-all duration-500 group relative overflow-hidden
+                      ${isSidebarCollapsed ? 'lg:justify-center lg:p-4 lg:gap-0 gap-4 px-5 py-4' : 'gap-4 px-5 py-4'}
                       ${active ? 'bg-white text-[#0A4EA3] shadow-strong scale-[1.02]' : 'text-white/70 hover:bg-white/10 hover:text-white'}
                       ${isLocked ? 'opacity-30 grayscale cursor-not-allowed' : 'cursor-pointer active:scale-95'}
                     `}
                   >
                     {active && <div className="absolute inset-0 bg-black/[0.03] shimmer" />}
                     <Icon className={`w-5 h-5 transition-all duration-700 ${active ? 'scale-110 rotate-3' : 'group-hover:scale-110 group-hover:-rotate-3'} ${isLocked ? 'opacity-50' : ''}`} />
-                    <span className="font-black text-[10px] uppercase tracking-[0.2em] relative z-10">{item.label}</span>
-                    {isLocked && <Lock className="w-3 h-3 ml-auto opacity-50" />}
+                    <span className={`font-black text-[10px] uppercase tracking-[0.2em] relative z-10 transition-all duration-500 whitespace-nowrap overflow-hidden ${isSidebarCollapsed ? 'lg:w-0 lg:opacity-0 lg:ml-0 lg:pointer-events-none w-auto opacity-100' : 'w-auto opacity-100'}`}>{item.label}</span>
+                    {isLocked && <Lock className={`w-3 h-3 ml-auto opacity-50 transition-all duration-500 ${isSidebarCollapsed ? 'lg:w-0 lg:opacity-0 lg:hidden' : ''}`} />}
                     {item.id === 'dept-chats' && unreadChatCount > 0 && !isLocked && (
-                      <span className="px-2 py-0.5 rounded-full bg-destructive text-white text-[9px] font-black animate-pulse shadow-sm">
-                        {unreadChatCount}
-                      </span>
+                      <>
+                        <span className={`absolute top-2 right-2 w-2 h-2 rounded-full bg-destructive animate-pulse transition-all duration-500 ${isSidebarCollapsed ? 'hidden lg:block' : 'hidden'}`} />
+                        <span className={`px-2 py-0.5 rounded-full bg-destructive text-white text-[9px] font-black animate-pulse shadow-sm ml-auto transition-all duration-500 ${isSidebarCollapsed ? 'lg:hidden' : 'block'}`}>
+                          {unreadChatCount}
+                        </span>
+                      </>
                     )}
                     {item.id === 'dashboard' && user?.role === 'student' && unreadChatCount > 0 && (
-                      <span className="px-2 py-0.5 rounded-full bg-destructive text-white text-[9px] font-black animate-pulse shadow-sm ml-auto">
-                        {unreadChatCount}
-                      </span>
+                      <>
+                        <span className={`absolute top-2 right-2 w-2 h-2 rounded-full bg-destructive animate-pulse transition-all duration-500 ${isSidebarCollapsed ? 'hidden lg:block' : 'hidden'}`} />
+                        <span className={`px-2 py-0.5 rounded-full bg-destructive text-white text-[9px] font-black animate-pulse shadow-sm ml-auto transition-all duration-500 ${isSidebarCollapsed ? 'lg:hidden' : 'block'}`}>
+                          {unreadChatCount}
+                        </span>
+                      </>
                     )}
                     {active && (
-                      <div className="absolute right-4 w-1 h-1 bg-[#0A4EA3] rounded-full animate-pulse shadow-[0_0_10px_rgba(10,78,163,0.5)]" />
+                      <div className={`absolute right-4 w-1 h-1 bg-[#0A4EA3] rounded-full animate-pulse shadow-[0_0_10px_rgba(10,78,163,0.5)] ${isSidebarCollapsed ? 'lg:hidden' : 'block'}`} />
                     )}
                     {!active && (
-                       <div className="absolute left-0 w-1 h-0 bg-white/40 rounded-full transition-all duration-500 group-hover:h-5 group-hover:left-2" />
+                       <div className={`absolute left-0 w-1 h-0 bg-white/40 rounded-full transition-all duration-500 group-hover:h-5 group-hover:left-2 ${isSidebarCollapsed ? 'lg:hidden' : 'block'}`} />
                     )}
                   </button>
                 );
@@ -386,12 +415,12 @@ export const DashboardLayout = ({
           </ScrollArea>
 
           {/* User Profile Card - Premium Interaction */}
-          <div className="p-4 border-t border-white/10 space-y-2 bg-white/5 shrink-0">
+          <div className={`p-4 border-t border-white/10 space-y-2 bg-white/5 shrink-0 transition-all duration-500 ${isSidebarCollapsed ? 'p-4 lg:p-2' : 'p-4'}`}>
             <button 
               onClick={() => setIsProfileOpen(true)}
-              className="w-full bg-white/10 hover:bg-white/15 rounded-xl p-3 flex items-center gap-3 transition-all duration-700 group border border-white/5 shadow-inner"
+              className={`w-full bg-white/10 hover:bg-white/15 rounded-xl flex items-center transition-all duration-700 group border border-white/5 shadow-inner ${isSidebarCollapsed ? 'lg:justify-center lg:p-2 p-3 gap-3' : 'p-3 gap-3'}`}
             >
-              <div className="relative">
+              <div className="relative shrink-0">
                 <Avatar className="w-10 h-10 border-2 border-white/20 shadow-soft group-hover:scale-110 transition-transform duration-700">
                   <AvatarImage src={user.avatar} />
                   <AvatarFallback className="bg-white text-[#0A4EA3] font-black text-xs">
@@ -399,26 +428,28 @@ export const DashboardLayout = ({
                   </AvatarFallback>
                 </Avatar>
               </div>
-              <div className="flex-1 text-left overflow-hidden">
+              <div className={`flex-1 text-left overflow-hidden transition-all duration-500 ${isSidebarCollapsed ? 'lg:w-0 lg:opacity-0 lg:ml-0 lg:pointer-events-none w-auto opacity-100' : 'w-auto opacity-100'}`}>
                 <p className="text-[12px] font-black text-white truncate tracking-tight uppercase leading-none">{user.fullName || `${user.firstName} ${user.lastName}` || 'User'}</p>
                 <p className="text-[8px] font-black text-sky-200/80 uppercase tracking-[0.2em] leading-none mt-1.5 opacity-80 italic">{user.role?.replace('_', ' ')}</p>
               </div>
-              <ArrowRight className="w-3 h-3 text-sky-200 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-500" />
+              <ArrowRight className={`w-3 h-3 text-sky-200 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-500 ${isSidebarCollapsed ? 'lg:hidden' : ''}`} />
             </button>
             <Button 
               variant="ghost"
               onClick={onLogout}
-              className="w-full flex items-center justify-center gap-2 h-9 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] text-red-300 hover:bg-red-500/20 hover:text-red-100 transition-all border border-transparent hover:border-red-500/10"
+              className={`w-full flex items-center justify-center h-9 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] text-red-300 hover:bg-red-500/20 hover:text-red-100 transition-all border border-transparent hover:border-red-500/10 ${isSidebarCollapsed ? 'lg:p-0 lg:gap-0 gap-2' : 'gap-2'}`}
             >
-              <LogOut className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
-              Sign Out
+              <LogOut className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5 shrink-0" />
+              <span className={`transition-all duration-500 overflow-hidden ${isSidebarCollapsed ? 'lg:w-0 lg:opacity-0 lg:ml-0 lg:pointer-events-none w-auto opacity-100' : 'w-auto opacity-100'}`}>
+                Sign Out
+              </span>
             </Button>
           </div>
         </div>
       </aside>
 
       {/* Main Container Area */}
-      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen relative overflow-hidden">
+      <div className={`flex-1 flex flex-col min-h-screen relative overflow-hidden transition-all duration-700 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)] ${isSidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
         {/* Dynamic Background elements - Premium Depth */}
         <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px] pointer-events-none animate-pulse" />
         <div className="absolute bottom-[-10%] left-[-10%] w-[30%] h-[30%] bg-primary/3 rounded-full blur-[100px] pointer-events-none" />
