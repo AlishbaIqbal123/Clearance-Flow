@@ -352,7 +352,7 @@ export const DashboardLayout = ({
                 <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity shimmer" />
                 <img src="/logo.png" alt="Logo" className="w-full h-full object-contain relative z-10" />
               </div>
-              <div className={`space-y-0.5 transition-all duration-500 overflow-hidden ${isSidebarCollapsed ? 'lg:w-0 lg:opacity-0 lg:pointer-events-none w-auto opacity-100' : 'w-auto opacity-100'}`}>
+              <div className={`space-y-0.5 ${isSidebarCollapsed ? 'lg:hidden block' : 'block'}`}>
                 <span className="font-black text-base sm:text-lg text-white tracking-tighter block uppercase leading-none whitespace-nowrap">CUI Vehari</span>
                 <span className="text-[7px] font-black text-sky-200 uppercase tracking-[0.3em] block italic whitespace-nowrap">Clearance System</span>
               </div>
@@ -377,14 +377,14 @@ export const DashboardLayout = ({
                     disabled={isLocked}
                     className={`
                       w-full flex items-center rounded-2xl transition-all duration-500 group relative overflow-hidden
-                      ${isSidebarCollapsed ? 'lg:justify-center lg:p-4 lg:gap-0 gap-4 px-5 py-4' : 'gap-4 px-5 py-4'}
+                      ${isSidebarCollapsed ? 'lg:justify-center lg:p-3 lg:gap-0 gap-4 px-5 py-4' : 'gap-4 px-5 py-4'}
                       ${active ? 'bg-white text-[#0A4EA3] shadow-strong scale-[1.02]' : 'text-white/70 hover:bg-white/10 hover:text-white'}
                       ${isLocked ? 'opacity-30 grayscale cursor-not-allowed' : 'cursor-pointer active:scale-95'}
                     `}
                   >
                     {active && <div className="absolute inset-0 bg-black/[0.03] shimmer" />}
                     <Icon className={`w-5 h-5 transition-all duration-700 ${active ? 'scale-110 rotate-3' : 'group-hover:scale-110 group-hover:-rotate-3'} ${isLocked ? 'opacity-50' : ''}`} />
-                    <span className={`font-black text-[10px] uppercase tracking-[0.2em] relative z-10 transition-all duration-500 whitespace-nowrap overflow-hidden ${isSidebarCollapsed ? 'lg:w-0 lg:opacity-0 lg:ml-0 lg:pointer-events-none w-auto opacity-100' : 'w-auto opacity-100'}`}>{item.label}</span>
+                    <span className={`font-black text-[10px] uppercase tracking-[0.2em] relative z-10 whitespace-nowrap transition-all duration-500 ${isSidebarCollapsed ? 'lg:hidden block' : 'block'}`}>{item.label}</span>
                     {isLocked && <Lock className={`w-3 h-3 ml-auto opacity-50 transition-all duration-500 ${isSidebarCollapsed ? 'lg:w-0 lg:opacity-0 lg:hidden' : ''}`} />}
                     {item.id === 'dept-chats' && unreadChatCount > 0 && !isLocked && (
                       <>
@@ -428,7 +428,7 @@ export const DashboardLayout = ({
                   </AvatarFallback>
                 </Avatar>
               </div>
-              <div className={`flex-1 text-left overflow-hidden transition-all duration-500 ${isSidebarCollapsed ? 'lg:w-0 lg:opacity-0 lg:ml-0 lg:pointer-events-none w-auto opacity-100' : 'w-auto opacity-100'}`}>
+              <div className={`flex-1 text-left overflow-hidden ${isSidebarCollapsed ? 'lg:hidden block' : 'block'}`}>
                 <p className="text-[12px] font-black text-white truncate tracking-tight uppercase leading-none">{user.fullName || `${user.firstName} ${user.lastName}` || 'User'}</p>
                 <p className="text-[8px] font-black text-sky-200/80 uppercase tracking-[0.2em] leading-none mt-1.5 opacity-80 italic">{user.role?.replace('_', ' ')}</p>
               </div>
@@ -440,7 +440,7 @@ export const DashboardLayout = ({
               className={`w-full flex items-center justify-center h-9 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] text-red-300 hover:bg-red-500/20 hover:text-red-100 transition-all border border-transparent hover:border-red-500/10 ${isSidebarCollapsed ? 'lg:p-0 lg:gap-0 gap-2' : 'gap-2'}`}
             >
               <LogOut className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5 shrink-0" />
-              <span className={`transition-all duration-500 overflow-hidden ${isSidebarCollapsed ? 'lg:w-0 lg:opacity-0 lg:ml-0 lg:pointer-events-none w-auto opacity-100' : 'w-auto opacity-100'}`}>
+              <span className={`${isSidebarCollapsed ? 'lg:hidden block' : 'block'}`}>
                 Sign Out
               </span>
             </Button>
