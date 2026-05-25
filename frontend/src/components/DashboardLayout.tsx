@@ -352,7 +352,7 @@ export const DashboardLayout = ({
                 <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity shimmer" />
                 <img src="/logo.png" alt="Logo" className="w-full h-full object-contain relative z-10" />
               </div>
-              <div className={`space-y-0.5 ${isSidebarCollapsed ? 'lg:hidden block' : 'block'}`}>
+              <div className={`space-y-0.5 ${isSidebarCollapsed ? 'lg:hidden' : 'block'}`}>
                 <span className="font-black text-base sm:text-lg text-white tracking-tighter block uppercase leading-none whitespace-nowrap">CUI Vehari</span>
                 <span className="text-[7px] font-black text-sky-200 uppercase tracking-[0.3em] block italic whitespace-nowrap">Clearance System</span>
               </div>
@@ -364,7 +364,7 @@ export const DashboardLayout = ({
 
           <ScrollArea className={`flex-1 py-4 transition-all duration-500 ${isSidebarCollapsed ? 'px-6 lg:px-3' : 'px-6'}`}>
             <nav className="space-y-1">
-              <p className={`px-5 pb-3 text-[9px] font-black text-white/40 uppercase tracking-[0.3em] transition-all duration-500 overflow-hidden ${isSidebarCollapsed ? 'lg:opacity-0 lg:h-0 lg:pb-0 opacity-100' : 'opacity-100'}`}>Navigation</p>
+              <p className={`px-5 pb-3 text-[9px] font-black text-white/40 uppercase tracking-[0.3em] transition-all duration-500 ${isSidebarCollapsed ? 'lg:hidden' : 'block'}`}>Navigation</p>
               {filteredItems.map((item) => {
                 const Icon = item.icon;
                 const active = activeTab === item.id;
@@ -377,15 +377,18 @@ export const DashboardLayout = ({
                     disabled={isLocked}
                     className={`
                       w-full flex items-center rounded-2xl transition-all duration-500 group relative overflow-hidden
-                      ${isSidebarCollapsed ? 'lg:justify-center lg:p-3 lg:gap-0 gap-4 px-5 py-4' : 'gap-4 px-5 py-4'}
+                      ${isSidebarCollapsed 
+                        ? 'justify-start gap-4 px-5 py-4 lg:justify-center lg:px-0 lg:py-3 lg:gap-0' 
+                        : 'justify-start gap-4 px-5 py-4'
+                      }
                       ${active ? 'bg-white text-[#0A4EA3] shadow-strong scale-[1.02]' : 'text-white/70 hover:bg-white/10 hover:text-white'}
                       ${isLocked ? 'opacity-30 grayscale cursor-not-allowed' : 'cursor-pointer active:scale-95'}
                     `}
                   >
                     {active && <div className="absolute inset-0 bg-black/[0.03] shimmer" />}
                     <Icon className={`w-5 h-5 transition-all duration-700 ${active ? 'scale-110 rotate-3' : 'group-hover:scale-110 group-hover:-rotate-3'} ${isLocked ? 'opacity-50' : ''}`} />
-                    <span className={`font-black text-[10px] uppercase tracking-[0.2em] relative z-10 whitespace-nowrap transition-all duration-500 ${isSidebarCollapsed ? 'lg:hidden block' : 'block'}`}>{item.label}</span>
-                    {isLocked && <Lock className={`w-3 h-3 ml-auto opacity-50 transition-all duration-500 ${isSidebarCollapsed ? 'lg:w-0 lg:opacity-0 lg:hidden' : ''}`} />}
+                    <span className={`font-black text-[10px] uppercase tracking-[0.2em] relative z-10 whitespace-nowrap transition-all duration-500 ${isSidebarCollapsed ? 'lg:hidden' : ''}`}>{item.label}</span>
+                    {isLocked && <Lock className={`w-3 h-3 ml-auto opacity-50 transition-all duration-500 ${isSidebarCollapsed ? 'lg:hidden' : ''}`} />}
                     {item.id === 'dept-chats' && unreadChatCount > 0 && !isLocked && (
                       <>
                         <span className={`absolute top-2 right-2 w-2 h-2 rounded-full bg-destructive animate-pulse transition-all duration-500 ${isSidebarCollapsed ? 'hidden lg:block' : 'hidden'}`} />
@@ -418,7 +421,7 @@ export const DashboardLayout = ({
           <div className={`p-4 border-t border-white/10 space-y-2 bg-white/5 shrink-0 transition-all duration-500 ${isSidebarCollapsed ? 'p-4 lg:p-2' : 'p-4'}`}>
             <button 
               onClick={() => setIsProfileOpen(true)}
-              className={`w-full bg-white/10 hover:bg-white/15 rounded-xl flex items-center transition-all duration-700 group border border-white/5 shadow-inner ${isSidebarCollapsed ? 'lg:justify-center lg:p-2 p-3 gap-3' : 'p-3 gap-3'}`}
+              className={`w-full bg-white/10 hover:bg-white/15 rounded-xl flex items-center transition-all duration-700 group border border-white/5 shadow-inner ${isSidebarCollapsed ? 'justify-between p-3 gap-3 lg:justify-center lg:p-2 lg:gap-0' : 'p-3 gap-3'}`}
             >
               <div className="relative shrink-0">
                 <Avatar className="w-10 h-10 border-2 border-white/20 shadow-soft group-hover:scale-110 transition-transform duration-700">
@@ -428,7 +431,7 @@ export const DashboardLayout = ({
                   </AvatarFallback>
                 </Avatar>
               </div>
-              <div className={`flex-1 text-left overflow-hidden ${isSidebarCollapsed ? 'lg:hidden block' : 'block'}`}>
+              <div className={`flex-1 text-left overflow-hidden ${isSidebarCollapsed ? 'lg:hidden' : 'block'}`}>
                 <p className="text-[12px] font-black text-white truncate tracking-tight uppercase leading-none">{user.fullName || `${user.firstName} ${user.lastName}` || 'User'}</p>
                 <p className="text-[8px] font-black text-sky-200/80 uppercase tracking-[0.2em] leading-none mt-1.5 opacity-80 italic">{user.role?.replace('_', ' ')}</p>
               </div>
@@ -440,7 +443,7 @@ export const DashboardLayout = ({
               className={`w-full flex items-center justify-center h-9 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] text-red-300 hover:bg-red-500/20 hover:text-red-100 transition-all border border-transparent hover:border-red-500/10 ${isSidebarCollapsed ? 'lg:p-0 lg:gap-0 gap-2' : 'gap-2'}`}
             >
               <LogOut className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5 shrink-0" />
-              <span className={`${isSidebarCollapsed ? 'lg:hidden block' : 'block'}`}>
+              <span className={`${isSidebarCollapsed ? 'lg:hidden' : ''}`}>
                 Sign Out
               </span>
             </Button>
