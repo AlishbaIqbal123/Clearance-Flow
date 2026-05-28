@@ -199,7 +199,7 @@ export const Analytics = ({ user }: { user: any }) => {
         theme: 'striped',
         headStyles: { fillColor: [15, 23, 42], fontSize: 10, fontStyle: 'bold' },
         bodyStyles: { fontSize: 9 },
-        alternateRowStyles: { fillOpacity: 0.04 },
+        alternateRowStyles: { fillColor: [245, 247, 250] },
         margin: { left: 15, right: 15 }
       });
 

@@ -34,13 +34,19 @@ const validate = (req, res, next) => {
  */
 router.post('/login',
   [
-    body('email').isEmail().withMessage('Please provide a valid email'),
     body('password').notEmpty().withMessage('Password is required'),
+    body().custom((body) => {
+      if (!body.email && !body.username) {
+        throw new Error('Email or username is required');
+      }
+      return true;
+    }),
     validate
   ],
   asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
-    const normalizedEmail = email.trim().toLowerCase();
+    const emailInput = req.body.email || req.body.username;
+    const { password } = req.body;
+    const normalizedEmail = emailInput.trim().toLowerCase();
 
     // Find user in profiles table
     console.log('Login attempt for:', normalizedEmail);
@@ -133,9 +139,17 @@ router.post('/student/login',
     validate
   ],
   asyncHandler(async (req, res) => {
-    const { registrationNumber, email, password } = req.body;
-    const cleanReg = registrationNumber ? registrationNumber.trim().toUpperCase() : null;
-    const cleanEmail = email ? email.trim().toLowerCase() : null;
+    const { registrationNumber, email, username, password } = req.body;
+    let cleanReg = registrationNumber ? registrationNumber.trim().toUpperCase() : null;
+    let cleanEmail = email ? email.trim().toLowerCase() : null;
+
+    if (username && !cleanReg && !cleanEmail) {
+      if (username.includes('@')) {
+        cleanEmail = username.trim().toLowerCase();
+      } else {
+        cleanReg = username.trim().toUpperCase();
+      }
+    }
 
     let query = supabase
       .from('student_profiles')
@@ -380,7 +394,9 @@ router.get('/me', authenticate, asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    data: { user }
+    data: { user },
+    ...user,
+    username: user.email || user.registrationNumber
   });
 }));
 
@@ -389,14 +405,7 @@ router.get('/me', authenticate, asyncHandler(async (req, res) => {
  * @desc    Change user password
  * @access  Private
  */
-router.put('/change-password',
-  authenticate,
-  [
-    body('currentPassword').notEmpty().withMessage('Current password is required'),
-    body('newPassword').isLength({ min: 8 }).withMessage('New password must be at least 8 characters'),
-    validate
-  ],
-  asyncHandler(async (req, res) => {
+const changePasswordHandler = asyncHandler(async (req, res) => {
     const { currentPassword, newPassword } = req.body;
     const { id, userType } = req.user;
 
@@ -437,7 +446,26 @@ router.put('/change-password',
       success: true,
       message: 'Password changed successfully'
     });
-  })
+  });
+
+router.put('/change-password',
+  authenticate,
+  [
+    body('currentPassword').notEmpty().withMessage('Current password is required'),
+    body('newPassword').isLength({ min: 8 }).withMessage('New password must be at least 8 characters'),
+    validate
+  ],
+  changePasswordHandler
+);
+
+router.post('/change-password',
+  authenticate,
+  [
+    body('currentPassword').notEmpty().withMessage('Current password is required'),
+    body('newPassword').isLength({ min: 8 }).withMessage('New password must be at least 8 characters'),
+    validate
+  ],
+  changePasswordHandler
 );
 
 /**
@@ -448,11 +476,37 @@ router.put('/change-password',
 router.post('/forgot-password',
   [
     body('email').optional().isEmail().withMessage('Valid email is required'),
-    body('type').isIn(['student', 'staff']).withMessage('Valid user type is required'),
+    body('type').optional().isIn(['student', 'staff']).withMessage('Valid user type is required'),
     validate
   ],
   asyncHandler(async (req, res) => {
-    const { email, registrationNumber, type } = req.body;
+    let { email, registrationNumber, type } = req.body;
+
+    if (!type && email) {
+      const normalizedEmail = email.trim().toLowerCase();
+      const { data: staffUser } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', normalizedEmail)
+        .maybeSingle();
+      if (staffUser) {
+        type = 'staff';
+      } else {
+        const { data: studentUser } = await supabase
+          .from('student_profiles')
+          .select('id')
+          .eq('email', normalizedEmail)
+          .maybeSingle();
+        if (studentUser) {
+          type = 'student';
+        }
+      }
+    }
+
+    if (!type) {
+      type = 'staff'; // fallback default
+    }
+
     const table = type === 'student' ? 'student_profiles' : 'profiles';
 
     // Find user

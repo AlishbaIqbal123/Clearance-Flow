@@ -166,7 +166,15 @@ export const Register: React.FC<RegisterProps> = ({ onBackToLogin, onBackToHome,
         toast.error(res.message || 'Registration failed');
       }
     } catch (error: any) {
-      toast.error(error.message || 'An error occurred during registration');
+      const serverMessage = error.response?.data?.message;
+      const validationErrors = error.response?.data?.errors;
+      if (validationErrors && Array.isArray(validationErrors) && validationErrors.length > 0) {
+        toast.error(validationErrors[0].msg);
+      } else if (serverMessage) {
+        toast.error(serverMessage);
+      } else {
+        toast.error(error.message || 'An error occurred during registration');
+      }
     } finally {
       setLoading(false);
     }

@@ -55,7 +55,9 @@ router.get('/',
 
     res.status(200).json({
       success: true,
-      data: students
+      data: students,
+      students: students,
+      items: students
     });
   })
 );

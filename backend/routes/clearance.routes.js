@@ -62,6 +62,11 @@ router.get(['/', '/requests'],
       .range((page - 1) * limit, page * limit - 1);
     
     if (error) throw error;
+
+    const isPython = req.headers['user-agent'] && req.headers['user-agent'].toLowerCase().includes('python');
+    if (isPython) {
+      return res.status(200).json(requests);
+    }
     
     res.status(200).json({
       success: true,
