@@ -89,20 +89,42 @@ app.use(cors({
 // Explicitly handle preflight OPTIONS requests for all routes
 app.options('*', cors());
 
-// Rate Limiting — relaxed for development; tighten in production
+// Rate Limiting
+// Global limiter — generous to avoid false positives on serverless (Vercel shares IPs)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'production' ? 200 : 500,
+  max: 2000, // 2000 requests per window per IP — enough for all normal usage
   message: { success: false, message: 'Too many requests. Please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: (req) => {
+    // Use X-Forwarded-For from Vercel, fall back to req.ip
+    return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || 'unknown';
+  },
   skip: (req) => {
-    // Skip rate limiting for localhost during development
     const ip = req.ip || req.connection?.remoteAddress || '';
-    return process.env.NODE_ENV !== 'production' && (ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1');
+    return ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
   }
 });
 app.use('/api/', limiter);
+
+// Auth-specific limiter — tighter to prevent brute-force on login/signup
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30, // 30 login attempts per 15 min per IP
+  message: { success: false, message: 'Too many login attempts. Please try again in 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || 'unknown';
+  },
+  skip: (req) => {
+    const ip = req.ip || req.connection?.remoteAddress || '';
+    return ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
+  }
+});
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/student/signup', authLimiter);
 
 // Body Parsing Middleware
 app.use(express.json({ limit: '10mb' }));
