@@ -766,14 +766,14 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                     const unreadCount = deptComments.filter((c: any) => c.author_model === 'Staff' && !c.read_by_student).length;
 
                     return (
-                      <div key={ds.id} className={`group relative p-3 sm:p-4 rounded-xl border-2 transition-all duration-700 flex flex-col lg:min-h-[110px] sm:min-h-[120px] min-h-[110px] ${isLocked ? 'bg-muted/5 border-muted/50 grayscale opacity-40' : 'bg-background/40 border-foreground/5 hover:bg-background hover:shadow-strong hover:border-primary/20'}`}>
+                      <div key={ds.id} className={`group relative p-3 sm:p-4 rounded-xl border-2 transition-all duration-700 flex flex-col ${isAcademic ? '' : 'lg:min-h-[110px] sm:min-h-[120px] min-h-[110px]'} ${isLocked ? 'bg-muted/5 border-muted/50 grayscale opacity-40' : 'bg-background/40 border-foreground/5 hover:bg-background hover:shadow-strong hover:border-primary/20'}`}>
                         <div className="flex items-center justify-between mb-2 sm:mb-3 gap-2 w-full">
                            <div className="flex items-center gap-3 min-w-0">
                              <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-soft ${isLocked ? 'bg-muted/20' : 'bg-secondary/50'} shrink-0`}>
                                 <Zap className={`w-4 h-4 ${isLocked ? 'text-muted-foreground' : 'text-primary'} ${ds.status === 'in_review' ? 'animate-pulse' : ''}`} />
                              </div>
                              <div className="min-w-0">
-                               <h4 className="text-[11px] font-black text-foreground truncate group-hover:text-primary transition-colors uppercase tracking-tight leading-tight" title={getDeptDisplayName(ds.department_id, ds.department?.name || 'Department')}>
+                               <h4 className="text-[11px] font-black text-foreground group-hover:text-primary transition-colors uppercase tracking-tight leading-tight" title={getDeptDisplayName(ds.department_id, ds.department?.name || 'Department')}>
                                  {getDeptDisplayName(ds.department_id, ds.department?.name || 'Department')}
                                </h4>
                                <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.3em] mt-0.5 opacity-50">{ds.department?.code || 'DEPT'}</p>
@@ -828,7 +828,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                                       <div key={fi} className="flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg bg-primary/5 border border-primary/10">
                                         <div className="flex items-center gap-2 min-w-0">
                                           <div className="w-5 h-5 bg-primary/10 text-primary rounded flex items-center justify-center font-black text-[9px] shrink-0">{fi + 1}</div>
-                                          <span className="text-[9px] font-black text-foreground uppercase tracking-tight truncate">{fl.label || `Form ${fi + 1}`}</span>
+                                          <span className="text-[9px] font-black text-foreground uppercase tracking-tight break-words">{fl.label || `Form ${fi + 1}`}</span>
                                           {isSubmitted && <Check className="w-3 h-3 text-emerald-500 shrink-0" />}
                                         </div>
                                         <div className="flex items-center gap-1 shrink-0">
@@ -915,7 +915,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                           clearedCount={academicDepts.filter((d: any) => d.status === 'cleared').length}
                           defaultOpen={!phase2Cleared}
                         >
-                          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                          <div className="grid grid-cols-1 gap-3">
                             {academicDepts.map(renderCard)}
                           </div>
                         </PhaseAccordion>
