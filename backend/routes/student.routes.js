@@ -387,15 +387,14 @@ router.post('/clearance-request',
     const { requestType, reason, documents } = req.body;
     
     // Check if student already has an active request
-    const { data: existingRequest } = await supabase
+    const { data: existingRequests } = await supabase
       .from('clearance_requests')
       .select('id')
       .eq('student_id', studentId)
-      .not('status', 'in', '("cancelled", "cleared", "rejected")')
-      .limit(1)
-      .single();
+      .not('status', 'in', '("cancelled","cleared","rejected","fully_cleared")')
+      .limit(1);
     
-    if (existingRequest) {
+    if (existingRequests && existingRequests.length > 0) {
       throw new AppError(
         'You already have an active clearance request. Please wait for it to complete or cancel it.',
         400,

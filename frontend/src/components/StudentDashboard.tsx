@@ -916,19 +916,19 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
             </Card>
           ) : (
             <div className="space-y-10">
-              <Card className="border-none shadow-strong rounded-xl sm:rounded-2xl lg:rounded-3xl p-8 sm:p-10 text-center bg-card group relative overflow-hidden">
+            <Card className="border-none shadow-strong rounded-xl sm:rounded-2xl lg:rounded-3xl p-5 sm:p-6 text-center bg-card group relative overflow-hidden">
                 <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-                <div className="w-24 h-24 bg-secondary rounded-2xl flex items-center justify-center mx-auto mb-8 group-hover:scale-110 group-hover:rotate-12 transition-all duration-1000 shadow-soft">
-                  <FileText className="w-10 h-10 text-muted-foreground/20 group-hover:text-primary transition-colors" />
+                <div className="w-14 h-14 bg-secondary rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-12 transition-all duration-700 shadow-soft">
+                  <FileText className="w-7 h-7 text-muted-foreground/30 group-hover:text-primary transition-colors" />
                 </div>
-                <h3 className="text-3xl font-black text-foreground tracking-tighter uppercase leading-none">No Active Request</h3>
-                <p className="text-muted-foreground mt-4 font-medium max-w-sm mx-auto text-lg leading-relaxed opacity-60">
-                  You can now start your clearance process. Click the button below to begin.
+                <h3 className="text-lg font-black text-foreground tracking-tighter uppercase leading-none">No Active Request</h3>
+                <p className="text-muted-foreground mt-2 font-medium max-w-xs mx-auto text-sm leading-relaxed opacity-60">
+                  Start your clearance process below.
                 </p>
                 {canSubmitNewRequest && (
                   <Button 
                     disabled={submitting}
-                    className="mt-10 bg-primary text-white rounded-2xl px-12 h-16 font-black uppercase tracking-[0.4em] text-[10px] shadow-strong shadow-primary/20 hover:scale-105 transition-all active:scale-95"
+                    className="mt-5 bg-primary text-white rounded-xl px-8 h-10 font-black uppercase tracking-[0.3em] text-[10px] shadow-strong shadow-primary/20 hover:scale-105 transition-all active:scale-95"
                     onClick={handleSubmitRequest}
                   >
                     {submitting ? 'Initiating...' : 'Start Clearance'}
