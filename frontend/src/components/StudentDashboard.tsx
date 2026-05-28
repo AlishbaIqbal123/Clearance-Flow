@@ -27,7 +27,8 @@ import {
   TrendingUp,
   LayoutDashboard,
   MapPin,
-  Truck
+  Truck,
+  Check
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -148,6 +149,24 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
   const [chatOpenDept, setChatOpenDept] = useState<any>(null);
   const [messageInput, setMessageInput] = useState('');
   const [sendingChat, setSendingChat] = useState(false);
+  const [submittingForms, setSubmittingForms] = useState<Record<string, boolean>>({});
+
+  const handleMarkCompleted = async (departmentId: string, formLabel: string, requestId: string) => {
+    if (!requestId) return;
+    const key = `${departmentId}-${formLabel}`;
+    setSubmittingForms(prev => ({ ...prev, [key]: true }));
+    try {
+      const res = await studentService.notifyFormSubmission(requestId, { departmentId, formLabel });
+      if (res.success) {
+        toast.success(`Department notified of "${formLabel}" submission!`);
+        fetchDashboard();
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to notify department');
+    } finally {
+      setSubmittingForms(prev => ({ ...prev, [key]: false }));
+    }
+  };
 
   const handleSendChat = async () => {
     if (!messageInput.trim() || !data?.activeRequest?.id || !chatOpenDept) return;
@@ -786,6 +805,60 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                                 )}
                               </div>
                             )}
+
+                            {/* Form Links — same logic as MyClearance */}
+                            {ds.department?.contact_info?.form_visible && (() => {
+                              const formLinks: { label?: string; url: string }[] = (() => {
+                                const links = ds.department?.contact_info?.form_links;
+                                if (Array.isArray(links) && links.length > 0) return links.filter((l: any) => l.url);
+                                const legacy = ds.department?.contact_info?.form_link;
+                                if (legacy) return [{ label: 'Required Form', url: legacy }];
+                                return [];
+                              })();
+                              if (formLinks.length === 0) return null;
+                              return (
+                                <div className="mb-2 space-y-1.5">
+                                  {formLinks.map((fl, fi) => {
+                                    const itemLabel = `Form Submission: ${fl.label || `Form ${fi + 1}`}`;
+                                    const isSubmitted = (ds.checklist_items || []).some(
+                                      (item: any) => item.item === itemLabel && item.completed
+                                    );
+                                    const isFormSubmitting = submittingForms[`${ds.department_id}-${fl.label || `Form ${fi + 1}`}`];
+                                    return (
+                                      <div key={fi} className="flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg bg-primary/5 border border-primary/10">
+                                        <div className="flex items-center gap-2 min-w-0">
+                                          <div className="w-5 h-5 bg-primary/10 text-primary rounded flex items-center justify-center font-black text-[9px] shrink-0">{fi + 1}</div>
+                                          <span className="text-[9px] font-black text-foreground uppercase tracking-tight truncate">{fl.label || `Form ${fi + 1}`}</span>
+                                          {isSubmitted && <Check className="w-3 h-3 text-emerald-500 shrink-0" />}
+                                        </div>
+                                        <div className="flex items-center gap-1 shrink-0">
+                                          <Button
+                                            className="h-7 px-2.5 rounded-lg bg-primary text-white text-[8px] font-black uppercase tracking-wide shadow-strong active:scale-95 transition-all"
+                                            onClick={() => window.open(fl.url, '_blank')}
+                                          >
+                                            Open Form
+                                          </Button>
+                                          {!isSubmitted ? (
+                                            <Button
+                                              variant="outline"
+                                              className="h-7 px-2.5 rounded-lg border-emerald-500/20 text-emerald-600 hover:bg-emerald-500 hover:text-white text-[8px] font-black uppercase tracking-wide active:scale-95 transition-all"
+                                              disabled={isFormSubmitting}
+                                              onClick={() => handleMarkCompleted(ds.department_id, fl.label || `Form ${fi + 1}`, activeRequest.id)}
+                                            >
+                                              {isFormSubmitting ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Mark Submitted'}
+                                            </Button>
+                                          ) : (
+                                            <div className="flex items-center gap-1 px-2.5 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-[8px] font-black uppercase">
+                                              <CheckCircle2 className="w-3 h-3 shrink-0" /> Done
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              );
+                            })()}
                             <div className="mt-auto flex items-center justify-between pt-2 border-t border-foreground/5">
                               <div className="flex gap-2">
                                 <Button variant="ghost" size="icon" className="w-8 h-8 rounded-xl text-emerald-500 hover:bg-emerald-500/10 transition-all active:scale-90"
