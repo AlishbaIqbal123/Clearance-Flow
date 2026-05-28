@@ -917,7 +917,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
           ) : (
             <div className="space-y-10">
             <Card className="border-none shadow-strong rounded-xl sm:rounded-2xl lg:rounded-3xl p-5 sm:p-6 text-center bg-card group relative overflow-hidden">
-                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
                 <div className="w-14 h-14 bg-secondary rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-12 transition-all duration-700 shadow-soft">
                   <FileText className="w-7 h-7 text-muted-foreground/30 group-hover:text-primary transition-colors" />
                 </div>
