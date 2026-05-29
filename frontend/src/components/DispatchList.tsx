@@ -242,8 +242,8 @@ export const DispatchList = () => {
         </div>
         
         {/* Desktop View */}
-        <div className="hidden lg:block overflow-hidden">
-          <Table>
+        <div className="hidden lg:block overflow-x-auto scrollbar-thin">
+          <Table className="min-w-[950px]">
             <TableHeader className="bg-secondary/30">
               <TableRow className="hover:bg-transparent border-none">
                 <TableHead className="py-6 px-10 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground w-[28%]">Student Identity</TableHead>
