@@ -59,5 +59,10 @@ export const departmentService = {
   updateChatSettings: async (requestId: string, action: 'archive' | 'unarchive' | 'delete' | 'restore') => {
     const response = await api.put('/departments/chat-settings', { requestId, action });
     return response.data;
+  },
+
+  getUnreadChatCount: async () => {
+    const response = await api.get('/departments/unread-chat-count');
+    return response.data;
   }
 };

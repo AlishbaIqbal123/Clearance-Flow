@@ -259,23 +259,12 @@ export const DashboardLayout = ({
         setUnreadCount(res.data.data.unreadCount);
       }
 
-      // Sync live departmental chat gateways if staff
+      // Sync live departmental chat unread count if staff
       if (user?.role && ['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'].includes(user.role)) {
         try {
-          const chatRes = await departmentService.getRequests({ limit: 100 });
-          if (chatRes?.success) {
-            const reqs = chatRes.data?.requests || chatRes.data || [];
-            let count = 0;
-            const deptId = user.department_id;
-            reqs.forEach((r: any) => {
-              const comments = r.comments || [];
-              comments.forEach((c: any) => {
-                if (c.author_model === 'Student' && (!c.department_id || c.department_id === deptId) && !c.read_by_dept) {
-                  count++;
-                }
-              });
-            });
-            setUnreadChatCount(count);
+          const countRes = await departmentService.getUnreadChatCount();
+          if (countRes?.success) {
+            setUnreadChatCount(countRes.data?.count ?? 0);
           }
         } catch (err) {}
       }
@@ -313,16 +302,27 @@ export const DashboardLayout = ({
     }
   };
 
+  // Fast dedicated badge polling for dept chat unread count
+  const fetchUnreadCount = async () => {
+    if (!user?.role || !['hod', 'department_officer', 'finance_officer', 'library_officer', 'transport_officer'].includes(user.role)) return;
+    try {
+      const countRes = await departmentService.getUnreadChatCount();
+      if (countRes?.success) setUnreadChatCount(countRes.data?.count ?? 0);
+    } catch (err) {}
+  };
+
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 60000); // Poll every minute
+    const interval = setInterval(fetchNotifications, 60000); // Poll every minute for general notifications
+    const chatInterval = setInterval(fetchUnreadCount, 15000); // Poll every 15s for chat badge
     
     // Listen for manual chat updates to sync badge immediately
-    window.addEventListener('chats-updated', fetchNotifications);
+    window.addEventListener('chats-updated', fetchUnreadCount);
     
     return () => {
       clearInterval(interval);
-      window.removeEventListener('chats-updated', fetchNotifications);
+      clearInterval(chatInterval);
+      window.removeEventListener('chats-updated', fetchUnreadCount);
     };
   }, []);
 

@@ -231,6 +231,45 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
 }));
 
 /**
+ * @route   GET /api/departments/unread-chat-count
+ * @desc    Lightweight endpoint to get unread student message count for this department
+ * @access  Department Staff
+ */
+router.get('/unread-chat-count', asyncHandler(async (req, res) => {
+  const departmentId = req.user.department_id;
+
+  if (!departmentId) {
+    return res.status(200).json({ success: true, data: { count: 0 } });
+  }
+
+  const { data: requests, error } = await supabase
+    .from('clearance_requests')
+    .select('comments')
+    .not('comments', 'is', null);
+
+  if (error || !requests) {
+    return res.status(200).json({ success: true, data: { count: 0 } });
+  }
+
+  let count = 0;
+  for (const req of requests) {
+    const comments = req.comments || [];
+    for (const c of comments) {
+      if (
+        c.author_model === 'Student' &&
+        c.department_id &&
+        String(c.department_id) === String(departmentId) &&
+        !c.read_by_dept
+      ) {
+        count++;
+      }
+    }
+  }
+
+  res.status(200).json({ success: true, data: { count } });
+}));
+
+/**
  * @route   GET /api/departments/profile
  * @desc    Get department profile
  * @access  Department Staff
