@@ -283,6 +283,21 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
     }
   };
 
+  const handleConfirmReceipt = async () => {
+    if (!activeRequest) return;
+    try {
+      setSubmitting(true);
+      const res = await studentService.confirmReceipt(activeRequest.id);
+      if (res.success) {
+        toast.success('Receipt confirmed! Your clearance is now fully finalized.');
+        fetchDashboard();
+      }
+    } catch {
+      toast.error('Failed to confirm receipt. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (loading && !data) {
     return (
