@@ -112,6 +112,11 @@ export const adminService = {
     return response.data;
   },
 
+  undoDispatch: async (id: string) => {
+    const response = await api.post(`/admin/dispatch-requests/${id}/undo`);
+    return response.data;
+  },
+
   updateDispatchRequest: async (id: string, data: any) => {
     const response = await api.patch(`/admin/dispatch-requests/${id}`, data);
     return response.data;

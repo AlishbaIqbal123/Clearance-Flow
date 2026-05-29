@@ -1510,4 +1510,125 @@ router.post('/dispatch-requests/:id/complete',
   })
 );
 
+/**
+ * @route   POST /api/admin/dispatch-requests/:id/undo
+ * @desc    Undo the completion of a dispatch/handover request
+ * @access  Admin, Exam Officer
+ */
+router.post('/dispatch-requests/:id/undo',
+  authorize('admin', 'exam_officer'),
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const staffId = req.user.id;
+
+    const { data: request, error: fetchError } = await supabase
+      .from('clearance_requests')
+      .select('*, student:student_id(*)')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !request) {
+      throw new AppError('Clearance request not found', 404, 'REQUEST_NOT_FOUND');
+    }
+
+    if (request.status !== 'fully_cleared' && request.status !== 'completed') {
+       throw new AppError('Only fully cleared/completed requests can be undone', 400, 'INVALID_STATUS');
+    }
+
+    const degree_fulfillment = request.degree_fulfillment || {};
+    degree_fulfillment.status = 'pending';
+    degree_fulfillment.completed_at = null;
+    degree_fulfillment.completed_by = null;
+    degree_fulfillment.confirmed_by_exam_dept = false;
+    degree_fulfillment.received_by_student = false;
+
+    const timeline = request.timeline || [];
+    timeline.push({
+      action: 'fulfillment_undone',
+      performedBy: staffId,
+      performedByModel: 'User',
+      description: `Degree handover completion was undone by Exam Department.`,
+      timestamp: new Date().toISOString()
+    });
+
+    // Check if there was an exam department that we auto-cleared
+    const { data: examDept } = await supabase
+      .from('departments')
+      .select('id')
+      .or('code.eq.EXD,code.eq.EXAM')
+      .maybeSingle();
+
+    if (examDept) {
+      await supabase
+        .from('clearance_status')
+        .update({
+          status: 'pending',
+          cleared_by: null,
+          cleared_at: null,
+          remarks: 'Clearance undone by Exam Department'
+        })
+        .eq('request_id', id)
+        .eq('department_id', examDept.id);
+    }
+
+    // Recalculate progress
+    const { data: allStatusesForProgress } = await supabase
+      .from('clearance_status')
+      .select('status')
+      .eq('request_id', id);
+
+    const totalDepartments = allStatusesForProgress?.length || 0;
+    const clearedDeptsCount = allStatusesForProgress?.filter(s => s.status === 'cleared').length || 0;
+    const rejectedDeptsCount = allStatusesForProgress?.filter(s => s.status === 'rejected').length || 0;
+    const pendingDeptsCount = totalDepartments - clearedDeptsCount - rejectedDeptsCount;
+
+    const progress = {
+      percentage: totalDepartments > 0 ? Math.round((clearedDeptsCount / totalDepartments) * 100) : 0,
+      totalDepartments,
+      clearedDepartments: clearedDeptsCount,
+      pendingDepartments: pendingDeptsCount,
+      rejectedDepartments: rejectedDeptsCount
+    };
+
+    const { error: updateError } = await supabase
+      .from('clearance_requests')
+      .update({ 
+        degree_fulfillment,
+        timeline,
+        status: 'degree_allotment', // Revert to degree allotment phase
+        progress,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id);
+
+    if (updateError) {
+      throw new AppError(
+        updateError.message || 'Failed to undo dispatch status',
+        500,
+        'DISPATCH_UNDO_ERROR'
+      );
+    }
+
+    // Update student profile to revert from fully_cleared
+    await supabase.from('student_profiles')
+      .update({ clearance_status: 'degree_allotment' })
+      .eq('id', request.student_id);
+
+    // Notify student
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`user:${request.student_id}`).emit('fulfillment-undone', {
+        requestId: id,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Degree fulfillment completion undone successfully',
+      data: { degree_fulfillment }
+    });
+  })
+);
+
 module.exports = router;

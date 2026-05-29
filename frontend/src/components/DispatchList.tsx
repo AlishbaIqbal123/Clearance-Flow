@@ -156,6 +156,26 @@ export const DispatchList = () => {
     }
   };
 
+  const handleUndoDispatch = async (req: any) => {
+    const isDone = req.status === 'fully_cleared' || req.status === 'completed';
+    if (!isDone) return;
+
+    const studentName = req.student?.first_name || 'this student';
+    if (!window.confirm(`Are you sure you want to undo the completion for ${studentName}? This will revert their status back to pending degree allotment.`)) {
+      return;
+    }
+
+    try {
+      const res = await adminService.undoDispatch(req.id);
+      if (res.success) {
+        toast.success(`Undone completion for ${studentName}`);
+        fetchDispatchRequests();
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to undo completion');
+    }
+  };
+
   const filteredRequests = requests.filter(req => {
     const matchesSearch = 
       req.student?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -368,18 +388,24 @@ export const DispatchList = () => {
                         >
                           <BellRing className={`w-5 h-5 ${req.degree_fulfillment?.notification_sent ? 'text-amber-500' : ''}`} />
                         </Button>
-                        <Button 
-                          className={`h-10 w-10 rounded-xl transition-all shadow-soft group/action ${
-                            req.status === 'fully_cleared' || req.status === 'completed' 
-                              ? 'bg-emerald-500 text-white cursor-default' 
-                              : 'bg-foreground text-background hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white'
-                          }`}
-                          title="Confirm Degree Received"
-                          onClick={() => handleCompleteDispatch(req)}
-                          disabled={req.status === 'fully_cleared' || req.status === 'completed'}
-                        >
-                          <PackageCheck className="w-5 h-5 group-hover/action:scale-110 transition-transform" />
-                        </Button>
+                        {req.status === 'fully_cleared' || req.status === 'completed' ? (
+                          <Button 
+                            variant="outline"
+                            className="h-10 w-10 rounded-xl transition-all shadow-soft group/action border-destructive/20 text-destructive hover:bg-destructive hover:text-white"
+                            title="Undo Completion"
+                            onClick={() => handleUndoDispatch(req)}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 group-hover/action:-rotate-45 transition-transform"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+                          </Button>
+                        ) : (
+                          <Button 
+                            className="h-10 w-10 rounded-xl transition-all shadow-soft group/action bg-foreground text-background hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white"
+                            title="Confirm Degree Received"
+                            onClick={() => handleCompleteDispatch(req)}
+                          >
+                            <PackageCheck className="w-5 h-5 group-hover/action:scale-110 transition-transform" />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -456,13 +482,22 @@ export const DispatchList = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <Button 
-                    className="flex-1 h-12 rounded-2xl bg-foreground text-background hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white transition-all font-black text-[10px] uppercase tracking-widest"
-                    onClick={() => handleCompleteDispatch(req)}
-                    disabled={req.status === 'fully_cleared' || req.status === 'completed'}
-                  >
-                    {req.status === 'fully_cleared' || req.status === 'completed' ? 'Degree Handed Over' : 'Confirm Degree Received'}
-                  </Button>
+                  {req.status === 'fully_cleared' || req.status === 'completed' ? (
+                    <Button 
+                      variant="outline"
+                      className="flex-1 h-12 rounded-2xl border-destructive/20 text-destructive hover:bg-destructive hover:text-white transition-all font-black text-[10px] uppercase tracking-widest"
+                      onClick={() => handleUndoDispatch(req)}
+                    >
+                      Undo Completion
+                    </Button>
+                  ) : (
+                    <Button 
+                      className="flex-1 h-12 rounded-2xl bg-foreground text-background hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white transition-all font-black text-[10px] uppercase tracking-widest"
+                      onClick={() => handleCompleteDispatch(req)}
+                    >
+                      Confirm Degree Received
+                    </Button>
+                  )}
                   <Button 
                     variant="ghost" 
                     size="icon" 
