@@ -9,6 +9,7 @@ const { body, param, query } = require('express-validator');
 const supabase = require('../config/supabase');
 const bcrypt = require('bcryptjs');
 const appsScript = require('../services/appsScript.service');
+const emailService = require('../services/email.service');
 const { authenticate, adminOnly, authorize } = require('../middleware/auth.middleware');
 const { asyncHandler, AppError } = require('../middleware/error.middleware');
 const csv = require('fast-csv');
@@ -447,7 +448,6 @@ router.delete('/users/:id',
  * @access  Admin
  */
 router.get('/students', hodOrAdmin, asyncHandler(async (req, res) => {
-  const emailService = require('../services/email.service');
 const { 
     department, 
     batch, 
