@@ -25,12 +25,22 @@ async function syncAllStatuses() {
     else if (cleared === total && total > 0) targetStatus = 'fully_cleared';
     else if (cleared > 0) targetStatus = 'partially_cleared';
     
+    // Fetch current student profile status
+    const { data: student } = await supabase
+      .from('student_profiles')
+      .select('clearance_status')
+      .eq('id', r.student_id)
+      .maybeSingle();
+
     if (r.status !== targetStatus) {
       console.log(`Fixing Request ${r.request_id}: ${r.status} -> ${targetStatus}`);
       await supabase.from('clearance_requests')
         .update({ status: targetStatus })
         .eq('id', r.id);
-      
+    }
+
+    if (student && student.clearance_status !== targetStatus) {
+      console.log(`Fixing Student Profile for student ${r.student_id}: ${student.clearance_status} -> ${targetStatus}`);
       await supabase.from('student_profiles')
         .update({ clearance_status: targetStatus })
         .eq('id', r.student_id);
