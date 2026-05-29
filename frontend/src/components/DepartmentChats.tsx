@@ -106,7 +106,7 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
         const deptId = user?.department_id || user?.department?.id;
         const hasUnread = (selectedReq.comments || []).some((c: any) => 
           c.author_model === 'Student' && 
-          (c.department_id === deptId || !c.department_id) && 
+          c.department_id && String(c.department_id) === String(deptId) && 
           !c.read_by_dept
         );
         
@@ -125,7 +125,7 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
     const deptId = user?.department_id || user?.department?.id;
     const hasUnread = comments.some((c: any) => 
       c.author_model === 'Student' && 
-      (c.department_id === deptId || !c.department_id) && 
+      c.department_id && String(c.department_id) === String(deptId) && 
       !c.read_by_dept
     );
 
@@ -175,9 +175,9 @@ export const DepartmentChats: React.FC<DepartmentChatsProps> = ({ user }) => {
   const threads = requests.map(req => {
     const comments = req.comments || [];
     const deptId = user?.department_id || user?.department?.id;
-    // Filter comments addressed to this department or legacy messages with no dept ID
+    // Filter comments addressed to this department strictly
     const deptComments = comments.filter((c: any) => 
-      (c.department_id && String(c.department_id) === String(deptId)) || !c.department_id
+      c.department_id && String(c.department_id) === String(deptId)
     );
     
     const unreadCount = deptComments.filter((c: any) => 

@@ -404,12 +404,12 @@ router.get('/requests', asyncHandler(async (req, res) => {
       records = records.filter(r => !archivedIds.includes(r.id) && !deletedIds.includes(r.id));
     }
 
-    // 3. Post-process to filter comments by targeted department
+    // 3. Post-process to filter comments by targeted department (strictly — no fallback)
     if (departmentId) {
       records = records.map(record => {
         if (record.comments) {
           record.comments = record.comments.filter(c => 
-            String(c.department_id) === String(departmentId) || !c.department_id
+            c.department_id && String(c.department_id) === String(departmentId)
           );
         }
         return record;

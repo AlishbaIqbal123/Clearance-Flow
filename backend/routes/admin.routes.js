@@ -1419,11 +1419,12 @@ router.post('/dispatch-requests/:id/complete',
     });
 
     // Automatically mark the Exam department as cleared since they are the ones completing the fulfillment
+    // Use maybeSingle() to safely handle case where no exam dept is found (no PGRST116 error)
     const { data: examDept } = await supabase
       .from('departments')
       .select('id')
       .or('code.eq.EXD,code.eq.EXAM')
-      .single();
+      .maybeSingle();
 
     if (examDept) {
       await supabase
@@ -1468,7 +1469,16 @@ router.post('/dispatch-requests/:id/complete',
       })
       .eq('id', id);
 
-    // Fire-and-forget email notification
+    // Check update error BEFORE firing email so we don't silently succeed DB + fail response
+    if (updateError) {
+      throw new AppError(
+        updateError.message || 'Failed to update dispatch status',
+        500,
+        'DISPATCH_UPDATE_ERROR'
+      );
+    }
+
+    // Fire-and-forget email notification (after all DB writes succeed)
     if (request.student?.email) {
       emailService.sendDegreeReceiptEmail(
         request.student.email, 
@@ -1476,8 +1486,6 @@ router.post('/dispatch-requests/:id/complete',
         degree_fulfillment.method
       ).catch(err => console.error('Degree receipt email failed:', err));
     }
-
-    if (updateError) throw updateError;
 
     // Update student profile to final completed state
     await supabase.from('student_profiles')
