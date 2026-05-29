@@ -284,7 +284,7 @@ router.post('/student/signup',
 
     if (createError) {
       console.error('Student signup error:', createError);
-      throw new AppError('Failed to create student profile', 500);
+      throw new AppError(`Failed to create student profile: ${createError.message} (${createError.code || ''})`, 500);
     }
 
     // Auto-initialize clearance status for all departments
