@@ -803,13 +803,15 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                                     );
                                     const isFormSubmitting = submittingForms[`${ds.department_id}-${fl.label || `Form ${fi + 1}`}`];
                                     return (
-                                      <div key={fi} className="flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg bg-primary/5 border border-primary/10">
-                                        <div className="flex items-center gap-2 min-w-0">
+                                      <div key={fi} className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5 px-3 py-2 rounded-xl bg-primary/5 border border-primary/10">
+                                        <div className="flex items-center gap-2 min-w-0 flex-1">
                                           <div className="w-5 h-5 bg-primary/10 text-primary rounded flex items-center justify-center font-black text-[9px] shrink-0">{fi + 1}</div>
-                                          <span className="text-[9px] font-black text-foreground uppercase tracking-tight break-words">{fl.label || `Form ${fi + 1}`}</span>
+                                          <span className="text-[10px] font-black text-foreground uppercase tracking-tight break-all line-clamp-2" title={fl.label || `Form ${fi + 1}`}>
+                                            {fl.label || `Form ${fi + 1}`}
+                                          </span>
                                           {isSubmitted && <Check className="w-3 h-3 text-emerald-500 shrink-0" />}
                                         </div>
-                                        <div className="flex items-center gap-1 shrink-0">
+                                        <div className="flex items-center gap-1.5 shrink-0 ml-auto sm:ml-0">
                                           <Button
                                             className="h-7 px-2.5 rounded-lg bg-primary text-white text-[8px] font-black uppercase tracking-wide shadow-strong active:scale-95 transition-all"
                                             onClick={() => window.open(fl.url, '_blank')}
@@ -878,7 +880,7 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                         clearedCount={adminDepts.filter((d: any) => d.status === 'cleared').length}
                         defaultOpen={!phase1Cleared}
                       >
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           {adminDepts.map(renderCard)}
                         </div>
                       </PhaseAccordion>
