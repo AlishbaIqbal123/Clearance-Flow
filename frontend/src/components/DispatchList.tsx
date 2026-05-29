@@ -181,7 +181,7 @@ export const DispatchList = () => {
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-10 duration-1000">
       {/* Header Section */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 p-10 rounded-[2.5rem] bg-card border border-foreground/5 text-foreground relative overflow-hidden group">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-5 sm:p-8 lg:p-10 rounded-[2rem] lg:rounded-[2.5rem] bg-card border border-foreground/5 text-foreground relative overflow-hidden group">
         <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/10 rounded-full -mr-[15%] -mt-[10%] blur-[120px] pointer-events-none" />
         
         <div className="relative z-10 space-y-4">
@@ -201,13 +201,13 @@ export const DispatchList = () => {
           </p>
         </div>
 
-        <div className="relative z-10 flex flex-wrap gap-4">
-          <div className="flex bg-secondary/50 p-1.5 rounded-2xl border border-foreground/5 shadow-inner backdrop-blur-md">
+        <div className="relative z-10 flex flex-col sm:flex-row flex-wrap gap-3 w-full lg:w-auto">
+          <div className="flex overflow-x-auto bg-secondary/50 p-1.5 rounded-2xl border border-foreground/5 shadow-inner backdrop-blur-md shrink-0">
             {['all', 'pending', 'ready', 'done'].map((status) => (
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-6 py-3 rounded-xl font-black text-[9px] uppercase tracking-[0.2em] transition-all ${
+                className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-black text-[9px] uppercase tracking-[0.2em] transition-all whitespace-nowrap ${
                   statusFilter === status 
                     ? 'bg-primary text-white shadow-lg' 
                     : 'text-muted-foreground hover:text-foreground'
@@ -217,11 +217,11 @@ export const DispatchList = () => {
               </button>
             ))}
           </div>
-          <div className="relative group/search">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/40 group-focus-within/search:text-primary transition-colors" />
+          <div className="relative group/search w-full sm:w-auto">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40 group-focus-within/search:text-primary transition-colors" />
             <Input 
               placeholder="Search logistics..." 
-              className="h-16 w-[280px] pl-16 rounded-2xl border-none bg-secondary/50 text-foreground font-bold placeholder:text-muted-foreground/40 focus-visible:ring-2 focus-visible:ring-primary/40 shadow-inner"
+              className="h-12 sm:h-14 w-full sm:w-[260px] pl-12 rounded-2xl border-none bg-secondary/50 text-foreground font-bold placeholder:text-muted-foreground/40 focus-visible:ring-2 focus-visible:ring-primary/40 shadow-inner"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -230,49 +230,49 @@ export const DispatchList = () => {
       </div>
 
       {/* Main Content */}
-      <Card className="border-none shadow-strong rounded-[2.5rem] bg-card/40 border border-foreground/5 backdrop-blur-3xl overflow-hidden">
-        <div className="p-10 border-b border-foreground/5 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-              <Package className="w-5 h-5 text-primary" />
+      <Card className="border-none shadow-strong rounded-[2rem] lg:rounded-[2.5rem] bg-card/40 border border-foreground/5 backdrop-blur-3xl overflow-hidden">
+        <div className="p-4 sm:p-6 lg:p-10 border-b border-foreground/5 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+              <Package className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             </div>
-            <h2 className="text-xl font-black tracking-tighter uppercase leading-none">Pending Shipments</h2>
+            <h2 className="text-base sm:text-xl font-black tracking-tighter uppercase leading-none">Pending Shipments</h2>
           </div>
-          <Badge className="bg-secondary text-foreground border-none font-black text-[10px] uppercase tracking-[0.2em] px-4 py-2 rounded-lg">{filteredRequests.length} Packages Detected</Badge>
+          <Badge className="bg-secondary text-foreground border-none font-black text-[9px] sm:text-[10px] uppercase tracking-[0.2em] px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg">{filteredRequests.length} Packages Detected</Badge>
         </div>
         
         {/* Desktop View */}
-        <div className="hidden lg:block overflow-x-auto scrollbar-thin">
-          <Table className="min-w-[950px]">
+        <div className="hidden lg:block overflow-hidden">
+          <Table className="w-full table-fixed">
             <TableHeader className="bg-secondary/30">
               <TableRow className="hover:bg-transparent border-none">
-                <TableHead className="py-6 px-10 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground w-[28%]">Student Identity</TableHead>
-                <TableHead className="py-6 px-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground w-[12%] text-center">Method</TableHead>
-                <TableHead className="py-6 px-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground w-[25%]">Mailing/Pickup Detail</TableHead>
-                <TableHead className="py-6 px-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground w-[15%]">Status Alert</TableHead>
-                <TableHead className="py-6 px-10 text-right text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground w-[20%]">Control Gateway</TableHead>
+                <TableHead className="py-5 px-3 xl:px-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground w-[26%]">Student Identity</TableHead>
+                <TableHead className="py-5 px-3 xl:px-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground w-[12%] text-center">Method</TableHead>
+                <TableHead className="py-5 px-3 xl:px-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground w-[27%]">Mailing/Pickup Detail</TableHead>
+                <TableHead className="py-5 px-3 xl:px-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground w-[15%]">Status Alert</TableHead>
+                <TableHead className="py-5 px-3 xl:px-5 text-right text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground w-[20%]">Control Gateway</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredRequests.length > 0 ? (
                 filteredRequests.map((req) => (
                   <TableRow key={req.id} className="group border-b border-foreground/5 hover:bg-secondary/40 dark:hover:bg-secondary/20 transition-colors">
-                    <TableCell className="py-8 px-10">
-                      <div className="flex items-center gap-5">
-                        <div className="w-12 h-12 bg-gradient-to-br from-primary/10 to-primary/20 dark:from-primary/20 dark:to-primary/30 border border-primary/10 dark:border-primary/20 rounded-2xl flex items-center justify-center font-black text-primary text-sm shadow-soft group-hover:scale-110 transition-transform">
+                    <TableCell className="py-5 px-3 xl:px-5">
+                      <div className="flex items-center gap-3 xl:gap-5">
+                        <div className="w-10 h-10 xl:w-12 xl:h-12 bg-gradient-to-br from-primary/10 to-primary/20 dark:from-primary/20 dark:to-primary/30 border border-primary/10 dark:border-primary/20 rounded-2xl flex items-center justify-center font-black text-primary text-sm shadow-soft group-hover:scale-110 transition-transform">
                           {req.student?.first_name?.charAt(0) || 'S'}
                         </div>
-                        <div>
-                          <p className="font-black text-foreground text-base tracking-tight uppercase leading-none">
+                        <div className="truncate">
+                          <p className="font-black text-foreground text-xs xl:text-base tracking-tight uppercase leading-none truncate">
                             {req.student?.first_name} {req.student?.last_name}
                           </p>
-                          <p className="text-[10px] font-bold text-muted-foreground mt-2 uppercase tracking-widest">
+                          <p className="text-[9px] font-bold text-muted-foreground mt-1.5 uppercase tracking-widest">
                             {req.student?.registration_number}
                           </p>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="py-8 px-6 text-center">
+                    <TableCell className="py-5 px-3 xl:px-4 text-center">
                       <div className="flex flex-col items-center gap-2">
                         {req.degree_fulfillment?.method === 'dispatch' ? (
                           <Badge className="bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400 border border-transparent dark:border-indigo-800/30 font-black text-[8px] uppercase tracking-widest px-3 py-1">Dispatch</Badge>
@@ -305,10 +305,10 @@ export const DispatchList = () => {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="py-8 px-6">
-                      <div className="flex items-start gap-3">
-                        <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                        <p className={`font-bold text-[11px] leading-tight uppercase italic ${!req.degree_fulfillment ? 'text-muted-foreground opacity-50' : 'text-foreground/80'}`}>
+                    <TableCell className="py-5 px-3 xl:px-4">
+                      <div className="flex items-start gap-2.5">
+                        <MapPin className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+                        <p className={`font-bold text-[10px] xl:text-[11px] leading-tight uppercase italic truncate ${!req.degree_fulfillment ? 'text-muted-foreground opacity-50' : 'text-foreground/80'}`}>
                           {!req.degree_fulfillment 
                             ? 'Awaiting Selection' 
                             : req.degree_fulfillment.method === 'manual' 
@@ -317,10 +317,10 @@ export const DispatchList = () => {
                         </p>
                       </div>
                     </TableCell>
-                    <TableCell className="py-8 px-6">
+                    <TableCell className="py-5 px-3 xl:px-4">
                       {req.degree_fulfillment?.notification_sent ? (
                         <div className="flex flex-col gap-0.5">
-                          <div className="flex items-center gap-1.5 text-primary font-black text-[8px] uppercase tracking-widest">
+                          <div className="flex items-center gap-1 text-primary font-black text-[7.5px] xl:text-[8px] uppercase tracking-widest">
                             <BellRing className="w-2.5 h-2.5" />
                             Notified
                           </div>
@@ -332,12 +332,12 @@ export const DispatchList = () => {
                         <div className="text-[7px] font-black uppercase tracking-widest opacity-20 border border-dashed border-foreground/20 rounded px-2 py-1 w-fit">No Alert</div>
                       )}
                     </TableCell>
-                    <TableCell className="py-8 px-10 text-right">
-                      <div className="flex items-center justify-end gap-3">
+                    <TableCell className="py-5 px-3 xl:px-5 text-right">
+                      <div className="flex items-center justify-end gap-1.5 xl:gap-3">
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          className="h-12 w-12 rounded-xl hover:bg-primary/10 hover:text-primary transition-all shadow-soft"
+                          className="h-10 w-10 rounded-xl hover:bg-primary/10 hover:text-primary transition-all shadow-soft"
                           title="View Details"
                           onClick={() => {
                             setSelectedRequest(req);
@@ -349,7 +349,7 @@ export const DispatchList = () => {
                         <Button 
                           variant="ghost"
                           size="icon"
-                          className="h-12 w-12 rounded-xl hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 transition-all shadow-soft"
+                          className="h-10 w-10 rounded-xl hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 transition-all shadow-soft"
                           title="Notify Student"
                           onClick={() => {
                             if (!req.degree_fulfillment?.method) {
@@ -369,7 +369,7 @@ export const DispatchList = () => {
                           <BellRing className={`w-5 h-5 ${req.degree_fulfillment?.notification_sent ? 'text-amber-500' : ''}`} />
                         </Button>
                         <Button 
-                          className={`h-12 w-12 rounded-xl transition-all shadow-soft group/action ${
+                          className={`h-10 w-10 rounded-xl transition-all shadow-soft group/action ${
                             req.status === 'fully_cleared' || req.status === 'completed' 
                               ? 'bg-emerald-500 text-white cursor-default' 
                               : 'bg-foreground text-background hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white'
