@@ -185,9 +185,9 @@ router.get('/dashboard',
     if (allRequests && allRequests.length > 0) {
       const latest = allRequests[0];
       
-      // If the latest request is cleared, it stays the "active" context for the student 
+      // If the latest request is cleared or fully_cleared, it stays the "active" context for the student 
       // until they manually acknowledge completion or start a new process.
-      if (latest.status === 'cleared') {
+      if (latest.status === 'cleared' || latest.status === 'fully_cleared') {
         activeRequest = latest;
       } else if (latest.status !== 'cancelled') {
         // Any other non-terminal status (rejected, submitted, in_progress) is active
