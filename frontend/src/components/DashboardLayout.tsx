@@ -646,7 +646,7 @@ export const DashboardLayout = ({
                            </div>
                            <div className="flex-1 space-y-1 pr-8">
                               <p className="text-sm font-black text-foreground leading-tight tracking-tight">{n.title}</p>
-                              <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed font-medium">{n.description}</p>
+                              <p className="text-xs text-muted-foreground leading-relaxed font-medium">{n.description}</p>
                               <div className="flex items-center gap-2 pt-1.5">
                                  <Activity className="w-3 h-3 text-primary opacity-40" />
                                  <p className="text-[9px] font-black text-primary uppercase tracking-widest">{n.time}</p>
