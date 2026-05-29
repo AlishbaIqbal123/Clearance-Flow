@@ -537,16 +537,7 @@ router.post('/students',
       throw new AppError('Registration number already exists', 409, 'REG_NUMBER_EXISTS');
     }
     
-    // Check if email exists
-    const { data: existingEmail } = await supabase
-      .from('student_profiles')
-      .select('id')
-      .eq('email', email.toLowerCase())
-      .single();
-
-    if (existingEmail) {
-      throw new AppError('Email already registered', 409, 'EMAIL_EXISTS');
-    }
+    // Note: email does not need to be unique for students; registration number is the unique identifier.
     
     const finalPassword = password || firstName;
     const hashedPassword = await bcrypt.hash(finalPassword, 12);
