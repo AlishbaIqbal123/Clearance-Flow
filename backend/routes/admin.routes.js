@@ -1204,9 +1204,10 @@ router.get('/dispatch-requests',
 
     if (error) throw error;
 
-    // Filter in JS: Show if cleared/completed OR if they have selected a fulfillment method
+    // Show all requests that are cleared (waiting for degree handover) OR already have a fulfillment method OR are fully_cleared/completed
     const dispatchRequests = (data || []).filter(req => 
       req.status === 'cleared' || 
+      req.status === 'fully_cleared' ||
       req.status === 'completed' || 
       (req.degree_fulfillment && req.degree_fulfillment.method)
     );
@@ -1387,9 +1388,12 @@ router.post('/dispatch-requests/:id/complete',
     }
 
     const degree_fulfillment = request.degree_fulfillment || {};
+    // If student hasn't selected a method yet, default to manual (in-person pickup)
+    if (!degree_fulfillment.method) degree_fulfillment.method = 'manual';
     degree_fulfillment.status = 'completed';
     degree_fulfillment.completed_at = new Date().toISOString();
     degree_fulfillment.completed_by = staffId;
+    degree_fulfillment.confirmed_by_exam_dept = true;
 
     const timeline = request.timeline || [];
     timeline.push({

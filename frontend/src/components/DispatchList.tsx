@@ -136,24 +136,23 @@ export const DispatchList = () => {
   };
 
   const handleCompleteDispatch = async (req: any) => {
-    if (!req.degree_fulfillment) {
-      toast.error('Student has not selected a fulfillment method yet');
-      return;
-    }
+    const isDone = req.status === 'fully_cleared' || req.status === 'completed';
+    if (isDone) return;
 
-    const action = req.degree_fulfillment.method === 'manual' ? 'pickup' : 'dispatch';
-    if (!window.confirm(`Are you sure you want to confirm the ${action} for ${req.student?.first_name}?`)) {
+    const action = req.degree_fulfillment?.method === 'dispatch' ? 'dispatch' : 'manual pickup';
+    const studentName = req.student?.first_name || 'this student';
+    if (!window.confirm(`Confirm that ${studentName} has received their degree (${action})?`)) {
       return;
     }
 
     try {
       const res = await adminService.completeDispatch(req.id);
       if (res.success) {
-        toast.success(`Degree ${action} confirmed successfully`);
+        toast.success(`Degree handover confirmed for ${studentName}`);
         fetchDispatchRequests();
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to complete dispatch');
+      toast.error(error.response?.data?.message || 'Failed to confirm handover');
     }
   };
 
@@ -284,7 +283,7 @@ export const DispatchList = () => {
                         )}
                         
                         {req.status === 'fully_cleared' || req.status === 'completed' ? (
-                          <div className="flex items-center gap-1 text-[8px] font-black text-blue-600 dark:text-blue-400 uppercase">
+                          <div className="flex items-center gap-1 text-[8px] font-black text-emerald-600 dark:text-emerald-400 uppercase">
                             <PackageCheck className="w-3 h-3" />
                             Done
                           </div>
@@ -292,6 +291,11 @@ export const DispatchList = () => {
                           <div className="flex items-center gap-1 text-[8px] font-black text-emerald-600 dark:text-emerald-400 uppercase">
                             <CheckCircle2 className="w-3 h-3" />
                             Ready
+                          </div>
+                        ) : req.status === 'cleared' ? (
+                          <div className="flex items-center gap-1 text-[8px] font-black text-primary uppercase">
+                            <Award className="w-3 h-3" />
+                            Awaiting
                           </div>
                         ) : (
                           <div className="flex items-center gap-1 text-[8px] font-black text-amber-600 dark:text-amber-400 uppercase">
@@ -367,12 +371,12 @@ export const DispatchList = () => {
                         <Button 
                           className={`h-12 w-12 rounded-xl transition-all shadow-soft group/action ${
                             req.status === 'fully_cleared' || req.status === 'completed' 
-                              ? 'bg-emerald-500 text-white' 
+                              ? 'bg-emerald-500 text-white cursor-default' 
                               : 'bg-foreground text-background hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white'
                           }`}
-                          title="Complete Clearance"
+                          title="Confirm Degree Received"
                           onClick={() => handleCompleteDispatch(req)}
-                          disabled={!req.degree_fulfillment || req.status === 'fully_cleared' || req.status === 'completed'}
+                          disabled={req.status === 'fully_cleared' || req.status === 'completed'}
                         >
                           <PackageCheck className="w-5 h-5 group-hover/action:scale-110 transition-transform" />
                         </Button>
@@ -455,9 +459,9 @@ export const DispatchList = () => {
                   <Button 
                     className="flex-1 h-12 rounded-2xl bg-foreground text-background hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white transition-all font-black text-[10px] uppercase tracking-widest"
                     onClick={() => handleCompleteDispatch(req)}
-                    disabled={!req.degree_fulfillment}
+                    disabled={req.status === 'fully_cleared' || req.status === 'completed'}
                   >
-                    Complete Fulfillment
+                    {req.status === 'fully_cleared' || req.status === 'completed' ? 'Degree Handed Over' : 'Confirm Degree Received'}
                   </Button>
                   <Button 
                     variant="ghost" 
@@ -733,7 +737,7 @@ export const DispatchList = () => {
                         : 'bg-foreground text-background hover:bg-primary hover:text-white'
                     }`}
                     onClick={() => handleCompleteDispatch(selectedRequest)}
-                    disabled={!selectedRequest?.degree_fulfillment || selectedRequest?.status === 'fully_cleared' || selectedRequest?.status === 'completed'}
+                    disabled={selectedRequest?.status === 'fully_cleared' || selectedRequest?.status === 'completed'}
                   >
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-transform ${
                        selectedRequest?.status === 'fully_cleared' || selectedRequest?.status === 'completed'
@@ -742,10 +746,10 @@ export const DispatchList = () => {
                     }`}>
                        <PackageCheck className="w-5 h-5" />
                     </div>
-                    <div className="flex flex-col items-start gap-1">
-                      <span>{selectedRequest?.status === 'fully_cleared' || selectedRequest?.status === 'completed' ? 'Degree Handed Over' : 'Confirm Degree Handover'}</span>
-                      <span className="text-[8px] opacity-40 font-bold tracking-widest uppercase">University Final Clearance</span>
-                    </div>
+                     <div className="flex flex-col items-start gap-1">
+                       <span>{selectedRequest?.status === 'fully_cleared' || selectedRequest?.status === 'completed' ? 'Degree Handed Over ✓' : (selectedRequest?.status === 'fully_cleared' ? 'Cleared - Awaiting Handover' : 'Confirm Degree Received')}</span>
+                       <span className="text-[8px] opacity-40 font-bold tracking-widest uppercase">University Final Clearance</span>
+                     </div>
                   </Button>
               </div>
             </div>
