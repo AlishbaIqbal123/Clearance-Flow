@@ -283,23 +283,6 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
     }
   };
 
-  const handleConfirmReceipt = async () => {
-    if (!activeRequest?.id) return;
-    if (!window.confirm('By confirming receipt, you acknowledge that you have physically received your degree and your clearance process will be completed. Continue?')) return;
-
-    try {
-      setSubmitting(true);
-      const res = await studentService.confirmDegreeReceipt(activeRequest.id);
-      if (res.success) {
-        toast.success('Congratulations! Your clearance is fully finalized.');
-        fetchDashboard();
-      }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Confirmation failed');
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   if (loading && !data) {
     return (
@@ -426,11 +409,6 @@ export const StudentDashboard = ({ onNavigate, mode = 'full', onRefresh }: { onN
                                 : activeRequest.degree_fulfillment.method === 'dispatch' ? `Preparing dispatch to: ${activeRequest.degree_fulfillment.address}` : 'Degree ready for manual pickup.'}
                            </p>
                         </div>
-                        {activeRequest.degree_fulfillment.notification_sent && !activeRequest.degree_fulfillment.received_by_student && (
-                          <Button onClick={handleConfirmReceipt} className="h-11 sm:h-13 px-4 sm:px-6 rounded-lg sm:rounded-xl bg-primary text-white font-black text-[8px] sm:text-[10px] uppercase tracking-[0.3em] animate-pulse w-full sm:w-auto">
-                             Confirm Receipt
-                          </Button>
-                        )}
                       </div>
                    </Card>
                  )}

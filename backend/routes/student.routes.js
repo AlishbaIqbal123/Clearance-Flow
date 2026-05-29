@@ -1100,8 +1100,9 @@ router.post('/clearance-request/:id/degree-preference',
 router.post('/clearance-request/:id/confirm-receipt',
   studentOnly,
   asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const studentId = req.user.id;
+    // Disabled: Only the Exam Department can confirm degree handover.
+    // Use POST /admin/dispatch-requests/:id/complete instead.
+    throw new AppError('Degree receipt confirmation must be done by the Exam Department.', 403, 'FORBIDDEN');
 
     const { data: request, error: fetchError } = await supabase
       .from('clearance_requests')
