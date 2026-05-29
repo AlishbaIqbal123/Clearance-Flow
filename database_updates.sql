@@ -17,3 +17,8 @@ ADD COLUMN IF NOT EXISTS is_first_login BOOLEAN DEFAULT true;
 ALTER TABLE public.departments DROP CONSTRAINT IF EXISTS departments_type_check;
 ALTER TABLE public.departments ADD CONSTRAINT departments_type_check 
 CHECK (type IN ('academic', 'administrative', 'finance', 'library', 'transport', 'hostel', 'other'));
+
+-- 4. Allow duplicate student emails (only registration number is unique)
+ALTER TABLE public.student_profiles DROP CONSTRAINT IF EXISTS student_profiles_email_key;
+ALTER TABLE public.student_profiles DROP CONSTRAINT IF EXISTS student_profiles_email_uniq;
+

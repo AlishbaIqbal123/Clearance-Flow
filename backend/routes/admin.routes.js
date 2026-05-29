@@ -864,9 +864,32 @@ router.get('/students/export', adminPlus, asyncHandler(async (req, res) => {
 router.delete('/students/:id', asyncHandler(async (req, res) => {
   const { id } = req.params;
   
+  // 1. Find all clearance requests for this student
+  const { data: requests } = await supabase
+    .from('clearance_requests')
+    .select('id')
+    .eq('student_id', id);
+
+  if (requests && requests.length > 0) {
+    const requestIds = requests.map(r => r.id);
+    
+    // Delete status entries
+    await supabase
+      .from('clearance_status')
+      .delete()
+      .in('request_id', requestIds);
+      
+    // Delete the requests themselves
+    await supabase
+      .from('clearance_requests')
+      .delete()
+      .in('id', requestIds);
+  }
+
+  // 2. Hard delete the student profile itself
   const { error } = await supabase
     .from('student_profiles')
-    .update({ is_active: false })
+    .delete()
     .eq('id', id);
   
   if (error) {
@@ -875,7 +898,7 @@ router.delete('/students/:id', asyncHandler(async (req, res) => {
   
   res.status(200).json({
     success: true,
-    message: 'Student deactivated successfully'
+    message: 'Student deleted successfully'
   });
 }));
 

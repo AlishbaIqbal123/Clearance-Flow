@@ -251,11 +251,11 @@ router.post('/student/signup',
     const { data: existingStudent } = await supabase
       .from('student_profiles')
       .select('id')
-      .or(`registration_number.eq.${registrationNumber.toUpperCase()},email.eq.${email.toLowerCase()}`)
+      .eq('registration_number', registrationNumber.toUpperCase())
       .single();
 
     if (existingStudent) {
-      throw new AppError('Student with this registration number or email already exists', 400);
+      throw new AppError('Student with this registration number already exists', 400);
     }
 
     // Hash password
