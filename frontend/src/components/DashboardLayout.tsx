@@ -34,7 +34,8 @@ import {
   MessageSquare,
   Award,
   Lock,
-  Check
+  Check,
+  BookOpen
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -66,6 +67,7 @@ import {
 import { authService } from '@/lib/auth.service';
 import { studentService } from '@/lib/student.service';
 import { departmentService } from '@/lib/department.service';
+import { quranService } from '@/lib/quran.service';
 import api from '@/lib/api';
 
 interface DashboardLayoutProps {
@@ -166,6 +168,25 @@ export const DashboardLayout = ({
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     return localStorage.getItem('sidebar-collapsed') === 'true';
   });
+
+  const [quranAyah, setQuranAyah] = useState<any>(null);
+  const [loadingQuran, setLoadingQuran] = useState(true);
+
+  useEffect(() => {
+    const fetchAyah = async () => {
+      try {
+        const res = await quranService.getDailyAyah();
+        if (res.success) {
+          setQuranAyah(res.data);
+        }
+      } catch (err) {
+        console.error('Failed to load Quran Ayah', err);
+      } finally {
+        setLoadingQuran(false);
+      }
+    };
+    fetchAyah();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('sidebar-collapsed', String(isSidebarCollapsed));
@@ -508,6 +529,46 @@ export const DashboardLayout = ({
               })}
             </nav>
           </ScrollArea>
+
+          {/* Daily Quran Ayah Widget */}
+          {quranAyah && (
+            <div className={`px-4 py-3 border-t border-white/10 transition-all duration-500 ${isSidebarCollapsed ? 'p-2 flex justify-center' : 'p-4'}`}>
+              {isSidebarCollapsed ? (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="w-10 h-10 bg-white/10 hover:bg-white/15 border border-white/5 rounded-xl flex items-center justify-center text-white transition-all active:scale-95 shadow-inner">
+                      <BookOpen className="w-4 h-4 text-sky-200" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent side="right" align="end" className="w-80 p-5 rounded-3xl border-none bg-[#0A4EA3] text-white shadow-strong space-y-3 z-50">
+                    <p className="text-[9px] font-black text-sky-200 uppercase tracking-widest leading-none">DAILY AYAH</p>
+                    <p className="font-arabic text-right text-lg leading-relaxed text-white tracking-wide font-medium">{quranAyah.text}</p>
+                    <p className="text-[10px] text-white/80 leading-normal font-medium">{quranAyah.translation}</p>
+                    <p className="text-[8px] font-black text-sky-200 uppercase tracking-widest text-right">— Surah {quranAyah.surah_name} {quranAyah.ayah_in_surah}</p>
+                  </PopoverContent>
+                </Popover>
+              ) : (
+                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 text-white shadow-inner space-y-3 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-sky-400/5 rounded-full -mr-12 -mt-12 blur-[40px] pointer-events-none" />
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="w-3.5 h-3.5 text-sky-200 opacity-80" />
+                    <span className="text-[8px] font-black text-sky-200 uppercase tracking-widest">Daily Inspiration</span>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="font-arabic text-right text-sm leading-relaxed text-white tracking-wide pr-1 select-all font-medium" style={{ fontFamily: 'var(--font-arabic, "Traditional Arabic", "Scheherazade New", serif)' }}>
+                      {quranAyah.text}
+                    </p>
+                    <p className="text-[9px] text-white/70 leading-normal font-medium text-left line-clamp-3 hover:line-clamp-none transition-all duration-300">
+                      {quranAyah.translation}
+                    </p>
+                    <p className="text-[7px] font-black text-sky-200 uppercase tracking-widest text-right mt-1 opacity-85 block">
+                      — Surah {quranAyah.surah_name} ({quranAyah.ayah_in_surah})
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* User Profile Card - Premium Interaction */}
           <div className={`p-4 border-t border-white/10 space-y-2 bg-white/5 shrink-0 transition-all duration-500 ${isSidebarCollapsed ? 'p-4 lg:p-2' : 'p-4'}`}>

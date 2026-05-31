@@ -31,6 +31,10 @@ const App: React.FC = () => {
   const [authView, setAuthView] = React.useState<'landing' | 'login' | 'register'>('landing');
   const [activeRequest, setActiveRequest] = React.useState<any>(null);
 
+  const userRef = React.useRef<any>(null);
+  userRef.current = user;
+  const isRedirectingRef = React.useRef(false);
+
   const fetchClearanceStatus = async () => {
     try {
       const res = await studentService.getDashboard();
@@ -43,6 +47,33 @@ const App: React.FC = () => {
   };
 
   React.useEffect(() => {
+    const handleUnauthorized = (e: Event) => {
+      if (isRedirectingRef.current) return;
+      isRedirectingRef.current = true;
+
+      const customEvent = e as CustomEvent;
+      const serverMessage = customEvent.detail?.message;
+
+      const hadUser = userRef.current !== null || localStorage.getItem('user') !== null;
+      authService.logout();
+      setUser(null);
+      setAuthView('login');
+
+      if (hadUser) {
+        if (serverMessage && serverMessage.toLowerCase().includes('deactivated')) {
+          toast.error('Your account has been deactivated. Please contact the administrator.');
+        } else {
+          toast.error('Session expired. Please log in again.');
+        }
+      }
+
+      setTimeout(() => {
+        isRedirectingRef.current = false;
+      }, 1000);
+    };
+
+    window.addEventListener('auth-unauthorized', handleUnauthorized);
+
     const checkAuth = async () => {
       const token = localStorage.getItem('token');
       if (token) {
@@ -54,16 +85,20 @@ const App: React.FC = () => {
               fetchClearanceStatus();
             }
           } else {
-            authService.logout();
+            handleUnauthorized(new CustomEvent('auth-unauthorized'));
           }
         } catch (error) {
-          authService.logout();
+          handleUnauthorized(new CustomEvent('auth-unauthorized'));
         }
       }
       setLoading(false);
     };
 
     checkAuth();
+
+    return () => {
+      window.removeEventListener('auth-unauthorized', handleUnauthorized);
+    };
   }, []);
 
   const handleLoginSuccess = (userData: any) => {

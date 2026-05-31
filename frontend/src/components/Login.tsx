@@ -108,7 +108,10 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
         toast.error(response.message || 'Invalid credentials');
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Authentication failed.');
+      const errMsg = error.response?.data?.errorCode === 'ACCOUNT_DEACTIVATED'
+        ? 'Your account has been deactivated. Please contact the administrator.'
+        : (error.response?.data?.message || 'Authentication failed.');
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }
@@ -127,7 +130,10 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, o
         toast.error(response.message || 'Invalid credentials');
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Access denied.');
+      const errMsg = error.response?.data?.errorCode === 'ACCOUNT_DEACTIVATED'
+        ? 'Your account has been deactivated. Please contact the administrator.'
+        : (error.response?.data?.message || 'Access denied.');
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }

@@ -24,6 +24,7 @@ const clearanceRoutes = require('./routes/clearance.routes');
 const adminRoutes = require('./routes/admin.routes');
 const analyticsRoutes = require('./routes/analytics.routes');
 const communicationRoutes = require('./routes/communication.routes');
+const quranRoutes = require('./routes/quran.routes');
 
 // Import middleware
 const { errorHandler } = require('./middleware/error.middleware');
@@ -179,6 +180,7 @@ mountRoutes('/api/clearance', clearanceRoutes);
 mountRoutes('/api/analytics', analyticsRoutes);
 mountRoutes('/api/communication', communicationRoutes);
 mountRoutes('/api/users', userRoutes);
+mountRoutes('/api/quran', quranRoutes);
 
 const debugRoutes = require('./routes/debug.routes');
 mountRoutes('/api/debug', debugRoutes);

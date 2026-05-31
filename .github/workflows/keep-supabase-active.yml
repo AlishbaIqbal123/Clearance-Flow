@@ -1,0 +1,33 @@
+name: Keep Supabase Database Active
+
+on:
+  schedule:
+    # Run daily at 08:00 UTC (1:00 PM PKT) to refresh the Ayah and warm up the DB
+    - cron: '0 8 * * *'
+  workflow_dispatch: # Allows manual verification triggers in the GitHub Actions tab
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Backend Invalidation and Refresh Endpoint
+        run: |
+          if [ -z "${{ secrets.BACKEND_API_URL }}" ] || [ -z "${{ secrets.KEEP_ALIVE_KEY }}" ]; then
+            echo "Secrets BACKEND_API_URL or KEEP_ALIVE_KEY not configured. Skipping backend ping."
+          else
+            echo "Pinging backend refresh endpoint..."
+            curl -i -X POST "${{ secrets.BACKEND_API_URL }}/quran/refresh" \
+              -H "Content-Type: application/json" \
+              -H "x-keep-alive-key: ${{ secrets.KEEP_ALIVE_KEY }}"
+          fi
+
+      - name: Fallback Direct Supabase REST API Ping
+        run: |
+          if [ -z "${{ secrets.SUPABASE_URL }}" ] || [ -z "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
+            echo "Secrets SUPABASE_URL or SUPABASE_ANON_KEY not configured. Skipping fallback ping."
+          else
+            echo "Pinging Supabase REST API directly..."
+            curl -i -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/daily_ayah?limit=1" \
+              -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+              -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
+          fi
